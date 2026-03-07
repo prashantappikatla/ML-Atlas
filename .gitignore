@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+.pnpm-store/
+.turbo/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Datasets (potentially large files)
+datasets/raw/*
+datasets/processed/*
+!datasets/raw/.gitkeep
+!datasets/processed/.gitkeep
+
+# Notebooks (strip output before committing via nbstripout)
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+
+# Alembic (keep versions/, ignore compiled)
+backend/fastapi-server/alembic/__pycache__/
+
+# Lab build artifacts
+labs/**/__pycache__/
+labs/**/*.pyc

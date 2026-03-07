@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-mono: 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+  }
+}
+
+/* KaTeX math rendering */
+@import 'katex/dist/katex.min.css';

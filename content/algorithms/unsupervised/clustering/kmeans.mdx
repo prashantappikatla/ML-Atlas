@@ -1,0 +1,139 @@
+---
+title: "K-Means Clustering"
+slug: "kmeans"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1957
+author: "Stuart Lloyd"
+paper: "Least Squares Quantization in PCM (Lloyd, 1982 — written 1957)"
+complexity: "low"
+status: "lab-ready"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["clustering", "centroid-based", "partitioning", "unsupervised", "classic"]
+lab_url: "http://localhost:8501"
+lab_framework: "streamlit"
+related:
+  - "minibatch-kmeans"
+  - "k-medoids"
+  - "fuzzy-c-means"
+  - "gmm"
+  - "dbscan"
+---
+
+## Overview
+
+<!-- TODO: Write a one-paragraph description of K-Means -->
+
+## History
+
+<!-- TODO: Brief history -->
+
+## Mathematical Intuition
+
+<!-- TODO: Core math -->
+<!-- The objective is to minimize the within-cluster sum of squares: -->
+<!-- $$J = \sum_{k=1}^{K} \sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \boldsymbol{\mu}_k\|^2$$ -->
+
+## Algorithm Steps
+
+1. Initialize $K$ centroids (random or k-means++)
+2. **Assignment step:** assign each point to its nearest centroid
+3. **Update step:** recompute each centroid as the mean of its assigned points
+4. Repeat steps 2–3 until convergence (centroids stop moving)
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `n_clusters` | int | `8` | Number of clusters $K$ |
+| `init` | str | `'k-means++'` | Initialization method |
+| `max_iter` | int | `300` | Maximum number of iterations |
+| `n_init` | int | `10` | Number of random initializations |
+| `random_state` | int | `None` | Random seed for reproducibility |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Simple and fast — $O(nKd)$ per iteration
+- Scales to large datasets (use MiniBatch K-Means)
+- Easy to interpret results
+
+## Weaknesses
+
+- Must specify $K$ in advance
+- Sensitive to initialization (mitigated by k-means++)
+- Assumes spherical, equal-sized clusters
+- Sensitive to outliers and high-dimensional data
+
+## Use Cases
+
+<!-- TODO: Domain examples (customer segmentation, document clustering, etc.) -->
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement K-Means from scratch using numpy
+import numpy as np
+
+def kmeans(X, k, max_iter=300, random_state=42):
+    rng = np.random.default_rng(random_state)
+    # Random initialization
+    idx = rng.choice(len(X), k, replace=False)
+    centroids = X[idx]
+
+    for _ in range(max_iter):
+        # Assignment step
+        distances = np.linalg.norm(X[:, None] - centroids[None], axis=2)
+        labels = np.argmin(distances, axis=1)
+
+        # Update step
+        new_centroids = np.array([X[labels == j].mean(axis=0) for j in range(k)])
+
+        if np.allclose(centroids, new_centroids):
+            break
+        centroids = new_centroids
+
+    return labels, centroids
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+model = KMeans(n_clusters=3, init='k-means++', n_init=10, random_state=42)
+labels = model.fit_predict(X_scaled)
+
+print(f"Inertia: {model.inertia_:.2f}")
+print(f"Cluster centers: {model.cluster_centers_}")
+```
+
+## Lab
+
+<LabEmbed url={"http://localhost:8501"} title="K-Means Clustering Lab" />
+
+## References
+
+- [Wikipedia: k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering)
+- Lloyd, S. (1982). Least squares quantization in PCM. *IEEE Transactions on Information Theory*, 28(2), 129–137.
+- Arthur, D., & Vassilvitskii, S. (2007). k-means++: The advantages of careful seeding. *SODA 2007*.

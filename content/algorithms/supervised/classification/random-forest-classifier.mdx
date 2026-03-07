@@ -1,0 +1,127 @@
+---
+title: "Random Forest Classifier"
+slug: "random-forest-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 2001
+author: "Leo Breiman"
+paper: "Random Forests (Breiman, 2001) — Machine Learning 45(1): 5–32"
+complexity: "medium"
+status: "planned"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["ensemble", "bagging", "decision-trees", "classification", "feature-importance"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-classifier"
+  - "extra-trees-classifier"
+  - "gradient-boosting-classifier"
+  - "random-forest-regression"
+---
+
+## Overview
+
+<!-- TODO: Write a one-paragraph description of Random Forest Classifier -->
+
+## History
+
+<!-- TODO: Brief history — Leo Breiman 2001, building on Bagging (Breiman 1996) and random subspace method (Ho 1998) -->
+
+## Mathematical Intuition
+
+<!-- TODO: Core math -->
+<!-- Bagging: bootstrap aggregation -->
+<!-- Feature subsetting at each split: random feature selection from $\sqrt{p}$ features -->
+<!-- Majority vote for final prediction -->
+
+## Algorithm Steps
+
+1. Draw $B$ bootstrap samples from the training data
+2. For each bootstrap sample, grow a decision tree:
+   - At each node, randomly select $m$ features (typically $m = \sqrt{p}$)
+   - Choose the best split among those $m$ features
+   - Grow tree to full depth (no pruning)
+3. For a new sample, predict with all $B$ trees and take majority vote
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `n_estimators` | int | `100` | Number of trees in the forest |
+| `max_features` | str/int | `'sqrt'` | Features to consider at each split |
+| `max_depth` | int | `None` | Maximum tree depth (None = full depth) |
+| `min_samples_split` | int | `2` | Min samples to split an internal node |
+| `min_samples_leaf` | int | `1` | Min samples in a leaf node |
+| `random_state` | int | `None` | Random seed |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Robust to overfitting due to ensemble averaging
+- Handles high-dimensional data well
+- Provides feature importance scores
+- No feature scaling required
+- Works well out of the box with minimal tuning
+
+## Weaknesses
+
+- Less interpretable than a single decision tree
+- Memory-intensive for large forests
+- Slower prediction than linear models
+- Can struggle with very high-cardinality categorical features
+
+## Use Cases
+
+<!-- TODO: Domain examples (fraud detection, medical diagnosis, customer churn, etc.) -->
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Random Forest from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = RandomForestClassifier(
+    n_estimators=100,
+    max_features='sqrt',
+    random_state=42,
+)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+print("Feature importances:", model.feature_importances_)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Random Forest Lab" />
+
+## References
+
+- Breiman, L. (2001). Random Forests. *Machine Learning*, 45(1), 5–32.
+- [scikit-learn RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)

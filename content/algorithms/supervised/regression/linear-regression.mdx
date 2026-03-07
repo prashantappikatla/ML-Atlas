@@ -1,0 +1,114 @@
+---
+title: "Linear Regression"
+slug: "linear-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1805
+author: "Adrien-Marie Legendre / Carl Friedrich Gauss"
+paper: "Nouvelles méthodes pour la détermination des orbites des comètes (Legendre, 1805)"
+complexity: "low"
+status: "planned"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["regression", "linear", "ordinary-least-squares", "parametric", "baseline"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "ridge-regression"
+  - "lasso-regression"
+  - "elastic-net-regression"
+  - "polynomial-regression"
+---
+
+## Overview
+
+<!-- TODO: Write a one-paragraph description of Linear Regression -->
+
+## History
+
+<!-- TODO: Brief history — who developed it, when, and why -->
+
+## Mathematical Intuition
+
+<!-- TODO: Core math using KaTeX -->
+<!-- Example: The model assumes $y = \mathbf{w}^T \mathbf{x} + b$ -->
+<!-- Use $$ for block equations -->
+
+## Algorithm Steps
+
+<!-- TODO: Numbered steps for how the algorithm works -->
+
+1. ...
+2. ...
+
+## Parameters
+
+<!-- TODO: Fill in parameter table -->
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `fit_intercept` | bool | `True` | Whether to fit a bias term |
+
+## Compatibility
+
+<!-- TODO: Which data types work well -->
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+<!-- TODO: Bullet list of strengths -->
+
+- Fast to train (closed-form solution exists)
+- Highly interpretable coefficients
+
+## Weaknesses
+
+<!-- TODO: Bullet list of weaknesses -->
+
+- Assumes linear relationship between features and target
+- Sensitive to outliers
+
+## Use Cases
+
+<!-- TODO: Real-world domain examples -->
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement linear regression from scratch using numpy
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+```
+
+## Lab
+
+<!-- TODO: Add lab embed once lab is built -->
+
+<LabEmbed url={""} title="Linear Regression Lab" />
+
+## References
+
+<!-- TODO: Add paper and resource links -->
+
+- [Wikipedia](https://en.wikipedia.org/wiki/Linear_regression)
