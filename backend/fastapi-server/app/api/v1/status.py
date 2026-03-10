@@ -29,10 +29,23 @@ async def list_status(session: Session = Depends(get_session)):
         by_category[category]["total"] += count
         by_category[category][status] = count
 
+    by_category_list = [
+        {
+            "slug": cat,
+            "total": counts.get("total", 0),
+            "planned": counts.get("planned", 0),
+            "in_progress": counts.get("in-progress", 0),
+            "documented": counts.get("documented", 0),
+            "implemented": counts.get("implemented", 0),
+            "lab_ready": counts.get("lab-ready", 0),
+        }
+        for cat, counts in by_category.items()
+    ]
+
     return {
         "data": {
             "summary": {"total": len(statuses), **counts},
-            "by_category": by_category,
+            "by_category": by_category_list,
         }
     }
 

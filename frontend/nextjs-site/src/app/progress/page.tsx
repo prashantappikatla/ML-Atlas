@@ -17,8 +17,8 @@ async function getProgressData() {
 export default async function ProgressPage() {
   const data = await getProgressData()
 
-  const summary = data?.summary ?? {}
-  const byCategory: any[] = data?.by_category ?? []
+  const summary = data?.data?.summary ?? {}
+  const byCategory: any[] = data?.data?.by_category ?? []
 
   const total = summary.total ?? 278
   const planned = summary.planned ?? 0
