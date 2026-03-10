@@ -16,18 +16,30 @@ import csv
 import os
 import re
 import sys
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
-# Add backend to path so we can import models
+from dotenv import load_dotenv
+from sqlmodel import Session, create_engine, select
+
+# Ensure we can import backend models
 BACKEND_PATH = Path(__file__).parent.parent.parent / "backend" / "fastapi-server"
 sys.path.insert(0, str(BACKEND_PATH))
 
-from sqlmodel import Session, create_engine, select
 from app.models.algorithm import Algorithm
 from app.models.status import ImplementationStatus
 
 CSV_PATH = Path(__file__).parent.parent.parent / "Documentation" / "ml_algorithm_atlas_expanded.csv"
+
+# Load environment variables from .env files (backend and repo root)
+REPO_ROOT = Path(__file__).parent.parent.parent
+BACKEND_ENV = BACKEND_PATH / ".env"
+ROOT_ENV = REPO_ROOT / ".env"
+
+if BACKEND_ENV.exists():
+    load_dotenv(BACKEND_ENV, override=False)
+if ROOT_ENV.exists():
+    load_dotenv(ROOT_ENV, override=False)
 
 # Map CSV category names to URL slugs
 CATEGORY_MAP = {
@@ -97,7 +109,8 @@ def seed(database_url: str | None = None) -> None:
 
     with Session(engine) as session:
         for row in rows:
-            name = row.get("Algorithm Name", "").strip()
+            # Column names taken from Documentation/ml_algorithm_atlas_expanded.csv
+            name = row.get("Algorithm", "").strip()
             if not name:
                 continue
 
@@ -118,9 +131,9 @@ def seed(database_url: str | None = None) -> None:
                 category=category,
                 subcategory=subcategory,
                 year=parse_year(row.get("Year Introduced", "")),
-                author=row.get("Original Paper/Author", "").strip() or None,
-                paper_reference=row.get("Original Paper/Author", "").strip() or None,
-                complexity=parse_complexity(row.get("Complexity", "")),
+                author=row.get("Original Paper / Author", "").strip() or None,
+                paper_reference=row.get("Original Paper / Author", "").strip() or None,
+                complexity=parse_complexity(row.get("Complexity (Low/Med/High)", "")),
                 best_use_case=row.get("Best Use Case", "").strip() or None,
                 description=None,
                 compatibility_tabular=True,  # Default; update after research

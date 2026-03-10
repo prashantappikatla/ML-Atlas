@@ -1,7 +1,10 @@
 import os
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+from pathlib import Path
+
 from alembic import context
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
 # Import all models so Alembic sees them for autogenerate
@@ -13,6 +16,17 @@ config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+# Load environment variables from .env files (backend and repo root)
+BACKEND_PATH = Path(__file__).resolve().parent.parent
+REPO_ROOT = BACKEND_PATH.parent.parent
+BACKEND_ENV = BACKEND_PATH / ".env"
+ROOT_ENV = REPO_ROOT / ".env"
+
+if BACKEND_ENV.exists():
+    load_dotenv(BACKEND_ENV, override=False)
+if ROOT_ENV.exists():
+    load_dotenv(ROOT_ENV, override=False)
 
 # Override sqlalchemy.url with DATABASE_URL env var
 database_url = os.environ.get("DATABASE_URL")
