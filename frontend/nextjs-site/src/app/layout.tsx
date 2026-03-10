@@ -1,5 +1,20 @@
 import type { Metadata } from 'next'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import { NavbarClient } from '@/components/layout/NavbarClient'
+import { Footer } from '@/components/layout/Footer'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -7,14 +22,23 @@ export const metadata: Metadata = {
     template: '%s | ML Atlas',
   },
   description:
-    'A documentation and experimentation platform for 278 machine learning algorithms.',
+    'Documentation and interactive labs for 278 machine learning algorithms across 10 major categories.',
+  keywords: [
+    'machine learning',
+    'algorithms',
+    'documentation',
+    'interactive labs',
+    'ML reference',
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
-        <main>{children}</main>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="flex min-h-screen flex-col bg-white font-sans text-slate-900 antialiased">
+        <NavbarClient />
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   )

@@ -2,11 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --font-mono: 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
-  }
-}
-
 /* KaTeX math rendering */
 @import 'katex/dist/katex.min.css';
+
+/* Highlight.js theme — GitHub style */
+@import 'highlight.js/styles/github.css';
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+    /* Category colors */
+    --cat-supervised: #4f46e5;
+    --cat-unsupervised: #0891b2;
+    --cat-deep-learning: #7c3aed;
+    --cat-generative: #db2777;
+    --cat-reinforcement: #d97706;
+    --cat-time-series: #059669;
+    --cat-probabilistic: #0369a1;
+    --cat-graph: #65a30d;
+    --cat-meta-learning: #9333ea;
+    --cat-evolutionary: #dc2626;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    @apply text-slate-900 bg-white antialiased;
+  }
+
+  /* Prose overrides for algorithm pages */
+  .prose h2 {
+    @apply border-b border-slate-200 pb-2;
+  }
+
+  .prose table {
+    @apply w-full text-sm;
+  }
+
+  .prose th {
+    @apply bg-slate-50 font-semibold;
+  }
+
+  .prose tr:nth-child(even) {
+    @apply bg-slate-50/50;
+  }
+
+  .prose pre {
+    @apply !bg-slate-950 !rounded-lg;
+  }
+
+  .prose code:not(pre code) {
+    @apply bg-slate-100 text-indigo-700 rounded px-1 py-0.5 text-[0.875em] font-mono before:content-none after:content-none;
+  }
+
+  /* KaTeX display math */
+  .katex-display {
+    @apply overflow-x-auto py-2;
+  }
+}
