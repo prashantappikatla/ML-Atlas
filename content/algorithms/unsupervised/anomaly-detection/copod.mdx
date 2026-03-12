@@ -1,0 +1,168 @@
+---
+title: "COPOD"
+slug: "copod"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2020
+author: "Li et al."
+paper: "Li et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "copula", "density-estimation", "non-parametric", "outlier-detection", "statistical-method", "tabular-data", "unsupervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "elliptic-envelope"
+  - "gaussian-mixture-model"
+  - "isolation-forest"
+  - "local-outlier-factor"
+  - "one-class-svm"
+---
+
+## Overview
+
+COPOD (Copula-Based Outlier Detection) is an unsupervised anomaly detection algorithm that identifies outliers by modeling the joint distribution of features using copulas. It leverages the empirical copula to capture complex, non-linear dependencies between variables, separating the marginal distributions from their dependence structure. This approach allows for robust anomaly scoring without making strong assumptions about the underlying data distribution, making it effective for various types of tabular data.
+
+## History
+
+**1959** — Sklar's Theorem, foundational to copula theory, was introduced by Abe Sklar, establishing how multivariate distributions can be separated into their marginals and a copula function.
+
+**1980** — Early statistical methods for anomaly detection, such as those based on Gaussian distributions or distance metrics, began to emerge, focusing on identifying data points deviating significantly from the norm.
+
+**2000** — Machine learning-based anomaly detection algorithms, including [One-Class SVM](/algorithms/unsupervised/anomaly-detection/one-class-svm) and [Isolation Forest](/algorithms/unsupervised/anomaly-detection/isolation-forest), gained prominence, offering more robust solutions for high-dimensional and complex datasets.
+
+**2020** — Li et al. introduced COPOD, a novel copula-based approach for unsupervised anomaly detection, demonstrating its effectiveness in capturing complex data dependencies without strong distributional assumptions.
+
+## Mathematical Intuition
+
+### Copula Functions Basics
+
+A copula $C$ is a multivariate distribution function whose marginal distributions are uniform on $[0,1]$. Sklar's Theorem states that any multivariate cumulative distribution function $F(x_1, ..., x_d)$ can be written in terms of its marginal distribution functions $F_1(x_1), ..., F_d(x_d)$ and a copula function $C$. Specifically, for continuous marginals, the copula is unique and relates the joint distribution to its marginals, capturing the dependence structure independently of the individual feature distributions.
+
+$$
+F(x_1, ..., x_d) = C(F_1(x_1), ..., F_d(x_d))
+$$
+
+### Probability Integral Transform
+
+The Probability Integral Transform is a fundamental concept in copula theory. It states that if $X$ is a continuous random variable with cumulative distribution function $F_X$, then the random variable $U = F_X(X)$ follows a uniform distribution on $[0,1]$. This transformation is crucial for copula-based methods as it maps the original data into the $[0,1]$ scale, allowing the copula to model only the dependence structure between features, irrespective of their original marginal distributions.
+
+$$
+U = F_X(X)
+$$
+
+### Empirical Copula Estimation
+
+In COPOD, the empirical copula is estimated from the observed data. For a dataset with $N$ samples and $d$ features, each feature $X_j$ is transformed into its empirical cumulative distribution function (ECDF) rank. For a data point $x_i = (x_{i1}, ..., x_{id})$, the transformed values are $u_{ij} = rac{	ext{rank}(x_{ij})}{N+1}$, where $	ext{rank}(x_{ij})$ is the rank of $x_{ij}$ among all values of feature $j$. These transformed values $u_{ij}$ are approximately uniformly distributed and serve as inputs to the copula for modeling joint dependencies.
+
+$$
+u_{ij} = \frac{\text{rank}(x_{ij})}{N+1}
+$$
+
+### Anomaly Score Calculation
+
+COPOD defines an anomaly score based on the negative logarithm of the empirical copula's joint probability density. For a data point $x_i$, after transforming its features to $u_i = (u_{i1}, ..., u_{id})$ using the empirical ranks, the anomaly score $S(x_i)$ is computed. This score is designed to be high for data points that are unlikely under the learned dependence structure, effectively identifying outliers. The specific formulation used in COPOD is a simplified, yet effective, approximation of the copula density.
+
+$$
+S(x_i) = -\sum_{j=1}^d \log(u_{ij}) - \sum_{j=1}^d \log(1-u_{ij})
+$$
+
+## Algorithm Steps
+
+1. For each feature in the dataset, compute the empirical cumulative distribution function (ECDF) for all data points.
+2. Transform each feature value $x_{ij}$ for every data point $x_i$ into its empirical rank $u_{ij} = \frac{\text{rank}(x_{ij})}{N+1}$, where $N$ is the total number of samples and $\text{rank}(x_{ij})$ is the rank of $x_{ij}$ among all values of feature $j$.
+3. For each data point $x_i$, calculate its anomaly score $S(x_i)$ using the transformed ranks $u_{ij}$.
+4. The anomaly score is computed as $S(x_i) = -\sum_{j=1}^d \log(u_{ij}) - \sum_{j=1}^d \log(1-u_{ij})$.
+5. Sort all data points by their computed anomaly scores in descending order.
+6. Identify the top $k$ data points with the highest scores as anomalies, where $k$ is determined by a user-defined contamination rate or a fixed number of desired outliers.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `contamination` | `float` | `0.1` | [0., 0.5] | The proportion of outliers in the data set. Used when fitting to define the threshold for outlier scores, assuming a certain percentage of anomalies are present. |
+| `n_jobs` | `int` | `1` | >= 1 or -1 | The number of jobs to run in parallel for computation. Set to -1 to use all available cores, which can speed up processing for large datasets. |
+| `random_state` | `int or RandomState instance or None` | `None` | any integer, RandomState instance, or None | Controls the pseudo random number generator for reproducibility of results, especially important in algorithms with stochastic components. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- COPOD is non-parametric, making no assumptions about the underlying data distribution, which increases its applicability to diverse datasets.
+- It effectively captures complex, non-linear dependencies between features using copulas, providing a more nuanced understanding of data structure.
+- The algorithm is robust to feature scaling and transformations due to its rank-based approach, reducing the need for extensive preprocessing.
+- It offers competitive performance on various benchmark datasets compared to other anomaly detection methods, often with high efficiency.
+- The anomaly score is directly interpretable as a measure of joint 'unlikeliness' based on feature ranks, providing intuitive insights into outlier characteristics.
+
+## Weaknesses
+
+- The computational complexity can increase significantly with a very high number of features, potentially limiting its scalability in extremely high-dimensional spaces.
+- COPOD is primarily designed for continuous numerical data, requiring careful preprocessing or transformation for categorical or purely discrete features.
+- Its performance can degrade if the empirical copula estimation is inaccurate due to sparse data, which is a common challenge in high-dimensional spaces.
+- The choice of contamination rate, which determines the number of detected anomalies, often requires domain expertise or external validation.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns or fraudulent claims in financial datasets by detecting deviations from normal customer behavior.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic or user behavior indicative of cyberattacks, such as unauthorized access attempts or malware activity.
+
+### Manufacturing Quality Control
+
+Pinpointing defective products or process anomalies on production lines by analyzing sensor data or product characteristics for unusual patterns.
+
+### Healthcare Monitoring
+
+Flagging unusual patient vital signs, lab results, or medical imaging features that may indicate a medical condition or adverse event.
+
+### Environmental Monitoring
+
+Identifying abnormal sensor readings in environmental data, such as pollution spikes or unusual climate patterns, that could signal environmental issues.
+
+### IT Operations
+
+Detecting unusual system logs, resource utilization patterns, or application performance metrics that signal potential infrastructure issues or security breaches.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement COPOD from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Copod
+
+model = Copod()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="COPOD Lab" />
+
+## References
+
+- Li et al. (2020). Li et al..
+- [scikit-learn: Copod](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Copod.html)

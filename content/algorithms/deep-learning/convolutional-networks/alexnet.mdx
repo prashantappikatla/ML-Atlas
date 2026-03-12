@@ -1,0 +1,172 @@
+---
+title: "AlexNet"
+slug: "alexnet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2012
+author: "Krizhevsky et al."
+paper: "Krizhevsky et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-network", "deep-learning", "feature-extraction", "gpu-accelerated", "image-classification", "image-recognition", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "densenet"
+  - "efficientnet"
+  - "lenet"
+  - "mobilenet"
+  - "resnet"
+  - "vgg"
+---
+
+## Overview
+
+AlexNet significantly advanced the field of computer vision by demonstrating the power of deep convolutional neural networks (CNNs) for large-scale image classification. It achieved a breakthrough performance on the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) in 2012, showcasing the efficacy of deeper architectures, ReLU activation functions, and GPU-accelerated training. The network's architecture, featuring five convolutional layers followed by three fully connected layers, became a foundational model for subsequent deep learning research.
+
+## History
+
+**1998** — Yann LeCun et al. introduced [LeNet](/algorithms/deep-learning/convolutional-networks/lenet)-5, an early convolutional neural network for document recognition, laying foundational concepts for CNNs.
+
+**2009** — The ImageNet dataset was released, providing millions of labeled images and a crucial benchmark for large-scale visual recognition tasks.
+
+**2012** — Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton introduced AlexNet, winning the ILSVRC with a significant margin and popularizing deep CNNs.
+
+**2014** — VGGNet and GoogLeNet were introduced, further deepening CNN architectures and improving performance on ImageNet, building upon AlexNet's success.
+
+**2015** — [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) (Residual Network) was introduced by Kaiming He et al., enabling the training of extremely deep networks through residual connections and achieving state-of-the-art results.
+
+## Mathematical Intuition
+
+### Feature Extraction with Convolution
+
+Convolutional layers apply learnable filters (kernels) across the input image to detect local features such as edges, textures, or patterns. For an input image $I$ and a filter $K$, the output feature map $F$ at position $(i, j)$ is given by:
+$$F(i, j) = \sum_{m=0}^{k_h-1} \sum_{n=0}^{k_w-1} I(i+m, j+n) \cdot K(m, n)$$
+where $k_h$ and $k_w$ are the height and width of the filter. This operation extracts spatially invariant features.
+
+$$
+F(i, j) = \sum_{m=0}^{k_h-1} \sum_{n=0}^{k_w-1} I(i+m, j+n) \cdot K(m, n)
+$$
+
+### Non-linearity with ReLU
+
+The Rectified Linear Unit (ReLU) activation function introduces non-linearity into the network, allowing it to learn more complex patterns. It is defined as $f(x) = \max(0, x)$. Compared to sigmoid or tanh, ReLU mitigates the vanishing gradient problem and accelerates training convergence.
+
+$$
+f(x) = \max(0, x)
+$$
+
+### Spatial Downsampling with Max-Pooling
+
+Max-pooling layers reduce the spatial dimensions of the feature maps, thereby reducing the number of parameters and computational cost, and providing a degree of translational invariance. For a given window, the output is the maximum value within that window. For example, a $2 \times 2$ max-pooling operation with a stride of 2 reduces the height and width of the feature map by half.
+
+### Regularization with Dropout
+
+Dropout is a regularization technique applied to fully connected layers to prevent overfitting. During training, each neuron is temporarily "dropped out" (set to zero) with a probability $p$. This forces the network to learn more robust features as it cannot rely on any single neuron or specific co-adaptations between neurons. At test time, all neurons are active, but their outputs are scaled by $1-p$.
+
+## Algorithm Steps
+
+1. Input images are preprocessed by subtracting the mean pixel value across the training set to center the data.
+2. The preprocessed image passes through the first convolutional layer, which applies 96 filters of size $11 \times 11 \times 3$ with a stride of 4 pixels, followed by ReLU activation.
+3. The output is then subjected to Local Response Normalization (LRN) and a $3 \times 3$ max-pooling layer with a stride of 2.
+4. This sequence of convolution, ReLU, LRN (for some layers), and max-pooling is repeated for subsequent convolutional layers, with varying filter sizes and counts.
+5. After the fifth convolutional layer, the feature maps are flattened and fed into three fully connected layers, each followed by ReLU activation.
+6. Dropout regularization is applied to the outputs of the first two fully connected layers to prevent overfitting.
+7. The final fully connected layer outputs a vector of class scores, which are then passed through a softmax function to produce class probabilities.
+8. The network is trained using stochastic gradient descent (SGD) with momentum, minimizing the cross-entropy loss between predicted and true class labels.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_filters_conv1` | `integer` | `96` | positive integer | Number of filters (feature maps) in the first convolutional layer. |
+| `kernel_size_conv1` | `string` | `11x11` | e.g., '11x11' | Spatial dimensions of the filters in the first convolutional layer. |
+| `stride_conv1` | `integer` | `4` | positive integer | Stride for the first convolutional layer, determining how much the filter shifts. |
+| `num_filters_conv2` | `integer` | `256` | positive integer | Number of filters in the second convolutional layer. |
+| `kernel_size_conv2` | `string` | `5x5` | e.g., '5x5' | Spatial dimensions of the filters in the second convolutional layer. |
+| `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | Probability of dropping out a neuron in the fully connected layers during training. |
+| `learning_rate` | `float` | `0.01` | positive float | Initial learning rate for the stochastic gradient descent optimizer. |
+| `momentum` | `float` | `0.9` | 0.0 to 1.0 | Momentum factor for the stochastic gradient descent optimizer. |
+| `batch_size` | `integer` | `128` | positive integer | Number of samples processed before the model's parameters are updated. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- AlexNet pioneered the use of deep convolutional neural networks for large-scale image classification, achieving unprecedented accuracy on ImageNet.
+- It effectively demonstrated the benefits of ReLU activation functions, which helped mitigate the vanishing gradient problem and accelerate training.
+- The architecture successfully leveraged GPU acceleration, making the training of deep networks feasible for the first time on large datasets.
+- Dropout regularization was effectively employed in AlexNet to prevent overfitting in its fully connected layers, improving generalization performance.
+- Its success inspired a wave of research into deeper and more complex CNN architectures, fundamentally changing the field of computer vision.
+- The use of overlapping max-pooling layers contributed to better performance compared to non-overlapping pooling.
+
+## Weaknesses
+
+- AlexNet is computationally intensive and requires significant GPU resources for training, especially on large datasets.
+- The architecture contains a large number of parameters (around 60 million), making it prone to overfitting without strong regularization techniques like dropout and extensive data augmentation.
+- The Local Response Normalization (LRN) layers, while used in AlexNet, have largely been superseded by batch normalization in modern architectures due to better performance and stability.
+- Its architecture is relatively shallow compared to contemporary deep learning models, which can achieve higher accuracy with more complex designs.
+- AlexNet requires a very large labeled dataset for effective training to generalize well, which can be a limitation in domains with scarce data.
+
+## Use Cases
+
+### Image Classification
+
+Identifying the primary object or scene depicted in an image, such as categorizing photos into "cat," "dog," or "car."
+
+### Object Detection
+
+Locating and classifying multiple objects within an image, often as a backbone feature extractor for models like R-CNN or YOLO.
+
+### Medical Imaging
+
+Assisting in the diagnosis of diseases by classifying medical scans (e.g., X-rays, MRIs) for anomalies or specific conditions.
+
+### Autonomous Driving
+
+Recognizing traffic signs, pedestrians, other vehicles, and lane markings to enable safe navigation.
+
+### Facial Recognition
+
+Identifying or verifying individuals from images or video streams, used in security systems and personal device unlocking.
+
+### Content Moderation
+
+Automatically detecting and flagging inappropriate or harmful content in images and videos on online platforms.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement AlexNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# AlexNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="AlexNet Lab" />
+
+## References
+
+- Krizhevsky et al. (2012). Krizhevsky et al..

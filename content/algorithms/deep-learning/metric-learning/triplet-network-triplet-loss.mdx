@@ -1,0 +1,194 @@
+---
+title: "Triplet Network / Triplet Loss"
+slug: "triplet-network-triplet-loss"
+category: "deep-learning"
+subcategory: "metric-learning"
+year: 2015
+author: "FaceNet / Schroff et al."
+paper: "FaceNet / Schroff et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["computer-vision", "deep-learning", "embedding", "face-recognition", "information-retrieval", "metric-learning", "representation-learning", "similarity-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "siamese-network"
+---
+
+## Overview
+
+Triplet Networks, trained with Triplet Loss, are a deep learning architecture designed for metric learning, aiming to learn an embedding space where semantically similar inputs are mapped to nearby points, and dissimilar inputs are mapped to distant points. This is achieved by optimizing a loss function that considers triplets of anchor, positive, and negative samples, enforcing a margin between positive and negative distances. Its primary strength lies in learning highly discriminative feature representations directly from data, making it suitable for tasks requiring fine-grained similarity comparisons.
+
+## History
+
+**2015** — Schroff, Kalenichenko, and Philbin introduced FaceNet, a system for face recognition that directly learns a mapping from face images to a compact Euclidean space where distances directly correspond to a measure of face similarity. This seminal work popularized the Triplet Loss function for training deep convolutional networks.
+
+**2016** — Following FaceNet, Triplet Loss gained significant traction and was widely adopted across various computer vision tasks beyond face recognition, including person re-identification and image retrieval, demonstrating its versatility in learning robust embeddings for similarity-based tasks.
+
+**2017** — Research efforts focused on improving the efficiency and effectiveness of Triplet Loss training, leading to the development of advanced triplet mining strategies, such as semi-hard and hard negative mining, to address the challenges of slow convergence and trivial triplets.
+
+## Mathematical Intuition
+
+### Embedding Space and Distance
+
+Triplet Networks aim to learn an embedding function $f(x)$ that maps an input $x$ to a $D$-dimensional feature vector in an embedding space. The Euclidean distance (or other metric) in this space quantifies the similarity between inputs. Specifically, for two inputs $x_i$ and $x_j$, their similarity is inversely proportional to the squared Euclidean distance between their embeddings: $||f(x_i) - f(x_j)||_2^2$. The goal is to learn an embedding where intra-class distances are minimized and inter-class distances are maximized.
+
+$$
+f: \mathcal{X} \to \mathbb{R}^D
+$$
+
+$$
+||f(x_i) - f(x_j)||_2^2
+$$
+
+### Triplet Formulation for Training
+
+Training involves triplets $(A, P, N)$, where $A$ is an anchor sample, $P$ is a positive sample (belonging to the same class as $A$), and $N$ is a negative sample (belonging to a different class than $A$). The objective is to ensure that the anchor is closer to the positive than to the negative in the learned embedding space. This relative distance constraint is fundamental to the network's ability to discriminate between classes.
+
+$$
+(A, P, N)
+$$
+
+### Triplet Loss Function Definition
+
+The Triplet Loss function enforces a margin $\alpha$ between the distance of the anchor-positive pair and the anchor-negative pair. The loss for a single triplet is defined as: 
+$$L(A, P, N) = \max(0, ||f(A) - f(P)||_2^2 - ||f(A) - f(N)||_2^2 + \alpha)$$
+The network is trained to minimize this loss, which drives the squared distance between $f(A)$ and $f(P)$ to be significantly smaller than the squared distance between $f(A)$ and $f(N)$ by at least the margin $\alpha$. If the condition $||f(A) - f(P)||_2^2 + \alpha < ||f(A) - f(N)||_2^2$ is already met, the loss for that triplet is zero.
+
+$$
+L(A, P, N) = \max(0, ||f(A) - f(P)||_2^2 - ||f(A) - f(N)||_2^2 + \alpha)
+$$
+
+$$
+\alpha
+$$
+
+$$
+||f(A) - f(P)||_2^2
+$$
+
+$$
+||f(A) - f(N)||_2^2
+$$
+
+### Importance of Triplet Mining
+
+Randomly selected triplets often result in 'easy' triplets where the loss condition is already satisfied, leading to zero loss and inefficient learning. Triplet mining strategies are crucial for effective training. Hard positive mining selects a positive $P$ that is furthest from $A$, while hard negative mining selects a negative $N$ that is closest to $A$ (but still negative). Semi-hard negative mining selects $N$ such that $||f(A) - f(P)||_2^2 < ||f(A) - f(N)||_2^2 < ||f(A) - f(P)||_2^2 + \alpha$, ensuring the negative is 'harder' than the positive but not so hard as to cause training instability.
+
+$$
+||f(A) - f(P)||_2^2
+$$
+
+$$
+||f(A) - f(N)||_2^2
+$$
+
+$$
+\alpha
+$$
+
+## Algorithm Steps
+
+1. Define a neural network architecture (e.g., a CNN for images or an RNN for sequences) that outputs a fixed-size embedding vector for any given input.
+2. Select a batch of training data, ensuring that multiple samples from the same class are present to facilitate the formation of triplets.
+3. For each anchor sample $A$ in the batch, identify a positive sample $P$ (same class as $A$) and a negative sample $N$ (different class from $A$) using a chosen triplet mining strategy.
+4. Pass the anchor, positive, and negative samples through the neural network to obtain their respective embeddings: $f(A)$, $f(P)$, and $f(N)$.
+5. Compute the squared Euclidean distances: $d_{AP} = ||f(A) - f(P)||_2^2$ and $d_{AN} = ||f(A) - f(N)||_2^2$.
+6. Calculate the Triplet Loss for each triplet using the formula $L(A, P, N) = \max(0, d_{AP} - d_{AN} + \alpha)$, where $\alpha$ is the margin hyperparameter.
+7. Average the loss over all triplets in the batch to obtain the total batch loss.
+8. Perform backpropagation to compute gradients and update the network's weights using an optimizer (e.g., Adam) to minimize the total loss.
+9. Repeat steps 2-8 for a specified number of epochs or until convergence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `embedding_dim` | `int` | `128` | positive integer | Dimension of the output embedding vector produced by the neural network. |
+| `margin` | `float` | `0.2` | positive float | The minimum distance difference required between anchor-positive and anchor-negative pairs for the loss to be zero. |
+| `distance_metric` | `str` | `euclidean` | `euclidean`, `cosine` | The metric used to compute distances in the embedding space. |
+| `triplet_mining_strategy` | `str` | `semi-hard` | `random`, `hard`, `semi-hard`, `batch_all`, `batch_hard` | Method for selecting informative triplets during training to improve convergence and performance. |
+| `optimizer` | `str` | `Adam` | `Adam`, `SGD`, `RMSprop` | The optimization algorithm used for training the network's weights. |
+| `learning_rate` | `float` | `0.001` | positive float | The step size for the optimizer during weight updates. |
+| `batch_size` | `int` | `32` | positive integer | Number of samples processed in each training iteration, influencing triplet generation. |
+| `epochs` | `int` | `10` | positive integer | Number of full passes over the training dataset. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Triplet Networks learn highly discriminative embeddings that directly optimize for relative distances, making them effective for similarity-based tasks.
+- They are particularly well-suited for few-shot learning scenarios, where only a limited number of examples per class are available.
+- The learned embeddings are robust to intra-class variations, as the loss explicitly pushes apart different classes while pulling together similar ones.
+- The approach is highly flexible and can be applied to various data types by simply adapting the base neural network architecture.
+- It provides a direct way to quantify similarity between samples, which is useful for tasks like retrieval and clustering.
+
+## Weaknesses
+
+- Training Triplet Networks can be computationally expensive due to the need for generating and processing numerous triplets, especially with large datasets.
+- The performance is highly sensitive to the triplet mining strategy employed, and an ineffective strategy can lead to slow convergence or poor embedding quality.
+- The margin hyperparameter $\alpha$ is crucial for effective training and can be challenging to tune optimally.
+- The network can suffer from 'embedding collapse' where all embeddings converge to a single point if not properly regularized or if an inappropriate mining strategy is used.
+- It requires labeled data for triplet formation, which can be a limitation in unsupervised or semi-supervised contexts.
+
+## Use Cases
+
+### Face Recognition
+
+Identifying individuals from images or video streams by comparing facial embeddings to a database of known faces, as famously demonstrated by FaceNet.
+
+### Person Re-identification
+
+Matching individuals across non-overlapping camera views in surveillance systems by learning robust person-specific feature embeddings.
+
+### Image Retrieval
+
+Finding images visually similar to a query image in large databases, often used in e-commerce or content management systems.
+
+### Signature Verification
+
+Authenticating signatures by comparing the embedding of a new signature against known authentic signatures for a user.
+
+### Anomaly Detection
+
+Identifying unusual data points by detecting samples whose embeddings are significantly distant from the embeddings of normal data points.
+
+### Semantic Search
+
+Retrieving documents or queries that are semantically similar to a given input, by learning embeddings for text data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Triplet Network / Triplet Loss from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Triplet Network / Triplet Loss does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Triplet Network / Triplet Loss Lab" />
+
+## References
+
+- FaceNet / Schroff et al. (2015). FaceNet / Schroff et al..

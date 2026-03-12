@@ -1,0 +1,209 @@
+---
+title: "Restricted Boltzmann Machine"
+slug: "restricted-boltzmann-machine"
+category: "deep-learning"
+subcategory: "other-architectures"
+year: 1986
+author: "Smolensky / Hinton"
+paper: "Smolensky / Hinton"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "dimensionality-reduction", "energy-based-model", "feature-learning", "generative-model", "neural-network", "stochastic", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "boltzmann-machine"
+  - "deep-belief-network"
+  - "hopfield-network"
+  - "recurrent-neural-network"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Restricted Boltzmann Machines (RBMs) are generative stochastic artificial neural networks that learn a probability distribution over their set of inputs. They are a type of [Boltzmann Machine](/algorithms/deep-learning/other-architectures/boltzmann-machine) restricted to a two-layer architecture with no intra-layer connections, which makes inference tractable. RBMs are often used for dimensionality reduction, feature learning, and collaborative filtering, and served as fundamental building blocks for deep belief networks.
+
+## History
+
+**1986** — Paul Smolensky introduced the [Boltzmann Machine](/algorithms/deep-learning/other-architectures/boltzmann-machine), a stochastic [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network), laying the groundwork for energy-based models.
+
+**1986** — Geoffrey Hinton and Terrence Sejnowski further developed Boltzmann Machines, demonstrating their ability to learn complex patterns through a global energy function.
+
+**2002** — Geoffrey Hinton introduced the 'Restricted [Boltzmann Machine](/algorithms/deep-learning/other-architectures/boltzmann-machine)' as a more computationally efficient variant of the [Boltzmann Machine](/algorithms/deep-learning/other-architectures/boltzmann-machine), simplifying the architecture by removing connections within layers.
+
+**2006** — Geoffrey Hinton and Ruslan Salakhutdinov showed that RBMs could be effectively trained using Contrastive Divergence, enabling their use as building blocks for Deep Belief Networks and pre-training deep neural networks.
+
+**2007** — RBMs gained significant attention for their application in collaborative filtering, particularly in the Netflix Prize competition, where they were used for recommendation systems.
+
+## Mathematical Intuition
+
+### Energy Function Definition
+
+The core of an RBM is its energy function, which quantifies the 'goodness' of a configuration of visible and hidden units. For a given visible vector $v$ and hidden vector $h$, the energy $E(v, h)$ is defined as:
+$$E(v, h) = -\sum_{i=1}^{N_v} a_i v_i - \sum_{j=1}^{N_h} b_j h_j - \sum_{i=1}^{N_v} \sum_{j=1}^{N_h} v_i W_{ij} h_j$$
+where $v_i$ are the states of visible units, $h_j$ are the states of hidden units, $a_i$ are the biases for visible units, $b_j$ are the biases for hidden units, and $W_{ij}$ are the symmetric weights connecting visible unit $i$ to hidden unit $j$.
+
+$$
+E(v, h) = -\sum_{i=1}^{N_v} a_i v_i - \sum_{j=1}^{N_h} b_j h_j - \sum_{i=1}^{N_v} \sum_{j=1}^{N_h} v_i W_{ij} h_j
+$$
+
+### Probability Distribution over States
+
+The probability of a joint configuration $(v, h)$ is determined by the energy function using a Boltzmann distribution:
+$$P(v, h) = \frac{1}{Z} e^{-E(v, h)}$$
+where $Z$ is the partition function, a normalization constant that sums over all possible configurations of visible and hidden units:
+$$Z = \sum_{v, h} e^{-E(v, h)}$$
+The marginal probability of a visible vector $v$ is obtained by summing over all possible hidden configurations:
+$$P(v) = \frac{1}{Z} \sum_h e^{-E(v, h)}$$
+
+$$
+P(v, h) = \frac{1}{Z} e^{-E(v, h)}
+$$
+
+$$
+Z = \sum_{v, h} e^{-E(v, h)}
+$$
+
+$$
+P(v) = \frac{1}{Z} \sum_h e^{-E(v, h)}
+$$
+
+### Conditional Probabilities
+
+Due to the bipartite graph structure (no intra-layer connections), the states of visible units are conditionally independent given the hidden units, and vice versa. This allows for efficient computation of conditional probabilities:
+$$P(h_j=1|v) = \sigma \left( b_j + \sum_{i=1}^{N_v} W_{ij} v_i \right)$$
+$$P(v_i=1|h) = \sigma \left( a_i + \sum_{j=1}^{N_h} W_{ij} h_j \right)$$
+where $\sigma(x) = 1 / (1 + e^{-x})$ is the logistic sigmoid function. These conditional probabilities are crucial for Gibbs sampling during training.
+
+$$
+P(h_j=1|v) = \sigma \left( b_j + \sum_{i=1}^{N_v} W_{ij} v_i \right)
+$$
+
+$$
+P(v_i=1|h) = \sigma \left( a_i + \sum_{j=1}^{N_h} W_{ij} h_j \right)
+$$
+
+$$
+\sigma(x) = 1 / (1 + e^{-x})
+$$
+
+### Learning with Contrastive Divergence
+
+RBMs are typically trained to maximize the log-likelihood of the training data using gradient descent. The gradient of the log-likelihood with respect to a weight $W_{ij}$ is given by:
+$$\frac{\partial \log P(v)}{\partial W_{ij}} = \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}}$$
+where $\langle \cdot \rangle_{\text{data}}$ is the expectation with respect to the data distribution $P(v)$ and $\langle \cdot \rangle_{\text{model}}$ is the expectation with respect to the model's distribution $P(v, h)$. Contrastive Divergence (CD-k) approximates the intractable $\langle v_i h_j \rangle_{\text{model}}$ term by performing $k$ steps of Gibbs sampling starting from a training example $v^{(0)}$. The update rule for weights is:
+$$\Delta W_{ij} = \eta (\langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{reconstruction}})$$
+where $\eta$ is the learning rate, $\langle v_i h_j \rangle_{\text{data}}$ is computed from the initial data sample, and $\langle v_i h_j \rangle_{\text{reconstruction}}$ is computed from the sample after $k$ Gibbs steps.
+
+$$
+\frac{\partial \log P(v)}{\partial W_{ij}} = \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}}
+$$
+
+$$
+\Delta W_{ij} = \eta (\langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{reconstruction}})
+$$
+
+## Algorithm Steps
+
+1. Initialize weights $W$, visible biases $a$, and hidden biases $b$ randomly.
+2. For each training example $v^{(0)}$:
+3. Compute the probabilities of activating hidden units given $v^{(0)}$: $P(h_j=1|v^{(0)}) = \sigma(b_j + \sum_i W_{ij} v_i^{(0)})$.
+4. Sample a hidden vector $h^{(0)}$ from these probabilities.
+5. Compute the probabilities of activating visible units given $h^{(0)}$: $P(v_i=1|h^{(0)}) = \sigma(a_i + \sum_j W_{ij} h_j^{(0)})$.
+6. Sample a reconstructed visible vector $v^{(1)}$ from these probabilities.
+7. Compute the probabilities of activating hidden units given $v^{(1)}$: $P(h_j=1|v^{(1)}) = \sigma(b_j + \sum_i W_{ij} v_i^{(1)})$.
+8. Update weights and biases using the Contrastive Divergence gradient: $\Delta W_{ij} = \eta (v_i^{(0)} P(h_j=1|v^{(0)}) - v_i^{(1)} P(h_j=1|v^{(1)}))$, and similarly for biases.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `100` | positive integer | Number of binary hidden units. |
+| `learning_rate` | `float` | `0.1` | positive float | The learning rate for updating the weights and biases. |
+| `batch_size` | `int` | `10` | positive integer | Number of examples per mini-batch. |
+| `n_iter` | `int` | `10` | positive integer | Number of iterations (epochs) over the training dataset. |
+| `verbose` | `int` | `0` | 0, 1 | Verbosity level. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer or None | Determines random number generation for weights and biases initialization. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- RBMs are effective feature learners, capable of extracting hierarchical representations from raw data.
+- They can be stacked to form Deep Belief Networks, enabling the pre-training of deep neural networks layer by layer.
+- RBMs are generative models, meaning they can learn the underlying probability distribution of the input data and generate new samples.
+- The bipartite structure allows for efficient computation of conditional probabilities $P(h|v)$ and $P(v|h)$.
+- They are useful for dimensionality reduction, projecting high-dimensional data into a lower-dimensional hidden representation.
+- RBMs can handle missing data naturally during reconstruction, making them suitable for collaborative filtering tasks.
+
+## Weaknesses
+
+- Training RBMs with Contrastive Divergence is an approximation and does not guarantee convergence to the true log-likelihood gradient.
+- Determining the optimal number of hidden units and other hyperparameters can be challenging and often requires extensive tuning.
+- RBMs can be computationally intensive to train on very large datasets, especially with many hidden units.
+- The interpretation of learned features in the hidden layer can be difficult due to their abstract nature.
+- They are sensitive to initialization and learning rate, which can affect the quality of the learned representations.
+
+## Use Cases
+
+### Recommendation Systems
+
+Used in collaborative filtering to predict user preferences for items based on past interactions.
+
+### Image Recognition
+
+Applied for feature extraction and dimensionality reduction in image datasets, often as part of a larger deep learning architecture.
+
+### Natural Language Processing
+
+Employed for learning word embeddings or features from text data, useful for tasks like topic modeling or sentiment analysis.
+
+### Anomaly Detection
+
+Can learn the normal distribution of data and identify outliers as samples with low reconstruction probability.
+
+### Medical Imaging
+
+Used for feature learning from medical scans to aid in diagnosis or disease detection.
+
+### Speech Recognition
+
+Applied for pre-training acoustic models by learning robust features from raw audio spectrograms.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Restricted Boltzmann Machine from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Restricted Boltzmann Machine does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Restricted Boltzmann Machine Lab" />
+
+## References
+
+- Smolensky / Hinton (1986). Smolensky / Hinton.

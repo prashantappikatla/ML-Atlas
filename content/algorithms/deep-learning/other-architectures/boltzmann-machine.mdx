@@ -1,0 +1,195 @@
+---
+title: "Boltzmann Machine"
+slug: "boltzmann-machine"
+category: "deep-learning"
+subcategory: "other-architectures"
+year: 1985
+author: "Ackley, Hinton, Sejnowski"
+paper: "Ackley, Hinton, Sejnowski"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "energy-based-model", "feature-learning", "generative-model", "probabilistic-model", "recurrent-neural-network", "stochastic-neural-network", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "deep-belief-network"
+  - "hopfield-network"
+  - "markov-random-field"
+  - "recurrent-neural-network"
+  - "restricted-boltzmann-machine"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+The Boltzmann Machine is a stochastic [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) that learns to represent complex probability distributions over its input data. It is an energy-based model, where the probability of a given configuration of units is inversely proportional to its energy, allowing it to model highly non-linear relationships. This unsupervised learning algorithm aims to find a set of weights that minimizes the global energy of "good" configurations and maximizes the energy of "bad" configurations, effectively learning a generative model of the data.
+
+## History
+
+**1985** — Geoffrey Hinton, Terrence Sejnowski, and David Ackley introduced the Boltzmann Machine as a stochastic [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) capable of learning internal representations and solving optimization problems.
+
+**1986** — The widespread adoption of backpropagation for feedforward networks, popularized by Rumelhart, Hinton, and Williams, temporarily overshadowed Boltzmann Machines due to their computational complexity.
+
+**2002** — Geoffrey Hinton and Simon Osindero introduced Contrastive Divergence (CD) as an efficient approximation for training Restricted Boltzmann Machines (RBMs), a simpler variant of the Boltzmann Machine.
+
+**2006** — Hinton and Ruslan Salakhutdinov demonstrated how to stack RBMs to form Deep Belief Networks (DBNs), reigniting interest in generative deep learning and pre-training deep networks.
+
+## Mathematical Intuition
+
+### Energy Function of a Configuration
+
+The Boltzmann Machine defines an energy function $E(\mathbf{v}, \mathbf{h})$ for a given configuration of visible units $\mathbf{v}$ and hidden units $\mathbf{h}$. This function quantifies how "good" or "bad" a particular state is, with lower energy indicating more probable states. The general form for a fully connected Boltzmann Machine is:
+$$E(\mathbf{v}, \mathbf{h}) = -\sum_{i \in V} b_i v_i - \sum_{j \in H} b_j h_j - \sum_{i \in V} \sum_{j \in H} w_{ij} v_i h_j - \sum_{i,k \in V, i<k} w_{ik} v_i v_k - \sum_{j,l \in H, j<l} w_{jl} h_j h_l$$
+where $V$ is the set of visible units, $H$ is the set of hidden units, $v_i$ and $h_j$ are the binary states of units, $b_i$ and $b_j$ are their biases, and $w_{ij}$ are the symmetric connection weights between units. The original Boltzmann Machine allows connections between all units, including within visible and hidden layers.
+
+$$
+E(\mathbf{v}, \mathbf{h}) = -\sum_{i \in V} b_i v_i - \sum_{j \in H} b_j h_j - \sum_{i \in V} \sum_{j \in H} w_{ij} v_i h_j - \sum_{i,k \in V, i<k} w_{ik} v_i v_k - \sum_{j,l \in H, j<l} w_{jl} h_j h_l
+$$
+
+### Probability Distribution over States
+
+The probability of a global configuration $(\mathbf{v}, \mathbf{h})$ is given by the Boltzmann distribution, which relates the energy of a state to its likelihood. The probability is proportional to the negative exponential of its energy, normalized by a partition function $Z$.
+$$P(\mathbf{v}, \mathbf{h}) = \frac{e^{-E(\mathbf{v}, \mathbf{h})}}{Z}$$
+where $Z = \sum_{\mathbf{v}, \mathbf{h}} e^{-E(\mathbf{v}, \mathbf{h})}$ is the partition function, summing over all possible configurations of visible and hidden units. The goal of training is to adjust weights and biases such that the model's probability distribution $P(\mathbf{v})$ matches the empirical distribution of the training data.
+
+$$
+P(\mathbf{v}, \mathbf{h}) = \frac{e^{-E(\mathbf{v}, \mathbf{h})}}{Z}
+$$
+
+$$
+Z = \sum_{\mathbf{v}, \mathbf{h}} e^{-E(\mathbf{v}, \mathbf{h})}
+$$
+
+### Stochastic Unit Activation
+
+Units in a Boltzmann Machine are binary (0 or 1) and stochastic. The probability of a unit $u_k$ being active (i.e., $u_k=1$) given the states of all other units $\mathbf{u}_{\neg k}$ is determined by a logistic sigmoid function of its net input.
+$$P(u_k=1 | \mathbf{u}_{\neg k}) = \frac{1}{1 + e^{-\text{net_input}_k}}$$
+where $\text{net_input}_k = b_k + \sum_{j \neq k} w_{kj} u_j$. This stochastic activation allows the network to escape local minima and explore the energy landscape, crucial for learning complex distributions.
+
+$$
+P(u_k=1 | \mathbf{u}_{\neg k}) = \frac{1}{1 + e^{-\text{net_input}_k}}
+$$
+
+$$
+\text{net_input}_k = b_k + \sum_{j \neq k} w_{kj} u_j
+$$
+
+### Learning Rule for Weights
+
+Training a Boltzmann Machine involves adjusting the weights $w_{ij}$ and biases $b_i$ to maximize the likelihood of the training data. This is typically done using gradient ascent on the log-likelihood. The gradient for a weight $w_{ij}$ is given by:
+$$\frac{\partial \log P(\mathbf{v})}{\partial w_{ij}} = \langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{model}$$
+where $\langle \cdot \rangle_{data}$ denotes the expectation with respect to the data distribution (positive phase) and $\langle \cdot \rangle_{model}$ denotes the expectation with respect to the model's distribution (negative phase). The learning rule updates weights by $w_{ij} \leftarrow w_{ij} + \eta (\langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{model})$, where $\eta$ is the learning rate. Calculating $\langle v_i h_j \rangle_{model}$ requires extensive Gibbs sampling to reach thermal equilibrium, which is computationally expensive.
+
+$$
+\frac{\partial \log P(\mathbf{v})}{\partial w_{ij}} = \langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{model}
+$$
+
+$$
+w_{ij} \leftarrow w_{ij} + \eta (\langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{model})
+$$
+
+## Algorithm Steps
+
+1. Initialize all connection weights $w_{ij}$ and biases $b_i$ to small random values.
+2. For each training example $\mathbf{v}_{data}$ or batch of examples, perform the positive phase:
+3. Clamp the visible units to $\mathbf{v}_{data}$ and perform Gibbs sampling by iteratively updating the states of hidden units until the network reaches thermal equilibrium, then compute the pairwise product expectations $\langle v_i h_j \rangle_{data}$ and other relevant correlations.
+4. Perform the negative phase by starting with a random configuration or the equilibrium state from the positive phase.
+5. Perform Gibbs sampling for a sufficient number of steps, allowing both visible and hidden units to update freely, to reach thermal equilibrium, then compute the pairwise product expectations $\langle v_i h_j \rangle_{model}$ and other relevant correlations.
+6. Update the weights and biases using the learning rule: $\Delta w_{ij} = \eta (\langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{model})$, and similarly for biases and within-layer connections.
+7. Repeat the positive and negative phases and weight updates for a specified number of epochs or until convergence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_visible_units` | `int` | `None` | > 0 | Number of visible units, corresponding to the dimensionality of the input data. |
+| `n_hidden_units` | `int` | `None` | > 0 | Number of hidden units, which learn to represent the latent features of the data. |
+| `learning_rate` | `float` | `0.01` | > 0 | The step size for updating weights and biases during gradient ascent. |
+| `n_epochs` | `int` | `100` | > 0 | The number of full passes over the training dataset. |
+| `batch_size` | `int` | `1` | > 0 | The number of training examples utilized in one iteration of weight update. |
+| `gibbs_steps_positive` | `int` | `1` | > 0 | Number of Gibbs sampling steps for the positive phase to reach equilibrium. Often set to 1 for RBMs, but higher for full BMs. |
+| `gibbs_steps_negative` | `int` | `100` | > 0 | Number of Gibbs sampling steps for the negative phase to reach equilibrium. This typically requires many steps. |
+| `weight_decay` | `float` | `0.0` | >= 0.0 | L2 regularization term to prevent overfitting by penalizing large weights. |
+| `random_state` | `int or None` | `None` | integer or None | Seed for the random number generator for reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Boltzmann Machines are capable of learning complex, high-order statistical dependencies within data, making them powerful generative models.
+- They can perform unsupervised feature learning, extracting meaningful representations from raw input data without explicit labels.
+- The stochastic nature of the units allows the network to escape local minima during training and explore a wider range of possible configurations.
+- Boltzmann Machines can naturally handle missing data by treating unknown values as unclamped units during inference.
+- They provide a principled probabilistic framework for modeling data distributions, offering insights into the underlying data generation process.
+
+## Weaknesses
+
+- Training the original Boltzmann Machine is computationally very expensive due to the need for extensive Gibbs sampling to reach thermal equilibrium in both positive and negative phases.
+- The convergence to equilibrium can be extremely slow, especially for large networks, making practical application challenging.
+- Calculating the partition function $Z$ is intractable for all but the smallest networks, necessitating approximations for likelihood estimation.
+- The requirement for binary units limits direct application to continuous data without prior discretization or transformation.
+- The full connectivity of the original Boltzmann Machine leads to a large number of parameters, increasing the risk of overfitting and computational burden.
+
+## Use Cases
+
+### Collaborative Filtering
+
+Recommending items to users by learning patterns in user-item interactions, where visible units represent user ratings or preferences.
+
+### Feature Learning
+
+Extracting abstract and robust features from raw data, such as images or text, for use in subsequent supervised tasks like classification.
+
+### Dimensionality Reduction
+
+Learning a lower-dimensional representation of high-dimensional data by using the hidden layer as a compressed encoding, useful for visualization or preprocessing.
+
+### Image Denoising
+
+Reconstructing clean images from noisy inputs by learning the underlying clean image distribution and inferring the most probable clean state.
+
+### Pattern Recognition
+
+Identifying and classifying complex patterns in data, leveraging its ability to model intricate relationships and generalize from examples.
+
+### Generative Modeling
+
+Creating new data samples that resemble the training data, such as generating novel images, text sequences, or other data types.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Boltzmann Machine from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Boltzmann Machine does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Boltzmann Machine Lab" />
+
+## References
+
+- Ackley, Hinton, Sejnowski (1985). Ackley, Hinton, Sejnowski.

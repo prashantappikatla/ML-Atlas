@@ -1,0 +1,172 @@
+---
+title: "Elliptic Envelope"
+slug: "elliptic-envelope"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 1999
+author: "Robust covariance methods"
+paper: "Robust covariance methods"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "covariance-estimation", "density-estimation", "multivariate-analysis", "outlier-detection", "robust-statistics", "statistical-methods", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "isolation-forest"
+  - "one-class-svm"
+---
+
+## Overview
+
+Elliptic Envelope is an unsupervised anomaly detection algorithm that fits a robust, data-driven ellipse to the central, regular part of a dataset. It operates by estimating the parameters of a Gaussian distribution (mean and covariance) in a way that is robust to the presence of outliers. Observations falling outside this learned elliptical boundary are then identified as anomalies, assuming the inlier data follows an elliptical distribution.
+
+## History
+
+**1984** — Peter Rousseeuw introduces the Minimum Covariance Determinant (MCD) estimator, a robust method for estimating multivariate location and scatter, laying the groundwork for robust outlier detection.
+
+**1999** — Rousseeuw and Van Driessen publish the FastMCD algorithm, significantly improving the computational efficiency of the MCD estimator, making it practical for larger datasets.
+
+**2000** — The concept of using robust covariance estimates to define an 'envelope' for outlier detection gains traction in statistical software and research.
+
+**2010** — Elliptic Envelope, leveraging the FastMCD algorithm, is integrated into popular machine learning libraries like scikit-learn, making it widely accessible for anomaly detection tasks.
+
+## Mathematical Intuition
+
+### Robust Location and Scatter Estimation
+
+The core idea is to estimate the mean $\mu$ and covariance matrix $\Sigma$ of the data in a way that is not unduly influenced by outliers. Standard sample mean and covariance are highly sensitive to extreme values. Robust estimators, such as the Minimum Covariance Determinant (MCD), aim to identify the "clean" portion of the data to derive more reliable estimates.
+$$ \hat{\mu}, \hat{\Sigma} = \text{RobustEstimator}(X) $$
+
+$$
+\hat{\mu}, \hat{\Sigma} = \text{RobustEstimator}(X)
+$$
+
+### Minimum Covariance Determinant (MCD)
+
+The MCD estimator seeks a subset $H$ of $h$ observations (where $h$ is typically slightly more than half the total observations, $n/2 \le h < n$) whose sample covariance matrix has the smallest determinant. The robust location estimate $\hat{\mu}$ is the mean of this subset $H$, and the robust scatter estimate $\hat{\Sigma}$ is its covariance matrix, scaled by a consistency factor. Minimizing the determinant of the covariance matrix effectively finds the most compact, dense cluster of data points.
+$$ \min_{H \subset X, |H|=h} \det(\text{Cov}(H)) $$
+
+$$
+\min_{H \subset X, |H|=h} \det(\text{Cov}(H))
+$$
+
+### Mahalanobis Distance Calculation
+
+Once the robust estimates $\hat{\mu}$ and $\hat{\Sigma}$ are obtained, the Mahalanobis distance is computed for each data point $x_i$. This distance measures the distance of $x_i$ from the robust mean $\hat{\mu}$ in units of the robust covariance $\hat{\Sigma}$, accounting for correlations between features. Points with larger Mahalanobis distances are further from the central data distribution.
+$$ D_M(x_i) = \sqrt{(x_i - \hat{\mu})^T \hat{\Sigma}^{-1} (x_i - \hat{\mu})} $$
+
+$$
+D_M(x_i) = \sqrt{(x_i - \hat{\mu})^T \hat{\Sigma}^{-1} (x_i - \hat{\mu})}
+$$
+
+### Elliptical Outlier Boundary
+
+The Elliptic Envelope defines an elliptical boundary in the feature space based on the robust mean $\hat{\mu}$ and robust covariance $\hat{\Sigma}$. This boundary encloses the majority of the "normal" data points. Observations whose Mahalanobis distance squared, $D_M(x_i)^2$, exceeds a certain threshold $c$ are classified as outliers. This threshold is typically determined by the desired `contamination` level, which specifies the expected proportion of outliers in the dataset.
+$$ (x - \hat{\mu})^T \hat{\Sigma}^{-1} (x - \hat{\mu}) > c \implies \text{Outlier} $$
+
+$$
+(x - \hat{\mu})^T \hat{\Sigma}^{-1} (x - \hat{\mu}) > c \implies \text{Outlier}
+$$
+
+## Algorithm Steps
+
+1. Given a dataset $X$ with $n$ observations and $p$ features, determine the size of the support subset $h$, typically $h = \lfloor (n + p + 1) / 2 \rfloor$ or based on `support_fraction`.
+2. Initialize the MCD algorithm by randomly selecting a subset of $h$ observations.
+3. Compute the sample mean and covariance matrix for the current $h$-subset.
+4. For all $n$ observations, calculate their Mahalanobis distances using the current mean and covariance.
+5. Select the $h$ observations with the smallest Mahalanobis distances to form a new $h$-subset.
+6. Repeat steps 3-5 until the $h$-subset converges (i.e., the selected $h$ points no longer change significantly).
+7. From the final converged $h$-subset, compute the robust location $\hat{\mu}$ (mean) and robust scatter $\hat{\Sigma}$ (covariance matrix).
+8. Apply consistency and finite-sample correction factors to $\hat{\Sigma}$ to ensure it is a consistent estimator for the true covariance matrix under multivariate normality.
+9. For each observation $x_i$ in the full dataset, calculate its squared Mahalanobis distance $D_M(x_i)^2 = (x_i - \hat{\mu})^T \hat{\Sigma}^{-1} (x_i - \hat{\mu})$.
+10. Determine an outlier threshold based on the `contamination` parameter and the distribution of $D_M(x_i)^2$. Observations with $D_M(x_i)^2$ exceeding this threshold are classified as outliers.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `store_precision` | `boolean` | `True` | True, False | Whether to store the precision matrix (inverse of the covariance matrix). |
+| `assume_centered` | `boolean` | `False` | True, False | If True, the data is assumed to be centered, and no location (mean) is estimated. This can be useful if the data is already preprocessed to have zero mean. |
+| `support_fraction` | `float` | `None` | 0.0 < support_fraction <= 1.0 | The proportion of points to be included in the support of the raw Minimum Covariance Determinant (MCD) estimate. If None, it is set to $(n_samples + n_features + 1) / 2$. |
+| `contamination` | `float` | `0.1` | 0.0 < contamination < 0.5 | The proportion of outliers in the dataset. This parameter is used to compute the threshold for outlier detection, effectively controlling the number of anomalies identified. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, None | Determines random number generation for the initial subset selection in the FastMCD algorithm. Pass an int for reproducible results across multiple function calls. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is robust to outliers in the dataset, as its estimates of location and scatter are not heavily influenced by anomalous points.
+- The algorithm can detect multivariate outliers by considering the relationships and correlations between features.
+- It provides a clear, interpretable elliptical boundary for anomaly detection when data is elliptically distributed.
+- The `contamination` parameter allows direct control over the expected proportion of outliers, which can be useful for setting a detection threshold.
+- It is effective for datasets where the inlier data can be reasonably approximated by an elliptical distribution.
+
+## Weaknesses
+
+- The algorithm assumes that the regular data (inliers) follows an elliptical distribution, which may not hold for complex, non-elliptical data distributions.
+- Its performance can degrade significantly if the true underlying distribution of the inliers is not approximately Gaussian or elliptical.
+- The computational cost can be high for very large datasets, especially in high-dimensional spaces, despite the FastMCD algorithm.
+- It is sensitive to the `contamination` parameter, which often requires prior knowledge or careful tuning.
+- The algorithm may struggle with detecting local outliers if the global distribution is complex.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns that deviate significantly from typical customer behavior in financial datasets.
+
+### Quality Control
+
+Detecting defective products or anomalies in manufacturing processes by monitoring sensor readings or product characteristics.
+
+### Network Intrusion Detection
+
+Flagging unusual network traffic or system calls that might indicate a cyberattack or compromise.
+
+### Medical Diagnosis
+
+Identifying rare disease patterns or unusual patient measurements that fall outside the typical range for healthy individuals.
+
+### Environmental Monitoring
+
+Detecting abnormal sensor readings from environmental stations that could indicate equipment malfunction or unusual events.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Elliptic Envelope from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import EllipticEnvelope
+
+model = EllipticEnvelope()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Elliptic Envelope Lab" />
+
+## References
+
+- Robust covariance methods (1999). Robust covariance methods.
+- [scikit-learn: EllipticEnvelope](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.EllipticEnvelope.html)

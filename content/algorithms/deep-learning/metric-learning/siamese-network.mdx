@@ -1,0 +1,172 @@
+---
+title: "Siamese Network"
+slug: "siamese-network"
+category: "deep-learning"
+subcategory: "metric-learning"
+year: 1993
+author: "Bromley et al."
+paper: "Bromley et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["deep-learning", "embedding", "few-shot-learning", "metric-learning", "neural-networks", "one-shot-learning", "representation-learning", "similarity-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+Siamese Networks are a class of neural network architectures designed for metric learning, where the goal is to learn a similarity function between inputs. They consist of two or more identical sub-networks, sharing the same weights and architecture, which process distinct inputs to produce comparable feature vectors. This architecture is particularly effective for tasks requiring the comparison of inputs, such as verification, few-shot learning, and anomaly detection, by embedding them into a latent space where distances correspond to semantic similarity.
+
+## History
+
+**1993** — Bromley, Guyon, and LeCun introduced Siamese Networks for signature verification, demonstrating their ability to learn a similarity metric from data.
+
+**2005** — Hadsell, Chopra, and LeCun popularized the use of contrastive loss with Siamese Networks for dimensionality reduction and learning invariant features, particularly in image domains.
+
+**2015** — Schroff, Kalenichenko, and Philbin introduced FaceNet, which utilized a deep convolutional Siamese-like architecture trained with triplet loss to achieve state-of-the-art face recognition performance.
+
+**2016** — Koch, Zemel, and Salakhutdinov applied Siamese Networks to one-shot image recognition, showcasing their effectiveness in learning from very few examples per class.
+
+## Mathematical Intuition
+
+### Shared Weights and Feature Extraction
+
+The core idea of a Siamese Network is to use two identical sub-networks, $G_W$, which share the same weights $W$. Given two input samples, $x_1$ and $x_2$, each sub-network maps its input to a lower-dimensional feature vector, $h_1 = G_W(x_1)$ and $h_2 = G_W(x_2)$. The similarity or dissimilarity between $x_1$ and $x_2$ is then determined by a distance metric (e.g., Euclidean distance) applied to their respective feature vectors: $D(x_1, x_2) = ||G_W(x_1) - G_W(x_2)||_p$. The network is trained to minimize this distance for similar pairs and maximize it for dissimilar pairs.
+
+$$
+h_1 = G_W(x_1)
+$$
+
+$$
+h_2 = G_W(x_2)
+$$
+
+$$
+D(x_1, x_2) = ||G_W(x_1) - G_W(x_2)||_p
+$$
+
+### Contrastive Loss Function
+
+Contrastive Loss is a common objective function for training Siamese Networks. For a pair of inputs $(x_1, x_2)$ and a label $y$ (where $y=0$ for similar pairs and $y=1$ for dissimilar pairs), the loss function encourages similar pairs to have a small distance and dissimilar pairs to have a distance greater than a specified margin $m$. The loss is defined as:$$L_C(W, (x_1, x_2, y)) = (1-y) \frac{1}{2} D_W^2 + y \frac{1}{2} \max(0, m - D_W)^2$$where $D_W = ||G_W(x_1) - G_W(x_2)||_2$ is the Euclidean distance between the embeddings. The first term penalizes large distances for similar pairs, while the second term penalizes small distances for dissimilar pairs, but only if the distance is less than the margin $m$.
+
+$$
+L_C(W, (x_1, x_2, y)) = (1-y) \frac{1}{2} D_W^2 + y \frac{1}{2} \max(0, m - D_W)^2
+$$
+
+$$
+D_W = ||G_W(x_1) - G_W(x_2)||_2
+$$
+
+### Triplet Loss Function
+
+Triplet Loss is an alternative to Contrastive Loss that operates on triplets of samples: an anchor $x_a$, a positive sample $x_p$ (similar to the anchor), and a negative sample $x_n$ (dissimilar to the anchor). The goal is to ensure that the anchor is closer to the positive sample than to the negative sample by at least a margin $\alpha$. The loss is formulated as:$$L_T(W, (x_a, x_p, x_n)) = \max(0, ||G_W(x_a) - G_W(x_p)||_2^2 - ||G_W(x_a) - G_W(x_n)||_2^2 + \alpha)$$This loss directly optimizes for relative distances, pushing positives closer and negatives further away from the anchor in the embedding space. Effective triplet mining strategies are crucial for successful training with this loss.
+
+$$
+L_T(W, (x_a, x_p, x_n)) = \max(0, ||G_W(x_a) - G_W(x_p)||_2^2 - ||G_W(x_a) - G_W(x_n)||_2^2 + \alpha)
+$$
+
+## Algorithm Steps
+
+1. Define the base neural network architecture (e.g., CNN for images, RNN for text) that will serve as the sub-network $G_W$.
+2. Create two identical instances of $G_W$, ensuring they share the same weights.
+3. Select a loss function, typically Contrastive Loss or Triplet Loss, and define its margin parameter (e.g., $m$ or $\alpha$).
+4. Prepare training data as pairs $(x_1, x_2, y)$ for Contrastive Loss or triplets $(x_a, x_p, x_n)$ for Triplet Loss.
+5. For each training step, feed $x_1$ and $x_2$ (or $x_a, x_p, x_n$) into their respective sub-networks to obtain embeddings $G_W(x_1)$ and $G_W(x_2)$ (or $G_W(x_a), G_W(x_p), G_W(x_n)$).
+6. Calculate the distance between the embeddings (e.g., Euclidean distance) and then compute the chosen loss function.
+7. Perform backpropagation to compute gradients with respect to the shared weights $W$ and update $W$ using an optimizer (e.g., Adam, SGD).
+8. Repeat steps 4-7 for a specified number of epochs or until convergence, refining the embedding space such that similar items are close and dissimilar items are far apart.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `embedding_dim` | `integer` | `128` | positive integer | The dimensionality of the output feature vector produced by each sub-network. |
+| `margin` | `float` | `1.0` | positive float | A hyperparameter for contrastive or triplet loss functions, defining the minimum desired distance between dissimilar pairs or the separation between positive and negative pairs. |
+| `learning_rate` | `float` | `0.001` | positive float (e.g., 1e-5 to 1e-1) | The step size used by the optimizer during weight updates. |
+| `optimizer_type` | `string` | `'Adam'` | ['Adam', 'SGD', 'RMSprop', 'Adagrad'] | The optimization algorithm used to update the network weights (e.g., 'Adam', 'SGD', 'RMSprop'). |
+| `epochs` | `integer` | `10` | positive integer | The number of complete passes through the entire training dataset. |
+| `batch_size` | `integer` | `32` | positive integer | The number of samples processed before the model's parameters are updated. |
+| `loss_function` | `string` | `'contrastive'` | ['contrastive', 'triplet'] | The type of loss function used to train the Siamese Network, either 'contrastive' or 'triplet'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Siamese Networks are highly effective for few-shot and one-shot learning tasks, as they learn a similarity function rather than direct classification.
+- They can handle datasets with a large number of classes or where new classes are frequently added, without requiring retraining for each new class.
+- The learned embeddings are often robust and semantically meaningful, allowing for effective clustering and retrieval based on similarity.
+- Siamese Networks can be trained with relatively small datasets per class, making them suitable for scenarios with limited labeled data.
+- They are robust to class imbalance because the training focuses on pairs or triplets, not on the overall class distribution.
+
+## Weaknesses
+
+- Training Siamese Networks can be computationally intensive, especially when dealing with large datasets and complex sub-network architectures.
+- The choice and tuning of the loss function's margin parameter are critical and can significantly impact performance.
+- Effective sampling strategies for pairs or triplets (e.g., hard negative mining) are often necessary for optimal training, adding complexity.
+- The performance heavily relies on the quality of the base feature extractor network, which must be carefully designed for the specific data type.
+- Interpreting the learned embedding space can be challenging, although visualization techniques can offer some insights.
+
+## Use Cases
+
+### Face Recognition and Verification
+
+Used to determine if two facial images belong to the same person (verification) or to identify a person from a database (recognition) by comparing facial embeddings.
+
+### Signature Verification
+
+Applied to authenticate signatures by comparing a new signature against known genuine signatures, identifying forgeries based on learned similarity.
+
+### Duplicate Content Detection
+
+Employed to find duplicate images, documents, or code snippets by embedding them into a space where similar items are close, facilitating efficient search and retrieval.
+
+### Recommendation Systems
+
+Used to learn user and item embeddings, allowing for recommendations based on the similarity between user preferences and item features.
+
+### Medical Image Analysis
+
+Applied for tasks like identifying similar lesions or anomalies across different patient scans, assisting in diagnosis and treatment planning.
+
+### Speaker Verification
+
+Utilized to verify a person's identity based on their voice, by comparing the embedding of a new voice sample to a known reference.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Siamese Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Siamese Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Siamese Network Lab" />
+
+## References
+
+- Bromley et al. (1993). Bromley et al..

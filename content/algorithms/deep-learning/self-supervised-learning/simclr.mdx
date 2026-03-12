@@ -1,0 +1,185 @@
+---
+title: "SimCLR"
+slug: "simclr"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2020
+author: "Chen et al."
+paper: "Chen et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "contrastive-learning", "deep-learning", "image-recognition", "neural-networks", "pre-training", "representation-learning", "self-supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "momentum"
+  - "perceptron"
+---
+
+## Overview
+
+SimCLR (A Simple Framework for Contrastive Learning of Visual Representations) is a self-supervised learning framework designed to learn high-quality visual representations from unlabeled image data. It achieves this by maximizing agreement between differently augmented views of the same image instance via a contrastive loss function, without requiring specialized architectures or memory banks. The core idea is to learn an encoder that maps similar (augmented) images to nearby points in a latent space while pushing dissimilar images apart. This approach enables the pre-training of powerful visual encoders that transfer effectively to various downstream tasks.
+
+## History
+
+**2017** — Oord et al. introduced Contrastive Predictive Coding (CPC), a general framework for learning representations by predicting future samples in latent space, laying groundwork for contrastive learning.
+
+**2019** — He et al. proposed [Momentum](/algorithms/meta-learning/optimization/momentum) Contrast (MoCo), which improved contrastive learning by using a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a large, dynamic dictionary as a queue of negative samples.
+
+**2020** — Chen et al. introduced SimCLR, simplifying contrastive learning by demonstrating that large batch sizes and a non-linear projection head can achieve state-of-the-art results without memory banks.
+
+**2020** — Grill et al. presented Bootstrap Your Own Latent (BYOL), a self-supervised method that avoids negative pairs by using two interacting neural networks, one of which is a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder.
+
+**2021** — Chen and He introduced SimSiam, further simplifying self-supervised learning by showing that competitive performance can be achieved without negative sample pairs, large batches, or [Momentum](/algorithms/meta-learning/optimization/momentum) encoders.
+
+## Mathematical Intuition
+
+### Positive and Negative Pairs
+
+SimCLR operates by constructing positive pairs and negative pairs from a batch of images. For each image $x_i$ in a mini-batch, two distinct stochastic augmented views, $x_i'$ and $x_i''$, are generated. These two views form a positive pair. All other $2(N-1)$ augmented views from the same batch are considered negative samples for $x_i'$ (and similarly for $x_i''$).
+$$ \text{Positive pair: } (x_i', x_i'') $$
+$$ \text{Negative pairs for } x_i': \{x_j'\}_{j \neq i} \cup \{x_j''\}_{j \neq i} $$
+
+$$
+\text{Positive pair: } (x_i', x_i'')
+$$
+
+$$
+\text{Negative pairs for } x_i': \{x_j'\}_{j \neq i} \cup \{x_j''\}_{j \neq i}
+$$
+
+### Non-linear Projection Head
+
+After an encoder $f(\cdot)$ extracts a representation $h_i = f(x_i)$, a small non-linear projection head $g(\cdot)$ maps $h_i$ to a lower-dimensional space $z_i = g(h_i)$. The contrastive loss is applied in this $z$-space. The projection head is crucial because it allows the encoder $f$ to learn richer representations without being constrained by the specific requirements of the contrastive task, which might discard useful information. Typically, $g$ is a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) with one hidden layer.
+$$ h_i = f(x_i) $$
+$$ z_i = g(h_i) = W_2 \sigma(W_1 h_i) $$
+where $W_1, W_2$ are weight matrices and $\sigma$ is a non-linear activation function (e.g., ReLU).
+
+$$
+h_i = f(x_i)
+$$
+
+$$
+z_i = g(h_i) = W_2 \sigma(W_1 h_i)
+$$
+
+### NT-Xent Loss Function
+
+The core of SimCLR is the Normalized Temperature-scaled Cross-Entropy (NT-Xent) loss function. For a given positive pair $(z_i, z_j)$ (where $z_j$ is the positive counterpart of $z_i$), the loss aims to maximize their similarity relative to all other negative samples in the batch. The similarity is typically measured by cosine similarity.
+$$ \text{sim}(u, v) = \frac{u^T v}{\|u\| \|v\|} $$
+The loss for a positive pair $(z_i, z_j)$ is defined as:
+$$ \mathcal{L}_{i,j} = -\log \frac{\exp(\text{sim}(z_i, z_j) / \tau)}{\sum_{k=1}^{2N} \mathbb{1}_{k \neq i} \exp(\text{sim}(z_i, z_k) / \tau)} $$
+where $\tau$ is a temperature parameter that scales the logits, and $2N$ is the total number of augmented views in a batch of $N$ images. The total loss is computed by averaging $\mathcal{L}_{i,j}$ over all positive pairs in the batch.
+
+$$
+\text{sim}(u, v) = \frac{u^T v}{\|u\| \|v\|}
+$$
+
+$$
+\mathcal{L}_{i,j} = -\log \frac{\exp(\text{sim}(z_i, z_j) / \tau)}{\sum_{k=1}^{2N} \mathbb{1}_{k \neq i} \exp(\text{sim}(z_i, z_k) / \tau)}
+$$
+
+## Algorithm Steps
+
+1. Sample a mini-batch of $N$ images, $\{x_k\}_{k=1}^N$, from the unlabeled dataset.
+2. For each image $x_k$, apply two distinct stochastic data augmentations, $t_1$ and $t_2$, to create two correlated views, $x_k'$ and $x_k''$.
+3. Pass each augmented view through a base encoder network $f(\cdot)$ (e.g., ResNet) to obtain representations $h_k' = f(x_k')$ and $h_k'' = f(x_k'')$.
+4. Apply a non-linear projection head $g(\cdot)$ to these representations to get $z_k' = g(h_k')$ and $z_k'' = g(h_k'')$.
+5. For each positive pair $(z_k', z_k'')$, compute the NT-Xent loss, which measures the similarity between $z_k'$ and $z_k''$ relative to all other $2(N-1)$ negative samples in the batch.
+6. Aggregate the loss over all $2N$ positive pairs in the batch and backpropagate through the projection head $g$ and the encoder $f$.
+7. Update the weights of both the encoder $f$ and the projection head $g$ using an optimizer (e.g., LARS or Adam).
+8. Repeat steps 1-7 for a specified number of epochs; after training, the projection head $g$ is discarded, and the encoder $f$ is used for downstream tasks.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `temperature` | `float` | `0.07` | positive float | Scaling factor for the similarity scores in the NT-Xent loss function. A smaller temperature makes the model focus more on hard negatives. |
+| `batch_size` | `int` | `256` | integer > 1 | Number of images processed in each training iteration. Larger batch sizes generally lead to better performance in SimCLR. |
+| `learning_rate` | `float` | `0.0003` | positive float | The step size for the optimizer during weight updates. Often used with a learning rate schedule (e.g., cosine decay). |
+| `weight_decay` | `float` | `0.00001` | non-negative float | L2 regularization coefficient applied to the weights to prevent overfitting. |
+| `projection_dim` | `int` | `128` | integer > 0 | The output dimension of the non-linear projection head $g(\cdot)$. |
+| `num_epochs` | `int` | `1000` | integer > 0 | The total number of training iterations over the entire dataset. |
+| `optimizer` | `str` | `LARS` | ['LARS', 'Adam', 'SGD'] | The optimization algorithm used for updating model weights. Common choices include LARS or Adam. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- SimCLR learns highly effective visual representations that transfer well to various downstream tasks, often outperforming supervised pre-training.
+- The framework is conceptually simple and does not require complex architectural modifications or specialized memory banks.
+- It is highly scalable with large batch sizes, which allows for a greater number of negative samples and improved representation learning.
+- The use of a non-linear projection head enhances the quality of the learned representations by decoupling the contrastive task from the encoder output.
+- SimCLR is robust to a wide range of data augmentation compositions, allowing for flexible application across different datasets.
+- It provides a strong baseline for self-supervised learning, enabling further research and improvements in the field.
+
+## Weaknesses
+
+- SimCLR's performance is highly dependent on very large batch sizes, which can be computationally expensive and require significant GPU memory.
+- The choice and composition of data augmentations are critical for optimal performance and can require careful tuning for specific datasets.
+- The method is sensitive to the temperature parameter $\tau$ in the NT-Xent loss, which needs to be appropriately selected.
+- Training can be time-consuming due to the large number of forward passes and the need for extensive data augmentation.
+- The reliance on negative samples means that the quality of representations can be affected by the diversity and quantity of samples within a batch.
+
+## Use Cases
+
+### Medical Imaging
+
+Pre-training deep learning models on large unlabeled medical image datasets to improve performance on tasks like disease classification or tumor detection with limited labeled data.
+
+### Autonomous Driving
+
+Learning robust visual features from vast amounts of unlabeled camera footage for tasks such as object detection, semantic segmentation, and scene understanding.
+
+### Content Moderation
+
+Developing image classification systems for identifying inappropriate content by pre-training on diverse image collections to learn general visual concepts.
+
+### Remote Sensing
+
+Extracting meaningful features from satellite and aerial imagery for applications like land cover classification, urban planning, and environmental monitoring.
+
+### E-commerce
+
+Enhancing product search and recommendation systems by learning rich visual embeddings from product images, enabling similarity-based retrieval.
+
+### Robotics
+
+Enabling robots to learn visual representations of their environment and objects through self-exploration, reducing the need for manual labeling of interaction data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement SimCLR from scratch
+```
+
+### Using scikit-learn
+
+```python
+# SimCLR does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="SimCLR Lab" />
+
+## References
+
+- Chen et al. (2020). Chen et al..

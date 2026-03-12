@@ -1,0 +1,192 @@
+---
+title: "MobileNet"
+slug: "mobilenet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2017
+author: "Howard et al."
+paper: "Howard et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-network", "deep-learning", "efficient-model", "image-classification", "lightweight", "mobile-ai", "object-detection"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "efficientnet"
+  - "resnet"
+---
+
+## Overview
+
+MobileNet is a family of efficient convolutional neural networks designed for mobile and embedded vision applications. It achieves high accuracy with significantly reduced computational cost and model size by primarily employing depthwise separable convolutions. This architectural innovation enables deployment on resource-constrained devices while maintaining competitive performance for various computer vision tasks.
+
+## History
+
+**2017** — Howard et al. introduced MobileNetV1, proposing depthwise separable convolutions as a core building block for efficient CNNs in their paper 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications'.
+
+**2018** — Sandler et al. published MobileNetV2, which introduced the inverted residual block with linear bottlenecks to further improve performance and efficiency, detailed in 'MobileNetV2: Inverted Residuals and Linear Bottlenecks'.
+
+**2019** — Howard et al. released MobileNetV3, leveraging neural architecture search (NAS) and novel activation functions like h-swish to further optimize for mobile platforms, as described in 'Searching for MobileNetV3'.
+
+## Mathematical Intuition
+
+### Depthwise Separable Convolutions
+
+A standard convolution operation filters and combines features in one step. A depthwise separable convolution decomposes this into two distinct steps: a depthwise convolution and a pointwise convolution. The depthwise convolution applies a single filter to each input channel independently. For an input feature map $F$ of size $D_F 	imes D_F 	imes M$ and a depthwise kernel $K_D$ of size $D_K 	imes D_K 	imes M$, the output has $M$ channels, where each output channel $G_{k,l,m}$ is computed as:$$ G_{k,l,m} = \sum_{i,j} K_{D;i,j,m} \cdot F_{k+i, l+j, m} $$The pointwise convolution then applies a $1 \times 1$ convolution to combine the outputs of the depthwise convolution across channels. For an input of size $D_F \times D_F \times M$ and a pointwise kernel $K_P$ of size $1 \times 1 \times M \times N$, the output has $N$ channels, where each output channel $O_{k,l,n}$ is computed as:$$ O_{k,l,n} = \sum_{m} K_{P;1,1,m,n} \cdot G_{k,l,m} $$This decomposition significantly reduces the number of parameters and computational cost compared to a standard convolution, approximately by a factor of $1/N + 1/D_K^2$.
+
+$$
+G_{k,l,m} = \sum_{i,j} K_{D;i,j,m} \cdot F_{k+i, l+j, m}
+$$
+
+$$
+O_{k,l,n} = \sum_{m} K_{P;1,1,m,n} \cdot G_{k,l,m}
+$$
+
+### Width and Resolution Multipliers
+
+MobileNet models can be scaled down to trade off accuracy for even greater efficiency using two global hyperparameters. The width multiplier, denoted as $\alpha$, reduces the number of channels in each layer. For a layer with $M$ input channels and $N$ output channels, the new numbers become $\alpha M$ and $\alpha N$, where $\alpha \in (0, 1]$. The resolution multiplier, denoted as $\rho$, reduces the input image resolution. For an input image of size $D_I \times D_I$, the new size becomes $\rho D_I \times \rho D_I$, where $\rho \in (0, 1]$. These multipliers reduce computational cost by factors of $\alpha^2$ and $\rho^2$ respectively, leading to a total reduction of approximately $\alpha^2 \rho^2$.
+
+$$
+\alpha
+$$
+
+$$
+\alpha M
+$$
+
+$$
+\alpha N
+$$
+
+$$
+\rho
+$$
+
+$$
+D_I \times D_I
+$$
+
+$$
+\rho D_I \times \rho D_I
+$$
+
+$$
+\alpha^2
+$$
+
+$$
+\rho^2
+$$
+
+$$
+\alpha^2 \rho^2
+$$
+
+### Inverted Residuals and Linear Bottlenecks
+
+MobileNetV2 introduced the inverted residual block, a key innovation for improved efficiency and performance. Unlike traditional residual blocks that compress channels before expansion, inverted residuals first expand the channels using a $1 \times 1$ convolution, then apply a depthwise convolution, and finally project back to a lower-dimensional space using another $1 \times 1$ convolution. A critical component is the 'linear bottleneck' at the end of the block, where the final $1 \times 1$ convolution does not use a non-linear activation function. This design choice is based on the hypothesis that high-dimensional features can be compressed into a low-dimensional manifold, and applying ReLU to this low-dimensional representation can inadvertently destroy valuable information, thus keeping it linear preserves more information.
+
+$$
+1 \times 1
+$$
+
+## Algorithm Steps
+
+1. Define the MobileNet architecture, typically starting with a standard $3 \times 3$ convolution, followed by a series of depthwise separable convolution blocks.
+2. Optionally apply width multiplier ($\alpha$) and resolution multiplier ($\rho$) to scale the model's size and computational cost according to deployment constraints.
+3. Initialize the network weights, often using pre-trained weights from a larger dataset like ImageNet for transfer learning.
+4. Prepare the training dataset, applying necessary augmentations and normalization to input images.
+5. Train the model using an optimization algorithm like SGD or Adam, minimizing a loss function such as categorical cross-entropy for classification tasks.
+6. Monitor validation performance and adjust learning rate schedules or other hyperparameters as needed.
+7. Fine-tune the model on the target dataset if using transfer learning, unfreezing more layers gradually.
+8. Evaluate the trained model on a test set to assess its performance metrics like accuracy, precision, and recall.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `input_shape` | `tuple` | `(224, 224, 3)` | e.g., (128, 128, 3) to (224, 224, 3) | Shape of input images (height, width, channels), excluding the batch dimension. |
+| `alpha` | `float` | `1.0` | 0.25, 0.50, 0.75, 1.0 | Controls the width of the network by scaling the number of filters in convolution layers. |
+| `depth_multiplier` | `int` | `1` | 1 | Depth multiplier for depthwise convolution, effectively controlling the number of blocks or layers. |
+| `dropout` | `float` | `0.001` | 0.0 to 1.0 | Dropout rate for the classifier layer at the top of the network. |
+| `include_top` | `boolean` | `True` | True, False | Whether to include the fully-connected layer at the top of the network, typically for classification. |
+| `weights` | `str or None` | `'imagenet'` | 'imagenet', None | Pre-training weights to load, typically from ImageNet, or None for random initialization. |
+| `pooling` | `str or None` | `'avg'` | 'avg', 'max', None | Optional pooling mode for feature extraction when 'include_top' is False. |
+| `classes` | `int` | `1000` | integer > 0 | Optional number of classes to classify images into, only to be specified if 'include_top' is True. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- MobileNet models offer significantly reduced computational complexity and model size compared to traditional CNNs, making them suitable for resource-constrained devices.
+- They provide a favorable trade-off between accuracy and efficiency, achieving competitive performance on various computer vision benchmarks.
+- The architecture is highly flexible, allowing for scaling via width and resolution multipliers to meet specific latency and power budgets.
+- Pre-trained MobileNet models are widely available, facilitating efficient transfer learning for new image-related tasks.
+- Their lightweight nature enables real-time inference on mobile phones and embedded systems.
+- The use of depthwise separable convolutions inherently reduces the number of parameters and floating-point operations (FLOPs).
+
+## Weaknesses
+
+- MobileNet models generally achieve lower peak accuracy compared to larger, more complex state-of-the-art models like EfficientNet or ResNeXt.
+- The aggressive reduction in parameters can sometimes lead to a loss of fine-grained feature representation, especially in earlier versions.
+- Performance can be sensitive to the choice of width and resolution multipliers, requiring careful tuning for optimal results on specific tasks.
+- The architectural innovations, while efficient, can be more complex to understand and implement from scratch compared to simpler CNNs.
+
+## Use Cases
+
+### Mobile Vision
+
+Deploying image classification, object detection, and semantic segmentation models directly on smartphones and tablets for on-device inference.
+
+### Embedded Systems
+
+Running computer vision tasks on edge devices such as IoT cameras, drones, and robotics with limited processing power and memory.
+
+### Real-time Applications
+
+Enabling low-latency inference for applications like augmented reality, facial recognition, and autonomous driving components where speed is critical.
+
+### Medical Imaging
+
+Assisting in rapid diagnosis or screening on portable medical devices where computational resources are constrained, such as point-of-care diagnostics.
+
+### Retail Analytics
+
+Performing on-device object detection for inventory management or customer behavior analysis without constant cloud dependency.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MobileNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MobileNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MobileNet Lab" />
+
+## References
+
+- Howard et al. (2017). Howard et al..

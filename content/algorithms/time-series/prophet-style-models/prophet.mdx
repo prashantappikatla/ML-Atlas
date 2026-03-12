@@ -1,0 +1,171 @@
+---
+title: "Prophet"
+slug: "prophet"
+category: "time-series"
+subcategory: "prophet-style-models"
+year: 2017
+author: "Facebook"
+paper: "Facebook"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["additive-model", "business-forecasting", "decomposable", "forecasting", "holidays", "open-source", "seasonality", "statistical-model", "time-series", "trend"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "deepar"
+  - "exponential-smoothing"
+  - "holt-winters"
+  - "sarima"
+---
+
+## Overview
+
+Prophet is a forecasting procedure for univariate time series data that is robust to missing data and shifts in the trend. It employs an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. Designed for business forecasting, Prophet provides an intuitive and configurable framework that allows domain experts to incorporate prior knowledge easily.
+
+## History
+
+**2017** — Facebook (now Meta) open-sourced Prophet, a forecasting procedure developed internally, accompanied by the seminal paper "Forecasting at Scale" by Sean J. Taylor and Benjamin Letham, addressing practical challenges in business forecasting.
+
+## Mathematical Intuition
+
+### Decomposable Time Series Model
+
+Prophet models time series as a sum of three main components: trend, seasonality, and holidays, plus an error term. This additive structure allows for easy interpretation and modification of individual components.
+$$y(t) = g(t) + s(t) + h(t) + \epsilon_t$$
+Here, $y(t)$ is the observed value at time $t$, $g(t)$ is the trend component, $s(t)$ is the periodic seasonality, $h(t)$ represents the effects of holidays or special events, and $\epsilon_t$ is the error term.
+
+$$
+y(t) = g(t) + s(t) + h(t) + \epsilon_t
+$$
+
+### Trend Component Modeling
+
+The trend component $g(t)$ models non-periodic changes in the time series. Prophet supports two types of trend models: a piecewise linear model or a piecewise logistic growth model. The piecewise linear trend allows for automatic detection of changepoints where the growth rate can vary. For a piecewise linear trend with $S$ changepoints at times $c_j$, the trend is defined by an initial growth rate $k$ and a vector of rate adjustments $\delta_j$ for each changepoint.
+$$g(t) = (k + a(t)^T \delta)t + (m + a(t)^T \gamma)$$
+where $a(t)$ is a vector indicating which changepoints have occurred by time $t$, and $\gamma$ is a vector of offsets to make the trend continuous.
+
+$$
+g(t) = (k + a(t)^T \delta)t + (m + a(t)^T \gamma)
+$$
+
+### Seasonality with Fourier Series
+
+The seasonality component $s(t)$ models periodic changes, such as yearly, weekly, or daily patterns. It is typically modeled using a Fourier series. For a period $P$ (e.g., 365.25 for yearly, 7 for weekly), the seasonality is represented as:
+$$s(t) = \sum_{n=1}^{N} \left( a_n \cos\left(\frac{2\pi nt}{P}\right) + b_n \sin\left(\frac{2\pi nt}{P}\right) \right)$$
+The parameters $a_n$ and $b_n$ are estimated from the data, and $N$ determines the flexibility of the seasonality curve. A larger $N$ allows for more complex seasonal patterns.
+
+$$
+s(t) = \sum_{n=1}^{N} \left( a_n \cos\left(\frac{2\pi nt}{P}\right) + b_n \sin\left(\frac{2\pi nt}{P}\right) \right)
+$$
+
+### Holiday and Event Effects
+
+The holiday component $h(t)$ accounts for predictable events that have a significant, short-term impact on the time series, but do not necessarily follow a regular periodic pattern. These are typically modeled as indicator functions for specific dates or date ranges. For each holiday, a dummy variable is created, and its effect is estimated.
+$$h(t) = \sum_{i=1}^{L} \kappa_i \cdot \mathbb{I}(t \in D_i)$$
+where $D_i$ is the set of dates for holiday $i$, and $\kappa_i$ is the estimated impact of that holiday.
+
+$$
+h(t) = \sum_{i=1}^{L} \kappa_i \cdot \mathbb{I}(t \in D_i)
+$$
+
+## Algorithm Steps
+
+1. Prepare the input data into a DataFrame with two columns: 'ds' (datestamp, in YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format) and 'y' (numeric value to forecast).
+2. Instantiate the Prophet model, optionally specifying parameters for trend, seasonality, and holiday components.
+3. Fit the model to the historical data using an optimization algorithm (e.g., L-BFGS) to estimate the parameters of the trend, seasonality, and holiday components.
+4. Create a future DataFrame with a 'ds' column containing the datestamps for which predictions are desired, extending from the historical data.
+5. Use the fitted model to make predictions on the future DataFrame, generating forecasts for 'yhat' (the prediction), 'yhat_lower', and 'yhat_upper' (uncertainty intervals).
+6. Optionally, visualize the forecast and its components (trend, yearly seasonality, weekly seasonality, holidays) to understand the model's behavior.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `growth` | `string` | `linear` | linear, logistic | Specifies the trend model, either "linear" for a piecewise linear trend or "logistic" for a piecewise logistic growth curve. |
+| `changepoint_prior_scale` | `float` | `0.05` | 0.0 to 1.0 | Adjusts the flexibility of the trend by controlling the magnitude of changepoint adjustments. Higher values allow more drastic trend changes. |
+| `seasonality_prior_scale` | `float` | `10.0` | 0.0 to infinity | Controls the strength of the seasonality components. Higher values allow the model to fit larger seasonal fluctuations. |
+| `holidays_prior_scale` | `float` | `10.0` | 0.0 to infinity | Controls the strength of the holiday components. Higher values allow the model to fit larger holiday effects. |
+| `seasonality_mode` | `string` | `additive` | additive, multiplicative | Specifies whether seasonality and holiday effects are additive or multiplicative. |
+| `n_changepoints` | `integer` | `25` | integer >= 0 | The number of potential changepoints to include in the trend model. Prophet automatically selects the most significant ones. |
+| `yearly_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables yearly seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
+| `weekly_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables weekly seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
+| `daily_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables daily seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Prophet is robust to missing data and outliers, making it suitable for messy real-world datasets.
+- It automatically detects changepoints in the trend, adapting to shifts in the underlying growth rate.
+- The model's parameters are highly intuitive, allowing domain experts to easily configure and interpret forecasts.
+- It natively handles multiple seasonalities (e.g., yearly, weekly, daily) and incorporates custom holiday effects.
+- Prophet is computationally efficient and can fit models quickly, even on large datasets.
+- The decomposable model provides clear insights into the contributions of trend, seasonality, and holidays to the forecast.
+
+## Weaknesses
+
+- Prophet assumes an additive model, which may not be appropriate for time series with strong multiplicative effects.
+- It is designed for univariate time series and does not natively support multivariate inputs or exogenous variables in its core model.
+- The model does not explicitly account for autocorrelation or dependencies between observations, which can be a limitation for certain time series.
+- Overfitting can occur if too many changepoints are allowed or if seasonality components are overly complex for the available data.
+- Requires a sufficient amount of historical data to accurately estimate seasonal patterns and trend changes.
+
+## Use Cases
+
+### Business Forecasting
+
+Predicting sales, demand, or revenue for products and services to inform inventory management and strategic planning.
+
+### Website and Application Analytics
+
+Forecasting website traffic, user engagement, or server load to optimize resource allocation and capacity planning.
+
+### Energy Consumption
+
+Predicting electricity demand or renewable energy generation to aid in grid management and resource scheduling.
+
+### Resource Planning
+
+Estimating future staffing needs, call center volumes, or supply chain requirements to ensure operational efficiency.
+
+### Financial Time Series
+
+Forecasting stock prices or market indices, though typically used for short-term trends due to the inherent volatility and complexity of financial markets.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Prophet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Prophet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Prophet Lab" />
+
+## References
+
+- Facebook (2017). Facebook.

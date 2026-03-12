@@ -1,0 +1,246 @@
+---
+title: "Bayesian Linear Regression"
+slug: "bayesian-linear-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1950
+author: "Bayesian statistics"
+paper: "Bayesian statistics"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bayesian", "linear-model", "parametric", "probabilistic", "regression", "regularization", "supervised-learning", "uncertainty-quantification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gaussian-process-regression"
+  - "lasso-regression"
+  - "linear-regression"
+  - "ridge-regression"
+---
+
+## Overview
+
+Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression) provides a probabilistic approach to the classic [Linear Regression](/algorithms/supervised/regression/linear-regression) problem, treating model parameters as random variables rather than fixed, unknown constants. It quantifies uncertainty in parameter estimates and predictions by incorporating prior beliefs about the parameters, which are then updated using observed data to yield a posterior distribution. This method offers a richer understanding of model confidence and can be particularly beneficial in scenarios with limited data or when incorporating expert knowledge is crucial.
+
+## History
+
+**1763** — Thomas Bayes's essay "An Essay towards solving a Problem in the Doctrine of Chances" is published posthumously, introducing what is now known as Bayes' Theorem, laying the theoretical foundation for Bayesian inference.
+
+**1950** — The advent of digital computers begins to make the computational demands of Bayesian methods more tractable, leading to increased theoretical development and practical exploration.
+
+**1960** — George E. P. Box and George C. Tiao publish "Bayesian Inference in Statistical Analysis" (1973), a seminal work that popularizes Bayesian methods for a wide range of statistical problems, including linear models.
+
+**1980** — The development and popularization of Markov Chain Monte Carlo (MCMC) methods, particularly the Gibbs sampler, by Gelfand and Smith (1990), revolutionize the ability to compute complex posterior distributions, making Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression) more widely applicable.
+
+**1990** — Increased computational power and sophisticated MCMC algorithms lead to a resurgence of interest and application of Bayesian methods across various scientific and engineering disciplines.
+
+## Mathematical Intuition
+
+### Linear Model Formulation
+
+A [Linear Regression](/algorithms/supervised/regression/linear-regression) model assumes a linear relationship between a dependent variable $y$ and one or more independent variables $X$. For a dataset with $N$ observations and $D$ features, the model can be expressed as $y_i = \mathbf{x}_i^T \mathbf{w} + \epsilon_i$, where $\mathbf{w}$ is the vector of regression coefficients (weights), $\mathbf{x}_i$ is the feature vector for the $i$-th observation, and $\epsilon_i$ is the irreducible error term. Assuming $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, the likelihood of $y_i$ given $\mathbf{x}_i$ and $\mathbf{w}$ is $p(y_i | \mathbf{x}_i, \mathbf{w}, \sigma^2) = \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2)$.
+$$ y = X\mathbf{w} + \mathbf{\epsilon} $$
+$$ \mathbf{\epsilon} \sim \mathcal{N}(0, \sigma^2 I) $$
+$$ p(y | X, \mathbf{w}, \sigma^2) = \prod_{i=1}^N \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2) $$
+$$ p(y | X, \mathbf{w}, \sigma^2) = (2\pi\sigma^2)^{-N/2} \exp\left(-\frac{1}{2\sigma^2} \|y - X\mathbf{w}\|^2\right) $$
+
+$$
+y_i = \mathbf{x}_i^T \mathbf{w} + \epsilon_i
+$$
+
+$$
+\epsilon_i \sim \mathcal{N}(0, \sigma^2)
+$$
+
+$$
+p(y_i | \mathbf{x}_i, \mathbf{w}, \sigma^2) = \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2)
+$$
+
+$$
+y = X\mathbf{w} + \mathbf{\epsilon}
+$$
+
+$$
+\mathbf{\epsilon} \sim \mathcal{N}(0, \sigma^2 I)
+$$
+
+$$
+p(y | X, \mathbf{w}, \sigma^2) = \prod_{i=1}^N \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2)
+$$
+
+$$
+p(y | X, \mathbf{w}, \sigma^2) = (2\pi\sigma^2)^{-N/2} \exp\left(-\frac{1}{2\sigma^2} \|y - X\mathbf{w}\|^2\right)
+$$
+
+### Prior Distribution for Weights
+
+In Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression), the model parameters $\mathbf{w}$ are treated as random variables, and we specify a prior probability distribution $p(\mathbf{w})$ that reflects our initial beliefs about their values before observing any data. A common choice for the prior on $\mathbf{w}$ is a Gaussian distribution, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0)$, where $\mathbf{\mu}_0$ is the prior mean and $\Sigma_0$ is the prior covariance matrix. Often, a zero-mean isotropic Gaussian prior is used, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | 0, \alpha^{-1}I)$, where $\alpha$ is a precision parameter.
+$$ p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0) $$
+$$ p(\mathbf{w}) = (2\pi)^{-D/2} |\Sigma_0|^{-1/2} \exp\left(-\frac{1}{2}(\mathbf{w} - \mathbf{\mu}_0)^T \Sigma_0^{-1} (\mathbf{w} - \mathbf{\mu}_0)\right) $$
+
+$$
+p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0)
+$$
+
+$$
+p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | 0, \alpha^{-1}I)
+$$
+
+$$
+p(\mathbf{w}) = (2\pi)^{-D/2} |\Sigma_0|^{-1/2} \exp\left(-\frac{1}{2}(\mathbf{w} - \mathbf{\mu}_0)^T \Sigma_0^{-1} (\mathbf{w} - \mathbf{\mu}_0)\right)
+$$
+
+### Posterior Distribution Derivation
+
+Using Bayes' Theorem, the posterior distribution of the weights $p(\mathbf{w} | y, X, \sigma^2)$ is proportional to the product of the likelihood and the prior: $p(\mathbf{w} | y, X, \sigma^2) \propto p(y | X, \mathbf{w}, \sigma^2) p(\mathbf{w})$. For Gaussian likelihood and Gaussian prior, the posterior distribution is also Gaussian, which is a property known as conjugacy. The posterior mean $\mathbf{\mu}_N$ and covariance $\Sigma_N$ can be derived analytically.
+$$ p(\mathbf{w} | y, X, \sigma^2) = \frac{p(y | X, \mathbf{w}, \sigma^2) p(\mathbf{w})}{p(y | X, \sigma^2)} $$
+$$ p(\mathbf{w} | y, X, \sigma^2) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_N, \Sigma_N) $$
+where $\Sigma_N^{-1} = \Sigma_0^{-1} + \sigma^{-2} X^T X$ and $\mathbf{\mu}_N = \Sigma_N (\Sigma_0^{-1} \mathbf{\mu}_0 + \sigma^{-2} X^T y)$.
+
+$$
+p(\mathbf{w} | y, X, \sigma^2) \propto p(y | X, \mathbf{w}, \sigma^2) p(\mathbf{w})
+$$
+
+$$
+p(\mathbf{w} | y, X, \sigma^2) = \frac{p(y | X, \mathbf{w}, \sigma^2) p(\mathbf{w})}{p(y | X, \sigma^2)}
+$$
+
+$$
+p(\mathbf{w} | y, X, \sigma^2) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_N, \Sigma_N)
+$$
+
+$$
+\Sigma_N^{-1} = \Sigma_0^{-1} + \sigma^{-2} X^T X
+$$
+
+$$
+\mathbf{\mu}_N = \Sigma_N (\Sigma_0^{-1} \mathbf{\mu}_0 + \sigma^{-2} X^T y)
+$$
+
+### Predictive Distribution
+
+Once the posterior distribution of the weights $p(\mathbf{w} | y, X, \sigma^2)$ is obtained, predictions for new data points $\mathbf{x}^*$ are made by integrating over all possible weight values. The predictive distribution $p(y^* | \mathbf{x}^*, y, X, \sigma^2) = \int p(y^* | \mathbf{x}^*, \mathbf{w}, \sigma^2) p(\mathbf{w} | y, X, \sigma^2) d\mathbf{w}$ provides not just a point estimate but a full probability distribution for the new observation. For Gaussian likelihood and prior, this predictive distribution is also Gaussian.
+$$ p(y^* | \mathbf{x}^*, y, X, \sigma^2) = \mathcal{N}(y^* | \mathbf{x}^{*T} \mathbf{\mu}_N, \mathbf{x}^{*T} \Sigma_N \mathbf{x}^* + \sigma^2) $$
+
+$$
+p(y^* | \mathbf{x}^*, y, X, \sigma^2) = \int p(y^* | \mathbf{x}^*, \mathbf{w}, \sigma^2) p(\mathbf{w} | y, X, \sigma^2) d\mathbf{w}
+$$
+
+$$
+p(y^* | \mathbf{x}^*, y, X, \sigma^2) = \mathcal{N}(y^* | \mathbf{x}^{*T} \mathbf{\mu}_N, \mathbf{x}^{*T} \Sigma_N \mathbf{x}^* + \sigma^2)
+$$
+
+## Algorithm Steps
+
+1. Define the linear model structure $y = X\mathbf{w} + \mathbf{\epsilon}$, where $\mathbf{\epsilon}$ represents Gaussian noise with precision $\lambda = 1/\sigma^2$.
+2. Specify prior distributions for the model parameters: typically a Gaussian prior for the weights $\mathbf{w}$ with precision $\alpha$, and Gamma priors for the precision parameters $\alpha$ and $\lambda$.
+3. Formulate the likelihood function $p(y | X, \mathbf{w}, \lambda)$, which describes the probability of observing the data given the weights and noise precision.
+4. Derive or approximate the posterior distribution $p(\mathbf{w}, \alpha, \lambda | y, X)$ using Bayes' Theorem, which combines the prior beliefs with the information from the observed data.
+5. If analytical solutions are available (conjugate priors), compute the posterior mean and covariance for $\mathbf{w}$. If not, use sampling methods like Markov Chain Monte Carlo (MCMC) to draw samples from the posterior.
+6. For prediction on a new data point $\mathbf{x}^*$, compute the predictive distribution $p(y^* | \mathbf{x}^*, y, X)$ by integrating over the posterior distribution of the parameters.
+7. The mean of the predictive distribution can be used as the point estimate for $y^*$, and its variance provides a measure of predictive uncertainty.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_iter` | `integer` | `300` | integer > 0 | Maximum number of iterations for the optimization algorithm. |
+| `tol` | `float` | `1e-3` | float > 0 | Stop the algorithm if the absolute change in the weights or the precision parameters is smaller than `tol`. |
+| `alpha_1` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the shape parameter. |
+| `alpha_2` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the inverse scale parameter. |
+| `lambda_1` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the shape parameter. |
+| `lambda_2` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the inverse scale parameter. |
+| `fit_intercept` | `boolean` | `true` | true, false | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (i.e. data is expected to be centered). |
+| `compute_score` | `boolean` | `false` | true, false | Whether to compute the log marginal likelihood (evidence) at each iteration. This is used for convergence monitoring. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Provides a full probabilistic distribution for model parameters and predictions, quantifying uncertainty.
+- Allows for the incorporation of prior knowledge or expert beliefs into the model, which can be particularly valuable with limited data.
+- Less prone to overfitting compared to maximum likelihood estimation, especially when using informative priors or in high-dimensional settings.
+- Can naturally perform regularization by shrinking weight magnitudes towards the prior mean, similar to Ridge Regression.
+- Offers a principled framework for model comparison and selection through marginal likelihoods.
+- Can provide more robust estimates when data is sparse or noisy by leveraging prior information.
+
+## Weaknesses
+
+- Requires the specification of prior distributions, which can be subjective and influence the posterior results if not chosen carefully.
+- Computational cost can be high, especially for complex models or large datasets, often requiring iterative sampling methods like MCMC.
+- Interpretation of posterior distributions can be more complex than point estimates from frequentist methods.
+- The choice of hyperparameters for the prior distributions (e.g., $\alpha$ and $\lambda$ in the scikit-learn implementation) can be challenging and impact model performance.
+
+## Use Cases
+
+### Finance
+
+Used for risk modeling, portfolio optimization, and predicting asset prices where quantifying uncertainty is critical for decision-making.
+
+### Healthcare
+
+Applied in drug response prediction, disease progression modeling, and personalized medicine to account for patient variability and limited clinical trial data.
+
+### Engineering
+
+Employed in predictive maintenance, system reliability analysis, and sensor data fusion to estimate component lifetimes and predict failures with confidence intervals.
+
+### Environmental Science
+
+Utilized for climate modeling, pollution level prediction, and ecological forecasting, where data can be sparse and prior scientific knowledge is abundant.
+
+### Social Sciences
+
+Applied in causal inference, survey analysis, and economic forecasting to understand relationships between variables and provide robust policy recommendations.
+
+### Marketing
+
+Used for customer churn prediction and campaign effectiveness analysis, allowing for more nuanced decision-making based on probabilistic outcomes.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bayesian Linear Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import BayesianLinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = BayesianLinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bayesian Linear Regression Lab" />
+
+## References
+
+- Bayesian statistics (1950). Bayesian statistics.
+- [scikit-learn: BayesianLinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianLinearRegression.html)

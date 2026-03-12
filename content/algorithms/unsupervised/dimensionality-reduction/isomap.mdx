@@ -1,0 +1,178 @@
+---
+title: "Isomap"
+slug: "isomap"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 2000
+author: "Tenenbaum et al."
+paper: "Tenenbaum et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["data-visualization", "dimensionality-reduction", "feature-extraction", "geodesic-distance", "graph-based", "manifold-learning", "nonlinear-embedding", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "diffusion-maps"
+  - "laplacian-eigenmaps"
+  - "locally-linear-embedding"
+  - "multidimensional-scaling"
+---
+
+## Overview
+
+Isomap (Isometric Feature Mapping) is a nonlinear dimensionality reduction technique that seeks to preserve the intrinsic geometric structure of high-dimensional data by mapping it to a lower-dimensional embedding. It assumes that data points lie on an underlying low-dimensional manifold embedded within a higher-dimensional space. The algorithm achieves this by estimating geodesic distances between data points on the manifold and then using classical [Multidimensional Scaling](/algorithms/unsupervised/dimensionality-reduction/multidimensional-scaling) to construct a low-dimensional representation that preserves these distances.
+
+## History
+
+**2000** — Joshua B. Tenenbaum, Vin de Silva, and John C. Langford introduce Isomap in their seminal paper "A Global Geometric Framework for Nonlinear Dimensionality Reduction" published in Science, establishing it as a pioneering method in manifold learning.
+
+**2001** — The algorithm gains significant attention in the machine learning community, inspiring further research into graph-based manifold learning techniques and nonlinear dimensionality reduction.
+
+**2002** — Early implementations of Isomap become available in various scientific computing libraries, making the algorithm accessible for broader application and experimentation.
+
+**2006** — Isomap is integrated into popular machine learning toolkits, such as scikit-learn, solidifying its status as a standard and widely used dimensionality reduction method.
+
+## Mathematical Intuition
+
+### Manifold Hypothesis and Geodesic Distance
+
+The core assumption of Isomap is the manifold hypothesis, stating that high-dimensional data often lies on or close to a low-dimensional manifold. The goal is to discover this intrinsic manifold structure by preserving geodesic distances, which are the shortest paths along the manifold, rather than straight-line Euclidean distances in the ambient space. For two points $x_i$ and $x_j$ on the manifold, their geodesic distance $d_G(x_i, x_j)$ can be significantly different from their Euclidean distance $d_E(x_i, x_j)$ in the high-dimensional space.
+$$ d_G(x_i, x_j) \neq d_E(x_i, x_j) $$
+
+$$
+d_G(x_i, x_j) \neq d_E(x_i, x_j)
+$$
+
+### Neighborhood Graph Construction
+
+To approximate the local geometry of the manifold, Isomap first constructs a neighborhood graph $G = (V, E)$. Each data point $x_i$ in the high-dimensional space corresponds to a vertex in $V$. An edge is added between $x_i$ and $x_j$ if $x_j$ is one of the $k$ nearest neighbors of $x_i$ (k-NN graph) or if $x_j$ is within a fixed radius $\epsilon$ of $x_i$ ($\epsilon$-neighborhood graph). The weight of each edge $(x_i, x_j)$ is set to the Euclidean distance $d_E(x_i, x_j)$ between the two points.
+$$ w_{ij} = d_E(x_i, x_j) \quad \text{if } x_j \in N_k(x_i) \text{ or } d_E(x_i, x_j) \le \epsilon $$
+
+$$
+w_{ij} = d_E(x_i, x_j) \quad \text{if } x_j \in N_k(x_i) \text{ or } d_E(x_i, x_j) \le \epsilon
+$$
+
+### Shortest Path Geodesic Estimation
+
+Once the neighborhood graph is constructed, Isomap estimates the geodesic distances between all pairs of points by computing the shortest paths in this graph. Standard shortest path algorithms, such as Dijkstra's algorithm or the Floyd-Warshall algorithm, are used for this purpose. The shortest path distance between two points $x_i$ and $x_j$ in the graph, denoted $\hat{d}_G(x_i, x_j)$, serves as an approximation of their true geodesic distance on the manifold. This results in a geodesic distance matrix $D_G$, where $D_G(i, j) = \hat{d}_G(x_i, x_j)$.
+$$ D_G(i, j) = \min_{\text{paths } P_{ij}} \sum_{(u,v) \in P_{ij}} w_{uv} $$
+
+$$
+D_G(i, j) = \min_{\text{paths } P_{ij}} \sum_{(u,v) \in P_{ij}} w_{uv}
+$$
+
+### Multidimensional Scaling Embedding
+
+Finally, classical [Multidimensional Scaling](/algorithms/unsupervised/dimensionality-reduction/multidimensional-scaling) (MDS) is applied to the geodesic distance matrix $D_G$. MDS takes a matrix of pairwise distances and attempts to find a low-dimensional embedding $Y = \{y_1, \dots, y_N\}$ in $\mathbb{R}^d$ (where $d$ is the target dimensionality) such that the Euclidean distances between points in the embedding, $d_E(y_i, y_j)$, closely match the input geodesic distances $\hat{d}_G(x_i, x_j)$. This is typically achieved by minimizing a stress function. The output $Y$ represents the low-dimensional embedding of the original data.
+$$ \min_Y \sum_{i<j} (\hat{d}_G(x_i, x_j) - d_E(y_i, y_j))^2 $$
+
+$$
+\min_Y \sum_{i<j} (\hat{d}_G(x_i, x_j) - d_E(y_i, y_j))^2
+$$
+
+## Algorithm Steps
+
+1. Initialize the algorithm with a dataset $X = \{x_1, \dots, x_N\}$ in a high-dimensional space $\mathbb{R}^D$ and a target dimensionality $d < D$.
+2. Construct a neighborhood graph $G$ where each data point $x_i$ is a node.
+3. For each $x_i$, identify its $k$ nearest neighbors (or all neighbors within a radius $\epsilon$) based on Euclidean distance in $\mathbb{R}^D$.
+4. Add an edge between $x_i$ and $x_j$ if they are neighbors, assigning the Euclidean distance $d_E(x_i, x_j)$ as the edge weight.
+5. Compute the shortest path distances between all pairs of nodes in the graph $G$ using an algorithm like Dijkstra's or Floyd-Warshall; these distances form the geodesic distance matrix $D_G$.
+6. Apply classical Multidimensional Scaling (MDS) to the geodesic distance matrix $D_G$ to find a low-dimensional embedding $Y = \{y_1, \dots, y_N\}$ in $\mathbb{R}^d$ that preserves these distances.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_neighbors` | `integer` | `5` | integer > 0 | Number of neighbors to consider for each point when constructing the neighborhood graph. |
+| `n_components` | `integer` | `2` | integer > 0 | The dimension of the low-dimensional space to which the data will be embedded. |
+| `eigen_solver` | `string` | `auto` | 'auto', 'arpack', 'dense' | Solver to use for the eigenvalue decomposition step in MDS. Options include 'auto', 'arpack', 'dense'. |
+| `tol` | `float` | `0` | float >= 0 | Tolerance for the eigenvalue decomposition. Ignored for 'dense' solver. |
+| `max_iter` | `integer` | `None` | integer > 0 or None | Maximum number of iterations for the 'arpack' solver. Used only if `eigen_solver='arpack'`. |
+| `path_method` | `string` | `auto` | 'auto', 'FW', 'D' | Method to use for shortest path computation. Options include 'auto', 'FW' (Floyd-Warshall), 'D' (Dijkstra). |
+| `neighbors_algorithm` | `string` | `auto` | 'auto', 'kd_tree', 'ball_tree', 'brute' | Algorithm to use for nearest neighbors search. Options include 'auto', 'kd_tree', 'ball_tree', 'brute'. |
+| `metric` | `string or callable` | `minkowski` | string (e.g., 'euclidean', 'manhattan') or callable | The metric to use when calculating distance between instances in a feature array. |
+| `p` | `integer` | `2` | integer >= 1 | The power of the Minkowski metric. Only used if `metric='minkowski'`. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Isomap can uncover complex nonlinear structures in data, making it suitable for manifolds with intrinsic curvature.
+- It provides a globally optimal solution for isometric embeddings when the manifold is sufficiently sampled and the neighborhood graph accurately reflects local geometry.
+- The algorithm's reliance on geodesic distances allows it to preserve the true underlying distances on the manifold, unlike methods that only consider Euclidean distances.
+- The resulting embedding is deterministic, meaning repeated runs with the same parameters will yield the same output.
+- It is relatively easy to interpret the low-dimensional embedding as a projection of the manifold.
+
+## Weaknesses
+
+- Isomap is sensitive to the choice of the neighborhood parameter ($k$ or $\epsilon$), which can significantly impact the accuracy of geodesic distance estimation.
+- The computational complexity of computing all-pairs shortest paths is high, typically $O(N^3 \log N)$ or $O(N^3)$ for dense graphs, making it impractical for very large datasets.
+- It can be sensitive to noise and outliers, as these can create "shortcuts" in the neighborhood graph, leading to inaccurate geodesic distance estimates.
+- The algorithm assumes that the manifold is connected; if the data forms disconnected components, Isomap may produce misleading embeddings.
+- Isomap struggles with manifolds that have holes or self-intersections, as the shortest path in the graph might not correspond to the true geodesic path.
+
+## Use Cases
+
+### Bioinformatics
+
+Visualizing high-dimensional gene expression data or protein structures to identify underlying biological patterns and relationships.
+
+### Computer Vision
+
+Reducing the dimensionality of image datasets for tasks like facial recognition or object classification, where images often lie on a low-dimensional manifold.
+
+### Robotics
+
+Analyzing sensor data from robots to understand movement patterns or environmental interactions in a lower-dimensional space for control or anomaly detection.
+
+### Medical Imaging
+
+Exploring complex medical image data (e.g., fMRI, CT scans) to identify subtle variations or disease markers by projecting them into a lower-dimensional space.
+
+### Speech Recognition
+
+Projecting high-dimensional audio features into a lower-dimensional space to reveal phonetic structures or speaker characteristics, aiding in classification or synthesis.
+
+### Material Science
+
+Discovering latent structures in high-dimensional material properties data to aid in the design of new materials with desired characteristics.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Isomap from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Isomap
+
+model = Isomap()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Isomap Lab" />
+
+## References
+
+- Tenenbaum et al. (2000). Tenenbaum et al..
+- [scikit-learn: Isomap](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Isomap.html)

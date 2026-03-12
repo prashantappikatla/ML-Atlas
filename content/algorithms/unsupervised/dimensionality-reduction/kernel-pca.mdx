@@ -1,0 +1,206 @@
+---
+title: "Kernel PCA"
+slug: "kernel-pca"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1998
+author: "Sch�lkopf"
+paper: "Sch�lkopf"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["data-transformation", "dimensionality-reduction", "eigenvalue-decomposition", "feature-extraction", "kernel-methods", "manifold-learning", "non-linear", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "diffusion-maps"
+  - "gaussian-process-regression"
+  - "isomap"
+  - "locally-linear-embedding"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Kernel Principal Component Analysis (Kernel PCA) extends traditional Principal Component Analysis by performing dimensionality reduction in a high-dimensional feature space implicitly mapped from the original input space. It leverages the "kernel trick" to compute dot products in this feature space without explicitly calculating the coordinates, enabling the discovery of non-linear structures in data. This allows for effective non-linear dimensionality reduction, projecting data onto principal components that capture complex relationships. Kernel PCA is particularly useful when the data's underlying structure is non-linear and cannot be adequately captured by linear methods.
+
+## History
+
+**1998** — Bernhard Schölkopf, Alexander Smola, and Klaus-Robert Müller introduced Kernel PCA in their seminal paper "Nonlinear component analysis as a kernel eigenvalue problem," extending PCA to non-linear settings using the kernel trick.
+
+**2002** — The publication of "Learning with Kernels" by Schölkopf and Smola further popularized kernel methods, including Kernel PCA, solidifying its theoretical foundations and practical applications.
+
+**2007** — The scikit-learn library, a widely used machine learning toolkit in Python, began its development, eventually including an implementation of Kernel PCA, making it accessible to a broader audience of practitioners.
+
+**2010** — Continued research focused on improving the computational efficiency of Kernel PCA for large datasets, leading to approximations and sparse kernel methods.
+
+## Mathematical Intuition
+
+### The Kernel Trick Foundation
+
+Standard PCA operates on data in the input space $\mathbb{R}^d$. Kernel PCA first implicitly maps the input data $x \in \mathbb{R}^d$ to a higher-dimensional feature space $\mathcal{F}$ via a non-linear map $\Phi: \mathbb{R}^d \to \mathcal{F}$. The core idea, known as the kernel trick, allows us to compute the dot product in $\mathcal{F}$ using a kernel function $k(x_i, x_j) = \langle \Phi(x_i), \Phi(x_j) \rangle$ without explicitly computing the coordinates in $\mathcal{F}$. This avoids the computational burden of working directly in a potentially infinite-dimensional space.
+
+$$
+x \in \mathbb{R}^d
+$$
+
+$$
+\Phi: \mathbb{R}^d \to \mathcal{F}
+$$
+
+$$
+k(x_i, x_j) = \langle \Phi(x_i), \Phi(x_j) \rangle
+$$
+
+### PCA in Feature Space
+
+In the feature space $\mathcal{F}$, we aim to find principal components by solving the eigenvalue problem for the covariance matrix. Let the mapped data be $\Phi(x_1), \dots, \Phi(x_N)$. Assuming the data is centered in $\mathcal{F}$ (i.e., $\sum_{i=1}^N \Phi(x_i) = 0$), the covariance matrix is defined as:$$C = \frac{1}{N} \sum_{i=1}^N \Phi(x_i) \Phi(x_i)^T$$We seek eigenvectors $V$ and eigenvalues $\lambda$ such that $CV = \lambda V$. Any eigenvector $V$ of $C$ can be expressed as a linear combination of the mapped data points: $V = \sum_{i=1}^N \alpha_i \Phi(x_i)$.
+
+$$
+\sum_{i=1}^N \Phi(x_i) = 0
+$$
+
+$$
+C = \frac{1}{N} \sum_{i=1}^N \Phi(x_i) \Phi(x_i)^T
+$$
+
+$$
+CV = \lambda V
+$$
+
+$$
+V = \sum_{i=1}^N \alpha_i \Phi(x_i)
+$$
+
+### Kernel Matrix Eigenvalue Problem
+
+Substituting $V = \sum_{i=1}^N \alpha_i \Phi(x_i)$ into the eigenvalue equation $CV = \lambda V$ and multiplying by $\Phi(x_j)^T$ from the left, we can transform the problem into an eigenvalue problem for the kernel matrix $K$. The kernel matrix $K$ is an $N \times N$ matrix with entries $K_{ij} = \langle \Phi(x_i), \Phi(x_j) \rangle = k(x_i, x_j)$. The resulting eigenvalue problem is:$$K \mathbf{\alpha} = N \lambda \mathbf{\alpha}$$where $\mathbf{\alpha}$ is the vector of coefficients $(\alpha_1, \dots, \alpha_N)^T$. This equation allows us to find the coefficients $\mathbf{\alpha}$ and eigenvalues $\lambda$ without explicitly computing $\Phi(x_i)$.
+
+$$
+K_{ij} = \langle \Phi(x_i), \Phi(x_j) \rangle = k(x_i, x_j)
+$$
+
+$$
+K \mathbf{\alpha} = N \lambda \mathbf{\alpha}
+$$
+
+### Projecting Data to Components
+
+Once the eigenvectors $\mathbf{\alpha}^k$ (corresponding to eigenvalues $\lambda_k$) of the kernel matrix are found, the $k$-th principal component of a new data point $x_{new}$ is given by its projection onto the $k$-th eigenvector $V_k$ in the feature space. This projection is computed as:$$\langle V_k, \Phi(x_{new}) \rangle = \sum_{i=1}^N \alpha_i^k \langle \Phi(x_i), \Phi(x_{new}) \rangle = \sum_{i=1}^N \alpha_i^k k(x_i, x_{new})$$The transformed data for $x_{new}$ consists of the $p$ principal components $(z_1, \dots, z_p)$, where $z_k = \sum_{i=1}^N \alpha_i^k k(x_i, x_{new})$.
+
+$$
+\langle V_k, \Phi(x_{new}) \rangle = \sum_{i=1}^N \alpha_i^k \langle \Phi(x_i), \Phi(x_{new}) \rangle = \sum_{i=1}^N \alpha_i^k k(x_i, x_{new})
+$$
+
+$$
+z_k = \sum_{i=1}^N \alpha_i^k k(x_i, x_{new})
+$$
+
+## Algorithm Steps
+
+1. Choose a kernel function $k(x_i, x_j)$ (e.g., Radial Basis Function, polynomial, linear) and its associated hyperparameters.
+2. Compute the $N \times N$ kernel matrix $K$, where each entry $K_{ij} = k(x_i, x_j)$ for all training data pairs $(x_i, x_j)$.
+3. Center the kernel matrix $K$ by applying the transformation $K' = K - \mathbf{1}_N K - K \mathbf{1}_N + \mathbf{1}_N K \mathbf{1}_N$, where $\mathbf{1}_N$ is an $N \times N$ matrix with all entries $1/N$.
+4. Solve the eigenvalue problem $K' \mathbf{\alpha} = N \lambda \mathbf{\alpha}$ for the centered kernel matrix $K'$ to find its eigenvalues $\lambda_k$ and corresponding eigenvectors $\mathbf{\alpha}^k$.
+5. Sort the eigenvalues $\lambda_k$ in descending order and select the top $p$ eigenvalues and their corresponding eigenvectors $\mathbf{\alpha}^k$ to retain $p$ principal components.
+6. Normalize the selected eigenvectors such that $\lambda_k \langle \mathbf{\alpha}^k, \mathbf{\alpha}^k \rangle = 1$ to ensure proper scaling of the components.
+7. To project a new data point $x_{new}$ onto the $k$-th principal component, compute its score $z_k = \sum_{i=1}^N \alpha_i^k k(x_i, x_{new})$.
+8. The transformed data consists of the $p$ principal components $(z_1, \dots, z_p)$ for each data point, representing its projection into the reduced feature space.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int or None` | `None` | integer \ge 1 or None | Number of components to keep. If None, all components are kept. |
+| `kernel` | `str or callable` | `"linear"` | "linear", "poly", "rbf", "sigmoid", "cosine", "precomputed", or a callable | Kernel to be used. Can be 'linear', 'poly', 'rbf', 'sigmoid', 'cosine', 'precomputed', or a callable function. |
+| `gamma` | `float or None` | `None` | float > 0 | Kernel coefficient for 'rbf', 'poly', and 'sigmoid'. If None, defaults to $1 / n\_features$. |
+| `degree` | `float` | `3.0` | float > 0 | Degree of the polynomial kernel ('poly'). Ignored by other kernels. |
+| `coef0` | `float` | `1.0` | float | Independent term in polynomial and sigmoid kernels. |
+| `alpha` | `float` | `1.0` | float \ge 0 | Hyperparameter for the ridge regression regularization term, used for the inverse transform. |
+| `fit_inverse_transform` | `bool` | `False` | true, false | Whether to learn the inverse transform for reconstruction of the original data from the reduced space. |
+| `eigen_solver` | `str` | `"auto"` | "auto", "dense", "arpack", "randomized" | Solver for the eigenvalue problem. 'auto' chooses based on data size, 'dense' uses standard dense solver, 'arpack' uses ARPACK, 'randomized' uses randomized SVD. |
+| `tol` | `float` | `0.0` | float \ge 0 | Tolerance for the eigenvalue solver. Only used if eigen_solver is 'arpack'. |
+| `max_iter` | `int or None` | `None` | integer \ge 1 or None | Maximum number of iterations for the eigenvalue solver. Only used if eigen_solver is 'arpack'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It can capture non-linear relationships in data, providing more flexible dimensionality reduction than linear PCA.
+- The kernel trick allows it to operate in high-dimensional feature spaces without explicit computation, avoiding the curse of dimensionality for the feature space itself.
+- It can reveal underlying structures that are not linearly separable, which is crucial for complex datasets.
+- The method is entirely unsupervised, making it suitable for exploratory data analysis and feature extraction where labels are unavailable.
+- It is a robust technique for manifold learning when the data lies on a non-linear manifold embedded in a higher-dimensional space.
+
+## Weaknesses
+
+- The computational cost for constructing and diagonalizing the $N \times N$ kernel matrix can be prohibitive for very large datasets, scaling as $O(N^3)$.
+- The choice of kernel function and its hyperparameters significantly impacts the performance and quality of the dimensionality reduction, often requiring careful tuning.
+- Interpreting the resulting principal components can be challenging because they are non-linear combinations of the original features in a transformed space.
+- Unlike linear PCA, there is no direct pre-image mapping from the reduced space back to the original input space, making data reconstruction difficult.
+- The centering of the kernel matrix is crucial and can be complex, especially when dealing with out-of-sample data or incremental learning scenarios.
+
+## Use Cases
+
+### Bioinformatics
+
+Reducing the dimensionality of gene expression data or protein sequence data to visualize clusters, identify patterns, or prepare data for downstream analysis.
+
+### Image Processing
+
+Extracting non-linear features from image datasets for tasks like face recognition, object detection, or image retrieval, especially when linear methods fail to capture complex visual patterns.
+
+### Anomaly Detection
+
+Projecting high-dimensional data into a lower-dimensional space where anomalies might become more apparent due to their deviation from the main data manifold, aiding in outlier identification.
+
+### Manifold Learning
+
+Discovering the intrinsic low-dimensional manifold on which complex datasets reside, useful for visualization and understanding the true underlying structure of data.
+
+### Data Visualization
+
+Projecting high-dimensional datasets into 2D or 3D for visual inspection, revealing non-linear clusters or relationships that would be obscured in the original space.
+
+### Feature Extraction
+
+Generating new, non-linear features that can be used as input for subsequent supervised learning algorithms, potentially improving model performance by providing more discriminative representations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Kernel PCA from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.decomposition import KernelPCA
+
+model = KernelPCA()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Kernel PCA Lab" />
+
+## References
+
+- Sch�lkopf (1998). Sch�lkopf.
+- [scikit-learn: KernelPCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.KernelPCA.html)

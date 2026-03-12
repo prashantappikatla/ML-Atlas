@@ -1,0 +1,228 @@
+---
+title: "Isolation Forest"
+slug: "isolation-forest"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2008
+author: "Liu et al."
+paper: "Liu et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "data-mining", "decision-trees", "ensemble-method", "high-dimensional", "outlier-detection", "tree-based", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "dbscan"
+  - "elliptic-envelope"
+  - "one-class-svm"
+---
+
+## Overview
+
+Isolation Forest is an unsupervised anomaly detection algorithm that identifies anomalies by explicitly isolating them rather than profiling normal data points. It operates on the principle that anomalies are "few and different," making them easier to separate from the majority of data points using random partitioning. This ensemble method constructs an ensemble of isolation trees, where anomalies are characterized by shorter average path lengths from the root to the leaf node.
+
+## History
+
+**2008** — Liu, Ting, Kai Ming, and Zhou Zhi-Hua introduce the Isolation Forest algorithm in their paper "Isolation Forest" at the Eighth IEEE International Conference on Data Mining.
+
+**2012** — The concept of Extended Isolation Forest is proposed by Hariri, Kind, and Brunner, addressing limitations of the original algorithm in handling high-dimensional data and axis-parallel splits.
+
+**2018** — Isolation Forest is officially included in the scikit-learn library, making it widely accessible to the machine learning community.
+
+## Mathematical Intuition
+
+### Random Partitioning and Isolation
+
+The core idea is that anomalies are easier to isolate than normal points. An isolation tree (iTree) is built by recursively partitioning the data. At each node, a feature $q$ is randomly selected, and a split value $p$ is randomly chosen between the minimum and maximum values of $q$ in the current data subset. This process continues until a node contains only one instance or all instances in a node have the same values for all features, or a maximum depth is reached.
+
+$$
+q
+$$
+
+$$
+p
+$$
+
+### Path Length as Anomaly Indicator
+
+The path length $h(x)$ of an instance $x$ in an iTree is the number of edges traversed from the root node to the leaf node where $x$ is isolated. Anomalies, being few and different, are expected to have shorter average path lengths because fewer partitions are needed to separate them from the rest of the data. Conversely, normal instances require more partitions and thus have longer path lengths.
+
+$$
+h(x)
+$$
+
+### Anomaly Score Calculation
+
+The anomaly score for an instance $x$ is derived from its average path length across all isolation trees in the forest. Let $E[h(x)]$ be the average path length of $x$ over a collection of $T$ isolation trees. The anomaly score $s(x, n)$ is defined as:
+$$s(x, n) = 2^{-\frac{E[h(x)]}{c(n)}}$$
+where $n$ is the number of instances in the training data, and $c(n)$ is a normalization constant representing the average path length of an unsuccessful search in a Binary Search Tree (BST) given $n$ points, defined as:
+$$c(n) = 2H(n-1) - \frac{2(n-1)}{n} \quad \text{for } n > 2$$
+$$c(n) = 1 \quad \text{for } n = 2$$
+$$c(n) = 0 \quad \text{for } n < 2$$
+Here, $H(k)$ is the harmonic number, $H(k) = \ln(k) + \gamma$, where $\gamma$ is Euler's constant. A score close to 1 indicates a high likelihood of anomaly, while a score much smaller than 0.5 suggests a normal instance.
+
+$$
+E[h(x)]
+$$
+
+$$
+T
+$$
+
+$$
+s(x, n)
+$$
+
+$$
+c(n)
+$$
+
+$$
+H(k)
+$$
+
+$$
+\ln(k)
+$$
+
+$$
+\gamma
+$$
+
+$$
+s(x, n) = 2^{-\frac{E[h(x)]}{c(n)}}
+$$
+
+$$
+c(n) = 2H(n-1) - \frac{2(n-1)}{n} \quad \text{for } n > 2
+$$
+
+$$
+c(n) = 1 \quad \text{for } n = 2
+$$
+
+$$
+c(n) = 0 \quad \text{for } n < 2
+$$
+
+$$
+H(k) = \ln(k) + \gamma
+$$
+
+### Ensemble Averaging for Robustness
+
+An Isolation Forest consists of an ensemble of $T$ isolation trees. Each tree is built independently on a subsample of the training data. The final anomaly score for an instance is the average of its path lengths across all trees. This ensemble approach reduces the variance and improves the robustness of the anomaly detection, mitigating the randomness inherent in single tree construction.
+
+$$
+T
+$$
+
+## Algorithm Steps
+
+1. For a specified number of isolation trees, randomly select a subsample of the training data.
+2. Recursively build an isolation tree (iTree) from the subsample.
+3. At each node of the iTree, randomly select a feature $q$ and a split value $p$ between the minimum and maximum values of $q$ in the current data subset.
+4. Partition the data into two child nodes based on whether the feature value is less than or equal to $p$ or greater than $p$.
+5. Continue partitioning until the node contains only one instance, all instances in the node have identical feature values, or a predefined maximum depth is reached.
+6. To detect anomalies for a new instance $x$, traverse each iTree in the forest to determine its path length $h(x)$.
+7. Calculate the average path length $E[h(x)]$ across all iTrees.
+8. Compute the anomaly score $s(x, n)$ using the formula $s(x, n) = 2^{-\frac{E[h(x)]}{c(n)}}$, where $c(n)$ is a normalization constant.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | >0 | The number of base estimators (isolation trees) in the ensemble. |
+| `max_samples` | `int or float or "auto"` | `auto` | >0 or (0.0, 1.0] or "auto" | The number of samples to draw from the training data to train each base estimator. If int, then draw max_samples samples. If float, then draw max_samples * X.shape[0] samples. If "auto", then max_samples = min(256, n_samples). |
+| `contamination` | `float or "auto"` | `auto` | (0.0, 0.5] or "auto" | The proportion of outliers in the dataset. Used when fitting to define the threshold on the decision function. If "auto", the threshold is determined by the max_samples parameter. |
+| `max_features` | `int or float` | `1.0` | >0 or (0.0, 1.0] | The number of features to draw from X to train each base estimator. If int, then draw max_features features. If float, then draw max_features * X.shape[1] features. |
+| `bootstrap` | `bool` | `False` |  | If True, individual trees are built with replacement. If False, sampling is performed without replacement. |
+| `random_state` | `int or RandomState instance or None` | `None` |  | Controls the pseudo-randomness of the subsampling and feature selection. |
+| `n_jobs` | `int or None` | `None` |  | The number of jobs to run in parallel for fit and predict. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+| `warm_start` | `bool` | `False` |  | When set to True, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is highly effective at detecting anomalies in high-dimensional datasets without requiring density estimation or distance metrics.
+- The algorithm has a linear time complexity with respect to the number of instances and a low constant factor, making it efficient for large datasets.
+- It explicitly isolates anomalies, which are typically few, rather than modeling the profile of normal instances, which can be complex and diverse.
+- Isolation Forest requires minimal memory as it only stores the structure of the isolation trees and does not need to store the entire dataset.
+- It is less sensitive to the presence of outliers in the training data compared to distance-based or density-based methods.
+- The algorithm can handle both numerical and categorical features if categorical features are appropriately encoded.
+
+## Weaknesses
+
+- Performance can degrade in datasets with a very high number of irrelevant features, as random splits might not effectively isolate anomalies.
+- It is sensitive to the choice of hyperparameters, particularly max_samples and n_estimators, which can significantly impact detection accuracy.
+- Isolation Forest is designed for global anomalies and may struggle with local anomalies where the anomalous nature is only apparent within a specific cluster of normal data.
+- The algorithm assumes that anomalies are rare and distinct; if anomalies are clustered or very similar to normal data, its effectiveness decreases.
+- It does not provide a probability score for anomaly, only an anomaly score that needs interpretation relative to a threshold.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns in financial data that may indicate fraudulent activity.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic or user behavior that could signify a cyberattack or unauthorized access.
+
+### Manufacturing Quality Control
+
+Pinpointing defective products or anomalies in sensor readings from production lines to prevent faulty items from reaching consumers.
+
+### Medical Diagnosis
+
+Flagging unusual patient data or medical test results that might indicate rare diseases or conditions.
+
+### IT Operations Monitoring
+
+Detecting abnormal system behavior, server failures, or performance bottlenecks in large-scale IT infrastructure.
+
+### Environmental Monitoring
+
+Identifying unusual sensor readings in environmental data that could indicate pollution events or climate anomalies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Isolation Forest from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import IsolationForest
+
+model = IsolationForest()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Isolation Forest Lab" />
+
+## References
+
+- Liu et al. (2008). Liu et al..
+- [scikit-learn: IsolationForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html)

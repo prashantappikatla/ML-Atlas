@@ -1,0 +1,169 @@
+---
+title: "MoCo"
+slug: "moco"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2020
+author: "He et al."
+paper: "He et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "contrastive-learning", "deep-learning", "image-recognition", "pre-training", "representation-learning", "self-supervised-learning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "byol"
+  - "momentum"
+  - "simclr"
+---
+
+## Overview
+
+MoCo ([Momentum](/algorithms/meta-learning/optimization/momentum) Contrast for Unsupervised Visual Representation Learning) addresses the challenge of building large and consistent dictionaries for contrastive learning by introducing a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a queue mechanism. This approach enables self-supervised learning to achieve competitive performance with supervised pre-training on various downstream tasks, particularly in computer vision. It effectively decouples the dictionary size from the mini-batch size, allowing for a vast number of negative samples without requiring extremely large batches. MoCo's key innovation lies in maintaining a dynamic dictionary of negative samples using a queue and a slowly evolving [Momentum](/algorithms/meta-learning/optimization/momentum) encoder.
+
+## History
+
+**2018** — Oord et al. introduce Contrastive Predictive Coding (CPC), which proposes the InfoNCE loss, a foundational component for many subsequent contrastive learning methods.
+
+**2019** — Chen et al. publish [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr), demonstrating the power of large batch sizes and strong data augmentation for contrastive learning, achieving state-of-the-art results.
+
+**2020** — He et al. introduce MoCo, proposing the [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a dynamic queue to enable large and consistent dictionaries for contrastive learning, overcoming the batch size limitation of [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr).
+
+**2020** — Chen et al. release MoCo v2, an improved version of MoCo that incorporates an MLP projection head and more aggressive data augmentation, further boosting performance.
+
+**2021** — Caron et al. introduce DINO, a self-supervised method for Vision Transformers that builds upon the ideas of self-distillation and contrastive learning, showcasing the continued evolution of the field.
+
+## Mathematical Intuition
+
+### InfoNCE Contrastive Loss
+
+MoCo utilizes the InfoNCE loss function, which aims to maximize the agreement between an anchor query and its positive key, while simultaneously minimizing agreement with numerous negative keys. For a given query $q$, a positive key $k_+$, and $K$ negative keys $k_i$, the loss is defined as:
+$$L_q = -\log \frac{\exp(q \cdot k_+ / \tau)}{\sum_{i=0}^K \exp(q \cdot k_i / \tau)}$$
+Here, $q \cdot k$ denotes the dot product similarity, and $\tau$ is a temperature hyperparameter that scales the logits. The numerator measures the similarity of the query to its positive counterpart, while the denominator sums similarities to all positive and negative keys, effectively acting as a multi-class classification problem where the positive key is the correct class.
+
+$$
+L_q = -\log \frac{\exp(q \cdot k_+ / \tau)}{\sum_{i=0}^K \exp(q \cdot k_i / \tau)}
+$$
+
+### Momentum Encoder Update
+
+To ensure consistency of the key representations over time, MoCo employs a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder $f_k$ whose parameters $\theta_k$ are updated as a moving average of the query encoder's parameters $\theta_q$. This [Momentum](/algorithms/meta-learning/optimization/momentum) update prevents the key encoder from being updated directly by backpropagation, which would make the negative keys in the queue inconsistent. The update rule is:
+$$\theta_k = m \theta_k + (1-m) \theta_q$$
+where $m \in [0, 1)$ is the [Momentum](/algorithms/meta-learning/optimization/momentum) coefficient. A high [Momentum](/algorithms/meta-learning/optimization/momentum) coefficient (e.g., $m=0.999$) ensures that the key encoder evolves smoothly and slowly, providing stable targets for the query encoder.
+
+$$
+\theta_k = m \theta_k + (1-m) \theta_q
+$$
+
+### Dynamic Dictionary with Queue
+
+MoCo maintains a large and dynamic dictionary of negative samples using a queue. Instead of computing negative samples from the current mini-batch (which limits the number of negatives to the batch size), MoCo stores representations from previous mini-batches in a first-in, first-out (FIFO) queue. When a new mini-batch's key representations are computed by the [Momentum](/algorithms/meta-learning/optimization/momentum) encoder, they are enqueued, and the oldest representations are dequeued. This mechanism allows the dictionary size $K$ to be much larger than the mini-batch size, providing a richer set of negative examples for the InfoNCE loss and improving the quality of learned representations.
+
+## Algorithm Steps
+
+1. Initialize a query encoder $f_q$ and a key encoder $f_k$ with identical architectures, and a queue $Q$ of fixed size for storing negative keys.
+2. Initialize the parameters of the key encoder $\theta_k$ as a direct copy of the query encoder's parameters $\theta_q$.
+3. For each training iteration, sample a mini-batch of unlabeled images.
+4. For each image $x$ in the mini-batch, generate two augmented views: $x^q$ (query) and $x^k$ (key).
+5. Compute the query representation $q = f_q(x^q)$ and the key representation $k = f_k(x^k)$.
+6. Form a set of negative keys $K_-$ by sampling from the current contents of the queue $Q$.
+7. Compute the InfoNCE loss using $q$, $k$, and $K_-$, treating $k$ as the positive sample and $K_-$ as negative samples.
+8. Update the query encoder $f_q$ parameters $\theta_q$ via backpropagation based on the calculated loss.
+9. Update the key encoder $f_k$ parameters $\theta_k$ using the momentum update rule: $\theta_k = m \theta_k + (1-m) \theta_q$.
+10. Enqueue the current batch's key representations $k$ into $Q$ and dequeue the oldest representations to maintain a fixed queue size.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `queue_size` | `int` | `65536` | positive integer | The maximum number of negative key representations stored in the memory bank (queue). |
+| `momentum_coefficient` | `float` | `0.999` | 0.0 to 1.0 (exclusive of 1.0) | The momentum factor for updating the key encoder's parameters. A higher value means the key encoder updates more slowly. |
+| `temperature` | `float` | `0.07` | positive float | The temperature parameter for the InfoNCE loss, which scales the logits before the softmax operation. |
+| `base_encoder` | `str` | `ResNet50` | e.g., 'ResNet18', 'ResNet50', 'ResNet101' | The architecture of the backbone network used for both the query and key encoders. |
+| `projection_dim` | `int` | `128` | positive integer | The output dimension of the projection head (MLP) that maps the encoder's output to a lower-dimensional space for contrastive loss calculation. |
+| `mlp_head` | `bool` | `True` | True, False | Whether to use an MLP projection head after the backbone encoder. MoCo v2 introduced this for improved performance. |
+| `num_epochs` | `int` | `200` | positive integer | The total number of training epochs for the self-supervised pre-training phase. |
+| `learning_rate` | `float` | `0.03` | positive float | The initial learning rate for the optimizer used to update the query encoder. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- MoCo enables the creation of a large and consistent dictionary of negative samples, which is crucial for effective contrastive learning.
+- The momentum encoder provides stable key representations, preventing representational collapse and improving training stability.
+- It decouples the dictionary size from the mini-batch size, allowing for effective training even with smaller batches, which is beneficial for limited GPU memory.
+- MoCo achieves competitive performance with supervised pre-training on various downstream tasks, especially in computer vision, demonstrating strong transferability.
+- The learned representations are highly transferable to various downstream tasks like object detection, semantic segmentation, and instance segmentation.
+- The architecture is relatively simple and easy to implement compared to some other self-supervised methods.
+
+## Weaknesses
+
+- The choice of the momentum coefficient $m$ is critical and can significantly impact training stability and the quality of learned representations.
+- The queue size is a hyperparameter that requires careful tuning, as an insufficient queue limits negative samples, while an excessively large one consumes more memory.
+- MoCo can be computationally intensive due to maintaining two separate encoders and managing a large memory queue.
+- It requires careful selection and application of data augmentation strategies to create effective positive pairs, which can be domain-specific.
+- The performance can be sensitive to the temperature hyperparameter $\tau$ in the InfoNCE loss, necessitating careful tuning.
+- The training process can be lengthy, often requiring hundreds of epochs to converge to high-quality representations.
+
+## Use Cases
+
+### Computer Vision
+
+Pre-training backbone networks for tasks like image classification, object detection, and semantic segmentation, especially when labeled data is scarce.
+
+### Medical Imaging
+
+Learning robust features from large collections of unlabeled medical scans (e.g., X-rays, MRIs) to improve diagnostic accuracy and disease detection.
+
+### Remote Sensing
+
+Extracting meaningful representations from satellite or aerial imagery for applications such as land cover classification, change detection, and environmental monitoring.
+
+### Video Understanding
+
+Learning spatio-temporal features from unlabeled video data for tasks like action recognition, video retrieval, and anomaly detection.
+
+### Natural Language Processing
+
+Adapting contrastive learning principles to learn high-quality sentence or document embeddings from vast text corpora for tasks like semantic search or text classification.
+
+### Robotics
+
+Enabling robots to learn effective visual representations from their sensory inputs for improved perception, navigation, and manipulation in unstructured environments.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MoCo from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MoCo does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MoCo Lab" />
+
+## References
+
+- He et al. (2020). He et al..

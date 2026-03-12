@@ -1,0 +1,187 @@
+---
+title: "Doc2Vec"
+slug: "doc2vec"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2014
+author: "Le & Mikolov"
+paper: "Le & Mikolov"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "document-embedding", "natural-language-processing", "neural-networks", "representation-learning", "text-mining", "unsupervised-learning", "vector-space-models"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "fasttext"
+  - "glove"
+  - "latent-dirichlet-allocation"
+  - "latent-semantic-analysis"
+  - "stochastic-gradient-descent"
+  - "word2vec"
+---
+
+## Overview
+
+Doc2Vec, also known as Paragraph Vector, is an unsupervised algorithm designed to learn fixed-length feature representations (embeddings) for variable-length pieces of text, such as sentences, paragraphs, or entire documents. It extends the ideas of [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec) by introducing a unique "paragraph ID" or "document vector" that is trained alongside word vectors to capture the overall meaning and context of a document. This approach allows for semantic similarity comparisons and downstream machine learning tasks on textual data.
+
+## History
+
+**2013** — Tomas Mikolov and colleagues at Google introduce [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec), a neural network model for learning word embeddings, which significantly advanced the field of distributed word representations.
+
+**2014** — Quoc Le and Tomas Mikolov publish "Distributed Representations of Sentences and Documents," introducing Doc2Vec (Paragraph Vector) as an extension of [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec) to learn embeddings for larger text units.
+
+**2015** — The `gensim` library implements Doc2Vec, making it widely accessible for practitioners and contributing to its adoption in various NLP applications.
+
+**2016** — Further research explores optimizations and applications of Doc2Vec, including its use in sentiment analysis and information retrieval tasks, solidifying its role in text representation.
+
+## Mathematical Intuition
+
+### Word2Vec Foundation
+
+Doc2Vec builds upon the principles of [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec), which learns word embeddings by predicting context words from a target word (Skip-gram) or predicting a target word from its context (CBOW). In CBOW, given a context window of words $w_{i-c}, ..., w_{i-1}, w_{i+1}, ..., w_{i+c}$, the model predicts the center word $w_i$. The objective is to maximize the log probability:
+$$ \frac{1}{T} \sum_{t=1}^T \log P(w_t | w_{t-c}, ..., w_{t+c}) $$
+where $P(w_t | \text{context})$ is typically computed using a softmax function over dot products of word vectors.
+
+$$
+\frac{1}{T} \sum_{t=1}^T \log P(w_t | w_{t-c}, ..., w_{t+c})
+$$
+
+### Paragraph Vector - Distributed Memory (PV-DM)
+
+PV-DM is analogous to the CBOW model in [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec). For each training instance, it samples a fixed-size window of words from a document. The model then predicts a target word from the context words and a unique paragraph ID (document vector). The paragraph vector acts as a memory of the document, representing the missing information from the current context. The input to the prediction task is the concatenation or average of the paragraph vector and the word vectors of the context words. This combined vector is then used to predict the next word in the sequence, maximizing $P(w_t | w_{t-c}, ..., w_{t+c}, D)$, where $D$ is the paragraph vector for the current document.
+
+$$
+P(w_t | w_{t-c}, ..., w_{t+c}, D)
+$$
+
+### Paragraph Vector - Distributed Bag-of-Words (PV-DBOW)
+
+PV-DBOW is analogous to the Skip-gram model. Instead of using context words, it ignores the context words and forces the model to predict words randomly sampled from the document, given only the paragraph vector. This means the paragraph vector is trained to represent the entire document's content, effectively acting as a generative model for the words within it. The objective is to maximize the log probability of predicting a sequence of words $w_{t-c}, ..., w_{t+c}$ given the paragraph vector $D$:
+$$ \frac{1}{T} \sum_{t=1}^T \sum_{-c \le j \le c, j \ne 0} \log P(w_{t+j} | D) $$
+This model is simpler and often performs comparably to PV-DM, especially when combined.
+
+$$
+\frac{1}{T} \sum_{t=1}^T \sum_{-c \le j \le c, j \ne 0} \log P(w_{t+j} | D)
+$$
+
+### Training Objective and Optimization
+
+Both PV-DM and PV-DBOW models are trained using [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). The objective function typically involves maximizing the log-likelihood of predicting context words (or document words) given the input vectors. To make training computationally feasible, techniques like hierarchical softmax or negative sampling are employed. Negative sampling approximates the full softmax by sampling a small number of "negative" (incorrect) words for each positive word, significantly reducing the computational cost of gradient updates. For a positive pair $(w, \text{context})$ and $k$ negative samples $w_n$, the objective for negative sampling is to maximize:
+$$ \log \sigma(v_{w_o}'^T v_w) + \sum_{i=1}^k E_{w_n \sim P_n(w)} [\log \sigma(-v_{w_n}'^T v_w)] $$
+where $v_w$ is the input vector (word or concatenated/averaged context + paragraph vector), $v_{w_o}'$ is the output vector for the positive word, and $v_{w_n}'$ are output vectors for negative samples. $\sigma(x) = 1/(1+e^{-x})$ is the sigmoid function.
+
+$$
+\log \sigma(v_{w_o}'^T v_w) + \sum_{i=1}^k E_{w_n \sim P_n(w)} [\log \sigma(-v_{w_n}'^T v_w)]
+$$
+
+$$
+\sigma(x) = 1/(1+e^{-x})
+$$
+
+## Algorithm Steps
+
+1. Initialize word vectors for all words in the vocabulary and unique paragraph vectors for all documents with random values.
+2. Choose a training model: PV-DM (Distributed Memory) or PV-DBOW (Distributed Bag-of-Words).
+3. For PV-DM: Iterate through each document and, for each word $w_t$ in a sliding window, collect its context words $w_{t-c}, ..., w_{t+c}$ and the document's paragraph vector $D$.
+4. For PV-DM: Concatenate or average the word vectors of the context words and the paragraph vector to form a combined input vector.
+5. For PV-DBOW: Iterate through each document and, for each word $w_t$ in a sliding window, use only the document's paragraph vector $D$ as input.
+6. Predict the target word $w_t$ (for PV-DM) or a randomly sampled word from the document (for PV-DBOW) using a neural network layer with the combined input vector (PV-DM) or the paragraph vector (PV-DBOW).
+7. Update the word vectors and paragraph vectors using backpropagation and an optimization algorithm like stochastic gradient descent, typically employing negative sampling or hierarchical softmax to improve efficiency.
+8. Repeat the training process for multiple epochs until the model converges or a predefined number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `vector_size` | `int` | `100` | positive integer | Dimensionality of the document vectors. |
+| `window` | `int` | `5` | positive integer | Maximum distance between the current and predicted word within a document. |
+| `min_count` | `int` | `5` | non-negative integer | Ignores all words with total frequency lower than this. |
+| `epochs` | `int` | `10` | positive integer | Number of iterations (epochs) over the corpus. |
+| `dm` | `int` | `1` | 0 or 1 | Defines the training algorithm. 1 for PV-DM (Distributed Memory), 0 for PV-DBOW (Distributed Bag-of-Words). |
+| `negative` | `int` | `5` | non-negative integer | If > 0, negative sampling will be used, the int for negative specifies how many 'noise words' should be drawn. |
+| `alpha` | `float` | `0.025` | positive float | The initial learning rate. |
+| `min_alpha` | `float` | `0.00025` | positive float | Learning rate will linearly decay to `min_alpha` as training progresses. |
+| `workers` | `int` | `3` | positive integer | Use these many worker threads to train the model. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Doc2Vec can learn meaningful, fixed-length representations for documents of arbitrary length, enabling direct comparison and analysis.
+- The embeddings capture semantic relationships between documents, allowing for tasks like document similarity and clustering.
+- It can handle out-of-vocabulary words during inference if the model is trained with a mechanism to infer new word vectors or if they are ignored.
+- The model is unsupervised, requiring only raw text data for training, making it highly applicable to large unlabelled corpora.
+- Both PV-DM and PV-DBOW models offer distinct ways to learn document representations, often performing best when combined or when PV-DBOW is used due to its simplicity and efficiency.
+- The resulting document vectors can serve as powerful features for various downstream supervised machine learning tasks, often outperforming traditional bag-of-words approaches.
+
+## Weaknesses
+
+- Training Doc2Vec models can be computationally intensive and time-consuming, especially for very large corpora and high-dimensional vectors.
+- The quality of the learned embeddings is highly sensitive to hyperparameters such as vector size, window size, and the number of training epochs.
+- Doc2Vec struggles with very short documents or sentences where there isn't enough context to learn robust representations.
+- It does not inherently capture the order of words within a document beyond the local context window, potentially losing some syntactic information.
+- The model's ability to generalize to entirely new, unseen documents can be limited if they differ significantly from the training data distribution.
+
+## Use Cases
+
+### Information Retrieval
+
+Ranking search results by semantic similarity to a query document or finding related articles in a knowledge base.
+
+### Document Classification
+
+Using document embeddings as features for training classifiers to categorize news articles, emails, or scientific papers.
+
+### Text Clustering
+
+Grouping similar documents together based on their vector representations, useful for topic discovery or organizing large text collections.
+
+### Recommendation Systems
+
+Recommending documents, articles, or products to users based on the similarity of their past interactions or preferences to document embeddings.
+
+### Sentiment Analysis
+
+Representing movie reviews or social media posts as document vectors to predict sentiment (positive, negative, neutral).
+
+### Plagiarism Detection
+
+Identifying documents with high semantic similarity to detect potential plagiarism or content duplication.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Doc2Vec from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Doc2Vec does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Doc2Vec Lab" />
+
+## References
+
+- Le & Mikolov (2014). Le & Mikolov.

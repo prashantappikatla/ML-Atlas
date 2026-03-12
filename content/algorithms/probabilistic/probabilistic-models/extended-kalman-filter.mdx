@@ -1,0 +1,211 @@
+---
+title: "Extended Kalman Filter"
+slug: "extended-kalman-filter"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1960
+author: "Nonlinear Kalman filtering"
+paper: "Nonlinear Kalman filtering"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bayesian-inference", "control-theory", "dynamic-systems", "filtering", "nonlinear-systems", "probabilistic-model", "state-estimation", "timeseries"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "kalman-filter"
+  - "particle-filter"
+  - "unscented-kalman-filter"
+---
+
+## Overview
+
+The Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) (EKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), designed for state estimation in dynamic systems where the system dynamics or measurement models are nonlinear. It operates by linearizing the nonlinear functions around the current state estimate using Taylor series expansion, allowing the application of the linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) equations. EKF provides an optimal estimate of the system's state and its uncertainty by iteratively predicting the state and then updating it with new measurements.
+
+## History
+
+**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the foundational linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter).
+
+**1960** — The concept of extending the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) to nonlinear systems emerges, leading to the development and widespread adoption of the Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) in various engineering fields.
+
+**1960** — The EKF becomes a foundational algorithm in aerospace engineering for navigation and control, notably used in the Apollo space program for trajectory estimation.
+
+**1995** — Jeffrey Uhlmann introduces the [Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/unscented-kalman-filter) (UKF), offering an alternative to EKF for nonlinear systems that avoids explicit Jacobian computation.
+
+**2000** — Particle Filters gain prominence as a robust alternative for highly nonlinear and non-Gaussian systems, addressing some limitations of the EKF.
+
+## Mathematical Intuition
+
+### State-Space Representation
+
+A dynamic system is modeled by a state transition function $f$ and a measurement function $h$. The state $x_k$ evolves over time, influenced by control inputs $u_k$ and process noise $w_k$. Measurements $z_k$ are observations of the state, corrupted by measurement noise $v_k$. Both noises are assumed to be zero-mean Gaussian with covariances $Q$ and $R$, respectively.
+$$x_k = f(x_{k-1}, u_k) + w_k$$
+$$z_k = h(x_k) + v_k$$
+
+$$
+x_k = f(x_{k-1}, u_k) + w_k
+$$
+
+$$
+z_k = h(x_k) + v_k
+$$
+
+### Linearization via Jacobians
+
+Since $f$ and $h$ are nonlinear, the EKF linearizes them around the current state estimate using Taylor series expansion. This involves computing the Jacobian matrices of $f$ and $h$. The state transition matrix $F_k$ is the Jacobian of $f$ with respect to $x$ evaluated at the previous state estimate, and the measurement matrix $H_k$ is the Jacobian of $h$ with respect to $x$ evaluated at the predicted state estimate.
+$$F_k = \frac{\partial f}{\partial x} \Big|_{x=\hat{x}_{k-1|k-1}, u=u_k}$$
+$$H_k = \frac{\partial h}{\partial x} \Big|_{x=\hat{x}_{k|k-1}}$$
+These Jacobians approximate the nonlinear functions with linear ones in the vicinity of the estimate.
+
+$$
+F_k = \frac{\partial f}{\partial x} \Big|_{x=\hat{x}_{k-1|k-1}, u=u_k}
+$$
+
+$$
+H_k = \frac{\partial h}{\partial x} \Big|_{x=\hat{x}_{k|k-1}}
+$$
+
+### Prediction Step Equations
+
+The filter first predicts the next state $\hat{x}_{k|k-1}$ and its associated error covariance $P_{k|k-1}$ based on the system dynamics and the previous state estimate. This step propagates the mean and covariance of the state forward in time.
+$$\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_k)$$
+$$P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + Q$$
+
+$$
+\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_k)
+$$
+
+$$
+P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + Q
+$$
+
+### Update Step Equations
+
+Upon receiving a new measurement $z_k$, the filter updates its state estimate. This involves calculating the Kalman gain $K_k$, which determines how much the measurement influences the state update. The state estimate and its covariance are then updated using the measurement residual $z_k - h(\hat{x}_{k|k-1})$.
+$$K_k = P_{k|k-1} H_k^T (H_k P_{k|k-1} H_k^T + R)^{-1}$$
+$$\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - h(\hat{x}_{k|k-1}))$$
+$$P_{k|k} = (I - K_k H_k) P_{k|k-1}$$
+
+$$
+K_k = P_{k|k-1} H_k^T (H_k P_{k|k-1} H_k^T + R)^{-1}
+$$
+
+$$
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - h(\hat{x}_{k|k-1}))
+$$
+
+$$
+P_{k|k} = (I - K_k H_k) P_{k|k-1}
+$$
+
+## Algorithm Steps
+
+1. Initialize the state estimate $\hat{x}_{0|0}$ and the error covariance matrix $P_{0|0}$ based on prior knowledge.
+2. For each time step $k$, perform the Prediction Step:
+3. Predict the next state using the nonlinear state transition function: $\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_k)$.
+4. Compute the Jacobian $F_k = \frac{\partial f}{\partial x} \Big|_{x=\hat{x}_{k-1|k-1}, u=u_k}$.
+5. Predict the error covariance: $P_{k|k-1} = F_k P_{k-1|k-1} F_k^T + Q$, where $Q$ is the process noise covariance.
+6. Perform the Update Step upon receiving a new measurement $z_k$:
+7. Compute the Jacobian $H_k = \frac{\partial h}{\partial x} \Big|_{x=\hat{x}_{k|k-1}}$.
+8. Calculate the Kalman gain: $K_k = P_{k|k-1} H_k^T (H_k P_{k|k-1} H_k^T + R)^{-1}$, where $R$ is the measurement noise covariance.
+9. Update the state estimate: $\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - h(\hat{x}_{k|k-1}))$.
+10. Update the error covariance: $P_{k|k} = (I - K_k H_k) P_{k|k-1}$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `initial_state_estimate` | `numpy.ndarray` | `None` | string | The initial estimate of the system's state vector $x_0$ at time $k=0$. This must be provided. |
+| `initial_covariance_estimate` | `numpy.ndarray` | `None` | string | The initial estimate of the error covariance matrix $P_0$ at time $k=0$. This must be provided. |
+| `process_noise_covariance` | `numpy.ndarray` | `None` | string | The covariance matrix $Q$ of the process noise $w_k$, representing uncertainty in the system dynamics. This must be provided. |
+| `measurement_noise_covariance` | `numpy.ndarray` | `None` | string | The covariance matrix $R$ of the measurement noise $v_k$, representing uncertainty in the sensor readings. This must be provided. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It can handle nonlinear system dynamics and measurement models by linearizing them around the current operating point.
+- The EKF is computationally efficient, making it suitable for real-time applications with limited processing power.
+- It provides not only an estimate of the system's state but also an estimate of the uncertainty (covariance) of that state.
+- The EKF is a well-established and widely understood algorithm with extensive theoretical backing and practical applications.
+- It can fuse information from multiple sensors and control inputs to produce a more accurate state estimate than any single source.
+
+## Weaknesses
+
+- The linearization process can introduce significant errors if the system's nonlinearities are strong or if the initial state estimate is poor.
+- Deriving the analytical Jacobian matrices for complex nonlinear functions can be mathematically challenging and error-prone.
+- The EKF assumes that the process and measurement noises are Gaussian, which may not hold true in many real-world scenarios.
+- It can diverge if the linearization is inaccurate or if the initial covariance estimate is too small, leading to overconfidence.
+- The EKF may struggle with multimodal probability distributions, as it only tracks a single Gaussian approximation.
+
+## Use Cases
+
+### Robotics
+
+Used for simultaneous localization and mapping (SLAM), robot navigation, and tracking of dynamic objects in an environment.
+
+### Aerospace
+
+Applied in aircraft and spacecraft navigation, attitude estimation, and precise trajectory tracking for missions.
+
+### Autonomous Vehicles
+
+Essential for sensor fusion (e.g., LiDAR, radar, camera), vehicle localization, and tracking other road users and obstacles.
+
+### Financial Modeling
+
+Employed for estimating latent states in dynamic financial models, such as volatility, interest rates, or asset prices.
+
+### Biomedical Engineering
+
+Utilized in tracking physiological signals, estimating biomechanical states, and processing data from medical sensors.
+
+### Control Systems
+
+Used in model predictive control and other advanced control strategies for real-time state estimation to inform control actions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Extended Kalman Filter from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import ExtendedKalmanFilter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ExtendedKalmanFilter()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Extended Kalman Filter Lab" />
+
+## References
+
+- Nonlinear Kalman filtering (1960). Nonlinear Kalman filtering.
+- [scikit-learn: ExtendedKalmanFilter](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ExtendedKalmanFilter.html)

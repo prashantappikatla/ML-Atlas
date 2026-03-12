@@ -1,0 +1,185 @@
+---
+title: "ConvNeXt"
+slug: "convnext"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2022
+author: "Liu et al."
+paper: "Liu et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-networks", "deep-learning", "image-classification", "large-models", "object-detection", "semantic-segmentation", "transformer-inspired"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "attention-mechanism"
+  - "efficientnet"
+  - "mobilenet"
+  - "resnet"
+  - "resnext"
+  - "swin-transformer"
+  - "transformer"
+---
+
+## Overview
+
+ConvNeXt modernizes standard Convolutional Neural Networks (CNNs) by incorporating design principles from Vision Transformers, aiming to bridge the performance gap between the two architectures for computer vision tasks. It systematically re-examines various architectural choices of a [ResNet](/algorithms/deep-learning/convolutional-networks/resnet)-like model, such as macro design, [ResNeXt](/algorithms/deep-learning/convolutional-networks/resnext)-style depthwise convolutions, inverted bottleneck structures, and activation/normalization layers, to achieve state-of-the-art performance. The resulting architecture demonstrates strong scalability and efficiency, often outperforming contemporary Transformers on various benchmarks.
+
+## History
+
+**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet)'s success at ImageNet Large Scale Visual Recognition Challenge (ILSVRC) established Convolutional Neural Networks as the dominant paradigm for computer vision.
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, introduced by Vaswani et al., revolutionized Natural Language Processing with its [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), demonstrating superior performance and scalability.
+
+**2020** — [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT) by Dosovitskiy et al. successfully applied the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture directly to image classification, challenging the long-standing dominance of CNNs in computer vision.
+
+**2021** — [Swin [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/swin-[Transformer](/algorithms/deep-learning/transformers/transformer)) by Liu et al. introduced hierarchical Transformers with shifted windows, improving efficiency and enabling dense prediction tasks like object detection and segmentation.
+
+**2022** — ConvNeXt was introduced by Liu et al. in "A ConvNet for the 2020s," systematically modernizing a [ResNet](/algorithms/deep-learning/convolutional-networks/resnet)-like architecture to match and often exceed the performance of state-of-the-art Transformers.
+
+## Mathematical Intuition
+
+### Inverted Bottleneck Structure
+
+ConvNeXt adopts an inverted bottleneck design, where the intermediate layer has a higher channel dimension than the input and output layers of a block. This design, inspired by MobileNetV2 and also present in Transformers (feed-forward networks), first expands the channels using a $1 \times 1$ convolution, applies a depthwise convolution, and then projects back to fewer channels with another $1 \times 1$ convolution. This structure allows for processing richer features in the expanded space while maintaining computational efficiency.
+
+$$
+$$ x \xrightarrow{1 \times 1 \text{ Conv, expand}} x' \xrightarrow{\text{Depthwise Conv}} x'' \xrightarrow{1 \times 1 \text{ Conv, project}} y $$
+$$
+
+### Large Kernel Depthwise Convolutions
+
+Instead of small $3 \times 3$ convolutions, ConvNeXt utilizes large kernel depthwise convolutions, typically $7 \times 7$, placed at the beginning of each block. This design choice is motivated by the large receptive fields often achieved by self-attention mechanisms in Transformers. By moving the depthwise convolution to the front and using a larger kernel, the network can capture broader spatial contexts early in the block, enhancing its ability to learn global features.
+
+$$
+$$ \text{Depthwise Conv}(x)_{i,j} = \sum_{k,l \in \mathcal{K}} W_{k,l} \cdot x_{i+k, j+l} $$
+$$
+
+### Downsampling Layers
+
+Downsampling is performed using non-overlapping $2 \times 2$ convolutional layers with a stride of 2, similar to the patch merging layers in Swin Transformers. This contrasts with the typical stride-2 convolutions or max-pooling used in traditional CNNs. By using a separate convolutional layer for downsampling, ConvNeXt ensures a more controlled and learned reduction of spatial dimensions and an increase in channel depth between stages.
+
+$$
+$$ \text{Downsample}(x) = \text{Conv}_{2 \times 2, \text{stride}=2}(x) $$
+$$
+
+### Activation and Normalization
+
+ConvNeXt simplifies the activation functions, primarily using GELU (Gaussian Error Linear Unit) throughout the network, replacing ReLU. For normalization, it replaces Batch Normalization with Layer Normalization, which is standard in Transformers. Layer Normalization operates independently on each sample across all channels, providing more stable training for larger batch sizes and better generalization, especially when combined with techniques like Layer Scale.
+
+$$
+$$ \text{GELU}(x) = x \cdot \Phi(x) $$
+$$
+
+$$
+$$ \text{LayerNorm}(x) = \gamma \frac{x - \mu}{\sigma} + \beta $$
+$$
+
+## Algorithm Steps
+
+1. Initialize the network with a stem layer consisting of a $4 \times 4$ convolution with stride 4, followed by Layer Normalization, to create initial patches from the input image.
+2. Construct multiple stages, where each stage consists of a sequence of ConvNeXt blocks.
+3. For each ConvNeXt block, apply a large kernel depthwise convolution (e.g., $7 \times 7$) to the input features.
+4. Apply Layer Normalization to the output of the depthwise convolution.
+5. Pass the normalized features through a $1 \times 1$ convolution to expand the channel dimension (e.g., by a factor of 4).
+6. Apply the GELU activation function to the expanded features.
+7. Apply another $1 \times 1$ convolution to project the features back to the original channel dimension, optionally followed by a Layer Scale operation.
+8. Between stages, apply a downsampling layer consisting of a $2 \times 2$ convolution with stride 2, followed by Layer Normalization, to reduce spatial dimensions and increase channel depth.
+9. After the final stage, apply global average pooling to the feature maps.
+10. Pass the pooled features through a final fully connected layer for classification.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `depths` | `List[int]` | `[3, 3, 9, 3]` | List of positive integers | Number of ConvNeXt blocks in each stage of the network. |
+| `dims` | `List[int]` | `[96, 192, 384, 768]` | List of positive integers | Channel dimensions for each stage of the network. |
+| `kernel_size` | `int` | `7` | Odd integer, typically 7 | Kernel size for the depthwise convolutions within each ConvNeXt block. |
+| `drop_path_rate` | `float` | `0.0` | 0.0 to 1.0 | Stochastic depth rate, which randomly drops paths during training to prevent overfitting. |
+| `layer_scale_init_value` | `float` | `1e-6` | Positive float | Initial value for the learnable scaling parameter in Layer Scale, used to stabilize training. |
+| `num_classes` | `int` | `1000` | Positive integer | Number of output classes for the classification head. |
+| `stem_kernel_size` | `int` | `4` | Positive integer | Kernel size for the initial convolutional stem layer. |
+| `stem_stride` | `int` | `4` | Positive integer | Stride for the initial convolutional stem layer. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Achieves state-of-the-art performance on various computer vision benchmarks, often matching or exceeding Transformer-based models.
+- Retains the inductive biases of CNNs, such as translation equivariance, which can be beneficial for image data.
+- Offers strong scalability, allowing for the creation of very large and powerful models when trained on extensive datasets.
+- Demonstrates good computational efficiency compared to some Vision Transformers, especially in terms of throughput.
+- Provides a robust baseline for future research in CNN architecture design, showing that modern CNNs can compete with Transformers.
+- Exhibits strong generalization capabilities across different image recognition tasks and datasets.
+
+## Weaknesses
+
+- Training large ConvNeXt models requires significant computational resources and time, similar to large Transformers.
+- Optimal performance often necessitates very large-scale datasets for pre-training, which may not always be available.
+- The architecture is more complex than traditional CNNs, potentially increasing the difficulty of implementation and debugging for newcomers.
+- Like most deep learning models, ConvNeXt models can be less interpretable than simpler machine learning algorithms.
+- Despite its efficiency improvements, it can still be computationally intensive for deployment on resource-constrained edge devices without further optimization.
+
+## Use Cases
+
+### Image Classification
+
+Identifying the primary object or scene within an image, such as categorizing animals, objects, or landscapes.
+
+### Object Detection
+
+Locating and classifying multiple objects within an image, often used in autonomous driving and surveillance systems.
+
+### Semantic Segmentation
+
+Assigning a class label to every pixel in an image, enabling precise understanding of image content for medical imaging or robotics.
+
+### Medical Imaging Analysis
+
+Assisting in the diagnosis of diseases by analyzing X-rays, MRIs, and CT scans for anomalies or specific structures.
+
+### Autonomous Driving
+
+Perceiving the environment by identifying pedestrians, vehicles, traffic signs, and lane markings from camera feeds.
+
+### Content Moderation
+
+Automatically detecting and flagging inappropriate or harmful content in images and videos on online platforms.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ConvNeXt from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ConvNeXt does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ConvNeXt Lab" />
+
+## References
+
+- Liu et al. (2022). Liu et al..

@@ -1,0 +1,179 @@
+---
+title: "One-Class SVM"
+slug: "one-class-svm"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2001
+author: "Sch�lkopf et al."
+paper: "Sch�lkopf et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "high-dimensional", "kernel-methods", "machine-learning", "novelty-detection", "outlier-detection", "support-vector-machines", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "dbscan"
+  - "elliptic-envelope"
+  - "gaussian-mixture-model"
+  - "isolation-forest"
+  - "kernel-pca"
+  - "local-outlier-factor"
+  - "support-vector-machine"
+---
+
+## Overview
+
+One-Class [Support Vector Machine](/algorithms/supervised/classification/support-vector-machine) (OCSVM) is an unsupervised anomaly detection algorithm designed to identify outliers in a dataset. It works by learning a decision boundary that encapsulates the majority of the training data points, effectively separating "normal" data from the origin in a high-dimensional feature space. Data points falling outside this learned boundary are then classified as anomalies or novelties. This approach is particularly useful when only examples of the normal class are available for training.
+
+## History
+
+**2001** — Bernhard Schölkopf, John C. Platt, Jason C. Shawe-Taylor, Alex J. Smola, and Robert C. Williamson introduced the One-Class SVM algorithm in their paper "Estimating the Support of a High-Dimensional Distribution." This work extended the principles of Support Vector Machines to the unsupervised setting for novelty detection.
+
+## Mathematical Intuition
+
+### Separating Data from the Origin
+
+The core idea of One-Class SVM is to find a hyperplane that best separates the data points from the origin in a high-dimensional feature space. Given a dataset $X = \{x_1, ..., x_n\}$, the algorithm aims to find a hyperplane defined by $w \cdot \phi(x) - \rho = 0$ such that most data points $x_i$ satisfy $w \cdot \phi(x_i) \ge \rho$. The goal is to maximize the distance from the origin to this hyperplane, which is equivalent to minimizing $||w||^2$. This is formulated as the following optimization problem:
+$$ \min_{w, \rho, \xi} \frac{1}{2} ||w||^2 + \frac{1}{\nu n} \sum_{i=1}^n \xi_i - \rho $$
+subject to
+$$ w \cdot \phi(x_i) \ge \rho - \xi_i, \quad \xi_i \ge 0 $$
+for all $i=1, ..., n$. Here, $\phi(x)$ is the mapping to the feature space, $\xi_i$ are slack variables allowing some points to be on the "wrong" side of the hyperplane, and $\nu \in (0, 1]$ is a parameter controlling the trade-off between maximizing the margin and minimizing the number of training errors.
+
+$$
+\min_{w, \rho, \xi} \frac{1}{2} ||w||^2 + \frac{1}{\nu n} \sum_{i=1}^n \xi_i - \rho
+$$
+
+$$
+w \cdot \phi(x_i) \ge \rho - \xi_i, \quad \xi_i \ge 0
+$$
+
+### Dual Problem and Kernel Trick
+
+The optimization problem can be transformed into its dual form, which is often easier to solve and allows for the application of the kernel trick. The dual problem involves maximizing a function of Lagrange multipliers $\alpha_i$:
+$$ \min_{\alpha} \frac{1}{2} \sum_{i,j=1}^n \alpha_i \alpha_j K(x_i, x_j) $$
+subject to
+$$ 0 \le \alpha_i \le \frac{1}{\nu n}, \quad \sum_{i=1}^n \alpha_i = 1 $$
+where $K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)$ is the kernel function. The kernel trick allows OCSVM to implicitly operate in high-dimensional feature spaces without explicitly computing the $\phi(x)$ mapping, enabling the detection of non-linear decision boundaries. Common kernels include the Radial Basis Function (RBF) kernel, polynomial kernel, and linear kernel.
+
+$$
+\min_{\alpha} \frac{1}{2} \sum_{i,j=1}^n \alpha_i \alpha_j K(x_i, x_j)
+$$
+
+$$
+0 \le \alpha_i \le \frac{1}{\nu n}, \quad \sum_{i=1}^n \alpha_i = 1
+$$
+
+### Decision Function for Anomaly Detection
+
+Once the optimal $\alpha_i$ values and $\rho$ are found, the decision function for a new data point $x$ is given by:
+$$ f(x) = w \cdot \phi(x) - \rho = \sum_{i=1}^n \alpha_i K(x_i, x) - \rho $$
+A new data point $x$ is classified as normal if $f(x) \ge 0$ and as an anomaly if $f(x) < 0$. The parameter $\nu$ directly influences the fraction of training errors and the fraction of support vectors. Specifically, $\nu$ is an upper bound on the fraction of outliers and a lower bound on the fraction of support vectors.
+
+$$
+f(x) = w \cdot \phi(x) - \rho = \sum_{i=1}^n \alpha_i K(x_i, x) - \rho
+$$
+
+## Algorithm Steps
+
+1. Map the input data points $x_i$ from the original space to a higher-dimensional feature space using a chosen kernel function $\phi(x)$.
+2. Define the optimization problem to find a hyperplane $w \cdot \phi(x) - \rho = 0$ that separates the data from the origin with maximum margin, allowing for some slack variables $\xi_i$.
+3. Introduce Lagrange multipliers $\alpha_i$ and transform the primal optimization problem into its dual form, which depends only on dot products of feature vectors, allowing the use of the kernel trick.
+4. Solve the dual optimization problem to find the optimal values for the Lagrange multipliers $\alpha_i$.
+5. Determine the bias term $\rho$ using the support vectors, which are the data points for which $0 < \alpha_i < 1/(\nu n)$.
+6. Construct the decision function $f(x) = \sum_{i=1}^n \alpha_i K(x_i, x) - \rho$ for classifying new data points.
+7. For any new data point, evaluate $f(x)$; if $f(x) < 0$, classify it as an anomaly, otherwise classify it as normal.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `nu` | `float` | `0.5` | (0, 1] | An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. It should be in the interval $(0, 1]$. |
+| `kernel` | `str` | `'rbf'` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | Specifies the kernel type to be used in the algorithm. |
+| `gamma` | `float or {'scale', 'auto'}` | `'scale'` | 'scale', 'auto', or positive float | Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If 'scale' is passed then it uses $1 / (n_{features} * X.var())$ as value of gamma. If 'auto', uses $1 / n_{features}$. |
+| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `coef0` | `float` | `0.0` | any float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `shrinking` | `bool` | `True` | true, false | Whether to use the shrinking heuristic. |
+| `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion. |
+| `cache_size` | `float` | `200` | positive float | Specify the size of the kernel cache (in MB). |
+| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within solver, or -1 for no limit. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is effective in high-dimensional spaces, especially when using appropriate kernel functions.
+- The algorithm can model complex, non-linear decision boundaries through the use of the kernel trick.
+- It only requires a dataset of "normal" instances for training, making it suitable for scenarios where anomalies are rare or unknown.
+- The $\nu$ parameter provides a direct control over the expected fraction of outliers, offering a clear interpretation.
+- It is relatively robust to noise in the training data, as slack variables allow for some misclassification.
+
+## Weaknesses
+
+- The performance is highly sensitive to the choice of hyperparameters, particularly $\nu$ and the kernel parameter $\gamma$ (for RBF kernel).
+- OCSVM can be computationally expensive and does not scale well to very large datasets due to its quadratic complexity in the number of samples.
+- Interpreting the decision boundary and the reasons for a point being classified as an anomaly can be challenging.
+- It assumes that anomalies are distinct from the normal data distribution and lie outside the learned boundary, which may not always hold true.
+- The algorithm can struggle when the "normal" data itself has a very complex or multimodal distribution.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns that deviate from typical customer behavior in financial services.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic or user activities that may indicate cyberattacks or unauthorized access.
+
+### Manufacturing Quality Control
+
+Spotting defective products on an assembly line by identifying items that deviate from the normal specifications.
+
+### Medical Diagnosis
+
+Flagging unusual patient data or medical images that might indicate rare diseases or conditions.
+
+### System Health Monitoring
+
+Detecting abnormal sensor readings or performance metrics in industrial equipment or IT infrastructure to predict failures.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement One-Class SVM from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.svm import OneClassSVM
+
+model = OneClassSVM()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="One-Class SVM Lab" />
+
+## References
+
+- Sch�lkopf et al. (2001). Sch�lkopf et al..
+- [scikit-learn: OneClassSVM](https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html)

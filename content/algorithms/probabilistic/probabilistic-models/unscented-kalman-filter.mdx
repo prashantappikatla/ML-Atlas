@@ -1,0 +1,239 @@
+---
+title: "Unscented Kalman Filter"
+slug: "unscented-kalman-filter"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1997
+author: "Julier & Uhlmann"
+paper: "Julier & Uhlmann"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["dynamic-systems", "kalman-filter", "nonlinear-systems", "probabilistic-models", "sensor-fusion", "state-estimation", "timeseries", "unscented-transform"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "extended-kalman-filter"
+  - "kalman-filter"
+  - "particle-filter"
+---
+
+## Overview
+
+The Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) (UKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) designed for state estimation in dynamic systems where the process or measurement models are nonlinear. Unlike the [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) which linearizes nonlinear functions using Jacobians, the UKF employs the Unscented Transform to approximate the probability distribution of the state. This method propagates a carefully chosen set of "sigma points" through the true nonlinear functions, capturing the posterior mean and covariance more accurately, especially for highly nonlinear systems.
+
+## History
+
+**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), foundational for subsequent extensions.
+
+**1960** — The [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) is developed as an extension for nonlinear systems, using linearization via first-order Taylor series expansion.
+
+**1995** — Simon J. Julier and Jeffrey K. Uhlmann introduce the concept of the Unscented Transform in their work on nonlinear transformations of random variables.
+
+**1997** — Julier and Uhlmann publish "A New Extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) to Nonlinear Systems," formally introducing the Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter).
+
+**2000** — The UKF gains significant traction in various fields due to its improved accuracy over EKF for many nonlinear problems and its derivative-free nature.
+
+## Mathematical Intuition
+
+### Nonlinear State Estimation Problem
+
+Kalman filters are optimal for linear systems with Gaussian noise. When system dynamics $x_k = f(x_{k-1}, u_k) + w_k$ or measurement models $z_k = h(x_k) + v_k$ are nonlinear, the Gaussian assumption of the posterior state distribution is violated after transformation. The [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) approximates these nonlinear functions with first-order Taylor series expansions, leading to potential inaccuracies, especially for highly nonlinear systems, and requires computing Jacobians.
+
+$$
+x_k = f(x_{k-1}, u_k) + w_k
+$$
+
+$$
+z_k = h(x_k) + v_k
+$$
+
+### The Unscented Transform
+
+The Unscented Transform (UT) is a method for propagating the mean and covariance of a random variable through a nonlinear function. Instead of linearizing the function, it deterministically selects a minimal set of "sigma points" from the prior distribution. These points are chosen such that their weighted mean and covariance exactly match the mean and covariance of the original distribution. Each sigma point is then transformed through the actual nonlinear function, and the transformed points are used to calculate the mean and covariance of the transformed distribution. This approach captures the true mean and covariance up to the second order for any nonlinearity, and up to the third order for Gaussian inputs.
+
+$$
+\mathcal{X}_0 = \hat{x}
+$$
+
+$$
+\mathcal{X}_i = \hat{x} + (\sqrt{(L+\lambda)P})_i \quad \text{for } i=1, \dots, L
+$$
+
+$$
+\mathcal{X}_{i+L} = \hat{x} - (\sqrt{(L+\lambda)P})_i \quad \text{for } i=1, \dots, L
+$$
+
+$$
+\lambda = \alpha^2(L+\kappa) - L
+$$
+
+$$
+W_0^{(m)} = \lambda / (L+\lambda)
+$$
+
+$$
+W_0^{(c)} = \lambda / (L+\lambda) + (1-\alpha^2+\beta)
+$$
+
+$$
+W_i^{(m)} = W_i^{(c)} = 1 / (2(L+\lambda)) \quad \text{for } i=1, \dots, 2L
+$$
+
+### UKF Prediction Step
+
+Given the current state estimate $\hat{x}_{k-1}$ and its covariance $P_{k-1}$, the UKF first generates $2L+1$ sigma points $\mathcal{X}_{k-1|k-1}$ that capture the mean and covariance of the state distribution. These sigma points are then propagated through the nonlinear process model $f(\cdot)$ to obtain a set of transformed sigma points $\mathcal{Y}_{k|k-1}^* = f(\mathcal{X}_{k-1|k-1})$. The predicted state mean $\hat{x}_{k|k-1}$ and covariance $P_{k|k-1}$ are then computed as the weighted mean and covariance of these transformed points, incorporating the process noise covariance $Q$.
+
+$$
+\mathcal{Y}_{k|k-1}^* = f(\mathcal{X}_{k-1|k-1})
+$$
+
+$$
+\hat{x}_{k|k-1} = \sum_{i=0}^{2L} W_i^{(m)} \mathcal{Y}_{i, k|k-1}^*
+$$
+
+$$
+P_{k|k-1} = \sum_{i=0}^{2L} W_i^{(c)} (\mathcal{Y}_{i, k|k-1}^* - \hat{x}_{k|k-1})(\mathcal{Y}_{i, k|k-1}^* - \hat{x}_{k|k-1})^T + Q
+$$
+
+### UKF Update Step
+
+Upon receiving a new measurement $z_k$, the UKF uses the predicted state $\hat{x}_{k|k-1}$ and covariance $P_{k|k-1}$ to generate a new set of sigma points. These points are then transformed through the nonlinear measurement model $h(\cdot)$ to obtain predicted measurements $\mathcal{Z}_{k|k-1}^* = h(\mathcal{X}_{k|k-1})$. The predicted measurement mean $\hat{z}_{k|k-1}$ and its covariance $P_{zz,k}$ are calculated from these transformed points, including the measurement noise covariance $R$. The cross-covariance $P_{xz,k}$ between the state and measurement is also computed. Finally, the Kalman gain $K_k$ is calculated, and the state estimate $\hat{x}_{k|k}$ and its covariance $P_{k|k}$ are updated using the actual measurement $z_k$.
+
+$$
+\mathcal{Z}_{k|k-1}^* = h(\mathcal{X}_{k|k-1})
+$$
+
+$$
+\hat{z}_{k|k-1} = \sum_{i=0}^{2L} W_i^{(m)} \mathcal{Z}_{i, k|k-1}^*
+$$
+
+$$
+P_{zz,k} = \sum_{i=0}^{2L} W_i^{(c)} (\mathcal{Z}_{i, k|k-1}^* - \hat{z}_{k|k-1})(\mathcal{Z}_{i, k|k-1}^* - \hat{z}_{k|k-1})^T + R
+$$
+
+$$
+P_{xz,k} = \sum_{i=0}^{2L} W_i^{(c)} (\mathcal{X}_{i, k|k-1} - \hat{x}_{k|k-1})(\mathcal{Z}_{i, k|k-1}^* - \hat{z}_{k|k-1})^T
+$$
+
+$$
+K_k = P_{xz,k} P_{zz,k}^{-1}
+$$
+
+$$
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - \hat{z}_{k|k-1})
+$$
+
+$$
+P_{k|k} = P_{k|k-1} - K_k P_{zz,k} K_k^T
+$$
+
+## Algorithm Steps
+
+1. Initialize the state estimate $\hat{x}_0$ and its covariance $P_0$.
+2. Generate $2L+1$ sigma points $\mathcal{X}_{k-1|k-1}$ from the current state estimate $\hat{x}_{k-1|k-1}$ and its covariance $P_{k-1|k-1}$ using the Unscented Transform parameters.
+3. Propagate each sigma point through the nonlinear process model $f(\cdot)$ to obtain transformed sigma points $\mathcal{Y}_{k|k-1}^* = f(\mathcal{X}_{k-1|k-1})$.
+4. Calculate the predicted state mean $\hat{x}_{k|k-1}$ and covariance $P_{k|k-1}$ as the weighted mean and covariance of the transformed sigma points, adding the process noise covariance $Q$.
+5. Generate a new set of sigma points $\mathcal{X}_{k|k-1}$ from the predicted state $\hat{x}_{k|k-1}$ and covariance $P_{k|k-1}$.
+6. Propagate these sigma points through the nonlinear measurement model $h(\cdot)$ to obtain predicted measurements $\mathcal{Z}_{k|k-1}^* = h(\mathcal{X}_{k|k-1})$.
+7. Calculate the predicted measurement mean $\hat{z}_{k|k-1}$, its covariance $P_{zz,k}$, and the cross-covariance $P_{xz,k}$ between the state and measurement, incorporating the measurement noise covariance $R$.
+8. Compute the Kalman gain $K_k = P_{xz,k} P_{zz,k}^{-1}$ and update the state estimate $\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - \hat{z}_{k|k-1})$ and its covariance $P_{k|k} = P_{k|k-1} - K_k P_{zz,k} K_k^T$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `dim_x` | `int` | `None` | positive integer | The dimension of the state vector. |
+| `dim_z` | `int` | `None` | positive integer | The dimension of the measurement vector. |
+| `x` | `numpy.ndarray` | `None` | array of shape (dim_x,) | The initial state estimate vector. |
+| `P` | `numpy.ndarray` | `None` | square matrix of shape (dim_x, dim_x) | The initial state covariance matrix. |
+| `Q` | `numpy.ndarray` | `None` | square matrix of shape (dim_x, dim_x) | The process noise covariance matrix. |
+| `R` | `numpy.ndarray` | `None` | square matrix of shape (dim_z, dim_z) | The measurement noise covariance matrix. |
+| `alpha` | `float` | `1e-3` | 0.0 < alpha <= 1.0 | Scaling parameter that controls the spread of sigma points from the mean. Typically $10^{-3} \le \alpha \le 1$. |
+| `beta` | `float` | `2.0` | beta >= 0.0 | Parameter used to incorporate prior knowledge about the distribution. Optimal value for Gaussian distributions is 2. |
+| `kappa` | `float` | `0.0` | kappa >= 0.0 | A secondary scaling parameter, often set to 0 or $3-L$ where $L$ is the state dimension. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- The UKF provides a more accurate approximation of the posterior mean and covariance compared to the Extended Kalman Filter for nonlinear systems.
+- It does not require the computation of Jacobian matrices, simplifying implementation and avoiding potential analytical or numerical differentiation errors.
+- The Unscented Transform captures the true mean and covariance up to the second order for any nonlinearity, and up to the third order for Gaussian inputs.
+- It performs well in highly nonlinear scenarios where the EKF might diverge or provide poor estimates.
+- The UKF is robust to the choice of initial state and covariance compared to EKF in some cases.
+
+## Weaknesses
+
+- The computational cost of the UKF is higher than the EKF, as it requires propagating $2L+1$ sigma points through the nonlinear functions, where $L$ is the state dimension.
+- The performance of the UKF can be sensitive to the choice of its tuning parameters ($\alpha, \beta, \kappa$) for the Unscented Transform.
+- Like all Kalman-type filters, it assumes that process and measurement noise are Gaussian, which may not hold true in all real-world applications.
+- The UKF can still struggle with highly non-Gaussian distributions or severe nonlinearities that are not well-approximated by the sigma point method.
+
+## Use Cases
+
+### Robotics
+
+For simultaneous localization and mapping (SLAM) or tracking the pose of a robot in complex environments with nonlinear motion and sensor models.
+
+### Aerospace Engineering
+
+In spacecraft navigation and attitude determination, where orbital dynamics and sensor measurements are inherently nonlinear.
+
+### Autonomous Vehicles
+
+For sensor fusion (e.g., combining lidar, radar, camera data) to estimate the position and velocity of the vehicle and other objects in dynamic, nonlinear scenarios.
+
+### Biomedical Engineering
+
+In tracking physiological signals or estimating parameters of biological systems with nonlinear dynamics, like glucose concentration in diabetes management.
+
+### Financial Modeling
+
+For estimating latent states in nonlinear financial models, such as volatility estimation or option pricing.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Unscented Kalman Filter from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import UnscentedKalmanFilter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = UnscentedKalmanFilter()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Unscented Kalman Filter Lab" />
+
+## References
+
+- Julier & Uhlmann (1997). Julier & Uhlmann.
+- [scikit-learn: UnscentedKalmanFilter](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.UnscentedKalmanFilter.html)

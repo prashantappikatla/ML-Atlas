@@ -1,0 +1,203 @@
+---
+title: "Random Forest Regression"
+slug: "random-forest-regression"
+category: "supervised"
+subcategory: "regression"
+year: 2001
+author: "Breiman"
+paper: "Breiman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bagging", "decision-trees", "ensemble-learning", "feature-importance", "non-parametric", "regression", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-regression"
+---
+
+## Overview
+
+Random Forest Regression is an ensemble learning method that constructs a multitude of decision trees during training and outputs the mean prediction of the individual trees. It addresses the high variance and potential overfitting issues of single decision trees by combining predictions from diverse models. This approach significantly improves predictive accuracy and generalization performance across various datasets.
+
+## History
+
+**1995** — Tin Kam Ho introduces the "Random Subspace Method" for constructing decision forests, a precursor to the feature randomization aspect of Random Forests.
+
+**1998** — Leo Breiman publishes "Bagging Predictors," formalizing Bootstrap Aggregating, a key component for creating diverse trees.
+
+**2001** — Leo Breiman publishes the seminal paper "Random Forests," combining bagging and random feature selection for improved accuracy and stability.
+
+**2006** — Andy Liaw and Matthew Wiener release the 'randomForest' package for R, making the algorithm widely accessible and popular in the statistical community.
+
+## Mathematical Intuition
+
+### Ensemble Learning Principle
+
+The core idea behind ensemble methods like Random Forest is that combining multiple weak learners can produce a strong learner. For regression, if we have $N$ independent models, each with an error $\epsilon_i$ and variance $\sigma^2$, the average of their predictions will have an error variance of $\sigma^2/N$. Random Forest aims to create sufficiently diverse trees to approximate this independence.
+$$ E[\frac{1}{N} \sum_{i=1}^N \hat{y}_i] = E[\hat{y}] $$
+$$ Var[\frac{1}{N} \sum_{i=1}^N \hat{y}_i] = \frac{1}{N^2} \sum_{i=1}^N Var[\hat{y}_i] + \frac{1}{N^2} \sum_{i \neq j} Cov(\hat{y}_i, \hat{y}_j) $$
+The goal is to reduce $Cov(\hat{y}_i, \hat{y}_j)$ through randomization.
+
+$$
+E[\frac{1}{N} \sum_{i=1}^N \hat{y}_i] = E[\hat{y}]
+$$
+
+$$
+Var[\frac{1}{N} \sum_{i=1}^N \hat{y}_i] = \frac{1}{N^2} \sum_{i=1}^N Var[\hat{y}_i] + \frac{1}{N^2} \sum_{i \neq j} Cov(\hat{y}_i, \hat{y}_j)
+$$
+
+### Bagging (Bootstrap Aggregating)
+
+Bagging involves creating multiple training datasets by sampling with replacement from the original dataset. Each of these bootstrap samples, approximately $63.2\%$ of the original data, is used to train a separate decision tree. This process introduces diversity among the trees by exposing them to slightly different subsets of the training data.
+Let $D = \{(x_1, y_1), ..., (x_n, y_n)\}$ be the original dataset. For $k=1, ..., N_{trees}$:
+1. Draw a bootstrap sample $D_k^*$ of size $n$ from $D$.
+2. Train a decision tree $h_k(x)$ on $D_k^*$.
+
+$$
+D = \{(x_1, y_1), ..., (x_n, y_n)\}
+$$
+
+$$
+D_k^*
+$$
+
+$$
+h_k(x)
+$$
+
+### Random Feature Subspace
+
+To further decorrelate the trees and reduce their covariance, Random Forest introduces randomness in the feature selection process. At each node split in a decision tree, instead of considering all available features, only a random subset of $m$ features is considered. For regression, a common choice for $m$ is $\sqrt{p}$, where $p$ is the total number of features. This ensures that even strong features do not dominate all trees, promoting diversity.
+$$ m \le p $$
+The optimal $m$ is often found through hyperparameter tuning.
+
+$$
+m \le p
+$$
+
+### Prediction Aggregation
+
+For a new input $x_{new}$, each trained decision tree $h_k(x_{new})$ provides a prediction. In Random Forest Regression, the final prediction $\hat{y}_{RF}(x_{new})$ is the average of the predictions from all individual trees. This averaging process smooths out individual tree errors and reduces variance.
+$$ \hat{y}_{RF}(x_{new}) = \frac{1}{N_{trees}} \sum_{k=1}^{N_{trees}} h_k(x_{new}) $$
+
+$$
+\hat{y}_{RF}(x_{new}) = \frac{1}{N_{trees}} \sum_{k=1}^{N_{trees}} h_k(x_{new})
+$$
+
+## Algorithm Steps
+
+1. Specify the number of decision trees to grow, $N_{trees}$.
+2. For each tree $k$ from $1$ to $N_{trees}$:
+3. Draw a bootstrap sample $D_k^*$ of the same size as the original training data by sampling with replacement.
+4. Grow a decision tree $h_k$ on $D_k^*$, typically to its maximum depth without pruning.
+5. At each node split during tree growth, randomly select a subset of $m$ features from the total $p$ features, and choose the best split among these $m$ features.
+6. Store the ensemble of $N_{trees}$ trained decision trees.
+7. To make a prediction for a new input $x_{new}$, pass $x_{new}$ down each of the $N_{trees}$ decision trees.
+8. Obtain a prediction $h_k(x_{new})$ from each individual tree $k$.
+9. Calculate the final Random Forest prediction $\hat{y}_{RF}(x_{new})$ by averaging the predictions from all individual trees: $\hat{y}_{RF}(x_{new}) = \frac{1}{N_{trees}} \sum_{k=1}^{N_{trees}} h_k(x_{new})$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | integer > 0 | The number of trees in the forest. |
+| `max_features` | `Union[int, float, str]` | `1.0` | int (count), float (fraction), 'auto', 'sqrt', 'log2' | The number of features to consider when looking for the best split. |
+| `max_depth` | `Optional[int]` | `None` | integer > 0 or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `Union[int, float]` | `2` | integer > 1 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. |
+| `min_samples_leaf` | `Union[int, float]` | `1` | integer > 0 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. |
+| `bootstrap` | `bool` | `True` | True, False | Whether bootstrap samples are used when building trees. |
+| `random_state` | `Optional[Union[int, RandomState]]` | `None` | integer or RandomState instance or None | Controls the randomness of the bootstrapping of the samples and the features to consider when looking for the best split. |
+| `n_jobs` | `Optional[int]` | `None` | integer or None | The number of jobs to run in parallel for both fit and predict. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Random Forest Regression generally achieves high predictive accuracy due to the aggregation of multiple diverse models.
+- It is robust to overfitting, as the ensemble averaging reduces the variance that individual decision trees are prone to.
+- The algorithm can naturally handle both numerical and categorical features without extensive preprocessing.
+- It provides estimates of feature importance, indicating which features contribute most to the prediction.
+- Random Forests are less sensitive to the scaling of features and can handle non-linear relationships effectively.
+- It performs well even with a large number of features and can implicitly perform feature selection.
+
+## Weaknesses
+
+- Random Forest models are less interpretable than single decision trees, making it harder to understand the exact decision-making process.
+- Training can be computationally intensive and slow for very large datasets with many trees.
+- The model requires significant memory to store all the individual decision trees.
+- It may struggle with extrapolation beyond the range of the training data, as individual trees are limited by observed values.
+- For sparse data, Random Forests might not perform as well as linear models or other specialized algorithms.
+
+## Use Cases
+
+### Finance
+
+Predicting stock prices, housing prices, or credit risk scores based on various economic indicators and historical data.
+
+### Healthcare
+
+Modeling disease progression, predicting patient outcomes, or estimating medical costs based on patient demographics and clinical data.
+
+### E-commerce
+
+Forecasting customer lifetime value, predicting product demand, or recommending products based on user behavior and product attributes.
+
+### Environmental Science
+
+Predicting air quality indices, water pollution levels, or crop yields using meteorological data, satellite imagery features, and soil characteristics.
+
+### Manufacturing
+
+Predicting equipment failure times or optimizing production parameters based on sensor data and operational logs.
+
+### Real Estate
+
+Estimating property values based on features like location, size, number of rooms, and local amenities.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Random Forest Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = RandomForestRegressor()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Random Forest Regression Lab" />
+
+## References
+
+- Breiman (2001). Breiman.
+- [scikit-learn: RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)

@@ -1,0 +1,172 @@
+---
+title: "RoBERTa"
+slug: "roberta"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2019
+author: "Liu et al."
+paper: "Liu et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "language-model", "masked-language-modeling", "natural-language-processing", "pre-trained-model", "self-attention", "transfer-learning", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "albert"
+  - "attention-mechanism"
+  - "bert"
+  - "distilbert"
+  - "t5"
+  - "transformer"
+---
+
+## Overview
+
+RoBERTa, a Robustly Optimized BERT Pretraining Approach, is a [Transformer](/algorithms/deep-learning/transformers/transformer)-based language model that builds upon the architecture of BERT by modifying its pre-training strategy. It aims to improve BERT's performance by training with larger datasets, longer sequences, and dynamic masking, while also removing the next sentence prediction objective. This optimization results in a more robust and higher-performing model across a wide range of natural language processing tasks.
+
+## History
+
+**2018** — BERT (Bidirectional Encoder Representations from Transformers) was introduced by Devlin et al., revolutionizing NLP with its deep bidirectional pre-training using Masked Language Model (MLM) and Next Sentence Prediction (NSP).
+
+**2019** — Liu et al. introduced RoBERTa, demonstrating that BERT was significantly undertrained and that its performance could be substantially improved by optimizing key pre-training hyperparameters and removing the NSP task.
+
+**2019** — Key optimizations in RoBERTa included training for more steps with larger mini-batches, using longer sequences, dynamically changing the masking pattern, and training on a significantly larger dataset (160GB of text).
+
+## Mathematical Intuition
+
+### Transformer Encoder Architecture
+
+RoBERTa, like BERT, is based on the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder architecture. Each encoder block consists of a multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) followed by a position-wise feed-forward network. Residual connections and layer normalization are applied around each of these two sub-layers. The self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) allows the model to weigh the importance of different words in the input sequence when processing each word, capturing long-range dependencies.
+
+### Scaled Dot-Product Attention
+
+The core of the [Transformer](/algorithms/deep-learning/transformers/transformer)'s self-attention is the scaled dot-product attention. For a given query $Q$, keys $K$, and values $V$, the attention output is computed as: $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$ Here, $d_k$ is the dimension of the keys, and the scaling factor $\frac{1}{\sqrt{d_k}}$ is used to prevent the dot products from becoming too large, which could lead to vanishing gradients in the softmax function. Multi-head attention applies this mechanism multiple times in parallel with different learned linear projections.
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$
+
+$$
+Q
+$$
+
+$$
+K
+$$
+
+$$
+V
+$$
+
+$$
+d_k
+$$
+
+### Masked Language Modeling Objective
+
+RoBERTa's primary pre-training objective is Masked Language Modeling (MLM). During pre-training, a percentage of input tokens (typically 15%) are randomly masked, and the model is tasked with predicting the original identity of these masked tokens based on their context. Unlike BERT, RoBERTa employs dynamic masking, where the masking pattern is generated anew for each input sequence every time it is fed to the model, rather than being fixed once during data preprocessing. This ensures that the model sees a wider variety of masked tokens and contexts over the course of training.
+
+## Algorithm Steps
+
+1. Prepare a large corpus of raw text data, such as CC-BY-40 CommonCrawl, WebText, Stories, and Wikipedia.
+2. Tokenize the text corpus using a Byte-Pair Encoding (BPE) tokenizer to convert words into subword units and numerical IDs.
+3. For each training iteration, dynamically mask a random subset of tokens (e.g., 15%) in each input sequence, replacing them with a special [MASK] token, a random token, or the original token.
+4. Feed the tokenized and masked input sequences into the Transformer encoder model, which processes them through multiple layers of multi-head self-attention and feed-forward networks.
+5. At the output of the Transformer encoder, apply a classification head specifically designed for the Masked Language Modeling task to predict the original identity of the masked tokens.
+6. Calculate the cross-entropy loss between the predicted masked tokens and their true identities, and backpropagate this loss to update the model's parameters using an optimizer like Adam.
+7. Continue pre-training for a large number of steps with large batch sizes and long sequence lengths to allow the model to learn rich contextual representations.
+8. After pre-training, fine-tune the RoBERTa model on specific downstream NLP tasks by adding a task-specific head and training on labeled data.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_hidden_layers` | `integer` | `12` | positive integer | The number of Transformer encoder layers in the model. |
+| `hidden_size` | `integer` | `768` | positive integer | The dimensionality of the embeddings and the hidden states of the Transformer layers. |
+| `num_attention_heads` | `integer` | `12` | positive integer | The number of attention heads for each attention layer in the Transformer. |
+| `intermediate_size` | `integer` | `3072` | positive integer | The dimensionality of the 'intermediate' (feed-forward) layer in the Transformer encoder. |
+| `max_position_embeddings` | `integer` | `512` | positive integer | The maximum sequence length that this model might ever be used with. |
+| `vocab_size` | `integer` | `50265` | positive integer | The size of the vocabulary, including special tokens. |
+| `attention_probs_dropout_prob` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability for the attention mechanism. |
+| `hidden_dropout_prob` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability for all fully connected layers in the embeddings and encoder. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- RoBERTa achieves state-of-the-art performance on various natural language understanding benchmarks, often outperforming BERT due to its optimized pre-training.
+- The dynamic masking strategy allows the model to see a greater variety of masked tokens and contexts, leading to more robust representations.
+- Training with larger batch sizes and longer sequences enables the model to learn more stable and generalizable patterns from the data.
+- Its pre-trained weights serve as an excellent starting point for transfer learning, significantly reducing the data and computational resources needed for downstream tasks.
+- The model effectively captures complex semantic and syntactic relationships within text, making it suitable for nuanced language understanding tasks.
+
+## Weaknesses
+
+- RoBERTa requires significantly more computational resources and time for pre-training compared to BERT, making it expensive to train from scratch.
+- The large number of parameters results in a substantial memory footprint, which can be a challenge for deployment on resource-constrained devices.
+- The removal of the Next Sentence Prediction (NSP) objective might slightly hinder performance on tasks that heavily rely on understanding explicit sentence-pair relationships, although this effect is often negligible.
+- Like other large transformer models, RoBERTa can be challenging to interpret, making it difficult to understand the specific reasons behind its predictions.
+- Fine-tuning still requires a considerable amount of labeled data for optimal performance on specific downstream tasks.
+
+## Use Cases
+
+### Sentiment Analysis
+
+Classifying the emotional tone of text, such as customer reviews or social media posts, to gauge public opinion or product feedback.
+
+### Question Answering
+
+Extracting precise answers from a given text passage in response to natural language questions, as seen in search engines or chatbots.
+
+### Text Summarization
+
+Generating concise summaries of longer documents or articles, either abstractively or extractively, to quickly convey key information.
+
+### Named Entity Recognition
+
+Identifying and classifying named entities (e.g., persons, organizations, locations) in text, crucial for information extraction and knowledge graph construction.
+
+### Text Classification
+
+Categorizing documents into predefined classes, such as spam detection, topic classification, or legal document review.
+
+### Machine Translation
+
+Serving as a powerful encoder component within sequence-to-sequence models to generate high-quality translations between languages.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement RoBERTa from scratch
+```
+
+### Using scikit-learn
+
+```python
+# RoBERTa does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="RoBERTa Lab" />
+
+## References
+
+- Liu et al. (2019). Liu et al..

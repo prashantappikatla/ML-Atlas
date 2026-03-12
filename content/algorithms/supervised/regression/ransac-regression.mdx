@@ -1,0 +1,201 @@
+---
+title: "RANSAC Regression"
+slug: "ransac-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1981
+author: "Fischler & Bolles"
+paper: "Fischler & Bolles"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: false
+  timeseries: true
+  graph: false
+tags: ["computer-vision", "geometric-estimation", "iterative-algorithm", "model-fitting", "outlier-detection", "robust-regression", "sampling"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "huber-regression"
+---
+
+## Overview
+
+RANSAC (Random Sample Consensus) Regression is a non-deterministic iterative algorithm designed to estimate the parameters of a mathematical model from a set of observed data containing a significant number of outliers. It achieves robustness by repeatedly sampling a minimal subset of data points, fitting a model to this subset, and then evaluating how many other data points are consistent with this model, thus identifying inliers and outliers. This process aims to find the largest consensus set, leading to a model that is less affected by noisy or erroneous observations. The algorithm is particularly useful in scenarios where the majority of the data may be contaminated by noise or errors.
+
+## History
+
+**1981** — Martin A. Fischler and Robert C. Bolles introduced the RANSAC algorithm as a general paradigm for robust model fitting in computer vision applications.
+
+**1987** — Fischler and Bolles published their seminal paper 'Random Sample Consensus: A Paradigm for Model Fitting with Applications to Image Analysis and Automated Cartography,' providing a detailed theoretical foundation and practical applications.
+
+**2000** — Torr and Zisserman introduced MLESAC (Maximum Likelihood Sample Consensus), an extension of RANSAC that uses a maximum likelihood framework to improve model selection.
+
+**2005** — Chum and Matas proposed PROSAC (Progressive Sample Consensus), an improvement that prioritizes samples based on feature quality, leading to faster convergence for certain problems.
+
+**2006** — The RANSAC algorithm was widely adopted in various computer vision libraries and applications, becoming a standard technique for robust estimation tasks like homography and fundamental matrix estimation.
+
+## Mathematical Intuition
+
+### Core Idea: Iterative Consensus
+
+RANSAC operates by iteratively selecting random subsets of data points, fitting a model to each subset, and then evaluating the 'consensus' of the remaining data points with that model. The algorithm assumes that the data consists of 'inliers,' which can be explained by some model with a certain set of parameters, and 'outliers,' which do not fit the model. The goal is to find the model that maximizes the number of inliers. Each iteration involves:
+1.  Randomly selecting a minimal subset of $m$ data points required to fit the model.
+2.  Fitting a model to this subset.
+3.  Determining the consensus set by counting how many other data points are consistent with the fitted model within a predefined threshold.
+4.  Keeping track of the model that yields the largest consensus set.
+
+### Inlier/Outlier Classification Threshold
+
+For a given data point $(x_i, y_i)$ and a candidate model $f(x, \theta)$ with parameters $\theta$, the residual is calculated as $r_i = |y_i - f(x_i, \theta)|$. A data point is classified as an inlier if its residual $r_i$ is less than or equal to a predefined threshold $\tau$. This threshold is crucial for distinguishing between inliers and outliers. A common approach for linear models is to estimate $\tau$ based on the expected noise level or the median absolute deviation of residuals. The choice of $\tau$ directly impacts the size of the consensus set and the robustness of the final model.
+
+$$
+r_i = |y_i - f(x_i, \theta)|
+$$
+
+$$
+\text{inlier if } r_i \le \tau
+$$
+
+### Number of Iterations Calculation
+
+The number of iterations $k$ required to ensure that at least one random sample consists purely of inliers with a probability $p$ (e.g., 0.99) is a critical parameter. Let $w$ be the probability that any given data point is an inlier, and $m$ be the minimum number of data points required to fit the model. The probability of selecting $m$ inliers in one random sample is $w^m$. The probability of *not* selecting $m$ inliers in one random sample is $1 - w^m$. Therefore, the probability of *not* selecting $m$ inliers in $k$ random samples is $(1 - w^m)^k$. To achieve a probability $p$ of finding at least one all-inlier sample, we set:
+$$1 - (1 - w^m)^k = p$$
+Solving for $k$ yields:
+$$k = \frac{\log(1-p)}{\log(1-w^m)}$$
+Since $w$ is typically unknown, it is often estimated from the data or a conservative lower bound is used.
+
+$$
+w = \frac{\text{number of inliers}}{\text{total number of points}}
+$$
+
+$$
+P(\text{all inliers in one sample}) = w^m
+$$
+
+$$
+P(\text{not all inliers in one sample}) = 1 - w^m
+$$
+
+$$
+P(\text{not all inliers in k samples}) = (1 - w^m)^k
+$$
+
+$$
+1 - (1 - w^m)^k = p
+$$
+
+$$
+k = \frac{\log(1-p)}{\log(1-w^m)}
+$$
+
+## Algorithm Steps
+
+1. Initialize the best model found so far and the largest number of inliers to empty/zero.
+2. Repeat for a predetermined maximum number of iterations $k$ or until a stopping criterion is met:
+3. Randomly select a minimal subset of $m$ data points from the input data. These points are assumed to be inliers.
+4. Fit a model to this minimal subset of $m$ data points.
+5. For all remaining data points, calculate their residuals with respect to the fitted model.
+6. Identify the 'consensus set' by classifying data points as inliers if their residual is below a predefined threshold $\tau$.
+7. If the size of this consensus set is greater than the largest number of inliers found so far, update the best model to the current model and store the current consensus set.
+8. After $k$ iterations, refit the best model to all data points in the largest consensus set found.
+9. Return the refitted model as the final robust estimate.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `estimator` | `object` | `None` | any scikit-learn compatible regressor | The base estimator to be fitted by RANSAC. If None, a LinearRegression estimator is used. |
+| `min_samples` | `int or float` | `None` | [1, n_samples] or (0.0, 1.0] | Minimum number of samples chosen randomly from original data to fit the model. If float, it is interpreted as a fraction of the total number of samples. |
+| `residual_threshold` | `float` | `None` | (0.0, inf) | Maximum residual for a data point to be classified as an inlier. If None, it is estimated as the median absolute deviation of the target values. |
+| `is_data_valid` | `callable` | `None` | callable or None | A function that is called with the randomly selected data points before fitting a model. It should return True if the data is valid, False otherwise. |
+| `is_model_valid` | `callable` | `None` | callable or None | A function that is called with the fitted model and the randomly selected data points. It should return True if the model is valid, False otherwise. |
+| `max_trials` | `int` | `100` | [1, inf) | Maximum number of iterations (random samples) to perform. |
+| `stop_n_inliers` | `int` | `inf` | [1, n_samples] | Stop iteration if at least this number of inliers are found. |
+| `stop_score` | `float` | `inf` | (-inf, inf) | Stop iteration if the score of the current model is greater than or equal to this value. |
+| `stop_probability` | `float` | `0.99` | (0.0, 1.0] | Stop iteration if the probability of finding a better model is less than this value, based on the estimated inlier ratio. |
+| `random_state` | `int, RandomState instance or None` | `None` | int, RandomState instance or None | Controls the pseudo random number generator used for sampling the subsets. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- RANSAC is highly robust to outliers, capable of estimating model parameters accurately even when a significant portion of the data is contaminated.
+- It can effectively handle situations where the data contains multiple models, as long as one model has a sufficiently large consensus set.
+- The algorithm is general and can be applied to various model fitting problems, including linear regression, polynomial regression, and geometric model estimation.
+- It provides a clear distinction between inliers and outliers based on the chosen model and residual threshold.
+- The probability of finding a good model can be controlled by adjusting the number of iterations based on the estimated inlier ratio.
+
+## Weaknesses
+
+- RANSAC is a non-deterministic algorithm, meaning different runs on the same data might yield slightly different results due to random sampling.
+- Its computational complexity can be high, especially when the proportion of inliers is low or the minimum number of points required to fit the model is large.
+- The performance of RANSAC is highly dependent on the correct choice of the inlier threshold $\tau$ and an accurate estimation of the inlier ratio $w$.
+- It may fail to find a good model if the proportion of inliers is extremely low, as the probability of sampling an all-inlier subset becomes very small.
+- RANSAC is designed to find only one dominant model at a time; finding multiple distinct models in the same dataset typically requires extensions or repeated application.
+
+## Use Cases
+
+### Computer Vision
+
+Estimating homography matrices for image stitching, object tracking, or camera pose estimation, where feature matches often contain many outliers due to mismatches or occlusions.
+
+### Robotics
+
+Localizing robots using noisy sensor data, such as LiDAR or camera readings, where erroneous measurements can act as outliers that would otherwise corrupt position estimates.
+
+### Geodesy and Cartography
+
+Fitting lines or planes to noisy spatial data, such as identifying roads, geological fault lines, or building facades from aerial imagery or point clouds.
+
+### Medical Imaging
+
+Segmenting anatomical structures in medical images, where noise, artifacts, or partial volume effects can obscure true boundaries, requiring robust model fitting.
+
+### Anomaly Detection
+
+Identifying the 'normal' behavior in a dataset by fitting a model to the inliers, thereby highlighting data points that deviate significantly from this model as anomalies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement RANSAC Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import RansacRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = RansacRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="RANSAC Regression Lab" />
+
+## References
+
+- Fischler & Bolles (1981). Fischler & Bolles.
+- [scikit-learn: RansacRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.RansacRegression.html)

@@ -1,0 +1,199 @@
+---
+title: "Capsule Network"
+slug: "capsule-network"
+category: "deep-learning"
+subcategory: "other-architectures"
+year: 2017
+author: "Sabour et al."
+paper: "Sabour et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "deep-learning", "dynamic-routing", "equivariance", "image-classification", "neural-networks", "object-recognition", "representation-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "deep-belief-network"
+  - "recurrent-neural-network"
+  - "self-organizing-map"
+  - "transformer"
+---
+
+## Overview
+
+Capsule Networks (CapsNets) are a type of neural network architecture designed to address limitations of Convolutional Neural Networks (CNNs) in handling spatial hierarchies and pose variations. Instead of scalar-output feature detectors, CapsNets use "capsules" that output vectors representing the instantiation parameters of a specific entity, such as its pose, size, and texture. A key innovation is "dynamic routing by agreement," a mechanism that allows lower-level capsules to send their output to appropriate higher-level capsules, thereby preserving hierarchical relationships and equivariance to affine transformations.
+
+## History
+
+**2017** — Sabour, Frosst, and Hinton introduced Capsule Networks in their paper "Dynamic Routing Between Capsules," proposing the core architecture and dynamic routing mechanism as an alternative to pooling layers.
+
+**2018** — Hinton, Frosst, and Sabour published "Matrix Capsules with EM Routing," an alternative routing mechanism using Expectation-Maximization for more robust pose estimation and improved performance on complex datasets.
+
+**2019** — Research continued to explore applications and improvements, including more efficient routing algorithms, integration with other deep learning techniques, and analysis of CapsNets' robustness to adversarial attacks.
+
+## Mathematical Intuition
+
+### Capsule Output Vectors
+
+Capsules output a vector $v_j$ whose length represents the probability that the entity exists, and its orientation represents the entity's instantiation parameters (e.g., pose, deformation). This contrasts with scalar-output neurons in traditional CNNs, which only indicate presence. The squashing function ensures the vector's length is between 0 and 1.
+$$ v_j = rac{||s_j||^2}{1 + ||s_j||^2} rac{s_j}{||s_j||} $$
+Here, $s_j$ is the total input to capsule $j$, and $||v_j|| \in [0, 1]$.
+
+$$
+v_j = rac{||s_j||^2}{1 + ||s_j||^2} rac{s_j}{||s_j||}
+$$
+
+$$
+||v_j|| \in [0, 1]
+$$
+
+### Dynamic Routing by Agreement
+
+This mechanism replaces pooling layers in CNNs. Lower-level capsules $u_i$ predict the output of higher-level capsules $u_{j|i}$ by multiplying their output with a transformation matrix $W_{ij}$. These predictions are then weighted by coupling coefficients $c_{ij}$ determined by an iterative "routing-by-agreement" process, where $c_{ij}$ increases if $u_{j|i}$ agrees with the higher-level capsule's output.
+$$ u_{j|i} = W_{ij} u_i $$
+$$ s_j = \sum_i c_{ij} u_{j|i} $$
+$$ c_{ij} = \frac{\exp(b_{ij})}{\sum_k \exp(b_{ik})} $$
+Here, $b_{ij}$ are the log-prior probabilities that capsule $i$ should be coupled to capsule $j$. These are iteratively updated based on agreement.
+
+$$
+u_{j|i} = W_{ij} u_i
+$$
+
+$$
+s_j = \sum_i c_{ij} u_{j|i}
+$$
+
+$$
+c_{ij} = \frac{\exp(b_{ij})}{\sum_k \exp(b_{ik})}
+$$
+
+### Margin Loss for Classification
+
+CapsNets use a margin loss for classification, which penalizes incorrect classifications based on the length of the output capsule vectors. For each class $k$, if the entity is present ($T_k=1$), the loss is incurred if $||v_k||$ is less than $m^+$. If the entity is absent ($T_k=0$), loss is incurred if $||v_k||$ is greater than $m^-$. A regularization parameter $\lambda$ balances the two terms.
+$$ L_k = T_k \max(0, m^+ - ||v_k||)^2 + \lambda (1 - T_k) \max(0, ||v_k|| - m^-)^2 $$
+The total loss is the sum of $L_k$ for all classes.
+
+$$
+L_k = T_k \max(0, m^+ - ||v_k||)^2 + \lambda (1 - T_k) \max(0, ||v_k|| - m^-)^2
+$$
+
+### Reconstruction Loss Regularization
+
+To encourage capsules to encode meaningful instantiation parameters, a reconstruction loss is often added as a regularization term. The output of the highest-level capsules (e.g., the activated digit capsule) is fed into a simple decoder network (e.g., fully connected layers) to reconstruct the input image. The squared difference between the reconstructed image and the original input image is then minimized.
+$$ L_{reconstruction} = ||\text{original image} - \text{reconstructed image}||^2 $$
+This loss is typically scaled down by a factor (e.g., 0.0005) and added to the margin loss.
+
+$$
+L_{reconstruction} = ||\text{original image} - \text{reconstructed image}||^2
+$$
+
+## Algorithm Steps
+
+1. Input an image into the initial convolutional layer to produce a set of primary feature maps.
+2. Transform these feature maps into "Primary Capsules" by applying convolutional filters and then squashing the resulting vectors using the squashing function.
+3. For each lower-level capsule $i$ and higher-level capsule $j$, compute a prediction vector $u_{j|i} = W_{ij} u_i$, where $W_{ij}$ is a learned transformation matrix.
+4. Initialize the logit $b_{ij}$ for all possible connections between lower-level capsule $i$ and higher-level capsule $j$ to zero.
+5. Iteratively perform dynamic routing for a fixed number of iterations:
+6. a. Calculate coupling coefficients $c_{ij}$ using a softmax over the logits $b_{ij}$.
+7. b. Compute the weighted sum $s_j = \sum_i c_{ij} u_{j|i}$ for each higher-level capsule $j$.
+8. c. Apply the squashing function to $s_j$ to get the output vector $v_j$.
+9. d. Update the logits $b_{ij} \leftarrow b_{ij} + u_{j|i} \cdot v_j$ to reflect agreement.
+10. After the routing iterations, the final output vectors $v_j$ from the highest-level capsules are used for classification.
+11. Calculate the margin loss based on the lengths of these output vectors.
+12. Optionally, reconstruct the input image from the highest-level capsule outputs using a decoder network and add a reconstruction loss to the total loss.
+13. Backpropagate the combined loss to update network weights and biases.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_primary_capsules` | `integer` | `32` | positive integer | Number of primary capsules in the first capsule layer, which convert convolutional features into capsule vectors. |
+| `dim_primary_capsule` | `integer` | `8` | positive integer | Dimension of the vector output for each primary capsule, encoding its instantiation parameters. |
+| `num_digit_capsules` | `integer` | `10` | positive integer | Number of higher-level capsules, typically corresponding to the number of classes in a classification task (e.g., 10 for MNIST). |
+| `dim_digit_capsule` | `integer` | `16` | positive integer | Dimension of the vector output for each higher-level (digit) capsule, representing the properties of the detected entity. |
+| `num_routing_iterations` | `integer` | `3` | positive integer, typically 3-5 | Number of iterations for the dynamic routing-by-agreement process, determining how many times capsules refine their connections. |
+| `m_plus` | `float` | `0.9` | 0.0 to 1.0 | Upper bound for the margin loss, defining the target length for the output vector of a present class capsule. |
+| `m_minus` | `float` | `0.1` | 0.0 to 1.0 | Lower bound for the margin loss, defining the maximum allowed length for the output vector of an absent class capsule. |
+| `lambda_reg` | `float` | `0.5` | 0.0 to 1.0 | Regularization parameter for the margin loss, weighting the penalty for absent classes relative to present classes. |
+| `reconstruction_loss_scale` | `float` | `0.0005` | positive float | Scaling factor for the reconstruction loss component, balancing its contribution against the margin loss in the total loss. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Capsule Networks are equivariant to affine transformations, meaning they can recognize objects even if they are rotated, translated, or scaled, without needing extensive data augmentation.
+- They can learn part-whole relationships and spatial hierarchies more effectively than traditional CNNs, leading to a better understanding of object composition.
+- CapsNets require fewer training examples than CNNs to achieve comparable performance on certain tasks, especially when dealing with novel viewpoints.
+- The vector output of capsules provides a richer representation of entities, encoding not just presence but also instantiation parameters like pose and deformation.
+- The dynamic routing mechanism allows for more intelligent information flow, where lower-level features are routed to relevant higher-level features, reducing the need for max-pooling.
+
+## Weaknesses
+
+- The dynamic routing mechanism is computationally expensive, leading to longer training and inference times compared to standard CNNs.
+- Capsule Networks have shown limited scalability to very large and complex datasets like ImageNet, where their performance often lags behind state-of-the-art CNNs.
+- Implementing and debugging Capsule Networks can be more complex due to the iterative routing process and vector-based operations.
+- The choice of hyperparameters for dynamic routing and capsule dimensions can significantly impact performance and requires careful tuning.
+- The reconstruction loss, while beneficial for regularization, adds complexity to the model and can be challenging to balance with the margin loss.
+
+## Use Cases
+
+### Image Classification
+
+Identifying objects within images, particularly beneficial for datasets with significant pose variations and where understanding spatial relationships is crucial.
+
+### Object Detection
+
+Locating and classifying multiple objects in an image, leveraging the pose-encoding capabilities of capsules to handle different object orientations.
+
+### Medical Imaging
+
+Analyzing medical scans for anomalies or disease detection, where precise spatial relationships and orientations of anatomical structures are critical.
+
+### Handwritten Digit Recognition
+
+Accurately classifying digits regardless of their rotation or slight deformations, a task where CapsNets have shown strong performance due to their equivariance.
+
+### Small Dataset Learning
+
+Tasks where limited labeled data is available, as CapsNets can generalize well from fewer examples due to their inherent ability to handle viewpoint changes.
+
+### Facial Recognition
+
+Identifying individuals from various angles and expressions by capturing the pose and features of facial components more robustly than traditional methods.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Capsule Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Capsule Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Capsule Network Lab" />
+
+## References
+
+- Sabour et al. (2017). Sabour et al..

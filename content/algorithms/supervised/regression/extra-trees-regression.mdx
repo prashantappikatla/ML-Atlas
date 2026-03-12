@@ -1,0 +1,179 @@
+---
+title: "Extra Trees Regression"
+slug: "extra-trees-regression"
+category: "supervised"
+subcategory: "regression"
+year: 2006
+author: "Geurts et al."
+paper: "Geurts et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bagging-variant", "decision-trees", "ensemble-learning", "randomization", "regression", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+Extra Trees Regression, also known as Extremely Randomized Trees, is an ensemble learning method that constructs multiple unpruned decision trees from the training dataset. It introduces additional randomness compared to Random Forests by both selecting a random subset of features for each split and choosing a random split point for each candidate feature. This extreme randomization aims to reduce variance and computational cost while maintaining predictive performance. The final prediction is obtained by averaging the predictions of all individual trees.
+
+## History
+
+**2006** — Pierre Geurts, Damien Ernst, and Louis Wehenkel introduced the Extremely Randomized Trees algorithm in their paper 'Extremely randomized trees', presenting it as a novel ensemble method for both classification and regression tasks.
+
+**2007** — Further research and analysis of the algorithm's properties were conducted, highlighting its effectiveness in variance reduction and its computational advantages over other tree-based ensembles.
+
+**2010** — The algorithm was integrated into popular machine learning libraries, such as scikit-learn, making it widely accessible and contributing to its adoption in various applications.
+
+## Mathematical Intuition
+
+### Ensemble Learning Principle
+
+Ensemble methods combine predictions from multiple base learners to improve overall accuracy and robustness. For regression tasks, this typically involves averaging the outputs of individual models. The underlying principle is that a collection of diverse, potentially 'weak' learners can collectively form a 'strong' learner by mitigating individual model biases or variances.
+
+$$
+H(\mathbf{x}) = \frac{1}{M} \sum_{m=1}^{M} h_m(\mathbf{x})
+$$
+
+### Decision Tree Regression Basics
+
+A decision tree for regression recursively partitions the feature space into a set of rectangular regions. For each region, the prediction is the average of the target values of the training samples falling into that region. Splits are chosen to minimize an impurity measure, most commonly Mean Squared Error (MSE). For a node $t$ with samples $S_t$, the impurity is calculated as $I(S_t) = \frac{1}{|S_t|} \sum_{i \in S_t} (y_i - \bar{y}_t)^2$, where $\bar{y}_t = \frac{1}{|S_t|} \sum_{i \in S_t} y_i$ is the mean target value in that node.
+
+$$
+MSE = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2
+$$
+
+$$
+I(S_t) = \frac{1}{|S_t|} \sum_{i \in S_t} (y_i - \bar{y}_t)^2
+$$
+
+### Extreme Randomization in Splitting
+
+Extra Trees introduces two key randomization mechanisms during tree construction. First, at each node, a random subset of $K$ features is selected from the available features. Second, for each of these $K$ selected features, a random split point is chosen uniformly within the range of observed values for that feature in the current node's samples. The split (feature and corresponding random split point) that yields the best impurity reduction among these randomly generated candidates is then selected to partition the node. This differs from Random Forests, which search for the optimal split point for each candidate feature.
+
+$$
+\Delta I = I(S_t) - \frac{|S_{left}|}{|S_t|} I(S_{left}) - \frac{|S_{right}|}{|S_t|} I(S_{right})
+$$
+
+### Prediction Aggregation
+
+After training $M$ extremely randomized trees, the final regression prediction for a new input $\mathbf{x}$ is obtained by averaging the individual predictions from each tree. This aggregation process is crucial for reducing the variance of the overall model, leading to more robust and generalized predictions.
+
+$$
+\hat{y}(\mathbf{x}) = \frac{1}{M} \sum_{m=1}^{M} \hat{y}_m(\mathbf{x})
+$$
+
+## Algorithm Steps
+
+1. For each tree in the ensemble, draw a bootstrap sample of the training data or use the entire dataset without bootstrapping (as in the original Extra Trees formulation).
+2. Grow a decision tree from the (sub)sample, recursively splitting nodes until a stopping criterion is met (e.g., maximum depth, minimum samples per leaf).
+3. At each node of the tree, randomly select a subset of $K$ features from the available features.
+4. For each of the $K$ selected features, generate a random split point uniformly within the range of values observed for that feature in the current node's samples.
+5. Evaluate the impurity reduction (e.g., Mean Squared Error) for each of these randomly generated split points across the $K$ features.
+6. Select the split (feature and split point) that yields the maximum impurity reduction and partition the node's samples accordingly.
+7. Once all trees are grown, for a new input $\mathbf{x}$, obtain a prediction $\hat{y}_m(\mathbf{x})$ from each individual tree $m$.
+8. Average these individual tree predictions to produce the final regression output: $\hat{y}(\mathbf{x}) = \frac{1}{M} \sum_{m=1}^{M} \hat{y}_m(\mathbf{x})$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | positive integer | The number of trees in the forest. |
+| `criterion` | `str` | `squared_error` | 'squared_error', 'absolute_error', 'poisson' | The function to measure the quality of a split. |
+| `max_depth` | `int or None` | `None` | positive integer or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `int or float` | `2` | integer $\ge 2$ or float in $(0.0, 1.0]$ | The minimum number of samples required to split an internal node. |
+| `min_samples_leaf` | `int or float` | `1` | integer $\ge 1$ or float in $(0.0, 0.5]$ | The minimum number of samples required to be at a leaf node. |
+| `max_features` | `int, float, str or None` | `1.0` | integer, float in $(0.0, 1.0]$, 'auto', 'sqrt', 'log2', None | The number of features to consider when looking for the best split. |
+| `random_state` | `int or RandomState or None` | `None` | integer, RandomState instance, or None | Controls the randomness of the bootstrapping of the samples and the features to consider when looking for the best split at each node. |
+| `n_jobs` | `int or None` | `None` | positive integer, -1 (all CPUs), or None | The number of jobs to run in parallel for both fit and predict. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It often achieves comparable or superior predictive performance to Random Forests, especially on high-dimensional datasets.
+- The extreme randomization in feature and split point selection can lead to faster training times compared to Random Forests, as it avoids the computationally intensive search for optimal split points.
+- It is less prone to overfitting than individual decision trees due to the ensemble averaging and the strong randomization during tree construction.
+- It can handle both numerical and categorical features effectively, provided categorical features are appropriately encoded.
+- It provides a measure of feature importance, indicating which features contribute most to the prediction.
+- It is robust to noisy data and outliers due to the ensemble nature and averaging of predictions.
+
+## Weaknesses
+
+- The increased randomness can sometimes lead to a slight increase in bias compared to Random Forests, especially if the optimal split points are consistently missed.
+- Interpretability is reduced compared to a single decision tree, as the model is an ensemble of many complex trees.
+- Memory consumption can be high for very large datasets or a large number of trees, as each tree needs to be stored.
+- It may not perform as well as more complex models like gradient boosting on certain highly structured datasets.
+- Tuning hyperparameters like `n_estimators` and `max_features` is crucial for optimal performance and can be time-consuming.
+
+## Use Cases
+
+### Finance
+
+Predicting stock prices or housing market values based on various economic indicators and property attributes.
+
+### Healthcare
+
+Estimating patient recovery times or predicting the dosage response to a particular drug based on patient demographics and medical history.
+
+### Manufacturing
+
+Forecasting product defects or predicting equipment failure rates using sensor data and operational parameters.
+
+### Environmental Science
+
+Modeling air pollution levels or predicting crop yields based on weather patterns, soil conditions, and satellite imagery features.
+
+### E-commerce
+
+Recommending product prices or predicting customer lifetime value based on browsing history, purchase behavior, and demographic information.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Extra Trees Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import ExtraTreesRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ExtraTreesRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Extra Trees Regression Lab" />
+
+## References
+
+- Geurts et al. (2006). Geurts et al..
+- [scikit-learn: ExtraTreesRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ExtraTreesRegression.html)

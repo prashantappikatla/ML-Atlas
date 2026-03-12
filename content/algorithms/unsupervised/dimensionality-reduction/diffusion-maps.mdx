@@ -1,0 +1,200 @@
+---
+title: "Diffusion Maps"
+slug: "diffusion-maps"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 2005
+author: "Coifman & Lafon"
+paper: "Coifman & Lafon"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["data-visualization", "dimensionality-reduction", "feature-extraction", "graph-theory", "manifold-learning", "non-linear", "spectral-methods", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "isomap"
+  - "kernel-pca"
+  - "laplacian-eigenmaps"
+---
+
+## Overview
+
+Diffusion Maps is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data, revealing the intrinsic geometry and connectivity of the data manifold. It achieves this by defining a diffusion process on the data, where the "diffusion distance" between points reflects their connectivity and proximity along the manifold, rather than just Euclidean distance. This spectral method is particularly effective at preserving global data structure and handling complex, non-linear relationships. The resulting embedding provides a multiscale representation of the data, allowing for analysis at different levels of granularity.
+
+## History
+
+**2005** — Ronald R. Coifman and Stéphane Lafon introduce Diffusion Maps in their seminal paper "Diffusion maps" (PNAS), laying the theoretical foundation for the algorithm.
+
+**2006** — Coifman and Lafon publish "Geometric diffusions as a tool for harmonic analysis and structure definition of data: Diffusion maps" (PNAS), further elaborating on the mathematical framework and applications.
+
+**2008** — The method gains traction in various fields, including image processing and bioinformatics, demonstrating its utility for complex data analysis tasks.
+
+**2013** — Implementations become available in popular machine learning libraries and toolkits, increasing accessibility for practitioners and researchers.
+
+**2017** — Extensions and variations, such as multiscale diffusion maps and applications to dynamic data, continue to emerge, broadening its theoretical scope and practical applicability.
+
+## Mathematical Intuition
+
+### Kernel Construction and Similarity
+
+The initial step involves constructing a similarity graph where data points are nodes and edge weights reflect their proximity. This is typically achieved using a kernel function, such as the Gaussian kernel, which assigns higher similarity to closer points. For any two data points $x_i$ and $x_j$, their similarity $K(x_i, x_j)$ is often defined as:
+$$K(x_i, x_j) = \exp\left(-\frac{\|x_i - x_j\|^2}{\epsilon}\right)$$
+Here, $\epsilon$ (epsilon) is a bandwidth parameter that controls the decay of similarity with distance. A larger $\epsilon$ makes the kernel broader, considering more distant points as similar. This kernel forms the basis of the affinity matrix $W$, where $W_{ij} = K(x_i, x_j)$.
+
+$$
+K(x_i, x_j) = \exp\left(-\frac{\|x_i - x_j\|^2}{\epsilon}\right)
+$$
+
+### Diffusion Operator and Markov Chain
+
+From the affinity matrix $W$, a degree matrix $D$ is constructed, where $D_{ii} = \sum_j W_{ij}$ and $D_{ij} = 0$ for $i \neq j$. The diffusion operator $P$ is then defined as a normalized version of $W$, often $P = D^{-1}W$. This operator can be interpreted as the transition matrix of a Markov chain on the data points, where $P_{ij}$ represents the probability of moving from point $x_i$ to $x_j$ in one step. An alternative, symmetric normalization is often used for spectral analysis: $P = D^{-1/2} W D^{-1/2}$. This operator allows for studying the connectivity of the data manifold through random walks.
+
+$$
+D_{ii} = \sum_j W_{ij}
+$$
+
+$$
+P = D^{-1}W
+$$
+
+$$
+P = D^{-1/2} W D^{-1/2}
+$$
+
+### Eigen-decomposition and Coordinates
+
+The core of Diffusion Maps involves performing an eigen-decomposition of the diffusion operator $P$. The eigenvalues $\lambda_0 \ge \lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_{N-1}$ and corresponding eigenvectors $\psi_0, \psi_1, \psi_2, \dots, \psi_{N-1}$ are computed. The first eigenvector $\psi_0$ typically corresponds to the largest eigenvalue $\lambda_0 = 1$ and represents the stationary distribution of the Markov chain. The subsequent eigenvectors, scaled by their eigenvalues, form the diffusion map embedding. For a given time parameter $t$, the $k$-th diffusion coordinate for point $x_i$ is given by $(\lambda_k)^t \psi_k(x_i)$. The low-dimensional embedding for $x_i$ is then $\Psi_t(x_i) = ((\lambda_1)^t \psi_1(x_i), (\lambda_2)^t \psi_2(x_i), \dots, (\lambda_d)^t \psi_d(x_i))$, where $d$ is the desired dimensionality.
+
+$$
+\lambda_0 \ge \lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_{N-1}
+$$
+
+$$
+\psi_0, \psi_1, \psi_2, \dots, \psi_{N-1}
+$$
+
+$$
+\lambda_0 = 1
+$$
+
+$$
+(\lambda_k)^t \psi_k(x_i)
+$$
+
+$$
+\Psi_t(x_i) = ((\lambda_1)^t \psi_1(x_i), (\lambda_2)^t \psi_2(x_i), \dots, (\lambda_d)^t \psi_d(x_i))
+$$
+
+### Diffusion Distance Definition
+
+The diffusion distance $D_t(x_i, x_j)$ between two points $x_i$ and $x_j$ at time $t$ is defined based on the probability of paths between them. It measures the connectivity of points on the manifold, reflecting how easily one can "diffuse" from one point to another. This distance is robust to noise and local perturbations, and it naturally captures the global geometry of the data. It is given by:
+$$D_t(x_i, x_j)^2 = \sum_{k=1}^d (\lambda_k)^{2t} (\psi_k(x_i) - \psi_k(x_j))^2$$
+This distance is an Euclidean distance in the diffusion map embedding space, making it easy to work with and interpret.
+
+$$
+D_t(x_i, x_j)^2 = \sum_{k=1}^d (\lambda_k)^{2t} (\psi_k(x_i) - \psi_k(x_j))^2
+$$
+
+## Algorithm Steps
+
+1. Given a dataset $X = \{x_1, \dots, x_N\}$ in $\mathbb{R}^M$, construct a pairwise similarity matrix $W$ using a chosen kernel function, such as the Gaussian kernel $W_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{\epsilon}\right)$.
+2. Compute the degree matrix $D$, a diagonal matrix where $D_{ii} = \sum_j W_{ij}$.
+3. Normalize the similarity matrix to form the diffusion operator $P$, typically using $P = D^{-1}W$ or the symmetric $P = D^{-1/2} W D^{-1/2}$.
+4. Perform an eigen-decomposition of the diffusion operator $P$ to obtain its eigenvalues $\lambda_0, \lambda_1, \dots, \lambda_{N-1}$ and corresponding eigenvectors $\psi_0, \psi_1, \dots, \psi_{N-1}$.
+5. Select the desired number of dimensions $d$ for the embedding, typically corresponding to the largest non-trivial eigenvalues (excluding $\lambda_0=1$).
+6. Construct the $d$-dimensional diffusion map embedding for each data point $x_i$ as $\Psi_t(x_i) = ((\lambda_1)^t \psi_1(x_i), \dots, (\lambda_d)^t \psi_d(x_i))$, where $t$ is the diffusion time parameter.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `integer` | `2` | integer > 0 | The number of dimensions to keep in the embedded space, corresponding to the number of diffusion coordinates. |
+| `kernel` | `string` | `gaussian` | ['gaussian', 'laplacian'] | The type of kernel to use for computing affinities between data points. |
+| `epsilon` | `float` | `1.0` | float > 0 | The bandwidth parameter for the kernel function, controlling the decay of similarity with distance. |
+| `alpha` | `float` | `1.0` | float >= 0 | The normalization parameter for the diffusion operator; a value of 1.0 corresponds to the standard graph Laplacian normalization. |
+| `t` | `float` | `1.0` | float > 0 | The diffusion time parameter, controlling the scale of the diffusion process; larger $t$ emphasizes global structure. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Diffusion Maps effectively captures the intrinsic non-linear geometry of high-dimensional data manifolds.
+- The diffusion distance is robust to noise and local perturbations, providing a stable representation of data connectivity.
+- It provides a multiscale representation of the data, allowing exploration of structure at different levels of granularity by varying the time parameter $t$.
+- The algorithm preserves global data structure, making it suitable for tasks where overall relationships and connectivity are important.
+- The embedding is stable under small perturbations of the data, contributing to its reliability and reproducibility.
+- Diffusion Maps can reveal hidden structures and clusters that are not apparent in the original high-dimensional space or with linear methods.
+
+## Weaknesses
+
+- Computational complexity is high, particularly for large datasets, due to the need for constructing and eigen-decomposing a dense $N \times N$ similarity matrix.
+- The choice of kernel function and its bandwidth parameter $\epsilon$ significantly impacts the quality of the embedding and can be challenging to optimize.
+- Interpretation of the diffusion coordinates can be less intuitive compared to methods like PCA, which relate directly to variance.
+- The algorithm can be sensitive to density variations in the data, potentially distorting the perceived manifold structure.
+- The time parameter $t$ needs to be chosen carefully, as it controls the scale of the diffusion process and thus the emphasis on local versus global structure.
+
+## Use Cases
+
+### Bioinformatics
+
+Used for analyzing gene expression data, protein folding dynamics, and single-cell RNA sequencing data to identify cell types and developmental trajectories.
+
+### Image Processing
+
+Applied in image segmentation, feature extraction, and content-based image retrieval by capturing intrinsic image structures and relationships.
+
+### Signal Processing
+
+Utilized for denoising signals, extracting relevant features from complex time series, and analyzing audio or sensor data by revealing underlying patterns.
+
+### Machine Learning
+
+Employed as a pre-processing step for other algorithms, for manifold learning, and in semi-supervised learning to leverage unlabeled data for improved model performance.
+
+### Computer Graphics
+
+Used for shape analysis, mesh processing, and understanding the intrinsic geometry of 3D models, enabling tasks like shape matching and deformation.
+
+### Social Network Analysis
+
+Can be used to identify communities or influential nodes by mapping the connectivity patterns and diffusion processes within a network.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Diffusion Maps from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import DiffusionMaps
+
+model = DiffusionMaps()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Diffusion Maps Lab" />
+
+## References
+
+- Coifman & Lafon (2005). Coifman & Lafon.
+- [scikit-learn: DiffusionMaps](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DiffusionMaps.html)

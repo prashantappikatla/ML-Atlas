@@ -1,0 +1,166 @@
+---
+title: "ARCH"
+slug: "arch"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1982
+author: "Engle"
+paper: "Engle"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["conditional-heteroskedasticity", "econometrics", "financial-modeling", "forecasting", "risk-management", "time-series", "volatility-modeling"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "arma"
+  - "exponential-smoothing"
+  - "garch"
+  - "sarima"
+---
+
+## Overview
+
+The Autoregressive Conditional Heteroskedasticity (ARCH) model is a statistical model used to describe and forecast the time-varying volatility of financial time series. It posits that the variance of the current error term is a function of the magnitudes of the squared error terms from previous time periods. This approach effectively captures the phenomenon of volatility clustering, where large changes in asset prices tend to be followed by large changes, and small changes by small changes.
+
+## History
+
+**1982** — Robert F. Engle introduced the ARCH model in his seminal paper 'Autoregressive Conditional Heteroskedasticity with Estimates of the Variance of United Kingdom Inflation', providing a framework to model time-varying volatility.
+
+**1986** — Tim Bollerslev generalized the ARCH model to the Generalized Autoregressive Conditional Heteroskedasticity ([GARCH](/algorithms/time-series/classical-forecasting/garch)) model, allowing the conditional variance to depend on past conditional variances as well as past squared errors.
+
+**1991** — Daniel B. Nelson introduced the Exponential [GARCH](/algorithms/time-series/classical-forecasting/garch) (EGARCH) model, addressing some limitations of [GARCH](/algorithms/time-series/classical-forecasting/garch) by allowing asymmetric responses to positive and negative shocks and ensuring non-negativity of variance without parameter constraints.
+
+**1993** — Zakoian and Glosten, Jagannathan, and Runkle independently proposed the Threshold [GARCH](/algorithms/time-series/classical-forecasting/garch) (TARCH or GJR-[GARCH](/algorithms/time-series/classical-forecasting/garch)) model, which also accounts for asymmetric effects of positive and negative shocks on volatility.
+
+## Mathematical Intuition
+
+### Conditional Heteroskedasticity Concept
+
+Traditional time series models often assume constant variance (homoskedasticity) for the error terms. However, financial time series frequently exhibit periods of high volatility followed by periods of low volatility, a phenomenon known as volatility clustering. ARCH models address this by allowing the variance of the error term, $\sigma_t^2$, to be conditional on past information, specifically past squared error terms. This means that while the unconditional variance of the series might be constant, the conditional variance changes over time.
+
+### ARCH(q) Model Definition
+
+An ARCH(q) model specifies that the conditional variance $\sigma_t^2$ depends on $q$ past squared error terms. Let $y_t$ be the time series, and $\epsilon_t$ be the error term from a mean equation (e.g., ARMA model), such that $y_t = \mu_t + \epsilon_t$. The error term $\epsilon_t$ is assumed to be $\epsilon_t = \sigma_t z_t$, where $z_t$ is an independent and identically distributed (i.i.d.) random variable with zero mean and unit variance (e.g., $z_t \sim N(0,1)$). The conditional variance equation for an ARCH(q) model is given by:
+
+$$
+$$\sigma_t^2 = \alpha_0 + \sum_{i=1}^{q} \alpha_i \epsilon_{t-i}^2$$
+$$
+
+$$
+where $\alpha_0 > 0$ and $\alpha_i \ge 0$ for $i=1, \dots, q$ to ensure that the conditional variance is positive. The sum of the ARCH coefficients, $\sum_{i=1}^{q} \alpha_i$, must be less than 1 for the unconditional variance to be finite and the process to be weakly stationary.
+$$
+
+### Mean Equation Context
+
+The ARCH model is typically applied to the residuals of a mean equation, which models the conditional mean of the time series. This mean equation could be a simple constant, an Autoregressive (AR) model, a Moving Average (MA) model, or an Autoregressive Moving Average (ARMA) model. For example, an AR(p) mean equation would be $y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \epsilon_t$. The ARCH model then describes the dynamics of the variance of these residuals $\epsilon_t$.
+
+### Parameter Estimation via MLE
+
+The parameters of an ARCH model (i.e., $\alpha_0, \alpha_1, \dots, \alpha_q$ and any parameters from the mean equation) are typically estimated using Maximum Likelihood Estimation (MLE). Assuming $z_t$ follows a standard normal distribution, the log-likelihood function for the ARCH(q) model is given by:
+
+$$
+$$\mathcal{L}(\theta) = -\frac{1}{2} \sum_{t=1}^{T} \left( \ln(2\pi) + \ln(\sigma_t^2) + \frac{\epsilon_t^2}{\sigma_t^2} \right)$$
+$$
+
+$$
+where $\theta$ represents all model parameters, $T$ is the number of observations, and $\sigma_t^2$ is defined by the ARCH(q) equation. Numerical optimization techniques are used to find the parameter values that maximize this log-likelihood function.
+$$
+
+## Algorithm Steps
+
+1. Specify a suitable mean equation for the time series $y_t$, such as an AR(p), MA(q), or ARMA(p,q) model, to capture the conditional mean dynamics.
+2. Estimate the parameters of the chosen mean equation (e.g., using Ordinary Least Squares or MLE) and obtain the residuals $\hat{\epsilon}_t = y_t - \hat{\mu}_t$.
+3. Test the residuals $\hat{\epsilon}_t$ for ARCH effects using tests like the Ljung-Box test on squared residuals or Engle's ARCH test, to confirm the presence of conditional heteroskedasticity.
+4. If ARCH effects are detected, specify the order $q$ for the ARCH(q) model, often determined by examining the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) of the squared residuals $\hat{\epsilon}_t^2$.
+5. Formulate the ARCH(q) conditional variance equation: $\sigma_t^2 = \alpha_0 + \sum_{i=1}^{q} \alpha_i \epsilon_{t-i}^2$.
+6. Estimate the parameters of the combined mean and variance equations (i.e., mean model parameters and $\alpha_0, \dots, \alpha_q$) simultaneously using Maximum Likelihood Estimation (MLE).
+7. Perform diagnostic checks on the standardized residuals $\hat{z}_t = \hat{\epsilon}_t / \hat{\sigma}_t$ to ensure they are i.i.d. with zero mean and unit variance, indicating the model adequately captures the conditional mean and variance dynamics.
+8. Use the estimated model to forecast future conditional variances, which can then be used for risk management or option pricing.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `lags` | `integer` | `1` | q >= 1 | The number of past squared residuals (q) to include in the conditional variance equation. This defines the order of the ARCH model. |
+| `mean_model` | `string` | `constant` | 'constant', 'AR', 'ARMA', 'zero', 'LS' | The type of model used for the conditional mean of the time series. Common options include 'constant', 'AR', 'ARMA', or 'zero'. |
+| `p_mean` | `integer` | `0` | p_mean >= 0 | The order of the autoregressive (AR) component in the mean model, if 'mean_model' is 'AR' or 'ARMA'. |
+| `q_mean` | `integer` | `0` | q_mean >= 0 | The order of the moving average (MA) component in the mean model, if 'mean_model' is 'ARMA'. |
+| `dist` | `string` | `normal` | 'normal', 'studentst', 'skewstudent', 'ged' | The assumed distribution for the standardized residuals $z_t$. Common choices include 'normal', 'studentst' (Student's t-distribution), or 'skewstudent'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- ARCH models effectively capture volatility clustering, a common characteristic of financial time series where periods of high volatility tend to be followed by high volatility, and vice versa.
+- They provide a direct measure of conditional variance, which is crucial for risk management, portfolio optimization, and option pricing.
+- The model offers a statistically rigorous framework for understanding and forecasting the time-varying risk of assets.
+- ARCH models serve as a foundational concept for more advanced volatility models like GARCH, EGARCH, and TARCH, which address some of its limitations.
+- It allows for the construction of prediction intervals that reflect changing levels of uncertainty over time.
+
+## Weaknesses
+
+- ARCH models assume that positive and negative shocks of the same magnitude have the same effect on volatility, which is often not true in financial markets (leverage effect).
+- A high order $q$ may be required to adequately capture long-memory volatility, leading to a large number of parameters and potential overfitting.
+- The model does not provide an explanation for the source of volatility, only a statistical description of its persistence.
+- The non-negativity constraints on parameters ($\alpha_i \ge 0$) can be restrictive and sometimes difficult to satisfy during estimation.
+- It can be sensitive to outliers, as squared errors are used, which can disproportionately influence the conditional variance estimates.
+
+## Use Cases
+
+### Financial Risk Management
+
+Used to estimate Value-at-Risk (VaR) and Expected Shortfall (ES) for portfolios, providing insights into potential losses under market volatility.
+
+### Option Pricing
+
+Incorporates time-varying volatility into option pricing models, leading to more accurate valuations than models assuming constant volatility (e.g., Black-Scholes).
+
+### Macroeconomics
+
+Applied to model the volatility of macroeconomic variables like inflation rates, interest rates, or GDP growth, to understand economic uncertainty.
+
+### Portfolio Optimization
+
+Helps in constructing optimal portfolios by accounting for the changing risk of different assets over time, leading to better asset allocation decisions.
+
+### Energy Markets
+
+Used to forecast the volatility of commodity prices (e.g., oil, natural gas) for hedging strategies and risk assessment in energy trading.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ARCH from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ARCH does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ARCH Lab" />
+
+## References
+
+- Engle (1982). Engle.

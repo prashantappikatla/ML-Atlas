@@ -1,0 +1,182 @@
+---
+title: "T5"
+slug: "t5"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2019
+author: "Raffel et al."
+paper: "Raffel et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["attention-mechanism", "encoder-decoder", "fine-tuning", "natural-language-processing", "pre-training", "sequence-to-sequence", "text-generation", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "bert"
+  - "gpt"
+  - "transformer"
+---
+
+## Overview
+
+T5 (Text-to-Text Transfer [Transformer](/algorithms/deep-learning/transformers/transformer)) unifies all natural language processing tasks into a single text-to-text framework, where every problem, from translation to question answering, is cast as generating text given an input text. This approach simplifies the modeling paradigm by using the same model, loss function, and decoding procedure for diverse tasks. It leverages a standard encoder-decoder [Transformer](/algorithms/deep-learning/transformers/transformer) architecture and is pre-trained on a massive dataset called C4 (Colossal Clean Crawled Corpus).
+
+## History
+
+**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, which forms the foundational backbone for T5 and many subsequent large language models.
+
+**2018** — Devlin et al. introduce BERT, demonstrating the significant power of large-scale pre-training on unlabeled text for various NLP tasks.
+
+**2019** — Raffel et al. introduce T5, proposing the text-to-text framework, releasing the C4 dataset, and demonstrating the effectiveness of their pre-trained models across numerous NLP benchmarks.
+
+**2020** — Google releases the mT5 model, a multilingual version of T5, extending its capabilities to over 100 languages by pre-training on a multilingual C4 dataset.
+
+**2021** — Google introduces FLAN-T5, a fine-tuned version of T5 that further improves performance on various tasks through instruction tuning, enhancing its zero-shot and few-shot capabilities.
+
+## Mathematical Intuition
+
+### Transformer Architecture Overview
+
+T5 employs the standard encoder-decoder [Transformer](/algorithms/deep-learning/transformers/transformer) architecture. The encoder maps an input sequence of tokens $x = (x_1, ..., x_n)$ to a sequence of continuous representations $H = (h_1, ..., h_n)$. The decoder then generates an output sequence $y = (y_1, ..., y_m)$ one token at a time, conditioned on $H$ and previously generated tokens. Both encoder and decoder blocks consist of multi-head self-attention mechanisms and feed-forward networks, with residual connections and layer normalization. The core [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) computes a weighted sum of value vectors based on query-key similarity.
+
+$$
+Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+$$
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h)W^O
+$$
+
+$$
+where \ head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+### Text-to-Text Framework
+
+The core idea of T5 is to reframe every NLP task as a text-to-text problem. This means both the input and output are always text strings. For example, for translation, the input might be "translate English to German: That is good." and the output "Das ist gut.". For summarization, the input is "summarize: [document text]" and the output is the summary. This unified approach allows the same model, loss function, and decoding procedure to be used across all tasks, simplifying the overall NLP pipeline. The model learns to predict the probability of the next token given the preceding tokens and the encoder's output.
+
+$$
+P(y|x) = \prod_{i=1}^{m} P(y_i | y_{<i}, x)
+$$
+
+$$
+L_{CE} = -\sum_{i=1}^{m} \log P(y_i | y_{<i}, x)
+$$
+
+### Self-Supervised Pre-training
+
+T5 is pre-trained using a self-supervised objective called "span corruption." In this method, contiguous spans of input tokens are randomly selected and replaced with a single unique sentinel token. The model is then trained to predict the corrupted spans, including the sentinel tokens, in the output sequence. This forces the model to reconstruct missing information and learn robust contextual representations. For example, an input like "The man went to the store to buy milk." might be corrupted to "The man <extra_id_0> to the store <extra_id_1> milk." and the target output would be "<extra_id_0> went <extra_id_1> to buy <extra_id_2>".
+
+### Fine-tuning for Downstream Tasks
+
+After pre-training, T5 can be fine-tuned on specific downstream tasks. This involves training the pre-trained model on a task-specific dataset using the same text-to-text format. A task prefix (e.g., "translate English to German:") is often prepended to the input to signal the desired task to the model. The fine-tuning objective remains the standard maximum likelihood estimation, minimizing the cross-entropy loss between the predicted and target output sequences. This process adapts the general language understanding learned during pre-training to specialized task requirements.
+
+$$
+L_{fine-tune} = -\sum_{(x,y) \in D_{task}} \sum_{i=1}^{m} \log P(y_i | y_{<i}, x)
+$$
+
+## Algorithm Steps
+
+1. Construct a large, diverse, and clean text corpus, such as C4, for pre-training the model.
+2. Define a text-to-text transformation for all desired tasks, ensuring both input and output are always text strings.
+3. Initialize an encoder-decoder Transformer model with a specified architecture, including parameters like $d_{model}$, $num_{layers}$, and $num_{heads}$.
+4. Pre-train the model using the "span corruption" objective: randomly select contiguous spans of input tokens, replace them with unique sentinel tokens, and train the model to predict the original corrupted spans.
+5. Optionally, pre-train with additional objectives or variations of span corruption to further enhance representation learning.
+6. For a specific downstream task, format the task's input and target data into the text-to-text format, often by prepending a task-specific prefix to the input.
+7. Fine-tune the pre-trained T5 model on the task-specific dataset using maximum likelihood estimation, minimizing the cross-entropy loss between predicted and target sequences.
+8. During inference, provide the task-formatted input to the fine-tuned model and decode the generated output sequence using methods like beam search or greedy decoding.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `d_model` | `integer` | `768` | positive integer | Dimensionality of the embeddings and hidden states throughout the model, influencing its capacity. |
+| `num_layers` | `integer` | `12` | positive integer | Number of encoder and decoder layers, determining the depth of the Transformer architecture. |
+| `num_heads` | `integer` | `12` | positive integer | Number of attention heads for each attention layer, allowing the model to focus on different parts of the input simultaneously. |
+| `d_ff` | `integer` | `3072` | positive integer | Dimensionality of the inner feed-forward layer in the Transformer blocks, typically a multiple of d_model. |
+| `dropout_rate` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability applied to various layers to prevent overfitting during training. |
+| `learning_rate` | `float` | `0.0001` | positive float | The initial learning rate for the optimizer used during pre-training or fine-tuning. |
+| `batch_size` | `integer` | `16` | positive integer | Number of samples processed before the model's internal parameters are updated during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- The unified text-to-text framework simplifies the application of the model to a wide range of NLP tasks without architectural changes.
+- Large-scale pre-training on the C4 dataset enables T5 to learn robust and generalizable language representations.
+- The encoder-decoder architecture allows for flexible handling of various sequence-to-sequence tasks, including generation and understanding.
+- T5 models achieve state-of-the-art performance across numerous NLP benchmarks when appropriately fine-tuned.
+- The self-supervised pre-training objective, span corruption, is effective at teaching the model to reconstruct missing information and understand context.
+- The availability of different model sizes (e.g., T5-small, T5-base, T5-large, T5-3B, T5-11B) allows for trade-offs between computational cost and performance.
+
+## Weaknesses
+
+- T5 models are computationally expensive to pre-train and fine-tune, requiring significant GPU resources and time.
+- The large number of parameters in T5 models can lead to high memory consumption, making deployment challenging on resource-constrained devices.
+- Performance can be sensitive to the choice of task prefix during fine-tuning, requiring careful prompt engineering.
+- Like other large language models, T5 can sometimes generate factually incorrect or nonsensical outputs, especially for complex reasoning tasks.
+- The pre-training data (C4) may contain biases present in the internet text, which can be reflected in the model's outputs.
+
+## Use Cases
+
+### Machine Translation
+
+Translating text from one natural language to another, such as English to German or French, by framing it as an input-output text transformation.
+
+### Text Summarization
+
+Generating concise summaries of longer documents or articles while retaining key information, by taking the document as input and producing the summary as output.
+
+### Question Answering
+
+Answering natural language questions based on a given context document or general knowledge, where the question and context form the input and the answer is the output.
+
+### Text Generation
+
+Creating coherent and contextually relevant text for various purposes, including creative writing, dialogue generation, or content creation, given a prompt or partial text.
+
+### Sentiment Analysis
+
+Classifying the emotional tone or sentiment expressed in a piece of text, such as positive, negative, or neutral, by generating the sentiment label as output.
+
+### Grammar Correction
+
+Identifying and correcting grammatical errors, spelling mistakes, and stylistic issues in written text, by taking the erroneous text as input and producing the corrected version.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement T5 from scratch
+```
+
+### Using scikit-learn
+
+```python
+# T5 does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="T5 Lab" />
+
+## References
+
+- Raffel et al. (2019). Raffel et al..

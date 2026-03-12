@@ -1,0 +1,202 @@
+---
+title: "MARS (Multivariate Adaptive Regression Splines)"
+slug: "mars-multivariate-adaptive-regression-splines"
+category: "supervised"
+subcategory: "regression"
+year: 1991
+author: "Friedman"
+paper: "Friedman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["adaptive-modeling", "feature-selection", "interpretability", "non-parametric", "piecewise-linear", "regression", "splines", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "support-vector-regression"
+---
+
+## Overview
+
+Multivariate Adaptive Regression Splines (MARS) is a non-parametric regression technique designed to model complex non-linear relationships between predictor variables and a response variable. It constructs a series of piecewise linear basis functions, known as hinge functions, to approximate the underlying function adaptively. MARS is distinctive for its two-phase approach: a forward stepwise procedure builds an overly complex model, followed by a backward pruning step that optimizes generalization performance using a Generalized Cross-Validation criterion.
+
+## History
+
+**1991** — Jerome H. Friedman introduced Multivariate Adaptive Regression Splines (MARS) in his seminal paper 'Multivariate Adaptive Regression Splines' (Annals of Statistics), establishing a flexible and interpretable method for high-dimensional regression.
+
+**1993** — Friedman further elaborated on the theoretical properties and practical applications of MARS, demonstrating its effectiveness in various statistical modeling tasks and solidifying its place in the statistical learning literature.
+
+**1990** — MARS gained increasing recognition and adoption in diverse fields such as econometrics, engineering, and environmental science due to its ability to model complex interactions and non-linearities without requiring prior specification of functional forms.
+
+**2000** — Implementations of MARS became widely available in various statistical software packages (e.g., R, Python), making the algorithm accessible to a broader range of practitioners and researchers for real-world applications.
+
+## Mathematical Intuition
+
+### MARS Model Form and Basis Functions
+
+The MARS model approximates the response variable $y$ as a sum of adaptively chosen basis functions, $B_m(x)$, each multiplied by a coefficient $\beta_m$. The general form of the model is:
+$$f(x) = \beta_0 + \sum_{m=1}^M \beta_m B_m(x)$$
+Here, $B_m(x)$ are basis functions, which are typically products of one or more hinge functions. A hinge function takes the form $\max(0, x_k - t)$ or $\max(0, t - x_k)$, where $x_k$ is a predictor variable and $t$ is a knot location. These functions are piecewise linear and allow the model to capture local non-linearities.
+
+$$
+f(x) = \beta_0 + \sum_{m=1}^M \beta_m B_m(x)
+$$
+
+$$
+\max(0, x_k - t)
+$$
+
+$$
+\max(0, t - x_k)
+$$
+
+### Forward Stepwise Model Construction
+
+The model building process begins with an intercept term. In a forward stepwise procedure, the algorithm iteratively searches for the best new basis function pair to add to the model. A new pair is typically formed by multiplying an existing basis function $B_j(x)$ by a new hinge function, such as $B_j(x) \cdot \max(0, x_k - t)$ and $B_j(x) \cdot \max(0, t - x_k)$. The 'best' pair is selected based on its ability to maximally reduce the residual sum of squares (RSS). This process continues until a predefined maximum number of terms is reached, resulting in an intentionally overfitted model.
+
+$$
+B_j(x) \cdot \max(0, x_k - t)
+$$
+
+$$
+B_j(x) \cdot \max(0, t - x_k)
+$$
+
+### Backward Pruning with GCV
+
+To mitigate overfitting and enhance the model's generalization capability, a backward pruning step is applied. Terms are systematically removed from the overly complex model, starting with the term that contributes least to the model's fit. The selection of terms to remove is guided by minimizing the Generalized Cross-Validation (GCV) score, which balances model fit with complexity:
+$$\text{GCV}(\lambda) = \frac{\frac{1}{N} \sum_{i=1}^N (y_i - \hat{f}(x_i))^2}{\left(1 - \frac{C(\lambda)}{N}\right)^2}$$
+Here, $C(\lambda)$ represents an effective number of parameters, penalizing models with higher complexity. This pruning ensures a parsimonious model with optimal predictive performance.
+
+$$
+\text{GCV}(\lambda) = \frac{\frac{1}{N} \sum_{i=1}^N (y_i - \hat{f}(x_i))^2}{\left(1 - \frac{C(\lambda)}{N}\right)^2}
+$$
+
+$$
+C(\lambda)
+$$
+
+### Hinge Function Mechanics
+
+Hinge functions are the fundamental building blocks of MARS, enabling the model to capture non-linearities by introducing 'knots' at specific predictor values. For a variable $x_k$ and a knot $t$, the two complementary hinge functions are $h_1(x_k; t) = \max(0, x_k - t)$ and $h_2(t; x_k) = \max(0, t - x_k)$. These functions are zero on one side of the knot and linearly increasing on the other, allowing the model to adaptively change the slope of the response function at these knot locations. Products of hinge functions allow for modeling interactions between variables.
+
+$$
+h_1(x_k; t) = \max(0, x_k - t)
+$$
+
+$$
+h_2(t; x_k) = \max(0, t - x_k)
+$$
+
+## Algorithm Steps
+
+1. Initialize the MARS model with a constant term, $B_0(x) = 1$, representing the overall mean of the response.
+2. Perform a forward stepwise pass by iteratively searching for the best pair of basis functions to add to the current model.
+3. For each step, consider all predictor variables $x_k$, all existing basis functions $B_j(x)$ in the current model, and all unique values of $x_k$ as potential knot locations $t$.
+4. Select the pair of basis functions, typically of the form $B_j(x) \cdot \max(0, x_k - t)$ and $B_j(x) \cdot \max(0, t - x_k)$, that maximally reduces the residual sum of squares (RSS) when added to the model.
+5. Continue adding basis function pairs until a predefined maximum number of terms is reached or the improvement in RSS falls below a specified threshold, resulting in an intentionally overfitted model.
+6. Perform a backward pruning pass by systematically removing terms from the overfitted model one by one.
+7. At each pruning step, identify and remove the term whose elimination results in the smallest increase in the Generalized Cross-Validation (GCV) score.
+8. Continue the pruning process until the GCV score is minimized, yielding the final, parsimonious MARS model with optimal complexity.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `max_terms` | `integer` | `200` | integer > 0 | The maximum number of terms (including the intercept) allowed in the model before the backward pruning step. |
+| `max_degree` | `integer` | `1` | integer >= 1 | The maximum degree of interaction between variables. A value of 1 implies an additive model, while 2 allows for pairwise interactions. |
+| `penalty` | `float` | `2.0` | float >= 0.0 | The generalized cross-validation (GCV) penalty parameter. Higher values lead to sparser models by penalizing complexity more heavily during pruning. |
+| `min_samples` | `integer` | `5` | integer >= 1 | The minimum number of samples required to form a new basis function (i.e., the minimum number of observations between knots and between a knot and the boundary). |
+| `endspan` | `integer` | `0` | integer >= 0 | The minimum number of observations between knots and between the knot and the boundary. A value of 0 means no restriction. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- MARS can model highly non-linear relationships and interactions between variables without requiring prior specification of the functional form.
+- The resulting models are relatively interpretable, as the contribution of each basis function and its associated variables can be examined.
+- It performs automatic variable selection and interaction detection, identifying which predictors are most relevant to the response.
+- MARS is robust to outliers and multicollinearity due to its piecewise nature and adaptive knot placement.
+- It can handle high-dimensional data effectively by focusing on relevant regions of the predictor space.
+- The algorithm is computationally efficient compared to some other non-parametric methods, especially for moderate datasets.
+
+## Weaknesses
+
+- MARS can be sensitive to the choice of hyperparameters, such as the maximum number of terms and the degree of interactions.
+- For very high-dimensional data with many irrelevant features, the forward stepwise selection can still be computationally intensive.
+- The piecewise linear nature might not perfectly capture very smooth underlying functions, potentially leading to some approximation error.
+- Interpretability can decrease significantly with a large number of interaction terms or very complex basis functions.
+- It may struggle with extrapolation beyond the range of the training data, as the model is defined by the observed data points and knots.
+
+## Use Cases
+
+### Environmental Science
+
+Predicting air quality indices or water pollution levels based on meteorological, geographical, and industrial factors, where complex non-linear interactions are prevalent.
+
+### Finance
+
+Modeling stock prices, credit risk, or bond yields, where non-linear relationships and interactions between economic indicators are common and require flexible modeling.
+
+### Engineering
+
+Predicting material properties, system performance, or energy consumption in complex industrial processes, often involving numerous interacting input parameters.
+
+### Healthcare
+
+Forecasting disease progression, patient outcomes, or drug response based on clinical, genetic, and demographic data, where non-linear effects are frequently observed.
+
+### Economics
+
+Analyzing economic growth, inflation, or consumer spending patterns with complex non-linear dependencies and structural breaks that MARS can adaptively capture.
+
+### Marketing
+
+Predicting customer churn or product demand based on various customer attributes, market conditions, and promotional activities, identifying key drivers and their interactions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MARS (Multivariate Adaptive Regression Splines) from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import MarsMultivariateAdaptiveRegressionSplines
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = MarsMultivariateAdaptiveRegressionSplines()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="MARS (Multivariate Adaptive Regression Splines) Lab" />
+
+## References
+
+- Friedman (1991). Friedman.
+- [scikit-learn: MarsMultivariateAdaptiveRegressionSplines](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.MarsMultivariateAdaptiveRegressionSplines.html)

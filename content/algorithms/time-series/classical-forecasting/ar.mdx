@@ -1,0 +1,192 @@
+---
+title: "AR"
+slug: "ar"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1927
+author: "Yule"
+paper: "Yule"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["autoregression", "classical-statistics", "linear-model", "prediction", "stationarity", "statistical-model", "time-series-forecasting", "univariate"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "exponential-smoothing"
+  - "kalman-filter"
+  - "linear-regression"
+---
+
+## Overview
+
+The Autoregressive (AR) model is a fundamental time-series forecasting method that predicts future values based on a linear combination of past observations of the series itself. It captures the dependency of an observation on a number of previous observations, making it suitable for data exhibiting temporal correlation. This model is a cornerstone of more complex time-series models like ARMA and [ARIMA](/algorithms/time-series/classical-forecasting/arima), providing a simple yet powerful framework for understanding temporal dependencies.
+
+## History
+
+**1927** — George Udny Yule introduced the autoregressive model to analyze sunspot data, establishing the concept of a series regressing on its own past values.
+
+**1938** — Herman Wold's decomposition theorem provided a theoretical foundation for stationary time series, showing that any stationary process can be represented as a sum of a deterministic part and a moving average process, which includes AR models as a special case.
+
+**1951** — The Yule-Walker equations were formalized, providing a method for estimating the parameters of an AR model from the sample autocovariance function.
+
+**1970** — George E.P. Box and Gwilym M. Jenkins popularized a systematic methodology for identifying, estimating, and validating time series models, including AR, ARMA, and [ARIMA](/algorithms/time-series/classical-forecasting/arima) models, in their influential book "Time Series Analysis: Forecasting and Control."
+
+**1976** — Hirotugu Akaike introduced the Akaike Information Criterion (AIC) for model selection, providing a principled way to choose the optimal order $p$ for an AR model.
+
+## Mathematical Intuition
+
+### The Autoregressive Model Equation
+
+The Autoregressive model of order $p$, denoted AR($p$), expresses the current value of a time series $y_t$ as a linear combination of its $p$ previous values and a white noise error term. This formulation captures the idea that the series' past behavior directly influences its present state.
+$$y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \epsilon_t$$
+where $y_t$ is the value of the series at time $t$, $c$ is a constant (often a mean term), $\phi_i$ are the autoregressive coefficients, $p$ is the order of the model, and $\epsilon_t$ is a white noise error term with mean zero and constant variance.
+
+$$
+y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \epsilon_t
+$$
+
+### Stationarity Condition
+
+A crucial requirement for an AR model to be stable and predictable is that the underlying time series must be stationary. A stationary series has statistical properties (mean, variance, autocorrelation) that do not change over time. For an AR($p$) model, stationarity implies that the roots of its characteristic equation lie outside the unit circle.
+The characteristic equation for an AR($p$) model is given by:
+$$1 - \sum_{i=1}^{p} \phi_i z^{-i} = 0$$
+Alternatively, by multiplying by $z^p$:
+$$z^p - \phi_1 z^{p-1} - \dots - \phi_p = 0$$
+For stationarity, all roots $z$ of this polynomial must have a modulus greater than 1.
+
+$$
+1 - \sum_{i=1}^{p} \phi_i z^{-i} = 0
+$$
+
+$$
+z^p - \phi_1 z^{p-1} - \dots - \phi_p = 0
+$$
+
+### Parameter Estimation Methods
+
+The coefficients $\phi_i$ of an AR model can be estimated using several methods. One common approach for stationary series is the Yule-Walker equations, which relate the autoregressive coefficients to the autocovariance function of the series. For an AR($p$) model, these equations are:
+$$\gamma_k = \sum_{i=1}^{p} \phi_i \gamma_{k-i} \quad \text{for } k=1, 2, \dots, p$$
+where $\gamma_k$ is the autocovariance at lag $k$. These equations form a system of linear equations that can be solved for $\phi_i$. Alternatively, Ordinary Least Squares (OLS) can be used by treating the problem as a regression of $y_t$ on its lagged values $y_{t-1}, \dots, y_{t-p}$.
+
+$$
+\gamma_k = \sum_{i=1}^{p} \phi_i \gamma_{k-i}
+$$
+
+### Order Selection Criteria
+
+Determining the optimal order $p$ for an AR model is critical. Information criteria like the Akaike Information Criterion (AIC) and Bayesian Information Criterion (BIC) are commonly used. These criteria balance model fit with model complexity, penalizing models with more parameters.
+The AIC is defined as:
+$$\text{AIC} = -2 \log(L) + 2k$$
+where $L$ is the maximum likelihood for the model and $k$ is the number of parameters. The BIC is defined as:
+$$\text{BIC} = -2 \log(L) + k \log(N)$$
+where $N$ is the number of observations. The model with the lowest AIC or BIC value is generally preferred.
+
+$$
+\text{AIC} = -2 \log(L) + 2k
+$$
+
+$$
+\text{BIC} = -2 \log(L) + k \log(N)
+$$
+
+## Algorithm Steps
+
+1. Inspect the time series data for trends, seasonality, and stationarity using plots and statistical tests (e.g., Augmented Dickey-Fuller test).
+2. If the series is non-stationary, apply differencing to achieve stationarity (e.g., $y_t' = y_t - y_{t-1}$).
+3. Plot the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) to identify potential orders for the AR model; for an AR($p$) model, the PACF typically cuts off after lag $p$.
+4. Select a candidate order $p$ for the AR model, often guided by the PACF plot or by iterating through several orders and evaluating information criteria.
+5. Estimate the model coefficients $\phi_i$ using methods like Ordinary Least Squares (OLS) or the Yule-Walker equations.
+6. Evaluate the fitted model's residuals to ensure they resemble white noise (i.e., no remaining autocorrelation).
+7. Use information criteria such as AIC or BIC to compare models with different orders $p$ and select the best-performing model.
+8. Forecast future values by iteratively applying the estimated AR equation, using previously forecasted values as inputs for subsequent steps.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `order` | `integer` | `1` | p > 0 | The number of lagged observations to include in the model. This is the 'p' in AR(p). |
+| `trend` | `string` | `'c'` | {'c', 'nc'} | Specifies whether to include a constant (intercept) in the model. Options are 'c' for constant, 'nc' for no constant. |
+| `solver` | `string` | `'lbfgs'` | {'lbfgs', 'newton', 'bfgs', 'powell', 'cg', 'ncg', 'basinhopping'} | The optimization algorithm used to estimate the model parameters, typically from statsmodels. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- AR models are relatively simple to understand and implement, making them a good starting point for time series analysis.
+- They can effectively capture linear dependencies within a time series, especially when the current value is strongly correlated with its immediate past.
+- The model provides interpretable coefficients, where each $\phi_i$ indicates the direct impact of the $i$-th lagged observation on the current value.
+- AR models are computationally efficient for estimation and forecasting, particularly for lower orders.
+- They form the foundational component for more advanced and robust time series models like ARMA and ARIMA.
+- The model's performance can be easily evaluated using standard statistical metrics and residual analysis.
+
+## Weaknesses
+
+- AR models assume linearity in the relationship between past and present values, which may not hold for all time series data.
+- They require the time series to be stationary; non-stationary data must be differenced, which can sometimes lead to loss of information or misinterpretation.
+- AR models cannot directly handle seasonality, requiring additional differencing or integration with seasonal components (e.g., SARIMA).
+- Determining the optimal order $p$ can be subjective and challenging, often relying on visual inspection of PACF plots or information criteria.
+- The model's forecasting accuracy can degrade significantly for longer forecast horizons, as errors accumulate.
+
+## Use Cases
+
+### Economics
+
+Forecasting economic indicators such as GDP growth, inflation rates, or unemployment figures based on their historical patterns.
+
+### Finance
+
+Predicting stock prices, commodity prices, or currency exchange rates, although often combined with other models due to market volatility.
+
+### Meteorology
+
+Short-term forecasting of weather variables like temperature or wind speed, leveraging past observations.
+
+### Environmental Science
+
+Modeling and predicting environmental phenomena such as river flow, air pollution levels, or seismic activity.
+
+### Manufacturing
+
+Forecasting demand for products or predicting equipment failures based on historical operational data.
+
+### Healthcare
+
+Predicting disease outbreaks or patient admissions based on past trends in health data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement AR from scratch
+```
+
+### Using scikit-learn
+
+```python
+# AR does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="AR Lab" />
+
+## References
+
+- Yule (1927). Yule.

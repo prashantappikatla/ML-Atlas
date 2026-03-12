@@ -1,0 +1,202 @@
+---
+title: "Deep Belief Network"
+slug: "deep-belief-network"
+category: "deep-learning"
+subcategory: "other-architectures"
+year: 2006
+author: "Hinton et al."
+paper: "Hinton et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "dimensionality-reduction", "feature-learning", "generative-model", "neural-networks", "pre-training", "restricted-boltzmann-machine", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "multilayer-perceptron"
+  - "recurrent-neural-network"
+  - "restricted-boltzmann-machine"
+  - "stacking"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Deep Belief Networks (DBNs) are generative graphical models composed of multiple layers of Restricted Boltzmann Machines (RBMs) or similar undirected, generative models. They are trained greedily, layer-by-layer, in an unsupervised fashion to learn a hierarchical representation of the input data. After unsupervised pre-training, the network can be fine-tuned using supervised learning to perform discriminative tasks, leveraging the learned features.
+
+## History
+
+**2006** — Geoffrey Hinton, Simon Osindero, and Yee-Whye Teh introduced Deep Belief Networks and a greedy layer-wise unsupervised training procedure, demonstrating their effectiveness in learning deep representations and mitigating the vanishing gradient problem prevalent in deep neural networks at the time.
+
+**2007** — Hinton and Ruslan Salakhutdinov further popularized DBNs by showing their application in dimensionality reduction and feature learning for various datasets, including images and documents, outperforming traditional methods.
+
+**2009** — Research expanded on DBNs for speech recognition, demonstrating that pre-training deep architectures with DBNs could significantly improve performance over traditional methods like Gaussian Mixture Models (GMMs).
+
+**2012** — While Convolutional Neural Networks (CNNs) began to dominate image recognition, DBNs continued to be explored for tasks where unsupervised feature learning was critical, such as in medical imaging and anomaly detection.
+
+## Mathematical Intuition
+
+### Restricted Boltzmann Machine Basics
+
+A Deep Belief Network is constructed from multiple layers of Restricted Boltzmann Machines (RBMs). An RBM is a two-layer neural network with a visible layer $\mathbf{v}$ and a hidden layer $\mathbf{h}$, where connections exist only between layers, not within them. The energy function for an RBM is defined as:
+$$E(\mathbf{v}, \mathbf{h}) = -\sum_i a_i v_i - \sum_j b_j h_j - \sum_{i,j} v_i W_{ij} h_j$$
+where $a_i$ are biases for visible units, $b_j$ are biases for hidden units, and $W_{ij}$ are the weights connecting visible unit $i$ to hidden unit $j$. The probability of a configuration is given by $P(\mathbf{v}, \mathbf{h}) = \frac{1}{Z} e^{-E(\mathbf{v}, \mathbf{h})}$, where $Z$ is the partition function. The conditional probabilities for unit activations are:
+$$P(h_j=1|\mathbf{v}) = \sigma(b_j + \sum_i W_{ij} v_i)$$
+$$P(v_i=1|\mathbf{h}) = \sigma(a_i + \sum_j W_{ij} h_j)$$
+where $\sigma(x) = 1 / (1 + e^{-x})$ is the sigmoid function.
+
+$$
+E(\mathbf{v}, \mathbf{h}) = -\sum_i a_i v_i - \sum_j b_j h_j - \sum_{i,j} v_i W_{ij} h_j
+$$
+
+$$
+P(\mathbf{v}, \mathbf{h}) = \frac{1}{Z} e^{-E(\mathbf{v}, \mathbf{h})}
+$$
+
+$$
+P(h_j=1|\mathbf{v}) = \sigma(b_j + \sum_i W_{ij} v_i)
+$$
+
+$$
+P(v_i=1|\mathbf{h}) = \sigma(a_i + \sum_j W_{ij} h_j)
+$$
+
+$$
+\sigma(x) = 1 / (1 + e^{-x})
+$$
+
+### Contrastive Divergence Learning
+
+RBMs are typically trained using Contrastive Divergence (CD), an approximation to gradient ascent on the log-likelihood. The update rule for weights $W_{ij}$ is:
+$$\Delta W_{ij} = \eta (\langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{recon})$$
+where $\eta$ is the learning rate, $\langle v_i h_j \rangle_{data}$ is the expectation of the product $v_i h_j$ when visible units are clamped to training data, and $\langle v_i h_j \rangle_{recon}$ is the expectation after one Gibbs sampling step (or $k$ steps for CD-$k$). This process aims to minimize the difference between the data distribution and the model's reconstruction of the data.
+
+$$
+\Delta W_{ij} = \eta (\langle v_i h_j \rangle_{data} - \langle v_i h_j \rangle_{recon})
+$$
+
+### Greedy Layer-wise Pre-training
+
+A DBN is formed by [Stacking](/algorithms/supervised/classification/stacking) RBMs. The key insight is the greedy layer-wise training procedure. The first RBM is trained on the raw input data $\mathbf{v}^{(0)}$. Once trained, its hidden layer activations $P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})$ are treated as the input data $\mathbf{v}^{(1)}$ for the second RBM. This process is repeated for each subsequent RBM, where the hidden layer of the $k$-th RBM becomes the visible layer for the $(k+1)$-th RBM. This unsupervised pre-training initializes the weights of the deep network to a good starting point, preventing issues like vanishing gradients and poor local optima.
+
+$$
+P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})
+$$
+
+$$
+\mathbf{v}^{(0)}
+$$
+
+$$
+\mathbf{v}^{(1)}
+$$
+
+### Supervised Fine-tuning
+
+After the unsupervised pre-training phase, the stacked RBMs form a deep generative model. For discriminative tasks, a supervised output layer (e.g., a softmax classifier for classification or a linear regressor for regression) is added on top of the last RBM's hidden layer. The entire network, including the pre-trained RBM weights and the new output layer, is then fine-tuned using backpropagation with labeled data. This supervised phase adjusts the weights to optimize the network for the specific task, leveraging the rich features learned during pre-training.
+
+## Algorithm Steps
+
+1. Initialize the Deep Belief Network structure by deciding the number of RBM layers and the number of hidden units for each layer.
+2. Train the first Restricted Boltzmann Machine (RBM) using the raw input data $\mathbf{v}^{(0)}$ as its visible layer, optimizing its weights and biases using Contrastive Divergence.
+3. Once the first RBM is trained, compute the activations of its hidden layer $P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})$ for all input data, which will serve as the visible layer input $\mathbf{v}^{(1)}$ for the second RBM.
+4. Train the second RBM using $\mathbf{v}^{(1)}$ as its visible layer, again optimizing its parameters with Contrastive Divergence.
+5. Repeat the process for each subsequent RBM layer: train the $k$-th RBM using the hidden layer activations of the $(k-1)$-th RBM as its visible input.
+6. After all RBMs are pre-trained, stack them to form the deep network and add a supervised output layer (e.g., softmax for classification) on top of the last RBM's hidden layer.
+7. Initialize the weights of the output layer randomly.
+8. Fine-tune the entire network, including all pre-trained RBM weights and the new output layer, using backpropagation with labeled data to optimize for the specific supervised task.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_layers` | `int` | `2` | integer > 0 | The number of Restricted Boltzmann Machine layers to stack in the Deep Belief Network. |
+| `hidden_units_per_layer` | `list of int` | `[256, 128]` | list of integers > 0 | A list specifying the number of hidden units for each RBM layer, from bottom to top. |
+| `rbm_epochs` | `int` | `20` | integer > 0 | The number of training epochs for each individual RBM during the unsupervised pre-training phase. |
+| `rbm_learning_rate` | `float` | `0.01` | float > 0 | The learning rate used for training each RBM via Contrastive Divergence. |
+| `batch_size` | `int` | `64` | integer > 0 | The number of samples per mini-batch used during RBM training and fine-tuning. |
+| `fine_tune_epochs` | `int` | `50` | integer > 0 | The number of epochs for the supervised fine-tuning phase after pre-training. |
+| `fine_tune_learning_rate` | `float` | `0.001` | float > 0 | The learning rate used for the supervised backpropagation fine-tuning phase. |
+| `activation_function` | `str` | `sigmoid` | 'sigmoid', 'relu', 'tanh' | The activation function for the hidden units in the RBMs (e.g., 'sigmoid', 'relu'). |
+| `random_state` | `int or None` | `None` | integer or None | Controls the pseudo-random number generation for weight initialization and RBM sampling. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- DBNs are highly effective at learning hierarchical, abstract features from unlabeled data through unsupervised pre-training.
+- The greedy layer-wise training helps to mitigate the vanishing gradient problem, which was a significant challenge for training deep networks before the advent of ReLU activations and advanced initialization techniques.
+- They can serve as powerful generative models, capable of reconstructing input data and generating new samples that resemble the training distribution.
+- Pre-training with DBNs provides a robust initialization for deep networks, leading to better generalization performance on subsequent supervised tasks.
+- DBNs can effectively reduce the dimensionality of high-dimensional data by learning compact and meaningful representations.
+
+## Weaknesses
+
+- Training DBNs can be computationally intensive and time-consuming, especially for large datasets and many layers.
+- The Contrastive Divergence algorithm used for RBM training is an approximation and does not guarantee convergence to the true log-likelihood gradient.
+- DBNs are sensitive to hyperparameters such as learning rates, number of hidden units, and number of pre-training epochs, requiring careful tuning.
+- Compared to more modern deep learning architectures like Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs), DBNs are less specialized and often less performant for specific tasks like image or sequence processing.
+- The greedy layer-wise training approach can be suboptimal as it optimizes each layer independently rather than the entire network end-to-end from the start.
+
+## Use Cases
+
+### Image Recognition
+
+DBNs were historically used for unsupervised feature learning on image datasets, extracting robust features that could then be used for classification tasks.
+
+### Speech Recognition
+
+Applied to learn acoustic features from raw audio signals, DBNs improved the performance of speech recognition systems by providing better representations for subsequent classification layers.
+
+### Natural Language Processing
+
+DBNs can learn distributed representations of words or documents, useful for tasks like sentiment analysis, topic modeling, and information retrieval.
+
+### Drug Discovery
+
+Used to learn features from molecular structures or chemical compounds, aiding in the prediction of drug properties or interactions.
+
+### Recommendation Systems
+
+DBNs can model user preferences and item characteristics, learning latent factors that improve the accuracy of personalized recommendations.
+
+### Medical Imaging
+
+Applied for feature extraction from medical images (e.g., MRI, X-ray) to assist in disease diagnosis or anomaly detection, particularly when labeled data is scarce.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Deep Belief Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Deep Belief Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Deep Belief Network Lab" />
+
+## References
+
+- Hinton et al. (2006). Hinton et al..

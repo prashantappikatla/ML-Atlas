@@ -1,0 +1,166 @@
+---
+title: "DBSCAN"
+slug: "dbscan"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1996
+author: "Ester et al."
+paper: "Ester et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["arbitrary-shapes", "clustering", "density-based", "noise-detection", "non-parametric", "outlier-detection", "spatial-data", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "birch"
+  - "gaussian-mixture-model"
+  - "hdbscan"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
+  - "spectral-clustering"
+---
+
+## Overview
+
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) is an unsupervised clustering algorithm that groups together points that are closely packed, marking as outliers points that lie alone in low-density regions. It identifies clusters based on the concept of density reachability and connectivity, allowing it to discover arbitrarily shaped clusters. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), DBSCAN does not require the number of clusters to be specified beforehand and is robust to noise. This makes it particularly suitable for datasets where clusters are non-convex or where the presence of outliers is expected.
+
+## History
+
+**1996** — Martin Ester, Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu introduced DBSCAN in their seminal paper "A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise," establishing a new paradigm for clustering by focusing on density.
+
+**2000** — The algorithm gained widespread recognition and was integrated into various data mining toolkits and libraries, including early versions of what would become standard machine learning packages, due to its effectiveness in handling noise and discovering non-convex clusters.
+
+**2007** — [OPTICS](/algorithms/unsupervised/clustering/optics) (Ordering Points To Identify the Clustering Structure) was introduced by Mihael Ankerst et al., building upon DBSCAN's core ideas to address its sensitivity to parameter choices by producing a reachability plot that helps in parameter selection.
+
+**2010** — Further research extended DBSCAN to handle high-dimensional data, uncertain data, and streaming data, leading to more advanced algorithms like [HDBSCAN](/algorithms/unsupervised/clustering/hdbscan)* which automates parameter selection and improves robustness.
+
+## Mathematical Intuition
+
+### Epsilon-Neighborhood and Core Points
+
+The fundamental concepts in DBSCAN are the $\epsilon$-neighborhood and core points. The $\epsilon$-neighborhood of a point $p$, denoted $N_\epsilon(p)$, is defined as the set of all points within a distance $\epsilon$ from $p$. A point $p$ is classified as a core point if its $\epsilon$-neighborhood contains at least $MinPts$ points (including $p$ itself). These core points form the dense regions from which clusters expand.
+
+$$
+N_\epsilon(p) = \{q \in D \mid dist(p, q) \le \epsilon\}
+$$
+
+$$
+\text{A point } p \text{ is a core point if } |N_\epsilon(p)| \ge MinPts
+$$
+
+### Density Reachability and Connectivity
+
+DBSCAN defines relationships between points based on density. A point $q$ is directly density-reachable from a core point $p$ if $q$ is within $p$'s $\epsilon$-neighborhood. A point $q$ is density-reachable from $p$ if there exists a chain of points $p_1, \dots, p_n$ with $p_1 = p$ and $p_n = q$ such that $p_{i+1}$ is directly density-reachable from $p_i$, and all $p_i$ (except possibly $p_n$) are core points. Two points $p$ and $q$ are density-connected if there is a core point $o$ such that both $p$ and $q$ are density-reachable from $o$. These definitions allow for the formation of arbitrarily shaped clusters.
+
+### Cluster Formation and Noise
+
+A cluster $C$ in DBSCAN is a non-empty subset of the dataset $D$ that satisfies two conditions: maximality and connectivity. Maximality implies that for any $p \in C$ and any point $q$ density-reachable from $p$, $q$ must also be in $C$. Connectivity means that for any two points $p, q \in C$, they must be density-connected. Points that are not core points and are not density-reachable from any core point are classified as noise points, effectively handling outliers.
+
+## Algorithm Steps
+
+1. Initialize all points in the dataset as unvisited.
+2. Iterate through each unvisited point $p$ in the dataset.
+3. Mark $p$ as visited and find all points in its $\epsilon$-neighborhood, $N_\epsilon(p)$.
+4. If $|N_\epsilon(p)| < MinPts$, then $p$ is temporarily labeled as noise; proceed to the next unvisited point.
+5. If $|N_\epsilon(p)| \ge MinPts$, then $p$ is a core point, and a new cluster is initiated. Add all points from $N_\epsilon(p)$ to a list of points to be processed for the current cluster.
+6. For each point $q$ in the cluster's processing list: mark $q$ as visited, find its $\epsilon$-neighborhood $N_\epsilon(q)$, and if $|N_\epsilon(q)| \ge MinPts$, add all unvisited points from $N_\epsilon(q)$ to the current cluster and to the processing list.
+7. Repeat the previous step until the processing list for the current cluster is empty, indicating the cluster has been fully expanded.
+8. Any point that remains unassigned to a cluster after all points have been processed is definitively classified as a noise point.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `eps` | `float` | `0.5` | positive float | The maximum distance between two samples for one to be considered as in the neighborhood of the other. This is the core parameter defining the size of the epsilon-neighborhood. |
+| `min_samples` | `int` | `5` | positive integer | The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself. |
+| `metric` | `str or callable` | `'euclidean'` | string (e.g., 'euclidean', 'manhattan', 'cosine') or a callable function | The metric to use when calculating distance between instances in a feature array. Common choices include 'euclidean', 'manhattan', or 'cosine'. |
+| `algorithm` | `{'auto', 'ball_tree', 'kd_tree', 'brute'}` | `'auto'` | 'auto', 'ball_tree', 'kd_tree', 'brute' | The algorithm used to compute nearest neighbors. 'auto' attempts to decide the most appropriate algorithm based on the values passed to fit. |
+| `leaf_size` | `int` | `30` | positive integer | Leaf size passed to BallTree or KDTree. This can affect the speed of the construction and query, as well as the memory required to store the tree. |
+| `p` | `float` | `None` | positive float | The power of the Minkowski metric to be used to calculate distance between points. Only used if `metric='minkowski'`. |
+| `n_jobs` | `int` | `None` | integer (e.g., -1 for all processors) | The number of parallel jobs to run for neighbors search. `None` means 1 unless in a `joblib.parallel_backend` context. `-1` means using all processors. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- DBSCAN can discover clusters of arbitrary shapes, effectively identifying non-spherical or complex structures in data.
+- It is robust to noise and outliers, effectively identifying them as noise points rather than forcing them into clusters.
+- The algorithm does not require the user to specify the number of clusters beforehand, which is advantageous when this information is unknown.
+- It provides a clear, intuitive basis for cluster formation through the concepts of density reachability and connectivity.
+- DBSCAN can be more efficient than hierarchical clustering for large datasets when spatial indexing structures are used.
+
+## Weaknesses
+
+- DBSCAN is highly sensitive to the choice of the $\epsilon$ and $MinPts$ parameters, which can be difficult to determine optimally, especially for high-dimensional data.
+- It struggles with datasets where clusters have widely varying densities, as a single $\epsilon$ and $MinPts$ pair may not be optimal for all clusters.
+- For very high-dimensional data, the concept of density becomes less meaningful due to the "curse of dimensionality," making distance metrics less effective.
+- The computational complexity can be high, typically $O(N^2)$ in the worst case without spatial indexing, which can be prohibitive for very large datasets.
+- Border points that are reachable from two different clusters may be assigned to either cluster depending on the order of processing, leading to non-deterministic results in some edge cases.
+
+## Use Cases
+
+### Geospatial Analysis
+
+Identifying geographical areas with high concentrations of events, such as crime hotspots, earthquake epicenters, or points of interest in urban planning.
+
+### Anomaly Detection
+
+Detecting unusual patterns or outliers in datasets, like fraudulent transactions in financial data, network intrusion attempts, or manufacturing defects.
+
+### Customer Segmentation
+
+Grouping customers with similar purchasing behaviors, demographics, or engagement patterns for targeted marketing campaigns and personalized services.
+
+### Image Processing
+
+Identifying regions of interest, segmenting objects, or detecting anomalies in images based on pixel density and spatial proximity.
+
+### Bioinformatics
+
+Discovering clusters of genes or proteins with similar expression patterns or functional annotations within large biological datasets.
+
+### Traffic Pattern Analysis
+
+Identifying congested areas, common routes, or unusual traffic flows in transportation networks based on vehicle density and movement patterns.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DBSCAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import DBSCAN
+
+model = DBSCAN()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="DBSCAN Lab" />
+
+## References
+
+- Ester et al. (1996). Ester et al..
+- [scikit-learn: DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html)

@@ -1,0 +1,161 @@
+---
+title: "DCGAN"
+slug: "dcgan"
+category: "generative"
+subcategory: "adversarial"
+year: 2015
+author: "Radford et al."
+paper: "Radford et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-networks", "deep-learning", "generative-adversarial-networks", "image-generation", "image-synthesis", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "cyclegan"
+  - "pix2pix"
+  - "stylegan"
+---
+
+## Overview
+
+Deep Convolutional Generative Adversarial Network (DCGAN) extends the Generative Adversarial Network framework by incorporating specific architectural constraints for convolutional networks, enabling more stable training and improved image generation quality. It focuses on learning hierarchical representations from image datasets, allowing the generator to produce realistic images and the discriminator to effectively distinguish between real and generated samples. DCGAN's guidelines for CNN architecture in GANs were pivotal in advancing the field of image synthesis. The model learns a mapping from a latent space vector to an image, capturing the underlying data distribution.
+
+## History
+
+**2014** — Generative Adversarial Networks (GANs) are introduced by Goodfellow et al., establishing the adversarial training framework for generative models.
+
+**2015** — Deep Convolutional Generative Adversarial Networks (DCGANs) are proposed by Radford et al., demonstrating how specific architectural choices for convolutional networks can lead to stable GAN training and high-quality image generation.
+
+**2016** — Conditional GANs (CGANs) are further developed, allowing for the generation of images conditioned on specific labels or attributes, building upon the stability improvements seen in DCGANs.
+
+**2017** — Wasserstein GAN (WGAN) is introduced, addressing mode collapse and training instability issues in GANs by using the Wasserstein distance, often applied with DCGAN-like architectures.
+
+## Mathematical Intuition
+
+### GAN Minimax Objective Function
+
+The core idea of GANs, which DCGAN builds upon, is a two-player minimax game between a generator $G$ and a discriminator $D$. The generator $G$ tries to capture the data distribution $p_{data}(x)$ to produce new samples $G(z)$ that resemble real data, where $z$ is a random noise vector from a prior distribution $p_z(z)$. The discriminator $D$ tries to distinguish between real data $x$ from $p_{data}(x)$ and fake data $G(z)$ from the generator. The objective function is defined as:
+$$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))] $$
+The discriminator $D$ is trained to maximize $V(D, G)$, correctly classifying real images as 1 and fake images as 0. The generator $G$ is trained to minimize $\log(1 - D(G(z)))$, effectively trying to fool the discriminator into classifying its generated images as real (i.e., $D(G(z))$ close to 1).
+
+$$
+\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]
+$$
+
+### Generator Architecture Details
+
+The DCGAN generator $G$ maps a low-dimensional latent space vector $z$ to a high-dimensional image space. It primarily utilizes transposed convolutional layers (also known as deconvolutional layers) to upsample the spatial dimensions. These layers learn to transform a small spatial input into a larger spatial output, effectively reversing the operation of a standard convolution. Batch normalization is applied after each transposed convolutional layer, except for the output layer, to stabilize training and prevent internal covariate shift. ReLU activations are used throughout the generator, with a Tanh activation for the output layer to produce pixel values in the range $[-1, 1]$.
+
+### Discriminator Architecture Details
+
+The DCGAN discriminator $D$ is a standard convolutional neural network that takes an image as input and outputs a single scalar probability indicating whether the image is real or fake. It employs strided convolutional layers for downsampling, which eliminates the need for explicit pooling layers and allows the network to learn its own spatial downsampling. Batch normalization is applied after each convolutional layer, except for the input layer, to stabilize training. LeakyReLU activations are used throughout the discriminator to prevent vanishing gradients and allow for learning from negative inputs. The final layer typically uses a sigmoid activation to output a probability between 0 and 1.
+
+### Key Architectural Guidelines
+
+DCGAN introduced several key architectural guidelines that proved crucial for stable GAN training and improved performance:
+1. Replace any pooling layers with strided convolutions in the discriminator and fractional-strided convolutions (transposed convolutions) in the generator.
+2. Use batch normalization in both the generator and the discriminator, except for the generator output layer and discriminator input layer.
+3. Remove fully connected hidden layers for deeper architectures, relying solely on convolutional layers.
+4. Use ReLU activation in the generator for all layers except the output, which uses Tanh.
+5. Use LeakyReLU activation in the discriminator for all layers. These guidelines help to prevent mode collapse and improve training stability by promoting a more balanced gradient flow.
+
+## Algorithm Steps
+
+1. Initialize the generator $G$ and discriminator $D$ with random weights, adhering to the DCGAN architectural guidelines (e.g., strided convolutions, batch normalization, specific activations).
+2. For each training iteration, sample a batch of real images $x$ from the training data and a batch of latent vectors $z$ from a prior distribution (e.g., uniform or normal distribution).
+3. Generate a batch of fake images $G(z)$ using the current generator.
+4. Train the discriminator $D$ by maximizing its ability to distinguish between real and fake images; this involves computing the loss for real images $\log D(x)$ and fake images $\log(1 - D(G(z)))$, then updating $D$'s weights using an optimizer (e.g., Adam).
+5. Sample a new batch of latent vectors $z$.
+6. Train the generator $G$ by minimizing $\log(1 - D(G(z)))$, effectively trying to fool the discriminator into classifying its generated images as real, and update $G$'s weights using an optimizer.
+7. Repeat steps 2-6 for a predefined number of epochs or until convergence criteria are met, typically alternating between discriminator and generator updates.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `latent_dim` | `int` | `100` | positive integer | Dimensionality of the latent space (noise vector) for the generator input. |
+| `learning_rate_g` | `float` | `0.0002` | positive float | Learning rate for the generator's Adam optimizer. |
+| `learning_rate_d` | `float` | `0.0002` | positive float | Learning rate for the discriminator's Adam optimizer. |
+| `beta1` | `float` | `0.5` | 0.0 to 1.0 | Beta1 hyperparameter for the Adam optimizer, controlling the exponential decay rate for the first moment estimates. |
+| `batch_size` | `int` | `128` | positive integer | Number of samples per gradient update during training. |
+| `epochs` | `int` | `100` | positive integer | Number of complete passes through the training dataset. |
+| `image_size` | `int` | `64` | positive integer, typically powers of 2 (e.g., 32, 64, 128) | The target spatial dimension (width and height) of the generated images, typically a power of 2. |
+| `num_channels` | `int` | `3` | 1 or 3 | Number of color channels in the output images (e.g., 3 for RGB, 1 for grayscale). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- DCGANs produce high-quality, visually realistic images, especially for specific domains like faces or bedrooms, demonstrating impressive generative capabilities.
+- The architectural guidelines introduced by DCGAN significantly improve the stability of GAN training compared to earlier models, making them more practical to implement.
+- The generator learns meaningful latent space representations, allowing for vector arithmetic operations that correspond to semantic changes in the generated images.
+- DCGANs are capable of generating diverse samples within the learned data distribution, reducing the risk of generating identical outputs.
+- The model can be used for unsupervised feature learning, where the discriminator's intermediate layers can serve as effective feature extractors for other tasks.
+
+## Weaknesses
+
+- Training DCGANs can still be unstable and prone to mode collapse, where the generator produces a limited variety of outputs or fails to capture the full data distribution.
+- Evaluating the quality and diversity of generated images is challenging and often relies on subjective visual inspection or complex, sometimes unreliable, metrics like FID.
+- DCGANs require large datasets of images for effective training, and performance can degrade significantly with limited or imbalanced data.
+- The training process is computationally intensive, requiring significant GPU resources and extended training times to achieve optimal results.
+- Hyperparameter tuning for stable and high-quality generation can be difficult and time-consuming, often requiring extensive experimentation.
+
+## Use Cases
+
+### Image Synthesis
+
+Generating new, realistic images for various applications, such as creating synthetic datasets for training other computer vision models or for artistic purposes.
+
+### Data Augmentation
+
+Expanding limited datasets by generating additional synthetic images, which can improve the robustness and generalization capabilities of classifiers and other models.
+
+### Art and Design
+
+Assisting artists and designers in generating novel visual content, textures, or design concepts by exploring the latent space of learned image distributions.
+
+### Image Inpainting
+
+Filling in missing or corrupted parts of an image by generating plausible content based on the surrounding context, creating seamless restorations.
+
+### Unsupervised Feature Learning
+
+Utilizing the discriminator's learned representations as powerful feature extractors for downstream tasks like classification or object detection, without explicit labeling.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DCGAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# DCGAN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="DCGAN Lab" />
+
+## References
+
+- Radford et al. (2015). Radford et al..

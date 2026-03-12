@@ -1,0 +1,159 @@
+---
+title: "Eclat"
+slug: "eclat"
+category: "unsupervised"
+subcategory: "association-rules"
+year: 1997
+author: "Zaki"
+paper: "Zaki"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["association-rules", "data-mining", "frequent-itemset-mining", "pattern-discovery", "transactional-data", "unsupervised-learning", "vertical-data-format"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "apriori"
+  - "fp-growth"
+---
+
+## Overview
+
+Eclat (Equivalence Class Transformation) is an algorithm for discovering frequent itemsets in a transactional database, a foundational step in association rule mining. It distinguishes itself by employing a depth-first search strategy and a vertical data format, where each item is associated with a list of transaction IDs (tidset) in which it appears. This approach allows for efficient computation of itemset support through direct intersection of tidsets, often outperforming [Apriori](/algorithms/unsupervised/association-rules/apriori) on dense datasets.
+
+## History
+
+**1997** — Mohammed J. Zaki introduced the Eclat algorithm in his paper "Parallel and Distributed Association Mining: A Survey," presenting it as an efficient method leveraging vertical data formats.
+
+**1998** — Zaki further elaborated on the Eclat algorithm in "ECLAT: An Efficient Algorithm for Mining Association Rules," solidifying its position as a key algorithm for frequent itemset discovery.
+
+**2000** — Eclat gained recognition alongside [Apriori](/algorithms/unsupervised/association-rules/apriori) and [FP-Growth](/algorithms/unsupervised/association-rules/fp-growth) as one of the primary algorithms for association rule mining, particularly noted for its efficiency in certain data characteristics.
+
+**2003** — The algorithm's principles were further explored and optimized in various research works, contributing to its widespread adoption in data mining libraries and academic curricula.
+
+## Mathematical Intuition
+
+### Vertical Data Format and Tidsets
+
+Eclat operates on a vertical data format, which is a transformation of the traditional horizontal transaction database. Instead of listing items per transaction, it lists transactions per item. For each item $i$, a tidset $T_i$ is maintained, which is the set of all transaction identifiers (TIDs) where item $i$ appears.
+
+$$
+D_{vertical} = \{ (item_1, \{tid_{11}, tid_{12}, ...\}), (item_2, \{tid_{21}, tid_{22}, ...\}), ... \}
+$$
+
+### Support Calculation via Tidset Intersection
+
+The support of an itemset $X$ is defined as the proportion of transactions in the database that contain $X$. In Eclat, the tidset for an itemset $X = \{i_1, i_2, ..., i_k\}$ is computed by intersecting the tidsets of its constituent items: $T_X = T_{i_1} \cap T_{i_2} \cap ... \cap T_{i_k}$. The support of $X$ is then simply $|T_X| / N$, where $N$ is the total number of transactions. An itemset is frequent if its support meets or exceeds a predefined minimum support threshold, $min\_support$.
+
+$$
+T_X = \bigcap_{j=1}^{k} T_{i_j}
+$$
+
+$$
+support(X) = \frac{|T_X|}{N}
+$$
+
+### Depth-First Search for Itemsets
+
+Eclat employs a depth-first search (DFS) strategy to explore the itemset lattice. Starting with 1-itemsets, it recursively generates $(k+1)$-itemsets from $k$-itemsets. If $X$ and $Y$ are two frequent $k$-itemsets that share their first $k-1$ items, and $X = \{i_1, ..., i_{k-1}, i_k\}$ and $Y = \{i_1, ..., i_{k-1}, i'_k\}$ where $i_k < i'_k$, then a candidate $(k+1)$-itemset $Z = \{i_1, ..., i_{k-1}, i_k, i'_k\}$ can be formed. Its tidset $T_Z$ is computed as $T_X \cap T_Y$. If $|T_Z| \ge min\_support \times N$, then $Z$ is a frequent itemset. This recursive process continues until no more frequent itemsets can be generated.
+
+## Algorithm Steps
+
+1. Transform the transactional database into a vertical data format, where each item is mapped to a list of transaction IDs (tidset) in which it appears.
+2. Identify all 1-itemsets (individual items) and compute their support by counting the size of their respective tidsets.
+3. Prune the 1-itemsets, retaining only those whose support meets or exceeds the $min\_support$ threshold; these are the frequent 1-itemsets.
+4. Recursively generate frequent $k$-itemsets from frequent $(k-1)$-itemsets using a depth-first search approach.
+5. To generate a candidate $k$-itemset from two frequent $(k-1)$-itemsets, say $X$ and $Y$, if they share their first $k-2$ items and differ only in their last item, form a new itemset $Z = X \cup Y$.
+6. Compute the tidset for the candidate $k$-itemset $Z$ by intersecting the tidsets of $X$ and $Y$, i.e., $T_Z = T_X \cap T_Y$.
+7. If the size of $T_Z$ is greater than or equal to $min\_support \times N$ (where $N$ is the total number of transactions), then $Z$ is a frequent $k$-itemset and is added to the result set.
+8. Repeat steps 4-7 until no new frequent itemsets can be generated or a maximum itemset length is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_support` | `float` | `0.5` | [0.0, 1.0] | The minimum support threshold for an itemset to be considered frequent, expressed as a fraction of the total number of transactions. |
+| `max_len` | `int or None` | `None` | integer > 0 or None | The maximum length of the itemsets to be extracted. If None, all frequent itemsets are extracted regardless of length. |
+| `return_tidsets` | `bool` | `False` | True, False | If True, the algorithm returns the frequent itemsets along with their corresponding tidsets; otherwise, only the support count is returned. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Eclat is often more memory-efficient than Apriori for dense datasets because it avoids generating explicit candidate itemsets.
+- Its depth-first search strategy can be more efficient in terms of execution time for certain data distributions.
+- The use of tidset intersections for support counting is computationally straightforward and fast.
+- It directly identifies frequent itemsets without the overhead of generating and testing large numbers of candidate itemsets.
+- The algorithm is relatively simple to understand and implement due to its recursive nature.
+
+## Weaknesses
+
+- Eclat can be memory-intensive for very sparse datasets with a large number of unique items, as tidsets can become very long.
+- The algorithm's performance can degrade significantly if the $min\_support$ threshold is set too low, leading to an explosion in the number of frequent itemsets.
+- It does not inherently generate association rules; a separate post-processing step is required to derive rules from the frequent itemsets.
+- The recursive depth-first search can lead to deep recursion stacks for very long frequent itemsets.
+
+## Use Cases
+
+### Retail
+
+Used for market basket analysis to understand customer purchasing patterns and identify products frequently bought together, informing store layout and promotional strategies.
+
+### Web Usage Mining
+
+Applied to analyze website clickstream data to discover common navigation paths or sequences of pages visited by users, aiding in website design and content optimization.
+
+### Bioinformatics
+
+Employed to find co-occurring genes, proteins, or genetic mutations in biological datasets, potentially revealing functional relationships or disease markers.
+
+### Fraud Detection
+
+Utilized to identify unusual combinations of transactions or activities that might indicate fraudulent behavior, helping financial institutions flag suspicious patterns.
+
+### Recommendation Systems
+
+Forms the basis for item-based collaborative filtering, where frequent co-occurrence of items can suggest new products or content to users.
+
+### Medical Diagnosis
+
+Can be used to find combinations of symptoms or test results that frequently appear together, assisting in the diagnosis of diseases.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Eclat from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Eclat
+
+model = Eclat()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Eclat Lab" />
+
+## References
+
+- Zaki (1997). Zaki.
+- [scikit-learn: Eclat](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Eclat.html)

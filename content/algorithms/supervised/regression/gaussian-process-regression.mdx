@@ -1,0 +1,184 @@
+---
+title: "Gaussian Process Regression"
+slug: "gaussian-process-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1996
+author: "Williams & Rasmussen"
+paper: "Williams & Rasmussen"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bayesian", "kernel-methods", "non-parametric", "probabilistic-model", "regression", "small-data", "supervised-learning", "uncertainty-quantification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-linear-regression"
+  - "bayesian-optimization"
+  - "kernel-ridge-regression"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Gaussian Process Regression (GPR) is a non-parametric Bayesian approach to regression that models the distribution over functions directly, rather than learning a fixed function. It defines a prior distribution over possible functions and updates it to a posterior distribution given observed data. This method provides not only point predictions but also a measure of uncertainty associated with those predictions, making it valuable for tasks requiring confidence intervals and risk assessment.
+
+## History
+
+**1996** — Christopher K. I. Williams and Carl Edward Rasmussen published "Gaussian Processes for Regression," a seminal paper that formalized the modern approach to GPR and its application in machine learning.
+
+**2006** — Carl Edward Rasmussen and Christopher K. I. Williams co-authored the influential textbook "Gaussian Processes for Machine Learning," which became a standard reference and significantly boosted the algorithm's theoretical understanding and practical adoption.
+
+**2010** — Research intensified on developing sparse and approximate Gaussian Process methods to overcome the cubic computational complexity for large datasets, enabling broader applicability.
+
+## Mathematical Intuition
+
+### Gaussian Process Definition
+
+A Gaussian Process (GP) is a collection of random variables, any finite number of which have a joint Gaussian distribution. It is fully specified by its mean function $m(\mathbf{x})$ and covariance function (kernel) $k(\mathbf{x}, \mathbf{x}')$. Formally, a function $f(\mathbf{x})$ is drawn from a GP if $f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))$. For simplicity, the mean function is often assumed to be zero, as any non-zero mean can be incorporated into the kernel.
+
+$$
+f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))
+$$
+
+### Role of Kernel Functions
+
+The kernel function $k(\mathbf{x}, \mathbf{x}')$ quantifies the similarity between two input points $\mathbf{x}$ and $\mathbf{x}'$ and determines the smoothness, periodicity, and other properties of the functions drawn from the GP. A common choice is the Radial Basis Function (RBF) kernel, also known as the squared exponential kernel, which is infinitely differentiable and produces very smooth functions. Its form is given by:
+
+$$
+k(\mathbf{x}, \mathbf{x}') = \sigma_f^2 \exp\left(-\frac{\|\mathbf{x} - \mathbf{x}'\|^2}{2l^2}\right)
+$$
+
+### Predictive Distribution Derivation
+
+Given training data $\mathcal{D} = \{(\mathbf{X}, \mathbf{y})\}$ and assuming noisy observations $y = f(\mathbf{x}) + \epsilon$ where $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$, the posterior distribution over functions at new test points $\mathbf{X}_*$ is also Gaussian. The predictive mean $\bar{f}(\mathbf{X}_*)$ and covariance $\text{cov}(f(\mathbf{X}_*))$ are derived from the joint Gaussian distribution of training and test outputs:
+
+$$
+\bar{f}(\mathbf{X}_*) = K(\mathbf{X}_*, \mathbf{X}) [K(\mathbf{X}, \mathbf{X}) + \sigma_n^2 I]^{-1} \mathbf{y}
+$$
+
+$$
+\text{cov}(f(\mathbf{X}_*)) = K(\mathbf{X}_*, \mathbf{X}_*) - K(\mathbf{X}_*, \mathbf{X}) [K(\mathbf{X}, \mathbf{X}) + \sigma_n^2 I]^{-1} K(\mathbf{X}, \mathbf{X}_*)
+$$
+
+### Hyperparameter Optimization via Marginal Likelihood
+
+The kernel function typically contains hyperparameters (e.g., length scale $l$, signal variance $\sigma_f^2$, noise variance $\sigma_n^2$). These hyperparameters are optimized by maximizing the marginal likelihood (or evidence) of the training data, which integrates out the function $f$. This objective function balances data fit with model complexity, preventing overfitting. The log marginal likelihood is given by:
+
+$$
+\log p(\mathbf{y}|\mathbf{X}, \theta) = -\frac{1}{2} \mathbf{y}^T (K + \sigma_n^2 I)^{-1} \mathbf{y} - \frac{1}{2} \log |K + \sigma_n^2 I| - \frac{N}{2} \log(2\pi)
+$$
+
+## Algorithm Steps
+
+1. Define a suitable kernel function $k(\mathbf{x}, \mathbf{x}')$ that encodes prior beliefs about the function's properties, such as smoothness or periodicity.
+2. Initialize the kernel's hyperparameters, which control its specific behavior (e.g., length scale, amplitude, noise variance).
+3. Compute the kernel matrix $K(\mathbf{X}, \mathbf{X})$ for the training data $\mathbf{X}$, where $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$.
+4. Add a noise term $\sigma_n^2 I$ to the kernel matrix to account for observation noise, forming $K_y = K(\mathbf{X}, \mathbf{X}) + \sigma_n^2 I$.
+5. Optimize the kernel hyperparameters by maximizing the marginal likelihood $p(\mathbf{y}|\mathbf{X}, \theta)$ with respect to $\theta$, often using gradient-based optimization.
+6. For new test points $\mathbf{X}_*$, compute the kernel matrices $K(\mathbf{X}_*, \mathbf{X})$ and $K(\mathbf{X}_*, \mathbf{X}_*)$ using the optimized hyperparameters.
+7. Calculate the predictive mean $\bar{f}(\mathbf{X}_*)$ and predictive covariance $\text{cov}(f(\mathbf{X}_*))$ using the derived formulas.
+8. Return the predictive mean as the point estimate and the diagonal of the predictive covariance as the uncertainty measure for each prediction.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `Kernel object` | `None` | Any valid scikit-learn Kernel object | The kernel function specifying the covariance of the Gaussian Process. If None, the default is 1.0 * RBF(1.0). |
+| `alpha` | `float or ndarray` | `1e-10` | float >= 0 or array-like of shape (n_samples,) | Value added to the diagonal of the kernel matrix during fitting, representing the noise level of the observations. Can be a scalar or an array of noise levels. |
+| `optimizer` | `str or callable` | `'fmin_l_bfgs_b'` | 'fmin_l_bfgs_b', None, or a callable | Method used to optimize the kernel's hyperparameters. Can be a string for a built-in optimizer or a callable function. |
+| `n_restarts_optimizer` | `int` | `0` | integer >= 0 | Number of restarts of the optimizer for finding the kernel's hyperparameters. Multiple restarts help avoid local optima. |
+| `normalize_y` | `bool` | `False` | True or False | Whether to normalize the target values $y$ by subtracting the mean and dividing by the standard deviation. This can improve numerical stability. |
+| `copy_X_train` | `bool` | `True` | True or False | If true, the training data X_train is copied. Otherwise, it may be overwritten. |
+| `random_state` | `int or RandomState instance` | `None` | integer, RandomState instance, or None | Used when `optimizer` is not `None` and `n_restarts_optimizer > 0` to control the random number generator for initial hyperparameter values. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Gaussian Process Regression provides well-calibrated uncertainty estimates alongside point predictions, which is crucial for decision-making under uncertainty.
+- Its non-parametric nature allows it to model complex, non-linear relationships without assuming a specific functional form.
+- Prior knowledge about the function's properties can be effectively incorporated through the careful choice and design of the kernel function.
+- GPR is effective with small datasets, as its Bayesian framework naturally handles limited data without severe overfitting.
+- The marginal likelihood provides a principled and robust method for optimizing hyperparameters and performing model selection.
+
+## Weaknesses
+
+- The computational complexity of GPR is typically $O(N^3)$ for training and $O(N^2)$ for prediction, where $N$ is the number of training samples, making it challenging for large datasets.
+- The memory complexity is $O(N^2)$ for storing the kernel matrix, which limits its applicability to datasets with many samples.
+- The choice and design of the kernel function significantly impact performance and often require domain knowledge or extensive experimentation.
+- GPR can struggle with high-dimensional input spaces due to the 'curse of dimensionality' affecting kernel performance and requiring more data to cover the space.
+- The optimization of hyperparameters can be prone to local optima, especially with complex kernels or many restarts.
+
+## Use Cases
+
+### Robotics
+
+Used for path planning, control, and sensor fusion, where quantifying uncertainty in predictions is critical for safe and robust operation.
+
+### Environmental Modeling
+
+Applied to predict air quality, water levels, or climate variables, providing forecasts with associated confidence intervals for risk assessment.
+
+### Financial Forecasting
+
+Employed for modeling stock prices, economic indicators, or market trends, offering uncertainty bounds for investment decisions and risk management.
+
+### Hyperparameter Optimization
+
+Serves as a surrogate model in [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization), efficiently exploring the hyperparameter space of other machine learning models by predicting performance and uncertainty.
+
+### Geostatistics
+
+Known as Kriging, it is used for spatial interpolation of geological or environmental data, estimating values at unobserved locations with uncertainty.
+
+### Drug Discovery
+
+Predicting molecular properties or reaction outcomes, guiding experimental design and accelerating the discovery of new compounds.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gaussian Process Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import GaussianProcessRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GaussianProcessRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gaussian Process Regression Lab" />
+
+## References
+
+- Williams & Rasmussen (1996). Williams & Rasmussen.
+- [scikit-learn: GaussianProcessRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.GaussianProcessRegression.html)

@@ -1,0 +1,155 @@
+---
+title: "K-Medoids"
+slug: "k-medoids"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1987
+author: "Kaufman & Rousseeuw"
+paper: "Kaufman & Rousseeuw"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["clustering", "distance-based", "medoids", "non-parametric", "partitioning-algorithm", "robust-to-outliers", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dbscan"
+  - "fuzzy-c-means"
+  - "hierarchical-clustering"
+  - "k-means"
+---
+
+## Overview
+
+K-Medoids is a partitioning clustering algorithm that groups data points into $k$ clusters, where each cluster is represented by one of the data points within the cluster, known as a medoid. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), which uses the mean of cluster points as its centroid, K-Medoids selects an actual data point as the representative, making it more robust to noise and outliers. It aims to minimize the sum of dissimilarities between data points and their assigned medoids, offering flexibility with various distance metrics.
+
+## History
+
+**1987** — K-Medoids was formally introduced by Leonard Kaufman and Peter J. Rousseeuw in their seminal book "Finding Groups in Data: An Introduction to Cluster Analysis," presenting the Partitioning Around Medoids (PAM) algorithm as a concrete implementation.
+
+**1990** — The CLARA (Clustering Large Applications) algorithm was proposed by Kaufman and Rousseeuw to address the scalability limitations of PAM for large datasets by sampling.
+
+**1998** — CLARANS (Clustering Large Applications based upon Randomized Search) was introduced by Ng and Han, improving upon CLARA by using a randomized search strategy to explore the neighborhood of medoids more efficiently.
+
+**2002** — Park and Jun proposed a faster K-Medoids algorithm, building on the basic PAM approach but optimizing the swap step to reduce computational complexity.
+
+## Mathematical Intuition
+
+### Objective Function Minimization
+
+K-Medoids aims to partition a dataset $X = \{x_1, x_2, ..., x_n\}$ into $k$ clusters by selecting $k$ medoids $m_1, m_2, ..., m_k$ from the dataset itself. The objective is to minimize the sum of dissimilarities between each data point and its closest medoid.
+$$E = \sum_{j=1}^{k} \sum_{x_i \in C_j} d(x_i, m_j)$$
+Here, $C_j$ is the set of data points assigned to medoid $m_j$, and $d(x_i, m_j)$ is a dissimilarity measure between data point $x_i$ and medoid $m_j$. The goal is to find the set of medoids $M = \{m_1, ..., m_k\}$ that minimizes this objective function.
+
+$$
+E = \sum_{j=1}^{k} \sum_{x_i \in C_j} d(x_i, m_j)
+$$
+
+### Medoid Definition
+
+A medoid is an actual data point within a cluster that is chosen as the most centrally located point, minimizing the sum of dissimilarities to all other points in that cluster. This contrasts with centroids in [K-Means](/algorithms/unsupervised/clustering/k-means), which are often not actual data points. The use of medoids makes the algorithm robust to outliers, as a single outlier will not significantly shift the medoid's position.
+
+### Dissimilarity Measures
+
+The algorithm's flexibility stems from its ability to use arbitrary dissimilarity measures $d(x_i, x_j)$ between any two data points. Common choices include Euclidean distance, Manhattan distance, or other application-specific metrics. The choice of dissimilarity measure directly impacts the shape and structure of the resulting clusters. For instance, Euclidean distance is suitable for compact, spherical clusters, while Manhattan distance can be more robust to differences in scale across dimensions.
+
+### PAM Swap Operation
+
+The Partitioning Around Medoids (PAM) algorithm iteratively refines the set of medoids. After an initial selection, PAM proceeds in two phases: the BUILD phase (initial medoid selection) and the SWAP phase. In the SWAP phase, for each selected medoid $m_j$ and each non-selected data point $o_p$, the algorithm evaluates the cost of swapping $m_j$ with $o_p$. The swap that results in the greatest reduction of the objective function $E$ is performed. This process continues until no swap can further reduce the objective function. The cost of a swap is calculated by considering how the assignment of all data points changes if a medoid is replaced.
+
+## Algorithm Steps
+
+1. Initialize: Randomly select $k$ data points from the dataset to serve as initial medoids.
+2. Assignment Step: Assign each remaining data point to its closest medoid based on a chosen dissimilarity measure $d(x_i, m_j)$.
+3. Update Step (PAM's SWAP): For each medoid $m_j$ and each non-medoid data point $o_p$, calculate the cost change $\Delta E$ that would result from swapping $m_j$ with $o_p$.
+4. Medoid Replacement: If the best swap (i.e., the one yielding the largest negative $\Delta E$) results in a decrease in the total objective function, perform that swap, replacing the old medoid with the new one.
+5. Iteration: Repeat the assignment and update steps until no further improvement in the objective function can be achieved, or a maximum number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int` | `8` | integer > 0 | The number of clusters to form as well as the number of medoids to generate. |
+| `metric` | `str or callable` | `euclidean` | string (e.g., 'euclidean', 'manhattan', 'cosine') or callable | The distance metric to use. Can be any metric supported by scipy.spatial.distance.cdist or a callable. |
+| `init` | `str or array-like` | `hetta` | 'random', 'hetta', 'k-medoids++', or array of shape (n_clusters, n_features) | Method for medoid initialization. 'random' selects $k$ random points. 'hetta' is a faster initialization. 'k-medoids++' is an improved version of 'k-means++'. |
+| `max_iter` | `int` | `300` | integer > 0 | Maximum number of iterations of the K-Medoids algorithm for a single run. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, or None | Determines random number generation for medoid initialization. |
+| `method` | `str` | `pam` | 'pam', 'alternate' | Specifies the algorithm to use for K-Medoids. 'pam' is the original Partitioning Around Medoids. 'alternate' is a faster method. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- K-Medoids is more robust to outliers and noise compared to K-Means because medoids are actual data points and less influenced by extreme values.
+- The algorithm can work with arbitrary dissimilarity measures, making it suitable for various data types where a mean might not be well-defined.
+- Medoids are actual data points, which can lead to more interpretable cluster centers in real-world applications.
+- It does not assume spherical clusters and can find clusters of various shapes depending on the chosen dissimilarity metric.
+- The resulting clusters are generally well-separated and compact around their medoids.
+
+## Weaknesses
+
+- The computational complexity of the standard PAM algorithm is $O(k(n-k)^2)$ per iteration, making it less scalable than K-Means for large datasets.
+- Like K-Means, K-Medoids requires the number of clusters $k$ to be specified in advance, which can be challenging without prior domain knowledge.
+- The final clustering result can be sensitive to the initial selection of medoids, potentially converging to a local optimum.
+- The algorithm can struggle with clusters of varying densities or highly overlapping clusters.
+
+## Use Cases
+
+### Customer Segmentation
+
+Identifying distinct groups of customers based on purchasing behavior or demographic data for targeted marketing strategies.
+
+### Bioinformatics
+
+Clustering gene expression data to discover functionally related genes or classify cell types.
+
+### Image Analysis
+
+Grouping similar image features or segments for object recognition or content-based image retrieval.
+
+### Document Clustering
+
+Organizing large collections of text documents into thematic categories for easier navigation and information retrieval.
+
+### Anomaly Detection
+
+Identifying unusual data points that do not fit well into any established cluster, indicating potential anomalies or fraud.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement K-Medoids from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import KMedoids
+
+model = KMedoids()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="K-Medoids Lab" />
+
+## References
+
+- Kaufman & Rousseeuw (1987). Kaufman & Rousseeuw.
+- [scikit-learn: KMedoids](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMedoids.html)

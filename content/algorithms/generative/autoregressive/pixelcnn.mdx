@@ -1,0 +1,151 @@
+---
+title: "PixelCNN"
+slug: "pixelcnn"
+category: "generative"
+subcategory: "autoregressive"
+year: 2016
+author: "van den Oord et al."
+paper: "van den Oord et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["autoregressive", "convolutional-neural-network", "deep-learning", "density-estimation", "generative", "image-generation", "pixel-prediction"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "pixelrnn"
+  - "transformer"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+PixelCNN is a generative model designed for modeling the distribution of images by predicting pixels autoregressively. It leverages convolutional neural networks with specialized masking to ensure that the prediction for each pixel depends only on previously generated pixels, adhering to a strict causal ordering. This architecture allows for the exact computation of the likelihood of an image, making it suitable for density estimation tasks.
+
+## History
+
+**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu from DeepMind introduced [PixelRNN](/algorithms/generative/autoregressive/pixelrnn) and PixelCNN, pioneering autoregressive models for high-quality image generation.
+
+**2016** — Van den Oord et al. further improved the PixelCNN architecture by introducing Gated PixelCNN, which utilized gated activation units to enhance the model's capacity and information flow, leading to better generative performance.
+
+**2017** — Tim Salimans, Andrej Karpathy, and Xi Chen from OpenAI introduced PixelCNN++, a refined version that incorporated several architectural improvements, including discretized logistic mixture likelihoods and conditioning on multiple scales, significantly boosting sample quality and training speed.
+
+## Mathematical Intuition
+
+### Autoregressive Image Likelihood
+
+PixelCNN models the joint probability distribution of an image $x$ by factorizing it into a product of conditional probabilities, following a predefined scanline order (e.g., top-left to bottom-right). For an image $x$ with $N$ pixels, the likelihood is expressed as: $$P(x) = \prod_{i=1}^{N} P(x_i | x_1, ..., x_{i-1})$$ Each pixel $x_i$ (which can be a vector for RGB channels) is predicted based on all previously generated pixels $x_1, ..., x_{i-1}$. This factorization allows for exact likelihood computation, a key advantage over models like GANs.
+
+$$
+P(x) = \prod_{i=1}^{N} P(x_i | x_1, ..., x_{i-1})
+$$
+
+### Masked Convolutions for Causality
+
+To enforce the autoregressive property, PixelCNN employs masked convolutions. Standard convolutional filters would access all pixels in their receptive field, violating the causality constraint. Masked convolutions modify the filter weights such that they only connect to pixels that have already been generated. Two types of masks are typically used: Type A masks are applied to the first convolutional layer, ensuring that a pixel's prediction only depends on pixels above and to its left, and not on itself. Type B masks are used in subsequent layers, allowing a pixel's prediction to depend on itself (for different color channels) and all previous pixels.
+
+### Loss Function for Training
+
+PixelCNN is trained by minimizing the negative log-likelihood of the training data. For discrete pixel values (e.g., 256 possible values for each color channel), the model typically outputs a categorical distribution (or a mixture of logistics for continuous values) for each pixel. The loss function is then the sum of the negative log-probabilities of the true pixel values given their contexts: $$L = - \sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})$$ This directly optimizes the model to accurately predict the conditional distribution of each pixel.
+
+$$
+L = - \sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})
+$$
+
+## Algorithm Steps
+
+1. Define a causal ordering for pixels in the image, typically a raster scan from top-left to bottom-right, and within each pixel, a channel order (e.g., R, G, B).
+2. Construct a convolutional neural network architecture using masked convolutions (Type A for the first layer, Type B for subsequent layers) to ensure that the receptive field for predicting pixel $x_i$ only includes pixels $x_j$ where $j < i$.
+3. For each pixel $x_i$ in the input image, the network processes the context of previously observed pixels $x_1, ..., x_{i-1}$ to output a probability distribution $P(x_i | x_1, ..., x_{i-1})$.
+4. During training, compute the negative log-likelihood loss by summing the negative log-probabilities of the true pixel values under their respective predicted distributions.
+5. Update the network's parameters using an optimization algorithm (e.g., Adam) to minimize the calculated loss.
+6. During generation, start with an empty canvas or a seed pixel. Iteratively sample each pixel $x_i$ from its predicted conditional distribution $P(x_i | x_1, ..., x_{i-1})$, using the previously sampled pixels as context, until the entire image is generated.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_layers` | `integer` | `15` | positive integer | The number of masked convolutional layers in the network. |
+| `n_filters` | `integer` | `128` | positive integer | The number of filters (channels) used in each convolutional layer. |
+| `kernel_size` | `integer` | `7` | odd positive integer | The size of the convolutional kernels (e.g., 7 for a 7x7 kernel). |
+| `mask_type` | `string` | `A, B` | 'A', 'B' | Specifies the type of mask used for the first layer ('A') and subsequent layers ('B') to enforce causality. |
+| `n_color_channels` | `integer` | `3` | positive integer | The number of color channels in the input images (e.g., 3 for RGB). |
+| `n_pixel_values` | `integer` | `256` | positive integer | The number of discrete values each color channel can take (e.g., 256 for 8-bit images). |
+| `learning_rate` | `float` | `0.001` | 0.0 to 1.0 | The step size for the optimizer during training. |
+| `optimizer` | `string` | `Adam` | e.g., 'Adam', 'RMSprop', 'SGD' | The optimization algorithm used to update model weights. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- PixelCNN can model complex, high-dimensional image distributions and generate samples of high visual fidelity.
+- It allows for the exact computation of the likelihood of an image, which is valuable for density estimation and anomaly detection.
+- The autoregressive nature ensures that generated images are coherent and locally consistent.
+- It can be conditioned on external information (e.g., class labels, text descriptions) to perform conditional image generation.
+- The model is robust to mode collapse, a common issue in GANs, as it directly optimizes the data likelihood.
+
+## Weaknesses
+
+- Image generation is inherently sequential and slow, as each pixel must be sampled one by one.
+- The computational cost for training can be high due to the deep convolutional architecture and the need to process each pixel's context.
+- PixelCNN models do not learn an explicit latent space, which limits their ability for semantic image manipulation or interpolation.
+- The fixed raster scan order can sometimes lead to artifacts or limit the model's ability to capture global image structures efficiently.
+- Scaling to very high-resolution images remains challenging due to the quadratic increase in generation time and memory requirements.
+
+## Use Cases
+
+### Image Generation
+
+Generating novel, high-quality images that resemble a given training dataset, often used in creative AI applications.
+
+### Image Compression
+
+Utilizing the learned probability distribution to encode images more efficiently by assigning fewer bits to more probable pixel sequences.
+
+### Image Inpainting and Completion
+
+Filling in missing or corrupted regions of an image by predicting the unknown pixels based on the surrounding context.
+
+### Super-Resolution
+
+Enhancing the resolution of low-resolution images by predicting high-resolution details conditioned on the input.
+
+### Density Estimation
+
+Estimating the probability density function of image datasets, useful for tasks like anomaly detection or out-of-distribution detection.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PixelCNN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# PixelCNN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="PixelCNN Lab" />
+
+## References
+
+- van den Oord et al. (2016). van den Oord et al..

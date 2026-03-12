@@ -1,0 +1,192 @@
+---
+title: "Agglomerative Clustering"
+slug: "agglomerative-clustering"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1967
+author: "Hierarchical methods"
+paper: "Hierarchical methods"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bottom-up", "clustering", "dendrogram", "distance-based", "hierarchical-clustering", "partitioning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "birch"
+  - "dbscan"
+  - "gaussian-mixture-model"
+  - "hierarchical-clustering"
+  - "mean-shift"
+  - "optics"
+  - "spectral-clustering"
+---
+
+## Overview
+
+Agglomerative Clustering is a 'bottom-up' [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) method that treats each data point as a singleton cluster and iteratively merges the closest pairs of clusters until all data points belong to a single cluster or a predefined number of clusters is reached. This process builds a hierarchy of clusters, which can be visualized as a dendrogram, allowing for flexible determination of the final cluster partition by cutting the dendrogram at an appropriate level.
+
+## History
+
+**1957** — Robert R. Sokal and Peter H. A. Sneath introduced early [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods in their work on numerical taxonomy, laying groundwork for grouping biological species based on similarity.
+
+**1963** — Joe H. Ward Jr. published 'Hierarchical Grouping to Optimize an Objective Function,' introducing Ward's method, a linkage criterion that minimizes the total within-cluster variance.
+
+**1965** — Stephen C. Johnson's paper '[Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) Schemes' formalized and compared various linkage criteria, including single-linkage and complete-linkage, providing a theoretical framework for agglomerative approaches.
+
+**1967** — The general concept of [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering), encompassing agglomerative techniques, became more widely recognized and applied across various scientific disciplines, building on the foundational work of the preceding decade.
+
+**1969** — G. N. Lance and W. T. Williams proposed a general combinatorial formula for updating dissimilarities between clusters, known as the Lance-Williams formula, which unified many existing linkage methods.
+
+**1973** — Sneath and Sokal's comprehensive book 'Numerical Taxonomy' further systematized and popularized [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods, including agglomerative techniques, for a broad scientific audience.
+
+## Mathematical Intuition
+
+### Initial Cluster Assignment
+
+Agglomerative clustering begins by considering each data point $x_i$ in the dataset $X = \{x_1, x_2, \dots, x_N\}$ as its own individual cluster. Thus, at the initial step, there are $N$ clusters, each containing a single observation.
+
+### Distance Between Data Points
+
+The fundamental operation involves calculating the dissimilarity or distance between data points. A common choice is the Euclidean distance between two points $x_i = (x_{i1}, \dots, x_{iD})$ and $x_j = (x_{j1}, \dots, x_{jD})$ in a $D$-dimensional space:
+
+$$
+$$d(x_i, x_j) = \sqrt{\sum_{k=1}^D (x_{ik} - x_{jk})^2}$$
+$$
+
+### Linkage Criteria for Clusters
+
+To merge clusters, a 'linkage criterion' is used to define the distance between two existing clusters $C_i$ and $C_j$. Different criteria lead to different clustering structures:
+
+1.  Single Linkage: The distance between two clusters is the minimum distance between any two points in the different clusters.
+    $$d(C_i, C_j) = \min_{x \in C_i, y \in C_j} d(x, y)$$
+2.  Complete Linkage: The distance between two clusters is the maximum distance between any two points in the different clusters.
+    $$d(C_i, C_j) = \max_{x \in C_i, y \in C_j} d(x, y)$$
+3.  Average Linkage: The distance between two clusters is the average distance between all pairs of points in the different clusters.
+    $$d(C_i, C_j) = \frac{1}{|C_i||C_j|} \sum_{x \in C_i, y \in C_j} d(x, y)$$
+4.  Ward's Linkage: This criterion merges the pair of clusters that leads to the minimum increase in the total within-cluster variance after merging. If $\bar{x}_i$ and $\bar{x}_j$ are the centroids of clusters $C_i$ and $C_j$, respectively, the increase in variance (or sum of squared errors) upon merging is proportional to:
+    $$\Delta(C_i, C_j) = \frac{|C_i||C_j|}{|C_i|+|C_j|} ||\bar{x}_i - \bar{x}_j||^2$$
+
+$$
+$$d(C_i, C_j) = \min_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$d(C_i, C_j) = \max_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$d(C_i, C_j) = \frac{1}{|C_i||C_j|} \sum_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$\Delta(C_i, C_j) = \frac{|C_i||C_j|}{|C_i|+|C_j|} ||\bar{x}_i - \bar{x}_j||^2$$
+$$
+
+### Iterative Merging Process
+
+At each step, the algorithm identifies the two closest clusters based on the chosen linkage criterion and merges them into a new, larger cluster. This process reduces the total number of clusters by one. The distances between the new cluster and all other existing clusters are then recomputed using the same linkage criterion. This iterative merging continues until only one large cluster remains, or until a stopping condition (e.g., a desired number of clusters or a distance threshold) is met.
+
+## Algorithm Steps
+
+1. Initialize each data point as a single cluster, resulting in $N$ clusters for $N$ data points.
+2. Compute the pairwise distances between all initial clusters using a chosen distance metric (e.g., Euclidean distance).
+3. Identify the two closest clusters based on a selected linkage criterion (e.g., single, complete, average, or Ward's linkage).
+4. Merge these two closest clusters into a new, larger cluster.
+5. Update the distances between the newly formed cluster and all remaining clusters using the same linkage criterion.
+6. Repeat steps 3-5 until all data points belong to a single cluster or a predefined stopping condition (e.g., $k$ clusters or a distance threshold) is met.
+7. Optionally, construct a dendrogram to visualize the hierarchical clustering process, showing the sequence of merges and the distances at which they occurred.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int or None` | `None` | integer >= 1 or None | The number of clusters to form. If None, the algorithm performs a full hierarchy and the number of clusters is determined by 'distance_threshold'. |
+| `affinity` | `str or callable` | `euclidean` | 'euclidean', 'l1', 'l2', 'manhattan', 'cosine', 'precomputed', or a callable | Metric used to compute the linkage. Can be 'euclidean', 'l1', 'l2', 'manhattan', 'cosine', or 'precomputed'. If 'precomputed', a distance matrix is expected. |
+| `linkage` | `str` | `ward` | 'ward', 'complete', 'average', 'single' | Which linkage criterion to use. 'ward' minimizes the variance of the clusters being merged. 'average' uses the average of the distances of each observation of the two sets. 'complete' or 'maximum' linkage uses the maximum distances between all observations of the two sets. 'single' uses the minimum of the distances between all observations of the two sets. |
+| `distance_threshold` | `float or None` | `None` | float >= 0 or None | The linkage distance threshold above which clusters will not be merged. If set, 'n_clusters' must be None. |
+| `connectivity` | `array-like or callable or None` | `None` | array-like, callable, or None | Connectivity matrix. Defines for each sample the neighboring samples within which a linkage can be performed. Useful for imposing structural constraints. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Agglomerative clustering produces a hierarchy of clusters, allowing users to choose the number of clusters by cutting the dendrogram at an appropriate level.
+- It does not require specifying the number of clusters beforehand, offering flexibility in cluster discovery.
+- The dendrogram provides a rich visual representation of the data structure and relationships between clusters.
+- It can discover clusters of arbitrary shapes, unlike centroid-based methods like K-Means.
+- Different linkage criteria allow for adaptation to various data characteristics and desired cluster definitions.
+- It is deterministic, meaning the same input will always produce the same output.
+
+## Weaknesses
+
+- The computational complexity is typically $O(N^3)$ or $O(N^2 \log N)$ for $N$ data points, making it slow for large datasets.
+- The memory requirement is $O(N^2)$ to store the distance matrix, which can be prohibitive for large datasets.
+- It is sensitive to noise and outliers, especially with single linkage, which can lead to 'chaining' effects.
+- Once a merge is made, it cannot be undone, which can lead to suboptimal clustering if early merges are poor.
+- Choosing the appropriate linkage criterion and distance metric can be challenging and problem-dependent.
+
+## Use Cases
+
+### Biology and Bioinformatics
+
+Used for gene expression analysis, phylogenetic tree construction, and grouping similar proteins or DNA sequences based on their characteristics.
+
+### Market Segmentation
+
+Identifying distinct customer segments based on purchasing behavior, demographics, or preferences to tailor marketing strategies.
+
+### Document Analysis
+
+Grouping similar documents or articles based on their content, aiding in topic discovery or information retrieval systems.
+
+### Image Processing
+
+Segmenting images by grouping pixels with similar color or texture properties, or for object recognition tasks.
+
+### Social Network Analysis
+
+Detecting communities or groups of individuals with strong connections within a social network.
+
+### Geographic Information Systems (GIS)
+
+Clustering geographical areas based on various attributes like population density, crime rates, or environmental factors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Agglomerative Clustering from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import AgglomerativeClustering
+
+model = AgglomerativeClustering()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Agglomerative Clustering Lab" />
+
+## References
+
+- Hierarchical methods (1967). Hierarchical methods.
+- [scikit-learn: AgglomerativeClustering](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html)

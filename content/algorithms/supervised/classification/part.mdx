@@ -1,0 +1,161 @@
+---
+title: "PART"
+slug: "part"
+category: "supervised"
+subcategory: "classification"
+year: 1998
+author: "Frank & Witten"
+paper: "Frank & Witten"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "decision-list", "greedy-algorithm", "interpretable-ai", "rule-based-learning", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-classifier"
+  - "ripper"
+  - "rulefit"
+---
+
+## Overview
+
+PART (Partial Decision Tree) is a rule-based classification algorithm that generates an ordered list of rules (a decision list) by iteratively building and pruning partial decision trees. It combines aspects of decision tree learning (like C4.5) with rule induction techniques, aiming to produce highly accurate and interpretable rule sets. The algorithm is distinctive for its ability to directly generate rules without first constructing a full decision tree, thus avoiding the need for a separate rule extraction phase. Each rule is derived from the most promising branch of a pruned decision tree.
+
+## History
+
+**1998** — Eibe Frank and Ian H. Witten introduced the PART algorithm in their paper "Generating Accurate Rule Sets Without Global Optimization." This work presented a novel approach to rule induction by integrating decision tree pruning directly into the rule generation process.
+
+## Mathematical Intuition
+
+### Rule Generation from Partial Trees
+
+PART iteratively constructs a "partial" decision tree from the current training data subset. This tree is grown using a standard decision tree algorithm, such as C4.5's splitting criterion, but it is immediately pruned back to a single leaf node that represents the "best" rule. The pruning process aims to find the most reliable rule, often by minimizing the error rate on a pruning set or using a statistical confidence measure. The algorithm effectively "unrolls" the decision tree into a single rule by selecting the most promising path from the root to a leaf after pruning.
+
+### Pruning Confidence Calculation
+
+To determine the best rule, PART employs a pruning strategy similar to C4.5's error-based pruning. For each potential rule (path from root to leaf), a confidence value is calculated. The confidence of a rule $R: \text{IF conditions THEN class } C$ is often estimated using a statistical measure, such as the upper bound of the expected error rate for a binomial distribution. Given $N$ instances covered by a rule, with $E$ errors, the upper bound of the error rate $U_{CF}(E, N)$ at a confidence level $CF$ (e.g., 0.25) is used. The rule with the lowest $U_{CF}$ is typically preferred. The formula for $U_{CF}(E, N)$ is given by:
+
+$$
+$$ U_{CF}(E, N) = \frac{E + z^2/(2N) + z \sqrt{E/N - E^2/N^2 + z^2/(4N^2)}}{1 + z^2/N} $$
+$$
+
+$$
+Here, $z$ is the $1-CF$ quantile of the standard normal distribution. A lower $U_{CF}$ indicates a more confident rule.
+$$
+
+### Iterative Rule Learning Process
+
+The algorithm operates in a greedy, iterative fashion. In each iteration, it identifies the "best" rule from the current set of training instances. Once a rule is identified, it is added to the ordered rule list, and all instances correctly covered by this rule are removed from the training set. This process continues until no instances remain or a stopping criterion (e.g., minimum number of instances, maximum number of rules) is met. This ensures that subsequent rules are learned from the remaining, uncovered instances, leading to a decision list where rules are applied sequentially.
+
+## Algorithm Steps
+
+1. Initialize an empty ordered list of rules, $L$.
+2. While the training dataset $D$ is not empty and a stopping criterion is not met:
+3. Build a partial decision tree from $D$ using a standard decision tree algorithm (e.g., C4.5's splitting criterion).
+4. Prune the partial decision tree using an error-based pruning strategy (e.g., C4.5's error-based pruning with a confidence factor) to identify the "best" leaf node.
+5. Convert the path from the root to this best leaf node into a single rule, $R$.
+6. Add rule $R$ to the end of the rule list $L$.
+7. Remove all instances from $D$ that are correctly classified by rule $R$.
+8. Return the ordered list of rules $L$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_samples_leaf` | `int` | `2` | integer >= 1 | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least `min_samples_leaf` training samples in each of the left and right branches. This parameter helps control the complexity of the partial decision trees and thus the rules. |
+| `confidence_threshold` | `float` | `0.25` | float in (0.0, 1.0) | The confidence factor used for error-based pruning of the partial decision tree. Lower values result in more aggressive pruning, leading to simpler rules. |
+| `max_rules` | `int` | `-1` | integer >= 1 or -1 | The maximum number of rules to generate. If -1, no limit is imposed. This can be used to control the overall complexity of the rule set. |
+| `pruning_strategy` | `string` | `error_based` | ['error_based', 'reduced_error'] | The strategy used for pruning the partial decision tree. Common options include "error_based" (similar to C4.5) or "reduced_error". |
+| `split_criterion` | `string` | `gini` | ['gini', 'entropy'] | The function to measure the quality of a split in the partial decision tree. Supported criteria are "gini" for Gini impurity and "entropy" for information gain. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Generates highly interpretable rules, making the decision-making process transparent to users.
+- Handles both numerical and categorical features naturally without extensive preprocessing.
+- Produces an ordered list of rules (decision list), which is often more compact and easier to understand than a full decision tree.
+- Robust to noisy data due to its pruning strategy, which helps prevent overfitting.
+- Can achieve competitive accuracy compared to other rule-based and tree-based classifiers.
+- Does not require a separate rule extraction phase after tree construction, simplifying the process.
+
+## Weaknesses
+
+- The greedy nature of the rule induction process may not always yield a globally optimal set of rules.
+- Can generate a large number of rules for complex datasets, potentially reducing interpretability.
+- Sensitive to the choice of pruning parameters, which can significantly impact the final rule set.
+- May struggle with datasets containing many irrelevant features, as the decision tree building step can be misled.
+- Not natively designed for high-dimensional data without prior feature selection.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Developing interpretable rules to assist in diagnosing diseases based on patient symptoms and test results, where transparency is crucial.
+
+### Credit Scoring
+
+Creating transparent rule sets to assess creditworthiness for loan applications, allowing for clear explanations of lending decisions.
+
+### Fraud Detection
+
+Identifying patterns of fraudulent transactions through clear, actionable rules that can be easily understood and implemented by analysts.
+
+### Customer Churn Prediction
+
+Predicting which customers are likely to churn by identifying specific behavioral patterns that lead to attrition, enabling targeted interventions.
+
+### Manufacturing Quality Control
+
+Establishing rules to classify product defects based on sensor readings and inspection data, providing clear guidelines for quality assurance.
+
+### Ecological Modeling
+
+Building rule-based models to understand species distribution or environmental impacts, offering interpretable insights into complex ecological systems.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PART from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Part
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Part()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="PART Lab" />
+
+## References
+
+- Frank & Witten (1998). Frank & Witten.
+- [scikit-learn: Part](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Part.html)

@@ -1,0 +1,168 @@
+---
+title: "Passive Aggressive Regressor"
+slug: "passive-aggressive-regressor"
+category: "supervised"
+subcategory: "regression"
+year: 2006
+author: "Crammer et al."
+paper: "Crammer et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["large-scale", "margin-based", "online-learning", "perceptron-like", "regression", "sparse-updates", "streaming-data", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "lasso-regression"
+  - "linear-regression"
+  - "passive-aggressive-classifier"
+  - "perceptron"
+  - "ridge-regression"
+---
+
+## Overview
+
+Passive Aggressive Regressor is an online learning algorithm that updates its model parameters only when a prediction error exceeds a predefined margin, remaining 'passive' otherwise. When an error is significant, it performs an 'aggressive' update to correct the mistake, aiming to keep the model as close as possible to its previous state. This approach makes it highly efficient for large-scale datasets and streaming data, where computational resources and real-time adaptation are critical.
+
+## History
+
+**2006** — Crammer, Dekel, Keshet, Shalev-Shwartz, and Singer introduced the family of Passive-Aggressive algorithms for classification and regression in their seminal paper 'Online Passive-Aggressive Algorithms', formalizing the concept of online learning with a margin.
+
+**2009** — Shalev-Shwartz and Singer further explored the theoretical properties and convergence rates of online learning algorithms, including Passive-Aggressive methods, contributing to their broader understanding and application.
+
+## Mathematical Intuition
+
+### Online Learning and Margin Principle
+
+Passive Aggressive Regressor operates in an online learning setting, processing data points sequentially. Its core principle is to remain 'passive' if a prediction is sufficiently accurate, meaning the error falls within an acceptable margin $\epsilon$. However, if the prediction error exceeds this margin, the algorithm becomes 'aggressive,' updating its model parameters to correct the error. This selective update mechanism makes it efficient for large-scale and streaming data.
+
+### Epsilon-Insensitive Loss Function
+
+The algorithm employs an $\epsilon$-insensitive loss function, $L_\epsilon(\hat{y}, y)$, which penalizes errors only when the absolute difference between the true value $y$ and the predicted value $\hat{y}$ exceeds a threshold $\epsilon$. This loss function is defined as:$$L_\epsilon(\hat{y}, y) = \max(0, |y - \hat{y}| - \epsilon)$$The objective of the update is to find new weights $w_{t+1}$ such that for the current sample $(x_t, y_t)$, the loss becomes zero, i.e., $|y_t - w_{t+1} \cdot x_t| \le \epsilon$.
+
+$$
+L_\epsilon(\hat{y}, y) = \max(0, |y - \hat{y}| - \epsilon)
+$$
+
+### Weight Vector Update Derivation
+
+When an update is triggered, the algorithm seeks to modify the current weight vector $w_t$ to a new vector $w_{t+1}$ such that the $\epsilon$-insensitive loss for the current sample becomes zero, while minimizing the change to the weight vector. This is formulated as an optimization problem:$$\min_{w_{t+1}} \frac{1}{2} ||w_{t+1} - w_t||^2$$subject to $|y_t - w_{t+1} \cdot x_t| \le \epsilon$. The solution involves an update step proportional to the error and the input feature vector. For the Passive Aggressive Regressor, the update magnitude $\tau_t$ is calculated as:$$\tau_t = \max\left(0, \frac{|y_t - \hat{y}_t| - \epsilon}{||x_t||^2 + \frac{1}{C}}\right)$$where $C$ is the regularization parameter. The weight vector is then updated as $w_{t+1} = w_t + \tau_t \cdot \text{sgn}(y_t - \hat{y}_t) \cdot x_t$. The bias $b_t$ is updated similarly: $b_{t+1} = b_t + \tau_t \cdot \text{sgn}(y_t - \hat{y}_t)$.
+
+$$
+\min_{w_{t+1}} \frac{1}{2} ||w_{t+1} - w_t||^2
+$$
+
+$$
+\tau_t = \max\left(0, \frac{|y_t - \hat{y}_t| - \epsilon}{||x_t||^2 + \frac{1}{C}}\right)
+$$
+
+## Algorithm Steps
+
+1. Initialize the weight vector $w$ and bias $b$ to zeros.
+2. For each training sample $(x_t, y_t)$ in the stream, for a fixed number of epochs:
+3. Calculate the current prediction $\hat{y}_t = w_t \cdot x_t + b_t$.
+4. Calculate the prediction error $l_t = |y_t - \hat{y}_t|$.
+5. If $l_t > \epsilon$ (the error exceeds the insensitivity margin):
+6. Calculate the update magnitude $\tau_t = \max\left(0, \frac{l_t - \epsilon}{||x_t||^2 + \frac{1}{C}}\right)$.
+7. Update the weight vector: $w_{t+1} = w_t + \tau_t \cdot \text{sgn}(y_t - \hat{y}_t) \cdot x_t$.
+8. Update the bias: $b_{t+1} = b_t + \tau_t \cdot \text{sgn}(y_t - \hat{y}_t)$.
+9. Else ($l_t \le \epsilon$), the algorithm remains passive: $w_{t+1} = w_t$ and $b_{t+1} = b_t$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `C` | `float` | `1.0` | positive float | The regularization parameter. A smaller C specifies stronger regularization. |
+| `epsilon` | `float` | `0.1` | non-negative float | If the prediction error is smaller than epsilon, the update is not performed. |
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. |
+| `max_iter` | `int` | `1000` | positive integer | The maximum number of passes over the training data (epochs). |
+| `tol` | `float or None` | `1e-3` | positive float or None | The stopping criterion. If 'None', no stopping criterion is applied. |
+| `shuffle` | `bool` | `True` | True, False | Whether or not the training data should be shuffled after each epoch. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, or None | Used when `shuffle` is True to generate random permutations. |
+| `average` | `bool or int` | `False` | True, False, or positive integer | When set to True, computes the averaged SGD weights and stores the result in the `coef_` attribute. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is highly efficient for large-scale datasets and online learning scenarios due to its sparse updates.
+- The algorithm is robust to outliers because of its $\epsilon$-insensitive loss function.
+- It requires minimal memory, as it processes data points one at a time and does not need to store the entire dataset.
+- The model can adapt quickly to concept drift in data streams.
+- It offers competitive performance compared to batch learning algorithms in many online settings.
+
+## Weaknesses
+
+- Performance can be sensitive to the choice of hyperparameters, especially the regularization parameter $C$ and the insensitivity parameter $\epsilon$.
+- The algorithm's performance can degrade if the data is not well-scaled, as it is sensitive to feature magnitudes.
+- It does not inherently handle non-linear relationships in data without explicit feature engineering.
+- The final model can be sensitive to the order of training samples, especially in early stages.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying fraudulent transactions in real-time streams of financial data by continuously updating the model with new transaction patterns.
+
+### Spam Filtering
+
+Classifying incoming emails as spam or not spam in an online fashion, adapting to new spamming techniques as they emerge.
+
+### Recommendation Systems
+
+Updating user preferences and recommending items based on continuous user interactions and feedback in dynamic online platforms.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic patterns as they occur, allowing for rapid response to potential security threats.
+
+### Ad Click Prediction
+
+Predicting the likelihood of a user clicking on an advertisement in a dynamic online environment, adjusting predictions based on real-time user behavior.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Passive Aggressive Regressor from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import PassiveAggressiveRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = PassiveAggressiveRegressor()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Passive Aggressive Regressor Lab" />
+
+## References
+
+- Crammer et al. (2006). Crammer et al..
+- [scikit-learn: PassiveAggressiveRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html)

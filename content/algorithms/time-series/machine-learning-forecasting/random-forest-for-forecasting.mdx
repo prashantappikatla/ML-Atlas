@@ -1,0 +1,196 @@
+---
+title: "Random Forest for Forecasting"
+slug: "random-forest-for-forecasting"
+category: "time-series"
+subcategory: "machine-learning-forecasting"
+year: 2001
+author: "Breiman"
+paper: "Breiman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bagging", "decision-trees", "ensemble", "forecasting", "non-linear", "regression", "supervised-learning", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+Random Forest for Forecasting adapts the ensemble learning method of Random Forest to predict future values in time series data. It constructs multiple decision trees during training, each trained on a bootstrapped sample of the training data and considering a random subset of features at each split. Predictions are then made by averaging the individual predictions of all trees, providing a robust and non-linear model for time-dependent patterns. This approach typically involves transforming the time series into a supervised learning problem using lagged observations as features.
+
+## History
+
+**2001** — Leo Breiman introduced the Random Forest algorithm, combining bagging and random feature selection for improved accuracy and stability over single decision trees.
+
+**2002** — Early research began exploring the application of ensemble methods, including Random Forests, to time series forecasting problems by transforming time series into a supervised learning problem using lagged features.
+
+**2005** — Random Forests gained increasing popularity in various forecasting tasks due to their ability to handle non-linear relationships and feature interactions without extensive data preprocessing.
+
+**2010** — The method became a standard baseline and a powerful tool in many practical time series forecasting applications across diverse industries.
+
+## Mathematical Intuition
+
+### Decision Tree Regression Fundamentals
+
+A single decision tree for regression partitions the feature space into a set of rectangular regions. For a given input $x$, the prediction is the average of the target values $y$ for all training samples falling into the same region as $x$. The partitioning is done recursively by selecting features and split points that minimize a loss function, typically Mean Squared Error (MSE). The prediction for an input $x$ is given by:
+$$ \hat{y}(x) = \sum_{m=1}^M c_m I(x \in R_m) $$
+where $R_m$ are the disjoint regions, $c_m$ is the average target value in region $R_m$, and $I(\cdot)$ is the indicator function.
+
+$$
+\hat{y}(x) = \sum_{m=1}^M c_m I(x \in R_m)
+$$
+
+### Bagging for Ensemble Diversity
+
+Bagging (Bootstrap Aggregating) is a technique used to create multiple training datasets by sampling with replacement from the original dataset. Each of these bootstrap samples is used to train a separate decision tree. This process introduces diversity among the trees, as each tree sees a slightly different subset of the data, which helps to reduce variance and prevent overfitting. If $D = \{(x_i, y_i)\}_{i=1}^N$ is the original dataset, then for $k=1, \dots, B$ (number of trees), a bootstrap sample $D_k^*$ is drawn from $D$.
+
+$$
+D = \{(x_i, y_i)\}_{i=1}^N
+$$
+
+$$
+D_k^*
+$$
+
+### Random Feature Subspace Selection
+
+During the growth of each decision tree, at every split point, only a random subset of $m$ features from the total $p$ available features is considered for finding the best split. This further decorrelates the individual trees within the forest, preventing them from becoming too similar and significantly reducing the overall variance of the ensemble. For regression tasks, $m$ is typically set to $\sqrt{p}$ or $p/3$.
+
+$$
+m
+$$
+
+$$
+p
+$$
+
+$$
+\sqrt{p}
+$$
+
+$$
+p/3
+$$
+
+### Ensemble Prediction Averaging
+
+For a new input $x$, each of the $B$ decision trees in the forest makes an individual prediction, denoted as $\hat{y}_k(x)$. The final prediction of the Random Forest is the average of these individual predictions. This averaging process helps to smooth out the predictions, reduce the variance of the model, and improve its generalization capabilities. The final forecast $\hat{Y}(x)$ is calculated as:
+$$ \hat{Y}(x) = \frac{1}{B} \sum_{k=1}^B \hat{y}_k(x) $$
+where $B$ is the total number of trees in the forest.
+
+$$
+\hat{y}_k(x)
+$$
+
+$$
+\hat{Y}(x) = \frac{1}{B} \sum_{k=1}^B \hat{y}_k(x)
+$$
+
+$$
+B
+$$
+
+## Algorithm Steps
+
+1. Transform the time series data into a supervised learning problem by creating lagged features (e.g., $y_{t-1}, y_{t-2}, \dots, y_{t-p}$) and potentially other exogenous variables as predictors for the target variable $y_t$.
+2. For each of $B$ iterations (where $B$ is the number of trees to be built):
+3. Draw a bootstrap sample (sampling with replacement) of the training data, creating a new dataset of the same size as the original but with some samples duplicated and others omitted.
+4. Train a decision tree regressor on this bootstrap sample, allowing it to grow without pruning, typically until a maximum depth or minimum samples per leaf is reached.
+5. At each node of the decision tree, randomly select a subset of $m$ features from the total $p$ available features.
+6. Determine the best split point among the selected $m$ features that minimizes a chosen impurity measure, such as Mean Squared Error (MSE).
+7. Split the node into two child nodes based on the best split, and repeat the process recursively for each child node.
+8. Aggregate the $B$ trained decision trees into a single Random Forest model.
+9. To make a forecast for a new time step, feed the corresponding lagged features and any other relevant exogenous variables into each of the $B$ decision trees.
+10. Average the individual predictions from all $B$ decision trees to produce the final forecast.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | integer > 0 | The number of trees in the forest. |
+| `max_depth` | `int` | `None` | integer > 0 or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `int or float` | `2` | integer > 1 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. |
+| `min_samples_leaf` | `int or float` | `1` | integer > 0 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. |
+| `max_features` | `int, float or {'auto', 'sqrt', 'log2'}` | `1.0` | integer > 0, float in (0.0, 1.0], or {'auto', 'sqrt', 'log2'} | The number of features to consider when looking for the best split. 'sqrt' is the default for regression in scikit-learn. |
+| `bootstrap` | `bool` | `True` | True or False | Whether bootstrap samples are used when building trees. If False, the whole dataset is used to build each tree. |
+| `random_state` | `int or RandomState instance` | `None` | integer >= 0 or None | Controls both the randomness of the bootstrapping of the samples used when building trees and the sampling of the features to consider when looking for the best split at each node. |
+| `n_jobs` | `int` | `None` | integer or None | The number of jobs to run in parallel for both fit and predict. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Random Forests can model complex non-linear relationships and interactions between features, which are common in time series data.
+- The ensemble nature of Random Forests makes them robust to noise and outliers in the training data, leading to more stable predictions.
+- They are less prone to overfitting compared to individual decision trees due to the averaging of multiple decorrelated trees.
+- Random Forests can inherently handle a mix of numerical and categorical features without extensive preprocessing.
+- The algorithm provides estimates of feature importance, which can offer insights into the most influential factors for forecasting.
+- The training process for individual trees can be parallelized, making it computationally efficient for large datasets.
+
+## Weaknesses
+
+- Random Forests do not inherently extrapolate beyond the range of the training data, which can be a significant limitation for forecasting trends.
+- The interpretability of a Random Forest model is lower than that of a single decision tree due to the aggregation of many complex trees.
+- Training a large number of trees can be computationally intensive and require significant memory, especially with deep trees and many features.
+- The performance can degrade if the time series exhibits strong temporal dependencies that are not adequately captured by lagged features alone.
+- Tuning hyperparameters like n_estimators and max_depth can be time-consuming and impact model performance.
+
+## Use Cases
+
+### Energy Forecasting
+
+Predicting electricity demand or renewable energy generation based on historical consumption, weather patterns, and time-of-day features.
+
+### Retail Sales Forecasting
+
+Estimating future product sales by considering past sales, promotional activities, holidays, and economic indicators.
+
+### Financial Market Prediction
+
+Forecasting stock prices, commodity prices, or currency exchange rates using historical price data, trading volumes, and macroeconomic variables.
+
+### Traffic Prediction
+
+Predicting future traffic flow on roads or public transport usage based on historical patterns, events, and weather conditions.
+
+### Healthcare Resource Planning
+
+Forecasting patient admissions, bed occupancy, or demand for specific medical services to optimize resource allocation.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Random Forest for Forecasting from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Random Forest for Forecasting does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Random Forest for Forecasting Lab" />
+
+## References
+
+- Breiman (2001). Breiman.

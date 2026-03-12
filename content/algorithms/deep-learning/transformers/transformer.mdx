@@ -1,0 +1,181 @@
+---
+title: "Transformer"
+slug: "transformer"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2017
+author: "Vaswani et al."
+paper: "Vaswani et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["attention-mechanism", "computer-vision", "deep-learning", "encoder-decoder", "natural-language-processing", "neural-networks", "parallel-processing", "sequence-modeling"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "bert"
+  - "gpt"
+  - "recurrent-neural-network"
+  - "t5"
+  - "vision-transformer"
+---
+
+## Overview
+
+The Transformer is a deep learning model that processes sequential data, distinguishing itself by relying entirely on attention mechanisms to draw global dependencies between input and output. Unlike recurrent neural networks, it foregoes recurrence and convolutions, enabling significant parallelization during training. This architecture has become foundational for state-of-the-art models across various domains, particularly in natural language processing.
+
+## History
+
+**2017** — The Transformer architecture was introduced by Vaswani et al. in the paper 'Attention Is All You Need', revolutionizing sequence modeling by replacing recurrent layers with self-attention.
+
+**2018** — The BERT (Bidirectional Encoder Representations from Transformers) model was released by Google, demonstrating the power of pre-training large Transformer encoders on vast text corpora for various downstream NLP tasks.
+
+**2018** — OpenAI introduced GPT-1 (Generative Pre-trained Transformer), showcasing the effectiveness of pre-training a Transformer decoder for generative language tasks and fine-tuning for specific applications.
+
+**2020** — The [Vision Transformer](/algorithms/deep-learning/transformers/vision-transformer) (ViT) by Dosovitskiy et al. adapted the Transformer architecture for image classification, demonstrating that Transformers could achieve competitive results in computer vision when applied to sequences of image patches.
+
+**2022** — Large language models based on the Transformer architecture, such as ChatGPT, gained widespread public attention, highlighting their advanced capabilities in conversational AI and text generation.
+
+## Mathematical Intuition
+
+### Scaled Dot-Product Attention
+
+The core of the Transformer is the scaled dot-product [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which computes a weighted sum of 'value' vectors based on the similarity between 'query' and 'key' vectors. For a given query $Q$, keys $K$, and values $V$, the attention output is calculated as: The scaling factor $\sqrt{d_k}$ prevents the dot products from becoming too large, which could push the softmax function into regions with extremely small gradients. This mechanism allows the model to focus on relevant parts of the input sequence when processing each element.
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+### Multi-Head Attention Mechanism
+
+Multi-head attention extends the single [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) by allowing the model to jointly attend to information from different representation subspaces at different positions. This is achieved by linearly projecting the queries, keys, and values $h$ times with different, learned linear projections. Each projected set then undergoes scaled dot-product attention in parallel, resulting in $h$ attention outputs. These outputs are then concatenated and linearly projected once more to produce the final result. This parallel processing of attention allows the model to capture diverse relationships within the data.
+
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O
+$$
+
+$$
+\text{where head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+### Positional Encoding for Order
+
+Since the Transformer architecture processes sequences in parallel without recurrence or convolutions, it inherently lacks information about the relative or absolute position of tokens in the sequence. To inject this positional information, 'positional encodings' are added to the input embeddings. These encodings are typically sine and cosine functions of different frequencies, allowing the model to learn to utilize relative positions. The positional encoding for a given position $pos$ and dimension $i$ is defined as: These encodings are added to the input embeddings before they are fed into the encoder and decoder stacks.
+
+$$
+\text{PE}(pos, 2i) = \sin(pos / 10000^{2i/d_{model}})
+$$
+
+$$
+\text{PE}(pos, 2i+1) = \cos(pos / 10000^{2i/d_{model}})
+$$
+
+### Feed-Forward Networks and Normalization
+
+Each encoder and decoder layer contains a position-wise fully connected feed-forward network, which is applied independently to each position. This network consists of two linear transformations with a ReLU activation in between: $\text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2$. Additionally, 'add & norm' layers are used after both the multi-head attention and the feed-forward network. This involves adding the input of the sub-layer to its output (residual connection) and then applying layer normalization. Layer normalization helps stabilize training by normalizing the inputs across the features for each sample independently.
+
+$$
+\text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2
+$$
+
+## Algorithm Steps
+
+1. Input sequences are converted into dense vector embeddings, and positional encodings are added to these embeddings to incorporate sequence order information.
+2. The embedded input passes through an encoder stack, typically consisting of multiple identical layers.
+3. Each encoder layer contains a multi-head self-attention sub-layer, which allows the model to weigh the importance of different parts of the input sequence for each token.
+4. Following the self-attention, a position-wise fully connected feed-forward network is applied to each position independently.
+5. Residual connections and layer normalization are applied after both the multi-head attention and feed-forward sub-layers within each encoder layer.
+6. For sequence-to-sequence tasks, the output of the encoder stack is fed into a decoder stack, which also consists of multiple identical layers.
+7. Each decoder layer includes a masked multi-head self-attention sub-layer (to prevent attending to future tokens), an encoder-decoder multi-head attention sub-layer (to attend to the encoder's output), and a feed-forward network.
+8. Finally, the output of the decoder stack is passed through a linear layer followed by a softmax function to produce the probability distribution over the vocabulary for the next token in the output sequence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `d_model` | `integer` | `512` | positive integer | The dimensionality of the input and output embeddings, as well as the internal representation of the model. |
+| `n_heads` | `integer` | `8` | positive integer | The number of attention heads in the multi-head attention mechanism. |
+| `num_encoder_layers` | `integer` | `6` | positive integer | The number of identical encoder layers in the encoder stack. |
+| `num_decoder_layers` | `integer` | `6` | positive integer | The number of identical decoder layers in the decoder stack (for sequence-to-sequence models). |
+| `dim_feedforward` | `integer` | `2048` | positive integer | The dimensionality of the inner layer of the position-wise feed-forward networks. |
+| `dropout` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability applied to various layers for regularization. |
+| `activation` | `string` | `relu` | e.g., 'relu', 'gelu' | The activation function used in the feed-forward networks. |
+| `norm_first` | `boolean` | `False` | True or False | If True, layer normalization is applied before the attention and feed-forward sub-layers (pre-norm); otherwise, it's applied after (post-norm). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Transformers can process input sequences in parallel, significantly reducing training time compared to recurrent models.
+- The self-attention mechanism effectively captures long-range dependencies within sequences, overcoming limitations of RNNs and LSTMs.
+- They possess a high capacity for learning complex patterns and representations from large datasets.
+- Pre-trained Transformer models can be fine-tuned for a wide array of downstream tasks with excellent performance, enabling powerful transfer learning.
+- Attention weights can offer some interpretability, indicating which parts of the input were most relevant for a given output.
+- The architecture is highly scalable, allowing for the creation of extremely large and powerful models.
+
+## Weaknesses
+
+- The computational and memory complexity of the self-attention mechanism is quadratic with respect to the sequence length, limiting the practical maximum sequence length.
+- Transformers typically require vast amounts of training data to achieve optimal performance, especially for large models.
+- They lack inherent inductive biases for sequential data, necessitating the use of positional encodings to convey order information.
+- Training large Transformer models is computationally expensive, requiring significant hardware resources and energy.
+- The architecture can be prone to overfitting on smaller datasets due to its high capacity and lack of strong inductive biases.
+
+## Use Cases
+
+### Natural Language Processing
+
+Widely used for machine translation, text summarization, question answering, text generation, and sentiment analysis due to their ability to model complex linguistic dependencies.
+
+### Computer Vision
+
+Applied in tasks like image classification ([Vision Transformer](/algorithms/deep-learning/transformers/vision-transformer)), object detection (DETR), and image generation, often by treating image patches as sequences.
+
+### Speech Recognition
+
+Used for converting spoken language into text, where audio signals are processed as sequences to capture temporal dependencies and context.
+
+### Drug Discovery and Bioinformatics
+
+Employed for protein folding prediction, molecular modeling, and drug design by treating amino acid sequences or molecular structures as input sequences.
+
+### Time Series Forecasting
+
+Adapted for predicting future values in time series data, leveraging their ability to capture long-range temporal dependencies and complex patterns.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Transformer from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Transformer does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Transformer Lab" />
+
+## References
+
+- Vaswani et al. (2017). Vaswani et al..

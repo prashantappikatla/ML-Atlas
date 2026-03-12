@@ -1,0 +1,169 @@
+---
+title: "CycleGAN"
+slug: "cyclegan"
+category: "generative"
+subcategory: "adversarial"
+year: 2017
+author: "Zhu et al."
+paper: "Zhu et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "deep-learning", "domain-adaptation", "generative-adversarial-networks", "image-synthesis", "image-to-image-translation", "style-transfer", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "pix2pix"
+  - "stylegan"
+---
+
+## Overview
+
+CycleGAN addresses the problem of image-to-image translation without requiring paired training data. It learns a mapping between two image domains, $X$ and $Y$, such that an image translated from $X$ to $Y$ can be translated back to $X$ and recover the original image. This is achieved by simultaneously training two generative adversarial networks (GANs) and incorporating a cycle consistency loss, enabling unsupervised learning for diverse translation tasks.
+
+## History
+
+**2014** — Ian Goodfellow et al. introduce Generative Adversarial Networks (GANs), establishing the adversarial training framework for generative models.
+
+**2016** — Phillip Isola et al. introduce [Pix2Pix](/algorithms/generative/adversarial/pix2pix), demonstrating conditional GANs for paired image-to-image translation, which sets the stage for unsupervised methods.
+
+**2017** — Jun-Yan Zhu et al. publish "Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks" (CycleGAN), introducing the cycle consistency loss for unsupervised domain translation.
+
+**2017** — Concurrent work by Taesung Park et al. (CUT) and Ming-Yu Liu et al. (UNIT) also explores unsupervised image-to-image translation, highlighting the growing interest in this area.
+
+## Mathematical Intuition
+
+### Generative Adversarial Networks Objective
+
+CycleGAN builds upon the GAN framework, where a generator $G$ tries to produce realistic images to fool a discriminator $D$, while $D$ tries to distinguish real from fake. For a mapping $G_{XY}: X \to Y$ and its discriminator $D_Y$, the adversarial loss is defined as:$$ \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G_{XY}(x)))] $$This loss is applied symmetrically for the reverse mapping $G_{YX}: Y \to X$ and its discriminator $D_X$. The generators aim to minimize this loss, while the discriminators aim to maximize it.
+
+$$
+\mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G_{XY}(x)))]
+$$
+
+### Cycle Consistency Loss
+
+To enforce that the learned mappings are meaningful and invertible, CycleGAN introduces a cycle consistency loss. For an image $x$ from domain $X$, the translation $G_{XY}(x)$ should be translatable back to $x$ by $G_{YX}$, i.e., $G_{YX}(G_{XY}(x)) \approx x$. Similarly, for an image $y$ from domain $Y$, $G_{XY}(G_{YX}(y)) \approx y$. This is formulated as an L1 loss:$$ \mathcal{L}_{cyc}(G_{XY}, G_{YX}) = \mathbb{E}_{x \sim p_{data}(x)}[\|G_{YX}(G_{XY}(x)) - x\|_1] + \mathbb{E}_{y \sim p_{data}(y)}[\|G_{XY}(G_{YX}(y)) - y\|_1] $$This loss encourages the learned mappings to be inverses of each other.
+
+$$
+\mathcal{L}_{cyc}(G_{XY}, G_{YX}) = \mathbb{E}_{x \sim p_{data}(x)}[\|G_{YX}(G_{XY}(x)) - x\|_1] + \mathbb{E}_{y \sim p_{data}(y)}[\|G_{XY}(G_{YX}(y)) - y\|_1]
+$$
+
+### Identity Mapping Loss
+
+To preserve color composition between input and output, especially when the input and output domains are closely related, an identity mapping loss can be used. If an image from domain $Y$ is fed into $G_{XY}$, it should ideally remain unchanged. This loss is defined as:$$ \mathcal{L}_{id}(G_{XY}, G_{YX}) = \mathbb{E}_{y \sim p_{data}(y)}[\|G_{XY}(y) - y\|_1] + \mathbb{E}_{x \sim p_{data}(x)}[\|G_{YX}(x) - x\|_1] $$This loss is typically applied with a reduced weight and helps prevent unnecessary color shifts.
+
+$$
+\mathcal{L}_{id}(G_{XY}, G_{YX}) = \mathbb{E}_{y \sim p_{data}(y)}[\|G_{XY}(y) - y\|_1] + \mathbb{E}_{x \sim p_{data}(x)}[\|G_{YX}(x) - x\|_1]
+$$
+
+### Full Objective Function
+
+The complete objective function for CycleGAN is a weighted sum of the adversarial losses, the cycle consistency loss, and optionally the identity mapping loss:$$ \mathcal{L}(G_{XY}, G_{YX}, D_X, D_Y) = \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) + \mathcal{L}_{GAN}(G_{YX}, D_X, Y, X) + \lambda_{cyc} \mathcal{L}_{cyc}(G_{XY}, G_{YX}) + \lambda_{id} \mathcal{L}_{id}(G_{XY}, G_{YX}) $$The goal is to solve the minimax optimization problem:$$ G_{XY}^*, G_{YX}^* = \arg \min_{G_{XY}, G_{YX}} \max_{D_X, D_Y} \mathcal{L}(G_{XY}, G_{YX}, D_X, D_Y) $$where $\lambda_{cyc}$ and $\lambda_{id}$ are hyperparameters controlling the importance of the cycle consistency and identity mapping losses, respectively.
+
+$$
+\mathcal{L}(G_{XY}, G_{YX}, D_X, D_Y) = \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) + \mathcal{L}_{GAN}(G_{YX}, D_X, Y, X) + \lambda_{cyc} \mathcal{L}_{cyc}(G_{XY}, G_{YX}) + \lambda_{id} \mathcal{L}_{id}(G_{XY}, G_{YX})
+$$
+
+$$
+G_{XY}^*, G_{YX}^* = \arg \min_{G_{XY}, G_{YX}} \max_{D_X, D_Y} \mathcal{L}(G_{XY}, G_{YX}, D_X, D_Y)
+$$
+
+## Algorithm Steps
+
+1. Initialize two generator networks, $G_{XY}$ (mapping $X \to Y$) and $G_{YX}$ (mapping $Y \to X$), and two discriminator networks, $D_X$ (distinguishing real $X$ from fake $X$) and $D_Y$ (distinguishing real $Y$ from fake $Y$).
+2. For each training iteration, sample a batch of images $x$ from domain $X$ and $y$ from domain $Y$.
+3. Train $D_Y$: Update $D_Y$ to classify real images $y$ as real and generated images $G_{XY}(x)$ as fake, using the adversarial loss $\mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y)$.
+4. Train $D_X$: Update $D_X$ to classify real images $x$ as real and generated images $G_{YX}(y)$ as fake, using the adversarial loss $\mathcal{L}_{GAN}(G_{YX}, D_X, Y, X)$.
+5. Train $G_{XY}$ and $G_{YX}$: Update both generators to minimize the adversarial losses (making generated images look real to their respective discriminators), minimize the cycle consistency loss $\mathcal{L}_{cyc}$, and optionally minimize the identity mapping loss $\mathcal{L}_{id}$.
+6. The generated images $G_{XY}(x)$ and $G_{YX}(y)$ are passed through the reverse generators to compute $G_{YX}(G_{XY}(x))$ and $G_{XY}(G_{YX}(y))$ for the cycle consistency loss.
+7. Repeat steps 2-6 for a specified number of epochs until convergence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0002` | (0.0, 1.0) | The learning rate for the Adam optimizer. |
+| `beta1` | `float` | `0.5` | (0.0, 1.0) | The exponential decay rate for the first moment estimates in Adam. |
+| `lambda_cycle` | `float` | `10.0` | (0.0, inf) | Weight for the cycle consistency loss. |
+| `lambda_identity` | `float` | `5.0` | (0.0, inf) | Weight for the identity mapping loss. Typically set to 0.5 * lambda_cycle. |
+| `n_epochs` | `int` | `200` | (1, inf) | Total number of training epochs. |
+| `batch_size` | `int` | `1` | (1, inf) | Number of images processed per training step. |
+| `image_size` | `int` | `256` | (32, inf) | Spatial size of training images (e.g., 256x256). |
+| `n_residual_blocks` | `int` | `9` | (1, inf) | Number of residual blocks in the generator architecture. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It enables image-to-image translation without requiring paired training data, significantly expanding its applicability to diverse domains.
+- The cycle consistency loss acts as a powerful regularization, ensuring that the learned mappings are meaningful and invertible.
+- It can learn complex non-linear mappings between visually distinct domains while preserving key structural content.
+- The architecture is flexible and can be adapted to various image translation tasks, from style transfer to object transformation.
+- It often produces high-quality, visually convincing synthetic images that are difficult to distinguish from real images.
+
+## Weaknesses
+
+- Training CycleGANs is computationally intensive and requires significant GPU resources and long training times.
+- The model can sometimes suffer from mode collapse, where the generator produces a limited variety of outputs.
+- It may struggle with drastic geometric changes or when the two domains are too dissimilar, leading to artifacts or poor translation quality.
+- The choice of hyperparameters, especially the weights for the different loss components, can be challenging and impact performance.
+- Evaluating the quality of generated images and the effectiveness of the translation can be subjective and difficult to quantify objectively.
+
+## Use Cases
+
+### Art and Design
+
+Translating photographs into paintings of specific artistic styles (e.g., Monet, Van Gogh) or vice versa.
+
+### Medical Imaging
+
+Converting MRI scans to CT scans or enhancing low-resolution medical images for diagnostic purposes.
+
+### Computer Graphics
+
+Changing the season of a landscape image (e.g., summer to winter) or transforming objects (e.g., apples to oranges).
+
+### Data Augmentation
+
+Generating synthetic variations of images to expand training datasets for other machine learning tasks, especially when real data is scarce.
+
+### Photography
+
+Adjusting image attributes like day to night conversion, changing hair color, or transforming facial expressions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement CycleGAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# CycleGAN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="CycleGAN Lab" />
+
+## References
+
+- Zhu et al. (2017). Zhu et al..

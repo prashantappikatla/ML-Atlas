@@ -1,0 +1,185 @@
+---
+title: "Non-negative Matrix Factorization"
+slug: "non-negative-matrix-factorization"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1999
+author: "Lee & Seung"
+paper: "Lee & Seung"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["dimensionality-reduction", "feature-extraction", "matrix-factorization", "non-negative", "sparse-representation", "topic-modeling", "unsupervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "latent-dirichlet-allocation"
+  - "latent-semantic-analysis"
+  - "probabilistic-latent-semantic-analysis"
+---
+
+## Overview
+
+Non-negative Matrix Factorization (NMF) is an unsupervised dimensionality reduction technique that decomposes a non-negative data matrix into two lower-rank non-negative matrices. It aims to find a parts-based representation of the data, where the original data can be reconstructed by linearly combining these non-negative components. This non-negativity constraint often leads to more interpretable factors compared to methods like Principal Component Analysis or Singular Value Decomposition.
+
+## History
+
+**1994** — Paatero and Tapper introduced Positive Matrix Factorization (PMF), a related technique for decomposing matrices with non-negative elements, primarily for environmental data analysis.
+
+**1999** — Lee and Seung published their seminal paper "Learning the parts of objects by non-negative matrix factorization" in Nature, popularizing the term NMF and demonstrating its effectiveness for image and text data.
+
+**2001** — Lee and Seung further detailed their multiplicative update rules for NMF in "Algorithms for Non-negative Matrix Factorization," providing a practical optimization framework for the Frobenius norm and Kullback-Leibler divergence objective functions.
+
+**2004** — The application of NMF expanded significantly, with researchers exploring its use in various fields such as bioinformatics for gene expression analysis and recommender systems.
+
+**2008** — Different NMF variants and optimization algorithms, including projected gradient methods and alternating least squares, were developed to address issues like convergence speed and local minima.
+
+## Mathematical Intuition
+
+### Core Matrix Decomposition
+
+Given a non-negative data matrix $V$ of size $m \times n$, NMF seeks to approximate it as the product of two non-negative matrices, $W$ and $H$. The matrix $W$ (basis matrix) has dimensions $m \times r$, and $H$ (coefficient matrix) has dimensions $r \times n$, where $r$ is the chosen latent rank, typically $r \ll \min(m, n)$. The decomposition is expressed as: $$V \approx WH$$ Here, $V_{ij} \ge 0$, $W_{ik} \ge 0$, and $H_{kj} \ge 0$ for all indices. Each column of $V$ is approximated by a linear combination of the columns of $W$, with coefficients given by the corresponding column of $H$.
+
+$$
+V \approx WH
+$$
+
+$$
+V_{ij} \ge 0
+$$
+
+$$
+W_{ik} \ge 0
+$$
+
+$$
+H_{kj} \ge 0
+$$
+
+### Objective Functions
+
+The goal of NMF is to minimize a divergence measure between $V$ and $WH$. Two common objective functions are the Frobenius norm and the Kullback-Leibler (KL) divergence. The Frobenius norm, often used for Gaussian noise models, is defined as: $$||V - WH||_F^2 = \sum_{i=1}^m \sum_{j=1}^n (V_{ij} - (WH)_{ij})^2$$ The Kullback-Leibler divergence, suitable for Poisson noise models or when data represents counts, is defined as: $$D(V || WH) = \sum_{i=1}^m \sum_{j=1}^n \left( V_{ij} \log \frac{V_{ij}}{(WH)_{ij}} - V_{ij} + (WH)_{ij} \right)$$ Optimization algorithms iteratively update $W$ and $H$ to minimize these functions, subject to the non-negativity constraints.
+
+$$
+||V - WH||_F^2 = \sum_{i=1}^m \sum_{j=1}^n (V_{ij} - (WH)_{ij})^2
+$$
+
+$$
+D(V || WH) = \sum_{i=1}^m \sum_{j=1}^n \left( V_{ij} \log \frac{V_{ij}}{(WH)_{ij}} - V_{ij} + (WH)_{ij} \right)
+$$
+
+### Multiplicative Update Rules
+
+Lee and Seung proposed simple and widely used multiplicative update rules to minimize the objective functions. For the Frobenius norm, the updates for $W$ and $H$ are: $$W_{ik} \leftarrow W_{ik} \frac{(V H^T)_{ik}}{(W H H^T)_{ik}}$$ $$H_{kj} \leftarrow H_{kj} \frac{(W^T V)_{kj}}{(W^T W H)_{kj}}$$ These rules guarantee that $W$ and $H$ remain non-negative if initialized non-negatively, and they converge to a local minimum of the objective function. Similar rules exist for the KL divergence.
+
+$$
+W_{ik} \leftarrow W_{ik} \frac{(V H^T)_{ik}}{(W H H^T)_{ik}}
+$$
+
+$$
+H_{kj} \leftarrow H_{kj} \frac{(W^T V)_{kj}}{(W^T W H)_{kj}}
+$$
+
+## Algorithm Steps
+
+1. Initialize the non-negative matrices $W$ and $H$ with random positive values or using a more sophisticated initialization strategy.
+2. Choose an objective function (e.g., Frobenius norm or Kullback-Leibler divergence) to measure the reconstruction error between $V$ and $WH$.
+3. Iteratively update the matrix $W$ while keeping $H$ fixed, using an optimization rule (e.g., multiplicative update rules or projected gradient descent) to minimize the objective function.
+4. Iteratively update the matrix $H$ while keeping $W$ fixed, using the same optimization rule to further minimize the objective function.
+5. Repeat steps 3 and 4 for a predefined number of iterations or until the change in the objective function falls below a specified tolerance $tol$.
+6. The final non-negative matrices $W$ and $H$ represent the learned basis components and their corresponding coefficients, respectively.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `None` | integer > 0 | The number of components (latent features) to extract. If None, it defaults to n_features. |
+| `init` | `str` | `'random'` | 'random', 'nndsvd', 'nndsvda', 'nndsvdar' | Method used to initialize the matrices W and H. 'random' initializes with random non-negative values. 'nndsvd', 'nndsvda', 'nndsvdar' use variants of Nonnegative Double Singular Value Decomposition. |
+| `solver` | `str` | `'cd'` | 'cd', 'mu' | Solver to use for the optimization problem. 'cd' for Coordinate Descent, 'mu' for Multiplicative Update. |
+| `beta_loss` | `str` | `'frobenius'` | 'frobenius', 'kullback-leibler', 'itakura-saito' | The beta-loss function to be minimized. 'frobenius' corresponds to the Frobenius norm. 'kullback-leibler' and 'itakura-saito' are also options. |
+| `max_iter` | `int` | `200` | integer > 0 | Maximum number of iterations before stopping the algorithm. |
+| `tol` | `float` | `1e-4` | float > 0 | Tolerance of the stopping condition. |
+| `random_state` | `int or RandomState instance` | `None` | integer or None | Used for random initialization of W and H when init='random'. |
+| `alpha_W` | `float` | `0.0` | float >= 0 | Constant that multiplies the regularization terms for W. Set to zero for no regularization. |
+| `alpha_H` | `float` | `0.0` | float >= 0 | Constant that multiplies the regularization terms for H. Set to zero for no regularization. |
+| `l1_ratio` | `float` | `0.0` | float in [0, 1] | The mixing parameter for the L1 and L2 regularization terms. 0 for L2, 1 for L1, and values in between for elastic-net. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- NMF produces a parts-based representation, where components often correspond to interpretable features (e.g., facial features, topics in text).
+- The non-negativity constraint enhances interpretability by ensuring that components and their weights are additive and physically meaningful.
+- It can effectively handle sparse data, as the non-negativity often leads to sparse factor matrices.
+- NMF is robust to outliers in some cases, especially when using divergence measures like KL divergence.
+- The resulting low-rank approximation can significantly reduce the dimensionality of the data while preserving important structural information.
+
+## Weaknesses
+
+- NMF solutions are not unique and depend on the initialization, often converging to local minima rather than a global optimum.
+- Determining the optimal number of components ($r$) is often heuristic and can significantly impact the quality and interpretability of the results.
+- The iterative optimization process can be computationally intensive for very large datasets, especially with many iterations.
+- NMF is sensitive to the choice of objective function and optimization algorithm, which can affect convergence speed and solution quality.
+- It requires all input data to be non-negative, necessitating preprocessing for data with negative values.
+
+## Use Cases
+
+### Text Mining
+
+Used for topic modeling, where NMF decomposes a document-term matrix into document-topic and topic-term matrices, revealing latent topics within a corpus.
+
+### Image Processing
+
+Applied for facial recognition and object recognition by decomposing image pixel data into basis components that represent parts of faces or objects.
+
+### Recommender Systems
+
+Utilized for collaborative filtering by factorizing user-item interaction matrices to discover latent features that explain user preferences and item characteristics.
+
+### Bioinformatics
+
+Employed for gene expression analysis to identify co-expressed gene modules or cell types from gene expression profiles.
+
+### Audio Signal Processing
+
+Used for source separation, such as separating speech from music, by decomposing spectrograms into non-negative components representing different sound sources.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Non-negative Matrix Factorization from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.decomposition import NMF
+
+model = NMF()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Non-negative Matrix Factorization Lab" />
+
+## References
+
+- Lee & Seung (1999). Lee & Seung.
+- [scikit-learn: NMF](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html)

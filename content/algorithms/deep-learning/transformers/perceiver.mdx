@@ -1,0 +1,217 @@
+---
+title: "Perceiver"
+slug: "perceiver"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2021
+author: "Jaegle et al."
+paper: "Jaegle et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["attention-mechanism", "computational-efficiency", "deep-learning", "general-purpose", "latent-space", "multi-modal", "sequence-modeling", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "transformer"
+  - "vision-transformer"
+---
+
+## Overview
+
+Perceiver is a general-purpose deep learning architecture designed to process arbitrary modalities and scale efficiently to very high-dimensional inputs. It achieves this by mapping diverse inputs to a fixed-size latent array via cross-attention, then performing self-attention within this latent space. This latent bottleneck architecture avoids the quadratic complexity of standard Transformers with respect to input sequence length, making it suitable for raw data like images, audio, and video.
+
+## History
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, based solely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
+
+**2020** — [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT) demonstrated the applicability of Transformers to image classification by treating images as sequences of patches, highlighting the potential for Transformers beyond NLP.
+
+**2021** — Jaegle et al. introduced Perceiver, a novel architecture designed to process arbitrary modalities by using a latent bottleneck to manage computational complexity with large inputs.
+
+**2022** — Perceiver IO was introduced by Jaegle et al., extending the original Perceiver to handle arbitrary output modalities and sizes, making it a truly general-purpose model for both input and output.
+
+## Mathematical Intuition
+
+### Quadratic Complexity of Self-Attention
+
+Standard self-attention computes interactions between all pairs of elements in an input sequence $X \in \mathbb{R}^{N \times d_i}$, where $N$ is the sequence length and $d_i$ is the feature dimension. This involves projecting $X$ into query ($Q$), key ($K$), and value ($V$) matrices. The attention scores are calculated as $A = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})$, where $d_k$ is the dimension of the keys. The output is $O = AV$. The matrix multiplication $QK^T$ has a computational complexity of $O(N^2 d_k)$, making it quadratically expensive with respect to the input sequence length $N$. This quadratic scaling limits the application of standard Transformers to very long sequences or high-dimensional inputs like raw images or audio.
+
+$$
+A = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})
+$$
+
+$$
+O = AV
+$$
+
+$$
+O(N^2 d_k)
+$$
+
+### Cross-Attention for Input Compression
+
+Perceiver addresses the quadratic complexity by introducing a fixed-size latent array $L \in \mathbb{R}^{M \times d_l}$, where $M \ll N$. The input $X$ is first mapped to this latent space using a cross-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism). Here, the latent array $L$ acts as the queries, while the input $X$ provides the keys and values. The query, key, and value projections are:$$ Q_L = L W_Q $$$$ K_X = X W_K $$$$ V_X = X W_V $$The updated latent representation $L'$ is then computed as:$$ L' = \text{softmax}\left(\frac{Q_L K_X^T}{\sqrt{d_k}}\right) V_X $$The computational complexity of this cross-attention step is $O(M \cdot N \cdot d_k)$, which is linear with respect to the input sequence length $N$ and quadratic with respect to the latent array size $M$. Since $M$ is typically small and fixed, this significantly reduces the overall complexity compared to $O(N^2)$.
+
+$$
+Q_L = L W_Q
+$$
+
+$$
+K_X = X W_K
+$$
+
+$$
+V_X = X W_V
+$$
+
+$$
+L' = \text{softmax}\left(\frac{Q_L K_X^T}{\sqrt{d_k}}\right) V_X
+$$
+
+$$
+O(M \cdot N \cdot d_k)
+$$
+
+### Latent Self-Attention for Processing
+
+After the initial cross-attention compresses the input into the latent array, the Perceiver performs several layers of self-attention *within* the latent space. This allows the latent representations to interact and refine their understanding of the input without directly operating on the large input sequence. For a latent array $L'$, the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) computes:$$ Q_{L'} = L' W_Q $$$$ K_{L'} = L' W_K $$$$ V_{L'} = L' W_V $$The refined latent representation $L''$ is then:$$ L'' = \text{softmax}\left(\frac{Q_{L'} K_{L'}^T}{\sqrt{d_k}}\right) V_{L'} $$The computational complexity of this latent self-attention step is $O(M^2 d_k)$, which is constant with respect to the input sequence length $N$ and only depends on the fixed latent array size $M$. This allows for deep processing within the latent space without incurring $O(N^2)$ costs.
+
+$$
+Q_{L'} = L' W_Q
+$$
+
+$$
+K_{L'} = L' W_K
+$$
+
+$$
+V_{L'} = L' W_V
+$$
+
+$$
+L'' = \text{softmax}\left(\frac{Q_{L'} K_{L'}^T}{\sqrt{d_k}}\right) V_{L'}
+$$
+
+$$
+O(M^2 d_k)
+$$
+
+### Positional Encoding for Modality Agnosticism
+
+To handle arbitrary modalities, Perceiver augments the raw input data with positional information before the cross-attention step. For continuous inputs like images or audio, this often involves Fourier feature encodings, where input coordinates $p \in \mathbb{R}^D$ are mapped to a higher-dimensional space using sinusoidal functions:$$ \gamma(p) = [\sin(2^0 \pi p), \cos(2^0 \pi p), \dots, \sin(2^{L-1} \pi p), \cos(2^{L-1} \pi p)] $$For discrete inputs like text tokens, learned positional embeddings are typically used. These encodings provide the model with crucial spatial or temporal context, enabling it to interpret the flattened input sequence effectively regardless of its original structure. The input $X$ is effectively $X = \text{concat}(\text{raw\_features}, \text{positional\_encodings})$.
+
+$$
+\gamma(p) = [\sin(2^0 \pi p), \cos(2^0 \pi p), \dots, \sin(2^{L-1} \pi p), \cos(2^{L-1} \pi p)]
+$$
+
+$$
+X = \text{concat}(\text{raw\_features}, \text{positional\_encodings})
+$$
+
+## Algorithm Steps
+
+1. Map raw input data (e.g., pixels, audio samples, text tokens) into a flat sequence of embeddings, potentially concatenating with raw features.
+2. Augment the input sequence with positional encodings appropriate for its modality, such as Fourier features for continuous coordinates or learned embeddings for discrete positions.
+3. Initialize a fixed-size latent array, typically with learned embeddings, which will serve as the bottleneck for processing.
+4. Perform multiple layers of cross-attention, where the latent array queries the input sequence, and the input sequence provides keys and values, projecting the input information into the latent space.
+5. Apply multiple layers of self-attention within the latent array, allowing the latent representations to interact and refine their understanding of the input without direct interaction with the full input sequence.
+6. Repeat steps 4 and 5 for a specified number of blocks, alternating between cross-attention and latent self-attention to iteratively refine the latent representation.
+7. Optionally, for Perceiver IO, perform a final cross-attention step where a task-specific output query array queries the refined latent array to produce the desired output sequence.
+8. Pass the final latent representation (or output sequence) through a task-specific head (e.g., an MLP for classification) to generate predictions.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_latents` | `integer` | `512` | positive integer | The number of elements in the fixed-size latent array. |
+| `latent_dim` | `integer` | `1024` | positive integer | The dimensionality of each element in the latent array. |
+| `num_cross_attention_heads` | `integer` | `8` | positive integer | The number of attention heads used in the cross-attention mechanism. |
+| `num_self_attention_heads` | `integer` | `8` | positive integer | The number of attention heads used in the self-attention mechanism within the latent space. |
+| `num_transformer_blocks` | `integer` | `6` | positive integer | The total number of times the cross-attention and latent self-attention block is repeated. |
+| `num_self_attention_layers_per_block` | `integer` | `1` | positive integer | The number of self-attention layers applied within the latent space for each transformer block. |
+| `qk_channels` | `integer` | `None (defaults to latent_dim)` | positive integer or None | The dimensionality of queries and keys in attention mechanisms. If None, defaults to latent_dim. |
+| `v_channels` | `integer` | `None (defaults to latent_dim)` | positive integer or None | The dimensionality of values in attention mechanisms. If None, defaults to latent_dim. |
+| `dropout` | `float` | `0.1` | 0.0 to 1.0 | The dropout rate applied to attention weights and feed-forward networks. |
+| `input_preprocessor` | `string` | `fourier` | 'fourier', 'learned', 'none' | The type of positional encoding used for the input sequence (e.g., 'fourier' for continuous, 'learned' for discrete). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Perceiver scales efficiently to very high-dimensional inputs due to its latent bottleneck, avoiding quadratic complexity with respect to input length.
+- It is capable of processing arbitrary data modalities (images, audio, video, text, point clouds) using a single architectural backbone.
+- The model achieves strong performance across diverse tasks, demonstrating its general-purpose learning capabilities.
+- The separation of input processing and latent processing allows for more efficient computation and potentially better generalization.
+- It does not require modality-specific inductive biases, simplifying model design for multi-modal tasks and reducing engineering effort.
+
+## Weaknesses
+
+- The fixed size of the latent array can limit the capacity to capture extremely fine-grained details from exceptionally long or complex inputs.
+- Requires careful design and selection of positional encodings for each modality to effectively convey spatial or temporal information.
+- Training can be computationally intensive, especially for very deep models or large latent arrays, despite its efficiency relative to full Transformers.
+- The interpretation of the latent space can be challenging, as it represents an abstract, compressed understanding of the input.
+- Performance can be sensitive to the choice of hyperparameters such as latent array size, latent dimension, and the number of attention blocks.
+
+## Use Cases
+
+### Computer Vision
+
+Applied to image classification, object detection, and semantic segmentation by treating images as sequences of pixels or patches with coordinate-based positional encodings.
+
+### Natural Language Processing
+
+Used for text classification, language modeling, and machine translation by processing text as sequences of tokens augmented with learned positional embeddings.
+
+### Audio Processing
+
+Effective in speech recognition and audio event detection tasks by treating audio waveforms as sequences of samples with temporal positional encodings.
+
+### Reinforcement Learning
+
+Processes high-dimensional observation spaces, such as raw pixel inputs from game environments, to inform agent actions and learn complex policies.
+
+### Multi-modal Learning
+
+Integrates and processes information from different modalities simultaneously, such as combining video, audio, and text for comprehensive scene understanding.
+
+### Point Cloud Processing
+
+Analyzes 3D point cloud data by treating individual points as a sequence of coordinates and features, enabling tasks like 3D object classification and segmentation.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Perceiver from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Perceiver does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Perceiver Lab" />
+
+## References
+
+- Jaegle et al. (2021). Jaegle et al..

@@ -1,0 +1,178 @@
+---
+title: "ECOD"
+slug: "ecod"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2022
+author: "Li et al."
+paper: "Li et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "efficiency", "interpretability", "non-parametric", "outlier-detection", "statistical", "tabular-data", "unsupervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "copod"
+  - "isolation-forest"
+  - "local-outlier-factor"
+  - "one-class-svm"
+---
+
+## Overview
+
+ECOD (Empirical Cumulative Distribution Outlier Detection) is an unsupervised anomaly detection algorithm that identifies outliers by leveraging the empirical cumulative distribution function (ECDF) of each feature. It operates under the assumption of feature independence, calculating an anomaly score for each data point based on the product of its tail probabilities across all dimensions. This non-parametric approach offers high efficiency and interpretability, making it suitable for various real-world anomaly detection tasks.
+
+## History
+
+**1980** — Early statistical methods like Z-score and Grubbs' test laid the groundwork for identifying univariate outliers based on deviations from a normal distribution.
+
+**1990** — Distance-based anomaly detection methods emerged, considering the proximity of data points to their neighbors in multivariate spaces.
+
+**2000** — Density-based methods, such as [Local Outlier Factor](/algorithms/unsupervised/anomaly-detection/local-outlier-factor) (LOF), gained prominence, identifying anomalies based on their local data density relative to their neighbors.
+
+**2010** — Ensemble methods like [Isolation Forest](/algorithms/unsupervised/anomaly-detection/isolation-forest) were introduced, improving scalability and robustness for high-dimensional data by isolating anomalies in random subspaces.
+
+**2022** — ECOD (Empirical Cumulative Distribution Outlier Detection) was introduced by Li et al., offering a non-parametric, interpretable, and efficient approach to anomaly detection based on empirical cumulative distributions.
+
+## Mathematical Intuition
+
+### Anomaly Score Definition
+
+ECOD defines an anomaly score for each data point $x = (x_1, x_2, \dots, x_d)$ by considering the empirical cumulative distribution function (ECDF) of each feature. The core idea is that anomalous points will have extreme values in one or more features, corresponding to small tail probabilities. The anomaly score $S(x)$ is typically derived from the sum of negative log tail probabilities across all features, assuming feature independence for simplicity.
+$$ S(x) = \sum_{j=1}^{d} -\log(P_j(x_j)) $$
+where $P_j(x_j)$ is the tail probability for feature $j$ at value $x_j$. A higher $S(x)$ indicates a greater likelihood of $x$ being an anomaly.
+
+$$
+S(x) = \sum_{j=1}^{d} -\log(P_j(x_j))
+$$
+
+### Empirical Cumulative Distribution
+
+For each feature $j$, the ECDF, denoted $F_j(v)$, estimates the probability that a random variable is less than or equal to $v$. It is calculated as the proportion of observations in the dataset that are less than or equal to $v$.
+$$ F_j(v) = \frac{1}{N} \sum_{i=1}^{N} \mathbf{1}(x_{ij} \le v) $$
+where $N$ is the number of data points and $\mathbf{1}(\cdot)$ is the indicator function. The tail probability $P_j(x_j)$ for a given value $x_j$ is then defined as the minimum of $F_j(x_j)$ and $1 - F_j(x_j) + \epsilon$, where $\epsilon$ is a small constant (e.g., $10^{-10}$) to prevent zero probabilities. This formulation captures both extremely low and extremely high values as potentially anomalous.
+$$ P_j(x_j) = \min(F_j(x_j), 1 - F_j(x_j) + \epsilon) $$
+
+$$
+F_j(v) = \frac{1}{N} \sum_{i=1}^{N} \mathbf{1}(x_{ij} \le v)
+$$
+
+$$
+P_j(x_j) = \min(F_j(x_j), 1 - F_j(x_j) + \epsilon)
+$$
+
+### Robust ECDF Estimation
+
+To ensure the ECDF estimation is robust and not unduly influenced by the very outliers it aims to detect, ECOD employs a strategy to estimate the ECDF using a subset of the data that is less likely to contain extreme values. This is often achieved by considering only the data points within a certain quantile range (e.g., between the 5th and 95th percentiles) or by using a smoothed version of the ECDF. This robust estimation helps in obtaining more reliable tail probabilities for anomaly scoring, especially in datasets with a high contamination rate.
+
+### Aggregation of Feature Scores
+
+Once the tail probabilities $P_j(x_j)$ are computed for each feature $j$ of a data point $x$, they are aggregated to form a single, comprehensive anomaly score. The standard aggregation method is to sum the negative logarithms of these probabilities. This approach assumes that the features are independent, allowing the joint probability of an observation to be the product of individual feature probabilities. Taking the negative logarithm transforms this product into a sum, which is numerically more stable and easier to work with.
+$$ S(x) = \sum_{j=1}^{d} -\log(\min(F_j(x_j), 1 - F_j(x_j) + \epsilon)) $$
+A higher aggregated score signifies that the data point is more anomalous across its features.
+
+$$
+S(x) = \sum_{j=1}^{d} -\log(\min(F_j(x_j), 1 - F_j(x_j) + \epsilon))
+$$
+
+## Algorithm Steps
+
+1. For each feature in the training dataset, estimate its empirical cumulative distribution function (ECDF) in a robust manner, potentially excluding extreme values to prevent bias.
+2. For each data point $x$ in the dataset and for each feature $j$, calculate the tail probability $P_j(x_j)$ using the estimated ECDF, defined as $\min(F_j(x_j), 1 - F_j(x_j) + \epsilon)$, where $\epsilon$ is a small constant.
+3. Compute an individual anomaly score for each feature $j$ of data point $x$ as $-\log(P_j(x_j))$.
+4. Aggregate the individual feature anomaly scores by summing them across all features to obtain the final anomaly score $S(x)$ for data point $x$.
+5. Sort all data points by their final anomaly scores in descending order.
+6. Based on a predefined contamination rate or a user-specified threshold, classify data points with higher scores as anomalies.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `contamination` | `float` | `0.1` | 0.0 to 0.5 | The amount of contamination of the data set, i.e., the proportion of outliers in the data set. This parameter is used when fitting to define the threshold on the raw anomaly scores. |
+| `n_jobs` | `int` | `1` | integer, -1 or >= 1 | The number of jobs to run in parallel for `fit`. If -1, then the number of jobs is set to the number of CPU cores. |
+| `epsilon` | `float` | `1e-10` | positive float | A small constant added to the tail probabilities to avoid taking the logarithm of zero, ensuring numerical stability. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- ECOD is non-parametric, making no assumptions about the underlying data distribution, which enhances its applicability to diverse datasets.
+- It is computationally efficient, often outperforming other anomaly detection methods like Isolation Forest and LOF in terms of training and prediction speed.
+- ECOD requires minimal hyperparameter tuning, primarily the contamination rate for thresholding, simplifying its deployment.
+- The anomaly scores are highly interpretable, as they are directly derived from the tail probabilities of individual features.
+- It can effectively identify both global and local anomalies by considering individual feature deviations from their respective distributions.
+- ECOD is robust to high-dimensional data, as it processes each feature independently, mitigating the curse of dimensionality to some extent.
+
+## Weaknesses
+
+- ECOD assumes feature independence, which may not hold true in real-world datasets and can lead to suboptimal performance if features are highly correlated.
+- Its performance can degrade in very high-dimensional spaces where the concept of 'tail probability' becomes less meaningful due to data sparsity.
+- The method might struggle with complex, non-linear relationships between features that define anomalies, as it primarily considers univariate deviations.
+- The choice of the $\epsilon$ parameter, while small, can subtly influence the tail probability calculations, though its impact is usually minor.
+- It may not perform as well as more sophisticated methods on datasets with highly complex anomaly patterns that are not easily captured by individual feature deviations.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns or user behaviors that deviate significantly from the norm in financial datasets.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic or system calls that could indicate a cyberattack or security breach.
+
+### Manufacturing Quality Control
+
+Pinpointing defective products or machinery malfunctions by analyzing sensor data for unusual readings or operational parameters.
+
+### Healthcare Monitoring
+
+Flagging abnormal patient vital signs, lab results, or medical imaging features that may indicate a medical condition or anomaly.
+
+### IT Operations Monitoring
+
+Identifying unusual server loads, application errors, or resource consumption spikes that signal system issues or potential outages.
+
+### Financial Market Surveillance
+
+Detecting unusual trading activities or market manipulations that deviate from expected patterns and regulatory compliance.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ECOD from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Ecod
+
+model = Ecod()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="ECOD Lab" />
+
+## References
+
+- Li et al. (2022). Li et al..
+- [scikit-learn: Ecod](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Ecod.html)

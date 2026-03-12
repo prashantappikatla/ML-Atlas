@@ -1,0 +1,205 @@
+---
+title: "Quadratic Discriminant Analysis"
+slug: "quadratic-discriminant-analysis"
+category: "supervised"
+subcategory: "classification"
+year: 1950
+author: "Discriminant analysis"
+paper: "Discriminant analysis"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "gaussian-model", "generative-model", "parametric", "quadratic-boundary", "statistical", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gaussian-mixture-model"
+  - "gaussian-naive-bayes"
+  - "k-nearest-neighbors"
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Quadratic Discriminant Analysis (QDA) is a generative classification algorithm that models the probability distribution of features for each class as a Gaussian distribution. Unlike [Linear Discriminant Analysis](/algorithms/supervised/classification/linear-discriminant-analysis) (LDA), QDA allows each class to have its own distinct covariance matrix, leading to a more flexible, quadratic decision boundary between classes. It classifies new observations by assigning them to the class with the highest posterior probability, derived using Bayes' theorem.
+
+## History
+
+**1936** — Ronald A. Fisher introduced [Linear Discriminant Analysis](/algorithms/supervised/classification/linear-discriminant-analysis) (LDA), a foundational method for classifying observations into one of several groups based on a set of predictor variables.
+
+**1948** — C.R. Rao's work on generalized distance and classification contributed significantly to the theoretical underpinnings of multivariate statistical analysis, which includes discriminant functions.
+
+**1958** — T.W. Anderson's seminal book, "An Introduction to Multivariate Statistical Analysis," formally described both Linear and Quadratic Discriminant Analysis, establishing the mathematical framework for QDA with distinct covariance matrices per class.
+
+**1981** — D.J. Hand's "Discrimination and Classification" provided a comprehensive overview of discriminant analysis techniques, including QDA, and discussed their practical applications and theoretical properties.
+
+## Mathematical Intuition
+
+### Bayes' Theorem for Classification
+
+QDA is rooted in Bayes' theorem, which provides a way to calculate the posterior probability of a class $P(Y=k|X=x)$ given an observation $x$. For a classification problem with $K$ classes, the posterior probability for class $k$ is given by:
+$$P(Y=k|X=x) = \frac{P(X=x|Y=k)P(Y=k)}{P(X=x)}$$
+where $P(X=x|Y=k)$ is the class-conditional probability density function, $P(Y=k)$ is the prior probability of class $k$, and $P(X=x)$ is the evidence, which acts as a normalizing constant. QDA assigns an observation $x$ to the class $k$ that maximizes this posterior probability.
+
+$$
+P(Y=k|X=x) = \frac{P(X=x|Y=k)P(Y=k)}{P(X=x)}
+$$
+
+### Gaussian Class-Conditional Densities
+
+QDA assumes that the class-conditional probability density function $P(X=x|Y=k)$ for each class $k$ follows a multivariate Gaussian (normal) distribution. For a $D$-dimensional feature vector $x$, this is expressed as:
+$$P(X=x|Y=k) = \frac{1}{(2\pi)^{D/2}|\Sigma_k|^{1/2}} \exp\left(-\frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)\right)$$
+Here, $\mu_k$ is the mean vector for class $k$, and $\Sigma_k$ is the covariance matrix for class $k$. A key distinction from LDA is that QDA allows each class $k$ to have its own unique covariance matrix $\Sigma_k$, rather than sharing a common covariance matrix across all classes.
+
+$$
+P(X=x|Y=k) = \frac{1}{(2\pi)^{D/2}|\Sigma_k|^{1/2}} \exp\left(-\frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)\right)
+$$
+
+$$
+\mu_k
+$$
+
+$$
+\Sigma_k
+$$
+
+### Deriving Quadratic Decision Boundary
+
+To classify an observation $x$, QDA computes the discriminant function for each class $k$, which is proportional to the log of the posterior probability. By taking the logarithm of the posterior probability and ignoring terms constant across classes, the discriminant function $\delta_k(x)$ for class $k$ is:
+$$\delta_k(x) = \log P(X=x|Y=k) + \log P(Y=k)$$
+Substituting the Gaussian PDF and simplifying, we get:
+$$\delta_k(x) = -\frac{1}{2}\log|\Sigma_k| - \frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k) + \log P(Y=k)$$
+The term $(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)$ expands to a quadratic form in $x$. Since each class has a distinct $\Sigma_k$, the quadratic terms do not cancel out when comparing two classes, resulting in a quadratic decision boundary.
+
+$$
+\delta_k(x) = \log P(X=x|Y=k) + \log P(Y=k)
+$$
+
+$$
+\delta_k(x) = -\frac{1}{2}\log|\Sigma_k| - \frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k) + \log P(Y=k)
+$$
+
+$$
+x
+$$
+
+### Parameter Estimation
+
+The parameters of the QDA model, namely the class prior probabilities $P(Y=k)$, the class means $\mu_k$, and the class covariance matrices $\Sigma_k$, are estimated from the training data using maximum likelihood estimation. The prior probability $P(Y=k)$ is estimated as the proportion of training samples belonging to class $k$. The class mean $\mu_k$ is the sample mean of features for all training samples in class $k$. The class covariance matrix $\Sigma_k$ is the sample covariance matrix calculated from the training samples in class $k$. These estimates are then used in the discriminant function to classify new data points.
+
+$$
+P(Y=k)
+$$
+
+$$
+\mu_k
+$$
+
+$$
+\Sigma_k
+$$
+
+## Algorithm Steps
+
+1. For each class $k$ in the training data, estimate the prior probability $P(Y=k)$ as the proportion of samples belonging to class $k$.
+2. For each class $k$, calculate the sample mean vector $\mu_k$ of the features for all training samples belonging to that class.
+3. For each class $k$, calculate the sample covariance matrix $\Sigma_k$ using only the training samples belonging to that class.
+4. For a new, unseen data point $x$, calculate the discriminant function $\delta_k(x)$ for each class $k$ using the estimated parameters: $\delta_k(x) = -\frac{1}{2}\log|\Sigma_k| - \frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k) + \log P(Y=k)$.
+5. Assign the data point $x$ to the class $k^*$ that maximizes the discriminant function: $k^* = \arg\max_k \delta_k(x)$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `priors` | `array-like of shape (n_classes,)` | `None` | sum must be 1.0 | Prior probabilities of the classes. If None, the class priors are adjusted according to the training data. |
+| `reg_param` | `float` | `0.0` | [0.0, 1.0] | Regularization parameter, between 0 and 1. This parameter is used to regularize the covariance matrix estimate. It can help prevent issues with singular covariance matrices when the number of features is large or when classes have few samples. |
+| `store_covariance` | `boolean` | `False` | True, False | If True, the class covariance matrices are computed and stored in the `covariance_` attribute. |
+| `tol` | `float` | `1.0e-4` | > 0.0 | Threshold for the singular values of the covariance matrix. Singular values below this threshold are set to this value to improve numerical stability. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- QDA can model complex, non-linear decision boundaries due to its ability to use distinct covariance matrices for each class.
+- It provides probabilistic outputs, which can be useful for understanding classification confidence or for combining with other models.
+- When the underlying assumptions of Gaussian distributions with distinct covariance matrices are met, QDA can achieve optimal classification performance.
+- QDA is a generative model, meaning it models the joint probability distribution of features and classes, which can be useful for tasks beyond classification, such as anomaly detection.
+- It is relatively fast to train as it involves closed-form solutions for parameter estimation.
+
+## Weaknesses
+
+- QDA requires a sufficient number of training samples per class to accurately estimate the individual covariance matrices, making it prone to overfitting with small datasets.
+- The assumption of multivariate Gaussian distributions for each class might not hold true for all real-world datasets, leading to suboptimal performance.
+- It is sensitive to outliers, as they can significantly affect the estimation of class means and covariance matrices.
+- QDA's performance degrades significantly when features are highly correlated or when the number of features approaches the number of samples, as covariance matrices become singular or ill-conditioned.
+- The quadratic decision boundary can be more complex to interpret compared to linear models.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Classifying patients into different disease categories based on various clinical measurements, where disease groups might exhibit distinct patterns of feature variance.
+
+### Financial Risk Assessment
+
+Predicting the likelihood of loan default or credit card fraud, where different risk groups may have non-linear relationships with financial indicators.
+
+### Biometric Identification
+
+Authenticating individuals based on unique physiological or behavioral characteristics, where variations within each individual's data might be distinct.
+
+### Speech Recognition
+
+Classifying phonemes or words based on acoustic features, where the statistical properties of features for different sounds can vary significantly.
+
+### Quality Control
+
+Identifying defective products on an assembly line by analyzing sensor data, where different types of defects might show unique quadratic patterns in feature space.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Quadratic Discriminant Analysis from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = QuadraticDiscriminantAnalysis()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Quadratic Discriminant Analysis Lab" />
+
+## References
+
+- Discriminant analysis (1950). Discriminant analysis.
+- [scikit-learn: QuadraticDiscriminantAnalysis](https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis.html)

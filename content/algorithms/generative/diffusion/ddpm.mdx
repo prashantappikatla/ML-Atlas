@@ -1,0 +1,171 @@
+---
+title: "DDPM"
+slug: "ddpm"
+category: "generative"
+subcategory: "diffusion"
+year: 2020
+author: "Ho et al."
+paper: "Ho et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "deep-learning", "diffusion-model", "generative-model", "image-synthesis", "noise-prediction", "stochastic-process", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "latent-diffusion"
+  - "stable-diffusion"
+  - "u-net"
+---
+
+## Overview
+
+Denoising Diffusion Probabilistic Models (DDPMs) are a class of generative models that learn to reverse a gradual diffusion process, transforming random noise into coherent data samples. They operate by iteratively denoising a sample, predicting the noise added at each step of a fixed Markov chain. This approach enables the synthesis of high-fidelity and diverse samples, particularly excelling in image generation tasks. DDPMs have become a cornerstone for many state-of-the-art generative AI applications.
+
+## History
+
+**2015** — Sohl-Dickstein, Weiss, and Maheswaran introduced "Deep Unsupervised Learning using Nonequilibrium Thermodynamics," proposing Diffusion Probabilistic Models as a framework for learning complex distributions by reversing a fixed forward diffusion process.
+
+**2020** — Ho, Jain, and Abbeel published "Denoising Diffusion Probabilistic Models," which significantly simplified the training objective and demonstrated high-quality image generation, making diffusion models practical and popular.
+
+**2021** — Nichol and Dhariwal presented "Improved Denoising Diffusion Probabilistic Models," introducing techniques like a learned variance for the reverse process and importance sampling for the loss function, further enhancing sample quality and training stability.
+
+**2022** — Rombach et al. introduced [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) Models (LDMs), which apply the diffusion process in a compressed latent space rather than the pixel space, drastically reducing computational requirements and enabling applications like [Stable Diffusion](/algorithms/generative/diffusion/stable-diffusion).
+
+## Mathematical Intuition
+
+### Forward Diffusion Process
+
+This process gradually adds Gaussian noise to an input data point $x_0$ over $T$ timesteps, creating a sequence of noisy samples $x_1, \dots, x_T$. Each step $t$ is defined by a fixed variance schedule $\beta_t$, such that $q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t} x_{t-1}, \beta_t I)$. A key property allows direct sampling of $x_t$ from $x_0$: $q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1-\bar{\alpha}_t) I)$, where $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$. This means any noisy state $x_t$ can be expressed as a function of $x_0$ and a single noise term $\epsilon$.
+
+$$
+q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1-\bar{\alpha}_t) I)
+$$
+
+$$
+x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1-\bar{\alpha}_t} \epsilon \quad \text{where } \epsilon \sim \mathcal{N}(0, I)
+$$
+
+### Reverse Denoising Process
+
+The goal is to learn the reverse diffusion process, which transforms pure Gaussian noise $x_T \sim \mathcal{N}(0, I)$ back into a data sample $x_0$. This is modeled as a Markov chain $p_\theta(x_{t-1} | x_t)$, where the conditional probability is also Gaussian: $p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$. The model $\mu_\theta$ is trained to predict the mean of this reverse step. The variance $\Sigma_\theta$ can be fixed or learned. The mean $\mu_\theta(x_t, t)$ can be reparameterized to predict the noise $\epsilon$ that was added to $x_{t-1}$ to get $x_t$.
+
+$$
+p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))
+$$
+
+$$
+\mu_\theta(x_t, t) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \epsilon_\theta(x_t, t) \right)
+$$
+
+### Simplified Loss Function
+
+Instead of directly predicting the mean $\mu_\theta$ or the original data $x_0$, DDPMs are trained to predict the noise $\epsilon$ that was added to $x_0$ to obtain $x_t$. The simplified objective function, derived from a variational lower bound, is an L2 loss between the true noise $\epsilon$ and the predicted noise $\epsilon_\theta(x_t, t)$. The model $\epsilon_\theta$ is typically a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture conditioned on the timestep $t$, which learns to estimate the noise component in $x_t$.
+
+$$
+L_t = ||\epsilon - \epsilon_\theta(x_t, t)||^2
+$$
+
+## Algorithm Steps
+
+1. Initialize a neural network $\epsilon_\theta$ (typically a U-Net) and a fixed variance schedule $\beta_1, \dots, \beta_T$ for the forward diffusion process.
+2. For each training iteration, sample a data point $x_0$ from the real data distribution.
+3. Sample a random timestep $t$ uniformly from $1$ to $T$.
+4. Sample a noise vector $\epsilon$ from a standard Gaussian distribution $\mathcal{N}(0, I)$.
+5. Compute the noisy sample $x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1-\bar{\alpha}_t} \epsilon$, where $\bar{\alpha}_t = \prod_{s=1}^t (1-\beta_s)$.
+6. Train the network $\epsilon_\theta$ by minimizing the L2 loss between the sampled noise $\epsilon$ and the predicted noise $\epsilon_\theta(x_t, t)$: $L = ||\epsilon - \epsilon_\theta(x_t, t)||^2$.
+7. To generate a new sample, start with pure Gaussian noise $x_T \sim \mathcal{N}(0, I)$.
+8. Iteratively denoise $x_t$ for $t = T, T-1, \dots, 1$ using the trained network $\epsilon_\theta$ to predict the noise and reconstruct $x_{t-1}$ until $x_0$ is obtained.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `timesteps` | `integer` | `1000` | 1 to 2000 | The total number of diffusion steps $T$ in the forward and reverse processes. |
+| `beta_schedule` | `string` | `linear` | linear, cosine, quadratic | The type of schedule used to define the $\beta_t$ values (noise variances). |
+| `model_channels` | `integer` | `128` | 32 to 512 | The base number of feature channels in the U-Net architecture. |
+| `num_res_blocks` | `integer` | `2` | 1 to 4 | The number of residual blocks at each resolution level in the U-Net. |
+| `attention_resolutions` | `list of integers` | `[16, 8]` | list of powers of 2 (e.g., [32, 16, 8]) | A list of resolutions at which self-attention layers are applied within the U-Net. |
+| `dropout` | `float` | `0.1` | 0.0 to 0.5 | The dropout rate applied within the U-Net to prevent overfitting. |
+| `learning_rate` | `float` | `1e-4` | 1e-6 to 1e-3 | The learning rate for the optimizer used during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Generates high-quality and visually realistic samples, especially for images.
+- Exhibits excellent mode coverage, avoiding the mode collapse issues often seen in Generative Adversarial Networks.
+- Training is stable and robust, relying on a simple mean squared error objective.
+- The generative process is inherently diverse due to its stochastic nature.
+- Can be conditioned on various inputs, such as text or class labels, to control generation.
+- Offers a natural framework for tasks like image inpainting and outpainting.
+
+## Weaknesses
+
+- Sampling new data is computationally intensive and slow, requiring many sequential denoising steps.
+- Training can be very resource-intensive, especially for high-resolution data, due to the large number of timesteps and model capacity.
+- The fixed forward diffusion process can be suboptimal for certain complex data distributions.
+- Performance is sensitive to the choice of noise schedule and network architecture.
+- Requires significant memory for storing intermediate states during the reverse process, particularly during inference.
+
+## Use Cases
+
+### Image Generation
+
+Creating novel, high-resolution images for art, design, or synthetic datasets used in various computer vision applications.
+
+### Image Editing
+
+Performing tasks like inpainting (filling missing parts), outpainting (extending images), and style transfer by manipulating the diffusion process.
+
+### Data Augmentation
+
+Generating synthetic data samples to expand training datasets for other machine learning models, particularly in computer vision, to improve robustness and generalization.
+
+### Medical Imaging
+
+Synthesizing realistic medical images for training diagnostic models, protecting patient privacy, or generating diverse pathological examples.
+
+### Text-to-Image Synthesis
+
+When combined with conditioning mechanisms, DDPMs can generate images from textual descriptions, enabling powerful creative and content generation tools.
+
+### Audio Synthesis
+
+Generating realistic speech, music, or sound effects by applying diffusion to audio spectrograms or waveforms, often used in creative audio production.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DDPM from scratch
+```
+
+### Using scikit-learn
+
+```python
+# DDPM does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="DDPM Lab" />
+
+## References
+
+- Ho et al. (2020). Ho et al..

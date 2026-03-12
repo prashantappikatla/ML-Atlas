@@ -1,0 +1,236 @@
+---
+title: "Vision Transformer"
+slug: "vision-transformer"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2020
+author: "Dosovitskiy et al."
+paper: "Dosovitskiy et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["attention-mechanism", "computer-vision", "deep-learning", "image-classification", "neural-networks", "representation-learning", "sequence-modeling", "transformers"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "bert"
+  - "gpt"
+  - "perceptron"
+  - "swin-transformer"
+  - "transformer"
+---
+
+## Overview
+
+The Vision [Transformer](/algorithms/deep-learning/transformers/transformer) (ViT) applies the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, originally developed for natural language processing, directly to image classification tasks. It processes images by splitting them into fixed-size patches, linearly embedding each patch, and then treating the resulting sequence of embedded patches as tokens for a standard [Transformer](/algorithms/deep-learning/transformers/transformer) encoder. This approach allows ViT to capture global dependencies across an image, challenging the long-standing dominance of Convolutional Neural Networks (CNNs) in computer vision.
+
+## History
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling, particularly in natural language processing.
+
+**2018** — BERT (Bidirectional Encoder Representations from Transformers) was released by Google, demonstrating the power of pre-training large [Transformer](/algorithms/deep-learning/transformers/transformer) models on vast text corpora for various NLP tasks.
+
+**2020** — Dosovitskiy et al. published "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale," introducing the Vision [Transformer](/algorithms/deep-learning/transformers/transformer) (ViT) and demonstrating its competitive performance on image classification when trained on large datasets.
+
+**2021** — Touvron et al. introduced Data-efficient Image Transformers (DeiT), showing that ViT models can achieve competitive performance without massive datasets through distillation training.
+
+**2021** — Liu et al. proposed the [Swin [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/swin-[Transformer](/algorithms/deep-learning/transformers/transformer)), which introduced hierarchical feature maps and shifted windows, addressing ViT's quadratic complexity with respect to image size and improving its suitability for dense prediction tasks.
+
+## Mathematical Intuition
+
+### Image Patching and Embedding
+
+Unlike CNNs that process pixels directly, ViT first divides an input image $x \in \mathbb{R}^{H \times W \times C}$ into a sequence of flattened 2D patches. Each patch $x_p \in \mathbb{R}^{P^2 \cdot C}$ is then linearly projected into a fixed-size embedding dimension $D$. This transformation converts the image into a sequence of $N = HW/P^2$ embedded patches, where $P$ is the patch size. A learnable 'class token' $x_{class}$ is prepended to this sequence, serving as the aggregate representation for classification, similar to BERT's [CLS] token. The resulting sequence of embeddings is $z_0 = [x_{class}; E_1 x_{p,1}; E_1 x_{p,2}; \dots; E_1 x_{p,N}]$, where $E_1$ is the linear projection matrix.
+
+$$
+x \in \mathbb{R}^{H \times W \times C}
+$$
+
+$$
+x_p \in \mathbb{R}^{P^2 \cdot C}
+$$
+
+$$
+D
+$$
+
+$$
+N = HW/P^2
+$$
+
+$$
+z_0 = [x_{class}; E_1 x_{p,1}; E_1 x_{p,2}; \dots; E_1 x_{p,N}]
+$$
+
+$$
+E_1
+$$
+
+### Positional Encoding for Patches
+
+Since the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture is permutation-invariant, it lacks inherent knowledge of the spatial relationships between patches. To preserve this crucial information, learnable 1D positional embeddings $E_{pos} \in \mathbb{R}^{(N+1) \times D}$ are added to the patch embeddings. These embeddings are added to the input sequence before it enters the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder, allowing the model to learn the relative or absolute positions of patches. The combined input to the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder is $z_0' = z_0 + E_{pos}$.
+
+$$
+E_{pos} \in \mathbb{R}^{(N+1) \times D}
+$$
+
+$$
+z_0' = z_0 + E_{pos}
+$$
+
+### Multi-Head Self-Attention
+
+The core of the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder is the Multi-Head Self-Attention (MHSA) mechanism. For each patch embedding, self-attention computes a weighted sum of all other patch embeddings, where weights are determined by their pairwise similarity. This allows each patch to 'attend' to relevant parts of the image. Given an input sequence $Z \in \mathbb{R}^{(N+1) \times D}$, query, key, and value matrices are derived: $Q = ZW_Q$, $K = ZW_K$, $V = ZW_V$. The [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) is calculated as: $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{D_k}}\right)V $$ where $D_k$ is the dimension of the keys. Multi-head attention performs this process in parallel $h$ times with different linear projections, concatenating the results and projecting them back: $$ \text{MHSA}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)W^O $$ where $\text{head}_i = \text{Attention}(ZW_{Q_i}, ZW_{K_i}, ZW_{V_i})$. This allows the model to jointly attend to information from different representation subspaces at different positions.
+
+$$
+Z \in \mathbb{R}^{(N+1) \times D}
+$$
+
+$$
+Q = ZW_Q
+$$
+
+$$
+K = ZW_K
+$$
+
+$$
+V = ZW_V
+$$
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{D_k}}\right)V
+$$
+
+$$
+D_k
+$$
+
+$$
+h
+$$
+
+$$
+\text{MHSA}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)W^O
+$$
+
+$$
+\text{head}_i = \text{Attention}(ZW_{Q_i}, ZW_{K_i}, ZW_{V_i})
+$$
+
+### Transformer Encoder Block
+
+A [Transformer](/algorithms/deep-learning/transformers/transformer) encoder block consists of a Multi-Head Self-Attention (MHSA) layer followed by a Multi-Layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) block. Each of these sub-layers is preceded by Layer Normalization (LN) and followed by a residual connection. The output of an encoder block $l$ for input $z_l$ is: $$ z'_{l} = \text{LN}(z_l) + \text{MHSA}(\text{LN}(z_l)) $$ $$ z_{l+1} = z'_{l} + \text{MLP}(\text{LN}(z'_{l})) $$ The MLP typically contains two linear transformation layers with a GELU activation function in between. Multiple such encoder blocks are stacked to form the full [Transformer](/algorithms/deep-learning/transformers/transformer) encoder.
+
+$$
+z'_{l} = \text{LN}(z_l) + \text{MHSA}(\text{LN}(z_l))
+$$
+
+$$
+z_{l+1} = z'_{l} + \text{MLP}(\text{LN}(z'_{l}))
+$$
+
+## Algorithm Steps
+
+1. Divide the input image into a grid of fixed-size, non-overlapping 2D patches.
+2. Flatten each 2D patch and linearly project it into a $D$-dimensional embedding space.
+3. Prepend a learnable 'class token' embedding to the sequence of projected patch embeddings.
+4. Add learnable 1D positional embeddings to the patch and class token embeddings to retain spatial information.
+5. Pass the resulting sequence of embeddings through a stack of $L$ Transformer encoder blocks.
+6. Each Transformer encoder block applies Layer Normalization, Multi-Head Self-Attention, a residual connection, another Layer Normalization, a Multi-Layer Perceptron (MLP), and a final residual connection.
+7. Extract the output embedding corresponding to the 'class token' from the final Transformer encoder block.
+8. Pass the class token's output embedding through a simple MLP head (e.g., a linear layer) to predict the image class probabilities.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `img_size` | `int` | `224` | positive integer | The resolution of the input image (e.g., 224 for 224x224 pixels). |
+| `patch_size` | `int` | `16` | positive integer, must divide img_size | The size of the square patches to divide the image into (e.g., 16 for 16x16 patches). |
+| `in_chans` | `int` | `3` | positive integer | The number of input image channels (e.g., 3 for RGB images). |
+| `num_classes` | `int` | `1000` | positive integer | The number of classes for the classification head. |
+| `embed_dim` | `int` | `768` | positive integer | The dimension of the patch embeddings and the Transformer's hidden state. |
+| `depth` | `int` | `12` | positive integer | The number of Transformer encoder blocks. |
+| `num_heads` | `int` | `12` | positive integer, must divide embed_dim | The number of attention heads in the Multi-Head Self-Attention module. |
+| `mlp_ratio` | `float` | `4.0` | positive float | Ratio of MLP hidden dimension to embedding dimension (e.g., 4.0 means hidden dim is 4 * embed_dim). |
+| `qkv_bias` | `boolean` | `true` | true, false | Whether to include bias terms in the query, key, and value linear projections. |
+| `drop_rate` | `float` | `0.0` | 0.0 to 1.0 | Dropout rate for the MLP layers. |
+| `attn_drop_rate` | `float` | `0.0` | 0.0 to 1.0 | Dropout rate for the attention weights. |
+| `norm_layer` | `string` | `LayerNorm` | LayerNorm | The normalization layer to use (e.g., LayerNorm). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Vision Transformers excel at capturing long-range dependencies across an image due to the global nature of the self-attention mechanism.
+- ViT models demonstrate strong scalability, achieving state-of-the-art performance when pre-trained on very large datasets and fine-tuned on downstream tasks.
+- The architecture's modularity allows for easy adaptation and integration with other Transformer-based models and techniques.
+- ViT's performance often improves with increased model size and data scale, indicating strong potential for future advancements.
+- The self-attention mechanism provides a degree of interpretability by allowing visualization of which image patches are attended to.
+
+## Weaknesses
+
+- Vision Transformers typically require vast amounts of training data to achieve competitive performance, often necessitating large-scale pre-training datasets like JFT-300M.
+- The computational cost and memory footprint for training large ViT models can be significantly higher than for CNNs, especially for high-resolution images.
+- ViT lacks the inherent inductive biases (e.g., translation equivariance, locality) that are built into CNNs, making it less data-efficient on smaller datasets.
+- The fixed-size patch division can lead to a loss of fine-grained spatial information and sensitivity to the choice of patch size.
+- The quadratic complexity of self-attention with respect to the number of patches can become a bottleneck for very high-resolution images.
+
+## Use Cases
+
+### Image Classification
+
+ViT is primarily used for classifying images into predefined categories, achieving high accuracy on benchmarks like ImageNet.
+
+### Object Detection
+
+Adapted versions of ViT, often combined with CNN backbones or specialized decoders, are used to locate and classify multiple objects within an image.
+
+### Semantic Segmentation
+
+ViT variants are employed to assign a class label to every pixel in an image, enabling precise delineation of objects and regions.
+
+### Medical Imaging
+
+ViT models are applied to analyze medical scans for disease detection, tumor segmentation, and diagnostic assistance, leveraging their ability to capture global context.
+
+### Remote Sensing
+
+In satellite imagery analysis, ViT can be used for land cover classification, change detection, and environmental monitoring due to its capacity for processing large image areas.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Vision Transformer from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Vision Transformer does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Vision Transformer Lab" />
+
+## References
+
+- Dosovitskiy et al. (2020). Dosovitskiy et al..

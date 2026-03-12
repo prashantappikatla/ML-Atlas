@@ -1,0 +1,182 @@
+---
+title: "WGAN"
+slug: "wgan"
+category: "generative"
+subcategory: "adversarial"
+year: 2017
+author: "Arjovsky et al."
+paper: "Arjovsky et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["data-synthesis", "deep-learning", "generative-adversarial-networks", "image-generation", "mode-collapse-prevention", "unsupervised-learning", "wasserstein-distance"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "conditional-gan"
+  - "cyclegan"
+  - "stylegan"
+---
+
+## Overview
+
+Wasserstein Generative Adversarial Networks (WGANs) address the training instability and mode collapse issues prevalent in original Generative Adversarial Networks by replacing the Jensen-Shannon divergence with the Earth-Mover (Wasserstein-1) distance. This modification provides a smoother loss landscape and a meaningful metric that correlates with the quality of generated samples. WGANs achieve this by employing a critic network instead of a discriminator and enforcing a Lipschitz constraint on the critic.
+
+## History
+
+**2014** — Ian Goodfellow et al. introduce Generative Adversarial Networks (GANs), establishing a framework for implicit density estimation through a minimax game between a generator and a discriminator.
+
+**2017** — Martin Arjovsky, Soumith Chintala, and Léon Bottou publish "Wasserstein GAN," proposing the use of the Earth-Mover distance as a cost function to improve training stability and provide a meaningful loss metric.
+
+**2017** — Ishaan Gulrajani et al. introduce "Improved Training of Wasserstein GANs" (WGAN-GP), replacing weight clipping with a gradient penalty to enforce the Lipschitz constraint, leading to more stable and higher-quality results.
+
+## Mathematical Intuition
+
+### Earth-Mover Distance Definition
+
+The Earth-Mover (or Wasserstein-1) distance, $W(\mathbb{P}_r, \mathbb{P}_g)$, between two probability distributions $\mathbb{P}_r$ (real data) and $\mathbb{P}_g$ (generated data) is intuitively the minimum "cost" of transforming one distribution into the other.
+$$ W(\mathbb{P}_r, \mathbb{P}_g) = \inf_{\gamma \in \Pi(\mathbb{P}_r, \mathbb{P}_g)} \mathbb{E}_{(x, y) \sim \gamma} [||x - y||] $$
+Here, $\Pi(\mathbb{P}_r, \mathbb{P}_g)$ is the set of all joint distributions $\gamma(x, y)$ whose marginals are $\mathbb{P}_r$ and $\mathbb{P}_g$ respectively. This distance provides a smoother gradient even when distributions are non-overlapping, unlike Jensen-Shannon divergence.
+
+$$
+W(\mathbb{P}_r, \mathbb{P}_g) = \inf_{\gamma \in \Pi(\mathbb{P}_r, \mathbb{P}_g)} \mathbb{E}_{(x, y) \sim \gamma} [||x - y||]
+$$
+
+### Kantorovich-Rubinstein Duality
+
+Directly computing the Earth-Mover distance is intractable. The Kantorovich-Rubinstein duality allows us to express the Wasserstein-1 distance in a more tractable form:
+$$ W(\mathbb{P}_r, \mathbb{P}_g) = \sup_{||f||_L \le 1} \mathbb{E}_{x \sim \mathbb{P}_r} [f(x)] - \mathbb{E}_{z \sim p(z)} [f(G(z))] $$
+where $f$ is a 1-Lipschitz function, and $G(z)$ is the generator's output. In WGAN, the critic network $D$ is trained to approximate this 1-Lipschitz function $f$.
+
+$$
+W(\mathbb{P}_r, \mathbb{P}_g) = \sup_{||f||_L \le 1} \mathbb{E}_{x \sim \mathbb{P}_r} [f(x)] - \mathbb{E}_{z \sim p(z)} [f(G(z))]
+$$
+
+### WGAN Objective Function
+
+The WGAN objective for the critic $D$ is to maximize the difference between the expected value of $D$ on real data and generated data:
+$$ \max_D \mathbb{E}_{x \sim \mathbb{P}_r} [D(x)] - \mathbb{E}_{z \sim p(z)} [D(G(z))] $$
+The generator $G$ is then trained to minimize this value, effectively trying to make the generated distribution $\mathbb{P}_g$ closer to the real distribution $\mathbb{P}_r$:
+$$ \min_G \mathbb{E}_{z \sim p(z)} [D(G(z))] $$
+The critic's loss directly estimates the Wasserstein distance, providing a meaningful training progress indicator.
+
+$$
+\max_D \mathbb{E}_{x \sim \mathbb{P}_r} [D(x)] - \mathbb{E}_{z \sim p(z)} [D(G(z))]
+$$
+
+$$
+\min_G \mathbb{E}_{z \sim p(z)} [D(G(z))]
+$$
+
+### Enforcing Lipschitz Constraint
+
+For the Kantorovich-Rubinstein duality to hold, the critic function $D$ must be 1-Lipschitz, meaning $||D(x_1) - D(x_2)|| \le ||x_1 - x_2||$ for all $x_1, x_2$. WGAN enforces this constraint by clipping the weights of the critic network to a small range, typically $[-c, c]$.
+$$ w \leftarrow \text{clip}(w, -c, c) $$
+This ensures that the gradients of $D$ with respect to its input are bounded, thereby implicitly enforcing the Lipschitz constraint.
+
+$$
+w \leftarrow \text{clip}(w, -c, c)
+$$
+
+## Algorithm Steps
+
+1. Initialize generator $G$ and critic $D$ networks with random weights.
+2. For each training iteration:
+3.   For $n_{critic}$ steps:
+4.     Sample a mini-batch of real data $x$ from $\mathbb{P}_r$.
+5.     Sample a mini-batch of latent vectors $z$ from a prior distribution $p(z)$.
+6.     Generate fake data $x_g = G(z)$.
+7.     Compute the critic loss: $L_D = -(\mathbb{E}_{x \sim \mathbb{P}_r} [D(x)] - \mathbb{E}_{z \sim p(z)} [D(G(z))])$.
+8.     Update the critic's weights by taking an optimizer step to minimize $L_D$.
+9.     Clip the critic's weights to a predefined range $[-c, c]$ after each update.
+10.   Sample a new mini-batch of latent vectors $z$ from $p(z)$.
+11.   Generate fake data $x_g = G(z)$.
+12.   Compute the generator loss: $L_G = -\mathbb{E}_{z \sim p(z)} [D(G(z))]$.
+13.   Update the generator's weights by taking an optimizer step to minimize $L_G$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate_critic` | `float` | `0.00005` | positive float | The learning rate for the critic (discriminator) network's optimizer. |
+| `learning_rate_generator` | `float` | `0.00005` | positive float | The learning rate for the generator network's optimizer. |
+| `n_critic_steps` | `int` | `5` | integer >= 1 | The number of critic updates per generator update. |
+| `clip_value` | `float` | `0.01` | positive float | The maximum absolute value for weight clipping in the critic network. |
+| `latent_dim` | `int` | `100` | integer >= 1 | Dimensionality of the latent space (noise vector) from which the generator samples. |
+| `batch_size` | `int` | `64` | integer >= 1 | Number of samples per mini-batch used for training. |
+| `epochs` | `int` | `100` | integer >= 1 | Total number of training epochs. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- WGANs provide a more stable training process compared to traditional GANs, significantly reducing the problem of vanishing gradients.
+- The critic's loss function directly estimates the Earth-Mover distance, offering a meaningful metric that correlates with the quality of generated samples.
+- WGANs are less prone to mode collapse than original GANs, allowing the generator to produce a greater diversity of samples.
+- The architecture is less sensitive to hyperparameter choices and network architecture, making it easier to train.
+- The training objective is well-defined even when the real and generated data distributions are disjoint.
+
+## Weaknesses
+
+- Weight clipping, while enforcing the Lipschitz constraint, can lead to pathological behavior such as vanishing or exploding gradients if the clipping range is not chosen carefully.
+- The choice of the clipping parameter $c$ is crucial and often requires extensive tuning, as an improper value can hinder learning or lead to instability.
+- WGANs can still exhibit some degree of mode collapse, especially in complex datasets, although less frequently than standard GANs.
+- Training can be slower due to the requirement of training the critic for multiple steps per generator update and the additional weight clipping operation.
+
+## Use Cases
+
+### Image Synthesis
+
+Generating highly realistic and diverse images for various applications, from art to synthetic datasets.
+
+### Data Augmentation
+
+Creating synthetic data samples to expand limited datasets, improving the robustness of downstream machine learning models.
+
+### Anomaly Detection
+
+Learning the distribution of normal data and identifying samples that deviate significantly, useful in fraud detection or medical imaging.
+
+### Image-to-Image Translation
+
+Transforming images from one domain to another, such as converting satellite images to maps or sketches to photos.
+
+### Drug Discovery
+
+Generating novel molecular structures with desired properties for pharmaceutical research and development.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement WGAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# WGAN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="WGAN Lab" />
+
+## References
+
+- Arjovsky et al. (2017). Arjovsky et al..

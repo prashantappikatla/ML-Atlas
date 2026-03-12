@@ -1,0 +1,198 @@
+---
+title: "Gaussian Naive Bayes"
+slug: "gaussian-naive-bayes"
+category: "supervised"
+subcategory: "classification"
+year: 1960
+author: "Naive Bayes variant"
+paper: "Naive Bayes variant"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian", "classification", "continuous-features", "fast", "generative-model", "probabilistic", "simple", "statistical", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bernoulli-naive-bayes"
+  - "complement-naive-bayes"
+  - "decision-tree-classifier"
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "multinomial-naive-bayes"
+  - "naive-bayes"
+  - "quadratic-discriminant-analysis"
+---
+
+## Overview
+
+Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm that applies Bayes' theorem with a "naive" assumption of conditional independence between features given the class label. It models the likelihood of features using a Gaussian (normal) distribution, making it particularly suitable for continuous numerical data. Despite its simplifying assumption, it often performs surprisingly well, especially in scenarios with high-dimensional data or limited training examples, due to its computational efficiency and straightforward implementation.
+
+## History
+
+**1950** — Early work on statistical pattern recognition and classification laid the groundwork for probabilistic classifiers, including the foundational ideas of Bayes' theorem in decision-making.
+
+**1960** — The core principles of the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier, leveraging Bayes' theorem with a strong independence assumption, were established and applied in various fields, marking its formal introduction.
+
+**1973** — Duda and Hart's seminal book "Pattern Classification and Scene Analysis" popularized Bayesian classification methods, including discussions on assuming specific distributions for features, which is key to Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes).
+
+**1990** — [Naive Bayes](/algorithms/supervised/classification/naive-bayes) experienced a resurgence in machine learning, particularly for text classification and spam filtering, with variants like Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes) becoming standard for continuous data.
+
+**2000** — Continued widespread use and integration into standard machine learning libraries solidified Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes)' position as a valuable algorithm, appreciated for its simplicity and efficiency.
+
+## Mathematical Intuition
+
+### Bayes' Theorem Foundation
+
+The core of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is Bayes' Theorem, which relates the posterior probability $P(C|X)$ of a class $C$ given observed features $X$ to the likelihood $P(X|C)$, the prior probability $P(C)$, and the evidence $P(X)$. For classification, we aim to find the class $C$ that maximizes $P(C|X)$.
+$$P(C|X) = \frac{P(X|C)P(C)}{P(X)}$$
+Since $P(X)$ is constant for all classes, the classification rule simplifies to:
+$$\hat{C} = \arg\max_C P(X|C)P(C)$$
+
+$$
+P(C|X) = \frac{P(X|C)P(C)}{P(X)}
+$$
+
+$$
+\hat{C} = \arg\max_C P(X|C)P(C)
+$$
+
+### Naive Conditional Independence Assumption
+
+The "naive" part of the algorithm comes from the assumption that all features $x_i$ in the feature vector $X = (x_1, x_2, ..., x_n)$ are conditionally independent of each other given the class $C$. This simplifies the calculation of the likelihood $P(X|C)$:
+$$P(X|C) = P(x_1, x_2, ..., x_n|C) \approx \prod_{i=1}^n P(x_i|C)$$
+This assumption drastically reduces the computational complexity, as it avoids estimating complex joint probability distributions.
+
+$$
+P(X|C) = P(x_1, x_2, ..., x_n|C) \approx \prod_{i=1}^n P(x_i|C)
+$$
+
+### Gaussian Likelihood for Features
+
+For Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes), it is assumed that the continuous features $x_i$ follow a Gaussian (normal) distribution within each class $C$. The likelihood $P(x_i|C)$ is therefore modeled by the probability density function (PDF) of a Gaussian distribution:
+$$P(x_i|C) = \frac{1}{\sqrt{2\pi\sigma_{ci}^2}} \exp\left(-\frac{(x_i - \mu_{ci})^2}{2\sigma_{ci}^2}\right)$$
+Here, $\mu_{ci}$ and $\sigma_{ci}^2$ are the mean and variance of feature $x_i$ for class $C$, respectively, estimated from the training data.
+
+$$
+P(x_i|C) = \frac{1}{\sqrt{2\pi\sigma_{ci}^2}} \exp\left(-\frac{(x_i - \mu_{ci})^2}{2\sigma_{ci}^2}\right)
+$$
+
+### Final Classification Rule
+
+Combining Bayes' theorem with the naive independence assumption and the Gaussian likelihood, the posterior probability for a given class $C$ and feature vector $X$ is proportional to:
+$$P(C|X) \propto P(C) \prod_{i=1}^n P(x_i|C)$$
+To classify a new instance $X$, the algorithm calculates this value for each possible class and assigns the instance to the class with the highest posterior probability:
+$$\hat{C} = \arg\max_C \left( P(C) \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma_{ci}^2}} \exp\left(-\frac{(x_i - \mu_{ci})^2}{2\sigma_{ci}^2}\right) \right)$$
+
+$$
+P(C|X) \propto P(C) \prod_{i=1}^n P(x_i|C)
+$$
+
+$$
+\hat{C} = \arg\max_C \left( P(C) \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma_{ci}^2}} \exp\left(-\frac{(x_i - \mu_{ci})^2}{2\sigma_{ci}^2}\right) \right)
+$$
+
+## Algorithm Steps
+
+1. For each class $C_k$ in the training dataset, calculate its prior probability $P(C_k)$ as the proportion of training instances belonging to that class.
+2. For each class $C_k$ and each feature $x_i$, estimate the mean $\mu_{ki}$ and variance $\sigma_{ki}^2$ of the feature values for instances belonging to class $C_k$.
+3. When classifying a new instance with feature vector $X = (x_1, ..., x_n)$, calculate the likelihood $P(x_i|C_k)$ for each feature $x_i$ and each class $C_k$ using the Gaussian probability density function with the estimated $\mu_{ki}$ and $\sigma_{ki}^2$.
+4. For each class $C_k$, compute the unnormalized posterior probability $P(C_k) \prod_{i=1}^n P(x_i|C_k)$.
+5. Assign the new instance to the class $\hat{C}$ that yields the maximum unnormalized posterior probability.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `priors` | `array-like` | `None` | array of shape (n_classes,) summing to 1 | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data. |
+| `var_smoothing` | `float` | `1e-9` | non-negative float | A portion of the largest variance of all features that is added to variances for calculation stability. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is computationally efficient for both training and prediction, making it suitable for large datasets.
+- The algorithm is simple to implement and understand, requiring minimal hyperparameter tuning.
+- It can perform surprisingly well even when the naive independence assumption is violated, especially in high-dimensional spaces.
+- Gaussian Naive Bayes works effectively with relatively small amounts of training data.
+- It is robust to irrelevant features, as they tend to have a uniform distribution across classes and thus little impact on the posterior probabilities.
+- The model provides probabilistic predictions, which can be useful for understanding classification confidence.
+
+## Weaknesses
+
+- The strong assumption of conditional independence between features given the class is rarely met in real-world datasets, which can lead to suboptimal performance.
+- If a feature value present in the test data was not observed in the training data for a specific class, the likelihood for that class will be zero, leading to a zero posterior probability and potentially incorrect classification.
+- The model struggles when features are highly correlated, as this violates the independence assumption.
+- While it provides probabilistic outputs, these probabilities can be poorly calibrated and may not accurately reflect true confidence.
+- It is a linear classifier and cannot capture complex, non-linear relationships between features and the target variable.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Classifying patients into different disease categories based on symptoms and test results, where features are often continuous.
+
+### Spam Detection
+
+Identifying spam emails by analyzing numerical features extracted from email content, such as word frequencies or metadata.
+
+### Sentiment Analysis
+
+Categorizing text documents (e.g., reviews, tweets) as positive, negative, or neutral based on numerical representations of word sentiment.
+
+### Document Classification
+
+Assigning documents to predefined categories (e.g., news topics) using continuous features derived from text.
+
+### Real-time Prediction
+
+Due to its speed, it is often used in applications requiring very fast classification, such as fraud detection or network intrusion detection.
+
+### Recommendation Systems
+
+Predicting user preferences or ratings for items based on continuous features of users and items.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gaussian Naive Bayes from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gaussian Naive Bayes Lab" />
+
+## References
+
+- Naive Bayes variant (1960). Naive Bayes variant.
+- [scikit-learn: GaussianNB](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html)

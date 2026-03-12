@@ -1,0 +1,169 @@
+---
+title: "SARIMA"
+slug: "sarima"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1976
+author: "Seasonal Box-Jenkins"
+paper: "Seasonal Box-Jenkins"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["autoregressive", "classical-ml", "differencing", "forecasting", "moving-average", "seasonality", "statistical-model", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "ar"
+  - "arima"
+  - "arma"
+  - "exponential-smoothing"
+  - "ma"
+  - "prophet"
+---
+
+## Overview
+
+Seasonal Autoregressive Integrated Moving Average (SARIMA) is a statistical model used for forecasting time series data that exhibits both non-seasonal and seasonal patterns. It extends the [ARIMA](/algorithms/time-series/classical-forecasting/arima) model by incorporating seasonal autoregressive, integrated, and moving average components. SARIMA is particularly effective for data with repeating patterns over fixed periods, such as daily, weekly, or yearly cycles. The model's strength lies in its ability to capture complex temporal dependencies through a structured, interpretable framework.
+
+## History
+
+**1970** — George Box and Gwilym Jenkins published "Time Series Analysis: Forecasting and Control," introducing the [ARIMA](/algorithms/time-series/classical-forecasting/arima) model and the iterative Box-Jenkins methodology for model identification, estimation, and diagnostic checking.
+
+**1976** — The Box-Jenkins methodology was formally extended to incorporate seasonal components, leading to the development of the Seasonal Autoregressive Integrated Moving Average (SARIMA) model, specifically addressing time series with periodic patterns. This extension is often referred to as the "Seasonal Box-Jenkins" approach.
+
+**1980** — Widespread adoption and implementation of SARIMA in statistical software packages began, making it a standard tool for time series forecasting in various fields.
+
+**2000** — Continued research refined model selection criteria (e.g., AIC, BIC) and automated approaches for SARIMA, though the core methodology remained largely unchanged.
+
+## Mathematical Intuition
+
+### ARIMA Model Components
+
+The non-seasonal part of SARIMA is the [ARIMA](/algorithms/time-series/classical-forecasting/arima)$(p, d, q)$ model. The Autoregressive (AR) component of order $p$, denoted AR$(p)$, models the dependency between an observation and a number of lagged observations. The Integrated (I) component of order $d$, denoted I$(d)$, involves differencing the raw observations to make the time series stationary. The Moving Average (MA) component of order $q$, denoted MA$(q)$, models the dependency between an observation and a residual error from a moving average model applied to lagged observations.
+$$ (1 - \sum_{i=1}^p \phi_i L^i) (1-L)^d Y_t = (1 + \sum_{j=1}^q \theta_j L^j) \epsilon_t $$
+Here, $Y_t$ is the time series, $L$ is the lag operator, $\phi_i$ are AR coefficients, $\theta_j$ are MA coefficients, and $\epsilon_t$ is white noise.
+
+$$
+(1 - \sum_{i=1}^p \phi_i L^i) (1-L)^d Y_t = (1 + \sum_{j=1}^q \theta_j L^j) \epsilon_t
+$$
+
+### Seasonal ARIMA Components
+
+The seasonal part of SARIMA is denoted [ARIMA](/algorithms/time-series/classical-forecasting/arima)$(P, D, Q)_s$, where $s$ is the seasonal period. The Seasonal Autoregressive (SAR) component of order $P$ models the dependency between an observation and a number of lagged observations at seasonal intervals. The Seasonal Integrated (SI) component of order $D$ involves seasonal differencing to remove seasonal trends. The Seasonal Moving Average (SMA) component of order $Q$ models the dependency between an observation and a residual error from a moving average model applied to lagged seasonal observations.
+$$ (1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L^s)^D Y_t = (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t $$
+Here, $\Phi_i$ are seasonal AR coefficients, $\Theta_j$ are seasonal MA coefficients, and $s$ is the seasonal period.
+
+$$
+(1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L^s)^D Y_t = (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t
+$$
+
+### Combining Non-Seasonal and Seasonal Parts
+
+A SARIMA$(p, d, q)(P, D, Q)_s$ model combines both non-seasonal and seasonal components multiplicatively. The non-seasonal differencing $(1-L)^d$ and seasonal differencing $(1-L^s)^D$ are applied to the original series $Y_t$ to achieve stationarity. The resulting stationary series is then modeled by the product of the non-seasonal ARMA and seasonal ARMA polynomials.
+$$ (1 - \sum_{i=1}^p \phi_i L^i) (1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L)^d (1-L^s)^D Y_t = (1 + \sum_{j=1}^q \theta_j L^j) (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t $$
+This multiplicative structure allows the model to capture both short-term and long-term seasonal dependencies simultaneously.
+
+$$
+(1 - \sum_{i=1}^p \phi_i L^i) (1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L)^d (1-L^s)^D Y_t = (1 + \sum_{j=1}^q \theta_j L^j) (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t
+$$
+
+### Model Identification using ACF/PACF
+
+The Box-Jenkins methodology for SARIMA model identification relies heavily on analyzing the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots of the differenced series. The non-seasonal orders $p$ and $q$ are typically identified from the ACF and PACF at non-seasonal lags, while the seasonal orders $P$ and $Q$ are identified from the ACF and PACF at seasonal lags (multiples of $s$). For example, a significant spike at lag $s$ in the PACF suggests a seasonal AR component, while a significant spike at lag $s$ in the ACF suggests a seasonal MA component.
+
+## Algorithm Steps
+
+1. Model Identification: Analyze the time series data, including plots of the series, Autocorrelation Function (ACF), and Partial Autocorrelation Function (PACF) to determine the appropriate orders $(p, d, q)$ for the non-seasonal components and $(P, D, Q)_s$ for the seasonal components. This involves identifying the differencing orders $d$ and $D$ to achieve stationarity, and then the AR/MA orders from the patterns in the ACF/PACF of the differenced series.
+2. Parameter Estimation: Once the model orders are identified, estimate the model coefficients ($\phi_i, \theta_j, \Phi_i, \Theta_j$) using maximum likelihood estimation (MLE) or other optimization techniques.
+3. Diagnostic Checking: Evaluate the fitted model by examining the residuals. The residuals should ideally resemble white noise, meaning they are uncorrelated and normally distributed with zero mean. This is typically checked using residual ACF/PACF plots and statistical tests like the Ljung-Box test.
+4. Model Forecasting: If the model passes diagnostic checks, it can be used to generate future forecasts for the time series.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `order` | `tuple of integers` | `(0, 0, 0)` | non-negative integers | The non-seasonal ARIMA order (p, d, q) for the autoregressive, differencing, and moving average components. |
+| `seasonal_order` | `tuple of integers` | `(0, 0, 0, 0)` | non-negative integers for P, D, Q; positive integer for s | The seasonal ARIMA order (P, D, Q, s) for the seasonal autoregressive, differencing, moving average components, and seasonal period. |
+| `trend` | `string` | `None` | 'n', 'c', 't', 'ct', None | Parameter controlling the deterministic trend polynomial. 'n' for no trend, 'c' for constant, 't' for linear, 'ct' for constant and linear. |
+| `enforce_stationarity` | `boolean` | `true` | true, false | Whether to enforce stationarity of the AR parameters. If True, the AR parameters are constrained to lie in the region of stationarity. |
+| `enforce_invertibility` | `boolean` | `true` | true, false | Whether to enforce invertibility of the MA parameters. If True, the MA parameters are constrained to lie in the region of invertibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- SARIMA models can effectively capture both non-seasonal and seasonal patterns in time series data, providing accurate forecasts for periodically repeating phenomena.
+- The model provides a structured and interpretable framework, allowing practitioners to understand the underlying temporal dependencies.
+- It is a well-established and widely used statistical method with robust theoretical foundations.
+- SARIMA can handle various types of time series, including those with trends, seasonality, and irregular fluctuations, after appropriate differencing.
+- The Box-Jenkins methodology provides a systematic approach for model building, from identification to diagnostic checking.
+
+## Weaknesses
+
+- The identification of model orders $(p, d, q)(P, D, Q)_s$ can be subjective and requires significant expertise and iterative analysis of ACF/PACF plots.
+- SARIMA models assume linearity and stationarity (after differencing), which may not hold for all real-world time series, limiting its applicability.
+- The model can be computationally intensive to fit, especially for large datasets or when exploring a wide range of parameter combinations.
+- SARIMA models are univariate and do not inherently incorporate exogenous variables, although extensions like SARIMAX exist.
+- They are sensitive to outliers and structural breaks in the time series, which can significantly impact model performance.
+
+## Use Cases
+
+### Retail Sales Forecasting
+
+Predicting future sales volumes for products, accounting for weekly, monthly, or yearly seasonal shopping patterns.
+
+### Energy Demand Prediction
+
+Forecasting electricity consumption or gas demand, considering daily and seasonal variations due to weather and human activity.
+
+### Financial Market Analysis
+
+Predicting stock prices or commodity values, although its linearity assumptions might be restrictive for highly volatile markets.
+
+### Environmental Monitoring
+
+Forecasting air pollution levels or water quality metrics, which often exhibit daily or seasonal cycles.
+
+### Healthcare Resource Planning
+
+Predicting patient admissions or disease outbreaks, which can show seasonal trends (e.g., flu season).
+
+### Inventory Management
+
+Optimizing stock levels by forecasting demand for products with seasonal sales cycles.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement SARIMA from scratch
+```
+
+### Using scikit-learn
+
+```python
+# SARIMA does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="SARIMA Lab" />
+
+## References
+
+- Seasonal Box-Jenkins (1976). Seasonal Box-Jenkins.

@@ -1,0 +1,176 @@
+---
+title: "Apriori"
+slug: "apriori"
+category: "unsupervised"
+subcategory: "association-rules"
+year: 1994
+author: "Agrawal & Srikant"
+paper: "Agrawal & Srikant"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["association-rules", "data-mining", "frequent-itemsets", "market-basket-analysis", "pruning", "rule-discovery", "transactional-data", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "eclat"
+  - "fp-growth"
+---
+
+## Overview
+
+Apriori is a seminal algorithm for mining frequent itemsets and discovering association rules in transactional databases. It operates on the principle that any subset of a frequent itemset must also be frequent, leveraging this anti-monotonicity property to efficiently prune the search space. The algorithm iteratively identifies frequent itemsets of increasing size, generating candidate itemsets and then filtering them based on their support count.
+
+## History
+
+**1993** — Rakesh Agrawal, Tomasz Imieliński, and Arun Swami introduced the AIS algorithm, a precursor to Apriori, for discovering association rules.
+
+**1994** — Rakesh Agrawal and Ramakrishnan Srikant published "Fast Algorithms for Mining Association Rules in Large Databases," introducing the Apriori algorithm.
+
+**1995** — Srikant and Agrawal extended Apriori to mine generalized association rules, considering item hierarchies.
+
+**2000** — Jiawei Han, Jian Pei, and Yiwen Yin introduced [FP-Growth](/algorithms/unsupervised/association-rules/fp-growth), an alternative algorithm that avoids candidate generation and uses a compact data structure (FP-tree) for efficiency.
+
+## Mathematical Intuition
+
+### Support of an Itemset
+
+The support of an itemset $X$ is the proportion of transactions in the database $D$ that contain $X$. It measures the frequency of an itemset.
+$$ \text{Support}(X) = \frac{\text{Number of transactions containing } X}{\text{Total number of transactions}} $$
+An itemset is considered "frequent" if its support is greater than or equal to a user-defined minimum support threshold, $min\_support$.
+
+$$
+\text{Support}(X) = \frac{\text{Number of transactions containing } X}{\text{Total number of transactions}}
+$$
+
+$$
+min\_support
+$$
+
+### Apriori Principle
+
+The Apriori principle states that if an itemset is infrequent, then all of its supersets must also be infrequent. This anti-monotonicity property is crucial for pruning the search space during candidate generation.
+Specifically, if an itemset $X$ has $\text{Support}(X) < min\_support$, then for any itemset $Y$ such that $X \subseteq Y$, it must also be true that $\text{Support}(Y) < min\_support$. This allows the algorithm to avoid counting support for supersets of infrequent itemsets.
+
+$$
+\text{Support}(X) < min\_support
+$$
+
+$$
+X \subseteq Y
+$$
+
+$$
+\text{Support}(Y) < min\_support
+$$
+
+### Confidence of a Rule
+
+Confidence measures the reliability of an association rule $X \Rightarrow Y$, indicating how often items in $Y$ appear in transactions that contain $X$. It is defined as the ratio of the support of the union of $X$ and $Y$ to the support of $X$.
+$$ \text{Confidence}(X \Rightarrow Y) = \frac{\text{Support}(X \cup Y)}{\text{Support}(X)} $$
+A rule is considered strong if its confidence is greater than or equal to a user-defined minimum confidence threshold, $min\_confidence$.
+
+$$
+\text{Confidence}(X \Rightarrow Y) = \frac{\text{Support}(X \cup Y)}{\text{Support}(X)}
+$$
+
+$$
+min\_confidence
+$$
+
+## Algorithm Steps
+
+1. Set a minimum support threshold, $min\_support$, and a minimum confidence threshold, $min\_confidence$.
+2. Generate $L_1$, the set of frequent 1-itemsets, by counting the support of each individual item and selecting those meeting $min\_support$.
+3. For $k = 2, 3, \dots$ until no more frequent itemsets are found, perform the following steps:
+4. Generate $C_k$, the set of candidate $k$-itemsets, by joining $L_{k-1}$ with itself, then prune $C_k$ by removing candidates whose $(k-1)$-subsets are not in $L_{k-1}$.
+5. Scan the database to count the support for each candidate itemset in $C_k$, and generate $L_k$, the set of frequent $k$-itemsets, by selecting candidates from $C_k$ whose support meets $min\_support$.
+6. Generate association rules from the final set of all frequent itemsets by splitting each frequent itemset $L$ into two non-empty subsets, $X$ and $Y$, such that $X \cup Y = L$ and $X \cap Y = \emptyset$, then calculate the confidence for each rule $X \Rightarrow Y$ and select rules that meet $min\_confidence$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_support` | `float` | `0.5` | 0.0 to 1.0 | The minimum support threshold for an itemset to be considered frequent. Itemsets with support below this value are pruned. |
+| `max_len` | `integer` | `None` | integer >= 1 or None | The maximum length (number of items) of the frequent itemsets to be generated. If None, no limit is imposed. |
+| `min_confidence` | `float` | `0.8` | 0.0 to 1.0 | The minimum confidence threshold for an association rule to be considered strong. Rules with confidence below this value are filtered. |
+| `metric` | `string` | `confidence` | 'confidence', 'lift', 'leverage', 'conviction' | The metric used to evaluate the strength of association rules. Common metrics include 'confidence', 'lift', 'leverage', and 'conviction'. |
+| `min_threshold` | `float` | `0.7` | 0.0 to infinity (depends on metric) | The minimum threshold value for the chosen 'metric' for an association rule to be considered strong. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It guarantees to find all frequent itemsets given the minimum support threshold.
+- The algorithm is conceptually simple and easy to understand.
+- It is well-suited for sparse datasets where the number of transactions is large but individual transactions are small.
+- The pruning step significantly reduces the number of candidate itemsets to be evaluated, improving efficiency over naive approaches.
+- It is a foundational algorithm, making it a good starting point for understanding association rule mining.
+
+## Weaknesses
+
+- The candidate generation process can be computationally expensive and memory-intensive, especially for dense datasets or when $min\_support$ is low.
+- It requires multiple passes over the entire database, which can be slow for very large datasets stored on disk.
+- Generating all possible candidate itemsets can lead to a combinatorial explosion if the number of distinct items is large.
+- The choice of $min\_support$ and $min\_confidence$ thresholds can be challenging and significantly impact the results.
+
+## Use Cases
+
+### Retail
+
+Discovering product co-occurrence patterns in market basket analysis to optimize store layouts, product bundling, and promotional strategies.
+
+### Web Usage Mining
+
+Identifying navigation patterns on websites to improve user experience, personalize content, and optimize site structure.
+
+### Bioinformatics
+
+Analyzing gene expression data to find associations between genes or identify patterns in disease pathways.
+
+### Medical Diagnosis
+
+Discovering relationships between symptoms, diseases, and treatments to aid in diagnostic processes and treatment recommendations.
+
+### Fraud Detection
+
+Identifying unusual combinations of transactions or activities that might indicate fraudulent behavior.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Apriori from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Apriori
+
+model = Apriori()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Apriori Lab" />
+
+## References
+
+- Agrawal & Srikant (1994). Agrawal & Srikant.
+- [scikit-learn: Apriori](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Apriori.html)

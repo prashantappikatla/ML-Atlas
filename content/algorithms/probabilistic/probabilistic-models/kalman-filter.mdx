@@ -1,0 +1,200 @@
+---
+title: "Kalman Filter"
+slug: "kalman-filter"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1960
+author: "Kalman"
+paper: "Kalman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bayesian-inference", "control-theory", "filtering", "prediction", "probabilistic-model", "sequential-data", "state-estimation", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "extended-kalman-filter"
+  - "hidden-markov-model"
+  - "particle-filter"
+  - "unscented-kalman-filter"
+---
+
+## Overview
+
+The Kalman Filter is an optimal recursive algorithm for estimating the state of a dynamic system from a series of noisy measurements. It operates by predicting the current state and its uncertainty, then updating this prediction using a new measurement, effectively fusing information from a system model and sensor data. This probabilistic approach is particularly effective for systems that can be described by linear equations and Gaussian noise, providing a statistically optimal estimate in such conditions.
+
+## History
+
+**1960** — Rudolf E. Kálmán published "A New Approach to Linear Filtering and Prediction Problems," introducing the discrete-time Kalman filter.
+
+**1961** — Peter Swerling independently developed a similar recursive filter, sometimes referred to as the Swerling filter, for aerospace applications.
+
+**1960** — The Kalman filter was extensively adopted by NASA for the Apollo program, playing a crucial role in navigation and guidance systems.
+
+**1960** — Extensions like the [Extended Kalman Filter](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) were developed to handle non-linear systems by linearizing around the current state estimate.
+
+**1995** — Simon J. Julier and Jeffrey K. Uhlmann introduced the [Unscented Kalman Filter](/algorithms/probabilistic/probabilistic-models/unscented-kalman-filter) (UKF), offering a more robust approach to non-linear systems without explicit linearization.
+
+## Mathematical Intuition
+
+### State-Space Model Formulation
+
+The Kalman Filter models a dynamic system using a state-space representation, distinguishing between the true, unobservable state and observable measurements. The system's evolution is described by a state transition equation and a measurement equation.
+$$x_k = A x_{k-1} + B u_k + w_k$$
+$$z_k = H x_k + v_k$$
+Here, $x_k$ is the state vector at time $k$, $A$ is the state transition matrix, $B$ is the control input matrix, $u_k$ is the control vector, and $w_k$ is the process noise. $z_k$ is the measurement vector, $H$ is the observation matrix, and $v_k$ is the measurement noise. Both $w_k$ and $v_k$ are assumed to be zero-mean Gaussian noise with covariances $Q$ and $R$ respectively.
+
+$$
+x_k = A x_{k-1} + B u_k + w_k
+$$
+
+$$
+z_k = H x_k + v_k
+$$
+
+### Prediction (Time Update)
+
+The prediction step projects the state and covariance estimates from the previous time step $k-1$ to the current time step $k$. This is based solely on the system's dynamic model. The predicted state estimate $\hat{x}_k^-$ and predicted error covariance $P_k^-$ are calculated.
+$$\hat{x}_k^- = A \hat{x}_{k-1} + B u_k$$
+$$P_k^- = A P_{k-1} A^T + Q$$
+$\hat{x}_{k-1}$ and $P_{k-1}$ are the posterior state estimate and covariance from the previous step. $A^T$ denotes the transpose of matrix $A$.
+
+$$
+\hat{x}_k^- = A \hat{x}_{k-1} + B u_k
+$$
+
+$$
+P_k^- = A P_{k-1} A^T + Q
+$$
+
+### Update (Measurement Update)
+
+In the update step, the predicted state and covariance are refined using the current measurement $z_k$. This involves calculating the Kalman gain, which determines how much the new measurement influences the state estimate. The updated (posterior) state estimate $\hat{x}_k$ and error covariance $P_k$ are then computed.
+$$K_k = P_k^- H^T (H P_k^- H^T + R)^{-1}$$
+$$\hat{x}_k = \hat{x}_k^- + K_k (z_k - H \hat{x}_k^-)$$
+$$P_k = (I - K_k H) P_k^-$$
+$K_k$ is the Kalman gain, $I$ is the identity matrix, and $(z_k - H \hat{x}_k^-)$ is the measurement residual or innovation. The Kalman gain optimally weights the prediction and the measurement.
+
+$$
+K_k = P_k^- H^T (H P_k^- H^T + R)^{-1}
+$$
+
+$$
+\hat{x}_k = \hat{x}_k^- + K_k (z_k - H \hat{x}_k^-)
+$$
+
+$$
+P_k = (I - K_k H) P_k^-
+$$
+
+## Algorithm Steps
+
+1. Initialize the state estimate $\hat{x}_0$ and the error covariance matrix $P_0$.
+2. Predict the a priori state estimate $\hat{x}_k^-$ using the state transition model: $\hat{x}_k^- = A \hat{x}_{k-1} + B u_k$.
+3. Predict the a priori error covariance $P_k^-$ using the process noise covariance $Q$: $P_k^- = A P_{k-1} A^T + Q$.
+4. Calculate the Kalman gain $K_k$ using the predicted error covariance, observation matrix $H$, and measurement noise covariance $R$: $K_k = P_k^- H^T (H P_k^- H^T + R)^{-1}$.
+5. Update the a posteriori state estimate $\hat{x}_k$ by incorporating the current measurement $z_k$: $\hat{x}_k = \hat{x}_k^- + K_k (z_k - H \hat{x}_k^-)$.
+6. Update the a posteriori error covariance $P_k$ using the Kalman gain: $P_k = (I - K_k H) P_k^-$.
+7. Repeat steps 2-6 for each new time step $k$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `transition_matrix` | `numpy.ndarray` | `None` | (n_states, n_states) matrix | The state transition matrix $A$ that describes how the state evolves from $k-1$ to $k$. |
+| `observation_matrix` | `numpy.ndarray` | `None` | (n_measurements, n_states) matrix | The observation matrix $H$ that relates the state to the measurement. |
+| `process_noise_covariance` | `numpy.ndarray` | `None` | (n_states, n_states) symmetric positive semi-definite matrix | The covariance matrix $Q$ of the process noise $w_k$. |
+| `measurement_noise_covariance` | `numpy.ndarray` | `None` | (n_measurements, n_measurements) symmetric positive definite matrix | The covariance matrix $R$ of the measurement noise $v_k$. |
+| `initial_state_estimate` | `numpy.ndarray` | `None` | (n_states,) vector | The initial estimate of the state vector $\hat{x}_0$ at time $k=0$. |
+| `initial_covariance_estimate` | `numpy.ndarray` | `None` | (n_states, n_states) symmetric positive definite matrix | The initial estimate of the error covariance matrix $P_0$ at time $k=0$. |
+| `control_input_matrix` | `numpy.ndarray` | `None` | (n_states, n_controls) matrix | The control input matrix $B$ that relates the control vector $u_k$ to the state. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It provides an optimal state estimate for linear systems with Gaussian noise, minimizing the mean squared error.
+- The filter is recursive, meaning it only requires the previous state estimate and current measurement, making it computationally efficient for real-time applications.
+- It effectively fuses information from a system model and noisy sensor measurements, providing a more accurate estimate than either source alone.
+- The filter can predict future states of the system, which is valuable for control and planning applications.
+- It inherently handles missing measurements by continuing to predict the state based on the system model.
+- The Kalman filter provides an estimate of the uncertainty (covariance) of its state estimate, offering insight into the reliability of its output.
+
+## Weaknesses
+
+- Its performance degrades significantly if the system dynamics are non-linear or the noise is non-Gaussian.
+- Accurate knowledge of the system dynamics (matrices $A, B, H$) and noise characteristics (covariances $Q, R$) is crucial for optimal performance, which can be challenging to obtain in practice.
+- The filter assumes that the process and measurement noise are uncorrelated, which may not always hold true in real-world scenarios.
+- For high-dimensional state vectors, the computational cost of matrix operations, particularly matrix inversion, can become substantial.
+
+## Use Cases
+
+### Navigation
+
+Used in GPS receivers, inertial navigation systems (INS), and autonomous vehicles for precise position and velocity estimation.
+
+### Robotics
+
+Applied for robot localization, mapping (SLAM), and tracking of objects in dynamic environments.
+
+### Aerospace Engineering
+
+Essential for missile guidance, spacecraft attitude control, and aircraft flight control systems.
+
+### Financial Modeling
+
+Employed for tracking asset prices, estimating volatility, and predicting market trends in noisy financial data.
+
+### Signal Processing
+
+Utilized for noise reduction, signal reconstruction, and tracking dynamic signals in various sensor applications.
+
+### Weather Forecasting
+
+Used to assimilate sensor data into atmospheric models to improve the accuracy of weather predictions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Kalman Filter from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import KalmanFilter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = KalmanFilter()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Kalman Filter Lab" />
+
+## References
+
+- Kalman (1960). Kalman.
+- [scikit-learn: KalmanFilter](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.KalmanFilter.html)

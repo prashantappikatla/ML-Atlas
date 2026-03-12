@@ -1,0 +1,174 @@
+---
+title: "PixelRNN"
+slug: "pixelrnn"
+category: "generative"
+subcategory: "autoregressive"
+year: 2016
+author: "van den Oord et al."
+paper: "van den Oord et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["autoregressive", "computer-vision", "deep-learning", "density-estimation", "generative", "image-generation", "pixel-level", "recurrent-neural-network"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bilstm"
+  - "pixelcnn"
+  - "recurrent-neural-network"
+  - "stochastic-gradient-descent"
+  - "transformer"
+  - "variational-autoencoder"
+  - "wavenet"
+---
+
+## Overview
+
+PixelRNN is a generative model designed to model the distribution of natural images by predicting pixels one by one in a fixed scanline order. It leverages recurrent neural networks, specifically LSTMs, combined with masked convolutions to ensure that the prediction for each pixel only depends on previously generated pixels. This autoregressive approach allows for the exact computation of the image likelihood, enabling high-fidelity image generation and density estimation.
+
+## History
+
+**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu introduce PixelRNN in "Pixel Recurrent Neural Networks", demonstrating its ability to generate high-quality images and achieve state-of-the-art likelihoods on benchmark datasets.
+
+**2016** — Concurrent work by van den Oord et al. also introduces [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), a convolutional alternative to PixelRNN, which addresses some of PixelRNN's computational bottlenecks while maintaining autoregressive properties.
+
+**2017** — Gated [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), an improvement over [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), is introduced, further enhancing the quality and speed of autoregressive image generation by using gated activation units.
+
+## Mathematical Intuition
+
+### Autoregressive Image Modeling
+
+PixelRNN models the joint probability distribution of an image $x$ as a product of conditional probabilities, where each pixel $x_i$ is conditioned on all previously generated pixels $x_1, ..., x_{i-1}$ according to a predefined scanline order. This decomposition is fundamental to autoregressive models and is expressed as:
+$$P(x) = \prod_{i=1}^{N} P(x_i | x_1, ..., x_{i-1})$$
+For color images, each pixel $x_i$ typically consists of three color channels (e.g., R, G, B). The model further decomposes the probability of a pixel's color channels, for instance, $P(R, G, B | \text{context}) = P(R | \text{context}) P(G | R, \text{context}) P(B | R, G, \text{context})$.
+
+$$
+P(x) = \prod_{i=1}^{N} P(x_i | x_1, ..., x_{i-1})
+$$
+
+$$
+P(R, G, B | \text{context}) = P(R | \text{context}) P(G | R, \text{context}) P(B | R, G, \text{context})
+$$
+
+### Masked Convolutions for Causality
+
+To enforce the autoregressive property, PixelRNN employs masked convolutions. These convolutions ensure that when predicting a pixel $x_i$, the receptive field of the convolutional filter only includes pixels that precede $x_i$ in the scanline order. Two types of masks are typically used: Mask A for the first convolutional layer, which masks out the center pixel and all subsequent pixels, and Mask B for subsequent layers, which allows the center pixel's already-predicted channels to influence the prediction of its later channels. This masking is crucial for maintaining the conditional independence assumption.
+
+### Recurrent Layers for Dependencies
+
+PixelRNN utilizes recurrent neural networks, specifically LSTMs, to capture long-range spatial dependencies across the image. The model processes the image pixel by pixel, or row by row, with the hidden state of the RNN propagating information from previously processed regions. This allows the model to build a comprehensive context for predicting the current pixel, which is particularly effective for capturing global structures and textures in images. The original PixelRNN used a "Diagonal [BiLSTM](/algorithms/deep-learning/sequence-models/bilstm)" or "Row LSTM" architecture to efficiently propagate information.
+
+### Loss Function and Optimization
+
+The training objective for PixelRNN is to maximize the log-likelihood of the training data. Given the autoregressive decomposition, this translates to minimizing the negative log-likelihood, which is equivalent to minimizing the cross-entropy loss for each pixel's predicted probability distribution against its true value. For discrete pixel values (e.g., 256 possible values per channel), a softmax output layer is used to predict the probability distribution over these values, and the loss is:
+$$L = -\sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})$$
+Optimization is typically performed using [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) variants like Adam.
+
+$$
+L = -\sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})
+$$
+
+## Algorithm Steps
+
+1. Initialize the PixelRNN model with masked convolutional layers and recurrent (e.g., LSTM) layers, along with an output layer (e.g., softmax for discrete pixel values).
+2. For each training image, flatten it into a sequence of pixels according to a predefined scanline order (e.g., row-by-row, then pixel-by-pixel within a row).
+3. Feed the input image through the masked convolutional layers, ensuring that the receptive field for each pixel's prediction only includes previously observed pixels.
+4. Pass the output of the masked convolutions through the recurrent layers, which propagate contextual information across the image, capturing long-range dependencies.
+5. At the output layer, predict the probability distribution for the next pixel's color channels, conditioned on all preceding pixels and channels.
+6. Calculate the negative log-likelihood (cross-entropy) loss between the predicted probability distribution and the true pixel value.
+7. Perform backpropagation to compute gradients and update the model's weights using an optimizer (e.g., Adam) to minimize the loss.
+8. Repeat steps 2-7 for multiple epochs until the model converges or performance on a validation set plateaus.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `integer` | `2` | 1 to N | The number of recurrent layers (e.g., LSTM layers) in the network. |
+| `hidden_size` | `integer` | `256` | 1 to N | The number of units in the hidden state of each recurrent layer. |
+| `kernel_size` | `integer` | `7` | 3, 5, 7, etc. | The size of the convolutional filters used in the masked convolutional layers. |
+| `learning_rate` | `float` | `0.001` | 0.0 to 1.0 | The step size for the optimizer during training. |
+| `optimizer` | `string` | `Adam` | Adam, RMSprop, SGD | The optimization algorithm used to update model weights. |
+| `mask_type` | `string` | `B` | A, B | Specifies the type of mask used in convolutional layers (A for first layer, B for subsequent). |
+| `num_channels` | `integer` | `3` | 1 to N | The number of color channels in the input images (e.g., 3 for RGB). |
+| `output_channels` | `integer` | `256` | 1 to N | The number of discrete values each color channel can take (e.g., 256 for 8-bit images). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- PixelRNN can compute the exact likelihood of an image, which is valuable for density estimation and anomaly detection.
+- It generates high-fidelity and diverse images by modeling complex, multi-modal data distributions effectively.
+- The autoregressive nature allows for precise control over the generation process, as each pixel's value is explicitly predicted.
+- It can capture long-range spatial dependencies within images due to its recurrent architecture.
+- The model provides a strong baseline for evaluating the generative capabilities of other image generation techniques.
+- It does not suffer from mode collapse, a common issue in GANs, as it directly models the data distribution.
+
+## Weaknesses
+
+- Image generation is inherently slow because pixels must be sampled sequentially, one by one.
+- Training PixelRNN models is computationally intensive and requires significant memory, especially for high-resolution images.
+- The recurrent connections can make parallelization difficult, leading to longer training times compared to purely convolutional models.
+- The fixed scanline order can sometimes introduce artifacts or biases in generated images, as spatial relationships are processed anisotropically.
+- Scaling to very high-resolution images remains challenging due to the quadratic increase in computational complexity with image size.
+
+## Use Cases
+
+### Image Generation
+
+Creating novel, high-quality images that resemble a given dataset, useful for artistic creation or data augmentation.
+
+### Image Compression
+
+Learning an efficient representation of images by modeling their underlying probability distribution, potentially leading to better compression algorithms.
+
+### Image Inpainting
+
+Filling in missing or corrupted regions of an image by predicting the most probable pixel values based on the surrounding context.
+
+### Image Super-Resolution
+
+Enhancing the resolution of low-resolution images by generating high-resolution details conditioned on the input.
+
+### Density Estimation
+
+Providing an explicit measure of how likely an image is, which can be used for anomaly detection or evaluating the fit of a model to data.
+
+### Conditional Image Generation
+
+Generating images based on specific conditions, such as class labels or text descriptions, by incorporating conditioning information into the model.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PixelRNN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# PixelRNN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="PixelRNN Lab" />
+
+## References
+
+- van den Oord et al. (2016). van den Oord et al..

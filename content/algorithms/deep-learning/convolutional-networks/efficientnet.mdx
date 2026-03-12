@@ -1,0 +1,183 @@
+---
+title: "EfficientNet"
+slug: "efficientnet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2019
+author: "Tan & Le"
+paper: "Tan & Le"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["accuracy", "computer-vision", "convolutional-neural-networks", "deep-learning", "efficiency", "image-classification", "model-scaling", "transfer-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "densenet"
+  - "grid-search"
+  - "mobilenet"
+  - "resnet"
+  - "vision-transformer"
+---
+
+## Overview
+
+EfficientNet is a family of convolutional neural networks that achieves state-of-the-art accuracy with significantly fewer parameters and FLOPs compared to previous models. It introduces a novel compound scaling method that uniformly scales network depth, width, and resolution using a set of fixed scaling coefficients. This systematic approach allows for more efficient model scaling, leading to better performance across various resource constraints.
+
+## History
+
+**2019** — Mingxing Tan and Quoc V. Le from Google Brain introduced EfficientNet in their paper 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks'. They proposed a new compound scaling method and a family of models achieving superior accuracy and efficiency.
+
+**2019** — The original EfficientNet models (B0-B7) quickly became a new benchmark for image classification tasks, demonstrating that carefully balanced scaling could yield significant performance gains.
+
+**2020** — Follow-up research, such as EfficientDet, extended the compound scaling principle to object detection, further validating the effectiveness of the approach across different computer vision tasks.
+
+**2021** — EfficientNetV2 was introduced, addressing some training stability issues and further improving training speed and parameter efficiency, particularly for larger models.
+
+## Mathematical Intuition
+
+### Compound Scaling Principle
+
+Traditional methods scale network dimensions (depth, width, resolution) independently. EfficientNet proposes a compound scaling method that scales all three dimensions uniformly using a compound coefficient $\phi$. Given a base network, the depth $d$, width $w$, and resolution $r$ are scaled as follows:
+$$ \text{depth}: d = \alpha^{\phi} \cdot d_0 $$
+$$ \text{width}: w = \beta^{\phi} \cdot w_0 $$
+$$ \text{resolution}: r = \gamma^{\phi} \cdot r_0 $$
+where $d_0, w_0, r_0$ are the parameters of the baseline network, and $\alpha, \beta, \gamma$ are coefficients determined by a small [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search) on the baseline model, subject to the constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$. This constraint ensures that the total FLOPs increase by approximately $2^{\phi}$.
+
+$$
+\text{depth}: d = \alpha^{\phi} \cdot d_0
+$$
+
+$$
+\text{width}: w = \beta^{\phi} \cdot w_0
+$$
+
+$$
+\text{resolution}: r = \gamma^{\phi} \cdot r_0
+$$
+
+$$
+\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2
+$$
+
+### Mobile Inverted Bottleneck Block
+
+The core building block of EfficientNet is the Mobile Inverted Bottleneck Convolution (MBConv) block, originally from MobileNetV2. An MBConv block consists of a $1 \times 1$ convolution to expand channels, followed by a depthwise $3 \times 3$ or $5 \times 5$ convolution, a Squeeze-and-Excitation (SE) block, and finally a $1 \times 1$ convolution to project channels back down. The inverted bottleneck structure means the intermediate expansion layer has more channels than the input and output, which is efficient for mobile devices. The SE block adaptively recalibrates channel-wise feature responses by explicitly modeling interdependencies between channels.
+
+### Scaling Coefficients Determination
+
+The scaling coefficients $\alpha, \beta, \gamma$ are found by performing a small [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search) on the baseline model (EfficientNet-B0) under a fixed FLOPs budget. For EfficientNet-B0, the authors found $\alpha \approx 1.2$, $\beta \approx 1.1$, and $\gamma \approx 1.15$. These coefficients are then fixed for all larger models, and only the compound coefficient $\phi$ is varied to scale up the baseline network to create models like EfficientNet-B1 through B7. The constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$ is derived from the observation that doubling network depth, width, and resolution roughly quadruples FLOPs, and the goal is to keep the FLOPs increase proportional to $2^{\phi}$.
+
+$$
+\alpha \approx 1.2
+$$
+
+$$
+\beta \approx 1.1
+$$
+
+$$
+\gamma \approx 1.15
+$$
+
+$$
+\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2
+$$
+
+## Algorithm Steps
+
+1. Start with a baseline network, EfficientNet-B0, which is a small, efficient convolutional neural network built primarily from MBConv blocks.
+2. Perform a small grid search on the baseline model to find the optimal scaling coefficients $\alpha, \beta, \gamma$ under a fixed FLOPs budget, ensuring the constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$ is met.
+3. Fix the determined $\alpha, \beta, \gamma$ coefficients.
+4. Scale up the baseline network by varying the compound coefficient $\phi$ (e.g., from 1 to 7) to generate a family of models (EfficientNet-B1 to B7).
+5. For each $\phi$, adjust the network depth $d = \alpha^{\phi} \cdot d_0$, width $w = \beta^{\phi} \cdot w_0$, and image resolution $r = \gamma^{\phi} \cdot r_0$ of the baseline model.
+6. Train the scaled EfficientNet model using standard deep learning optimization techniques, typically with techniques like RMSProp and a learning rate schedule.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `model_name` | `str` | `'B0'` | ['B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'L2'] | Specifies the EfficientNet variant (e.g., 'B0', 'B1', ..., 'B7', 'L2'), which implicitly defines the depth, width, and resolution scaling. |
+| `include_top` | `bool` | `true` | true or false | Whether to include the fully-connected layer at the top of the network, used for classification. |
+| `weights` | `str or None` | `'imagenet'` | 'imagenet' or None | Pre-training weights to load for the model. 'imagenet' uses weights pre-trained on ImageNet. |
+| `input_shape` | `tuple` | `None` | (H, W, C) where H, W >= 32 | Optional shape tuple, only to be specified if 'include_top' is False or if a custom input shape is desired. Must be (height, width, channels). |
+| `pooling` | `str or None` | `None` | ['avg', 'max', None] | Optional pooling mode for feature extraction when 'include_top' is False. 'avg' means global average pooling, 'max' means global max pooling. |
+| `classes` | `int` | `1000` | integer > 0 | Optional number of classes to classify images into, only to be specified if 'include_top' is True and 'weights' is None. |
+| `dropout_rate` | `float` | `0.2` | 0.0 to 1.0 | Dropout rate for the final classification layer, typically scaled with model size. |
+| `drop_connect_rate` | `float` | `0.2` | 0.0 to 1.0 | DropConnect rate for stochastic depth, where a subset of layers are randomly dropped during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- EfficientNet models achieve state-of-the-art accuracy on image classification benchmarks with significantly fewer parameters and FLOPs than previous models.
+- The compound scaling method provides a systematic and principled way to scale up CNNs, leading to better performance and efficiency.
+- The architecture is highly effective for transfer learning, allowing pre-trained EfficientNet models to be fine-tuned for various downstream computer vision tasks.
+- Its efficiency makes it suitable for deployment in resource-constrained environments, such as mobile devices or edge computing platforms.
+- The family of models (B0-B7) offers a flexible trade-off between accuracy and computational cost, catering to diverse application requirements.
+
+## Weaknesses
+
+- Training larger EfficientNet models can be computationally intensive and require substantial GPU memory, despite their inference efficiency.
+- The complex architecture, particularly the depthwise convolutions and Squeeze-and-Excitation blocks, can be challenging to implement efficiently on some hardware platforms.
+- The performance gains are highly dependent on the carefully chosen scaling coefficients, which are derived from a specific baseline model and dataset.
+- EfficientNet models can be sensitive to hyperparameter tuning, especially learning rates and regularization, requiring careful optimization for best results.
+- The compound scaling approach, while effective, does not inherently address potential issues like catastrophic forgetting or robustness to adversarial attacks.
+
+## Use Cases
+
+### Image Classification
+
+Used for classifying images into predefined categories, achieving high accuracy on large datasets like ImageNet.
+
+### Object Detection
+
+Integrated into object detection frameworks (e.g., EfficientDet) as a backbone network to accurately locate and classify multiple objects within an image.
+
+### Semantic Segmentation
+
+Applied in medical imaging and autonomous driving to segment images at a pixel level, identifying different regions or objects.
+
+### Medical Imaging
+
+Utilized for tasks such as disease diagnosis from X-rays, CT scans, or MRIs, due to its ability to learn complex visual features efficiently.
+
+### Autonomous Driving
+
+Employed in perception systems for tasks like traffic sign recognition, pedestrian detection, and lane keeping, benefiting from its real-time inference capabilities.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement EfficientNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# EfficientNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="EfficientNet Lab" />
+
+## References
+
+- Tan & Le (2019). Tan & Le.

@@ -1,0 +1,188 @@
+---
+title: "Exponential Smoothing"
+slug: "exponential-smoothing"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1957
+author: "Brown / Holt"
+paper: "Brown / Holt"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["classical-ml", "forecasting", "seasonality", "smoothing", "statistical-model", "time-series", "trend", "univariate"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "holt-winters"
+  - "prophet"
+  - "sarima"
+---
+
+## Overview
+
+Exponential Smoothing is a family of time series forecasting methods that assign exponentially decreasing weights to past observations. It is particularly effective for data exhibiting trend and/or seasonality, providing robust forecasts by adaptively adjusting to recent changes in the series. The core idea is to smooth out irregular fluctuations in the data to reveal underlying patterns, making it a versatile tool for short-to-medium term predictions.
+
+## History
+
+**1957** — Robert G. Brown introduced Simple Exponential Smoothing (SES) for forecasting inventory demand, laying the groundwork for assigning exponentially decreasing weights to past observations.
+
+**1957** — Charles C. Holt independently developed a method for forecasting data with a trend component, known as Holt's linear trend method, by incorporating a second smoothing equation for the trend.
+
+**1960** — Peter R. Winters extended Holt's method to include a seasonal component, resulting in the widely used [Holt-Winters](/algorithms/time-series/classical-forecasting/holt-winters) exponential smoothing method, capable of handling trend and seasonality simultaneously.
+
+**1963** — Robert G. Brown published "Smoothing, Forecasting and Prediction of Discrete Time Series," a seminal work that formalized various exponential smoothing techniques.
+
+**1983** — Everette S. Gardner Jr.'s review "Forecasting the Future: An Introduction to Exponential Smoothing" highlighted the practical utility and widespread adoption of these methods in business and economics.
+
+**2002** — Hyndman, Koehler, Snyder, and Grose published "A State Space Framework for Automatic Forecasting using Exponential Smoothing Methods," providing a unified framework and automatic model selection for the entire family of ES models.
+
+## Mathematical Intuition
+
+### Simple Exponential Smoothing Basics
+
+Simple Exponential Smoothing (SES) is suitable for time series data without a clear trend or seasonal component. It forecasts the next value as a weighted average of the current observation and the previous forecast. The smoothing parameter $\alpha$ (alpha) controls the weight given to the most recent observation, with values closer to 1 giving more weight to recent data and values closer to 0 giving more weight to past data.
+
+$$
+F_{t+1} = \alpha Y_t + (1 - \alpha) F_t
+$$
+
+### Holt's Linear Trend Method
+
+Holt's method extends SES to handle time series with a linear trend. It involves two smoothing equations: one for the level and one for the trend. The level equation is similar to SES, while the trend equation smooths the estimated trend. Two smoothing parameters, $\alpha$ for the level and $\beta$ for the trend, control the influence of recent observations on these components. The forecast is the sum of the current level and a multiple of the current trend.
+
+$$
+L_t = \alpha Y_t + (1 - \alpha)(L_{t-1} + T_{t-1})
+$$
+
+$$
+T_t = \beta (L_t - L_{t-1}) + (1 - \beta) T_{t-1}
+$$
+
+$$
+F_{t+h} = L_t + h T_t
+$$
+
+### Holt-Winters Seasonal Method
+
+The [Holt-Winters](/algorithms/time-series/classical-forecasting/holt-winters) method further extends Holt's method by incorporating a seasonal component. It uses three smoothing equations: one for the level, one for the trend, and one for the seasonal component. There are three smoothing parameters: $\alpha$ for the level, $\beta$ for the trend, and $\gamma$ for the seasonal component. The seasonal component can be additive or multiplicative, depending on whether the seasonal variations are constant or proportional to the level of the series. The additive form is shown below.
+
+$$
+L_t = \alpha (Y_t - S_{t-m}) + (1 - \alpha)(L_{t-1} + T_{t-1})
+$$
+
+$$
+T_t = \beta (L_t - L_{t-1}) + (1 - \beta) T_{t-1}
+$$
+
+$$
+S_t = \gamma (Y_t - L_{t-1} - T_{t-1}) + (1 - \gamma) S_{t-m}
+$$
+
+$$
+F_{t+h} = L_t + h T_t + S_{t-m+h}
+$$
+
+## Algorithm Steps
+
+1. Initialize the level, trend, and seasonal components based on historical data, often using averages or differences from the first few observations.
+2. For each new observation $Y_t$ in the training data, update the level component $L_t$ using the current observation and the previous level and trend, weighted by the smoothing parameter $\alpha$.
+3. Update the trend component $T_t$ using the difference between the current and previous level, weighted by the smoothing parameter $\beta$.
+4. If applicable, update the seasonal component $S_t$ using the current observation adjusted for level and trend, weighted by the smoothing parameter $\gamma$, and the seasonal component from the previous season.
+5. Generate a one-step-ahead forecast $F_{t+1}$ by combining the updated level, trend, and seasonal components.
+6. Repeat steps 2-5 for all subsequent observations in the training data, iteratively refining the component estimates.
+7. Use the final estimated components from the last observation in the training data to generate forecasts for out-of-sample periods.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `smoothing_level` | `float` | `None` | [0, 1] | The smoothing parameter for the level component, $\alpha$. If None, it is estimated. |
+| `smoothing_trend` | `float` | `None` | [0, 1] | The smoothing parameter for the trend component, $\beta$. If None, it is estimated. |
+| `smoothing_seasonal` | `float` | `None` | [0, 1] | The smoothing parameter for the seasonal component, $\gamma$. If None, it is estimated. |
+| `initialization_method` | `str` | `estimated` | ['estimated', 'heuristic', 'legacy-heuristic', 'known'] | Method for initializing the components (level, trend, seasonal). Options include 'estimated', 'heuristic', 'legacy-heuristic', 'known'. |
+| `seasonal_periods` | `int` | `None` | integer > 1 | The number of periods in a season (e.g., 12 for monthly data with annual seasonality). Required for seasonal models. |
+| `trend` | `str` | `None` | ['add', 'mul', 'additive', 'multiplicative', 'None'] | Type of trend component. Options include 'add' (additive), 'mul' (multiplicative), 'additive', 'multiplicative', or 'None' (no trend). |
+| `seasonal` | `str` | `None` | ['add', 'mul', 'additive', 'multiplicative', 'None'] | Type of seasonal component. Options include 'add' (additive), 'mul' (multiplicative), 'additive', 'multiplicative', or 'None' (no seasonality). |
+| `damped_trend` | `bool` | `False` | True, False | Whether to use a damped trend component, which allows the trend to flatten out over time. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Exponential Smoothing models are relatively simple to understand and implement, making them accessible for various practitioners.
+- They are computationally efficient, allowing for quick model fitting and forecasting even with large datasets.
+- The models are highly adaptable to different time series patterns, including those with trend and seasonality, through various model variations.
+- Exponential Smoothing often provides accurate short-to-medium term forecasts, especially for stable series.
+- The smoothing parameters can be optimized automatically, reducing the need for manual tuning.
+- They are robust to some degree of noise and outliers in the data due to the inherent smoothing effect.
+
+## Weaknesses
+
+- Exponential Smoothing models assume that the underlying patterns (level, trend, seasonality) are relatively stable over time, which may not hold for highly volatile series.
+- They do not inherently handle exogenous variables or complex causal relationships, limiting their predictive power in multivariate scenarios.
+- The choice of the correct model (e.g., additive vs. multiplicative seasonality, damped trend) can be challenging and impact forecast accuracy.
+- Long-term forecasts from these models tend to flatten out, as the trend and seasonal components are projected linearly or become constant.
+- They are not well-suited for intermittent demand patterns or series with sudden, unpredictable shifts.
+
+## Use Cases
+
+### Retail
+
+Forecasting sales of individual products or product categories to optimize inventory management and staffing levels.
+
+### Manufacturing
+
+Estimating future demand for raw materials and finished goods to plan production schedules and supply chains efficiently.
+
+### Utilities
+
+Forecasting electricity or water consumption to manage resource allocation, optimize grid operations, and plan infrastructure capacity.
+
+### Healthcare
+
+Predicting patient admissions, bed occupancy, or demand for specific medical services to optimize hospital resource planning.
+
+### Finance
+
+Predicting short-term stock prices or commodity prices for trading strategies, often as a component of more complex models.
+
+### Logistics
+
+Forecasting package volumes, transportation demand, or delivery times to optimize routing and fleet management.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Exponential Smoothing from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Exponential Smoothing does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Exponential Smoothing Lab" />
+
+## References
+
+- Brown / Holt (1957). Brown / Holt.

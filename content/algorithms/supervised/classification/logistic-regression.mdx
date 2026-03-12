@@ -1,0 +1,200 @@
+---
+title: "Logistic Regression"
+slug: "logistic-regression"
+category: "supervised"
+subcategory: "classification"
+year: 1958
+author: "Cox"
+paper: "Cox"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["binary-classification", "classification", "generalized-linear-model", "interpretable", "linear-model", "probability", "statistical-model", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "linear-discriminant-analysis"
+  - "linear-regression"
+  - "multinomial-logistic-regression"
+  - "naive-bayes"
+  - "perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Logistic Regression is a fundamental statistical model used for binary classification, predicting the probability that a given input belongs to a particular class. It models the relationship between a set of independent variables and a binary dependent variable using the logistic (sigmoid) function. This algorithm is distinctive for its interpretability, providing probability scores and coefficients that indicate the strength and direction of feature influence.
+
+## History
+
+**1958** — David Cox introduced logistic regression in his paper "The regression analysis of binary sequences," laying the groundwork for modeling binary outcomes.
+
+**1970** — The method gained significant traction in biostatistics and epidemiology, becoming a standard tool for analyzing risk factors and disease prevalence.
+
+**1980** — Extensions to [Multinomial Logistic Regression](/algorithms/supervised/classification/multinomial-logistic-regression) were developed, allowing the model to handle classification problems with more than two classes.
+
+**2000** — With the rise of machine learning, Logistic Regression became a foundational algorithm, widely adopted as a baseline model due to its simplicity, efficiency, and interpretability.
+
+## Mathematical Intuition
+
+### The Logistic (Sigmoid) Function
+
+Logistic Regression employs the logistic function, also known as the sigmoid function, to map any real-valued number into a probability between 0 and 1. This function is crucial for transforming the linear combination of input features into a value that can be interpreted as a probability. The sigmoid function is defined as: $$ \sigma(z) = \frac{1}{1 + e^{-z}} $$ where $z$ is the linear combination of features and weights, $z = \theta^T x$.
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+$$
+z = \theta^T x
+$$
+
+### Model Formulation and Probability
+
+The core idea is to model the probability of the dependent variable $y$ being 1, given the input features $x$ and model parameters $\theta$. This probability is expressed using the sigmoid function: $$ P(y=1|x;\theta) = h_\theta(x) = \sigma(\theta^T x) $$ Consequently, the probability of $y$ being 0 is $P(y=0|x;\theta) = 1 - h_\theta(x)$. These two probabilities can be combined into a single expression for the probability mass function: $$ P(y|x;\theta) = (h_\theta(x))^y (1 - h_\theta(x))^{1-y} $$ This formulation allows the model to predict the likelihood of an observation belonging to the positive class.
+
+$$
+P(y=1|x;\theta) = h_\theta(x) = \sigma(\theta^T x)
+$$
+
+$$
+P(y=0|x;\theta) = 1 - h_\theta(x)
+$$
+
+$$
+P(y|x;\theta) = (h_\theta(x))^y (1 - h_\theta(x))^{1-y}
+$$
+
+### Cost Function: Cross-Entropy
+
+To train the model, a cost function is minimized to find the optimal parameters $\theta$. For Logistic Regression, the negative log-likelihood, also known as binary cross-entropy, is commonly used. For a single training example $(x^{(i)}, y^{(i)})$, the cost is: $$ Cost(h_\theta(x^{(i)}), y^{(i)}) = -y^{(i)} \log(h_\theta(x^{(i)})) - (1-y^{(i)}) \log(1-h_\theta(x^{(i)})) $$ The overall cost function $J(\theta)$ for $m$ training examples is the average of these individual costs: $$ J(\theta) = -\frac{1}{m} \sum_{i=1}^m [y^{(i)} \log(h_\theta(x^{(i)})) + (1-y^{(i)}) \log(1-h_\theta(x^{(i)}))] $$ Minimizing this function maximizes the likelihood of observing the training data given the model parameters.
+
+$$
+Cost(h_\theta(x^{(i)}), y^{(i)}) = -y^{(i)} \log(h_\theta(x^{(i)})) - (1-y^{(i)}) \log(1-h_\theta(x^{(i)}))
+$$
+
+$$
+J(\theta) = -\frac{1}{m} \sum_{i=1}^m [y^{(i)} \log(h_\theta(x^{(i)})) + (1-y^{(i)}) \log(1-h_\theta(x^{(i)}))]
+$$
+
+### Gradient Descent Optimization
+
+The parameters $\theta$ are typically learned using an iterative optimization algorithm like gradient descent. For each parameter $\theta_j$, the update rule is: $$ \theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta) $$ The partial derivative of the cost function with respect to $\theta_j$ is: $$ \frac{\partial}{\partial \theta_j} J(\theta) = \frac{1}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)} $$ Here, $\alpha$ is the learning rate, controlling the step size of each update. This process is repeated until convergence, where the parameters stabilize and the cost function is minimized.
+
+$$
+\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta)
+$$
+
+$$
+\frac{\partial}{\partial \theta_j} J(\theta) = \frac{1}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)}
+$$
+
+## Algorithm Steps
+
+1. Prepare the dataset by performing feature scaling and handling categorical variables, ensuring all features are numerical.
+2. Initialize the model parameters (weights $\theta$) to small random values or zeros.
+3. For each training iteration, calculate the linear combination of input features and current weights for all samples: $z^{(i)} = \theta^T x^{(i)}$.
+4. Apply the sigmoid function to $z^{(i)}$ to obtain the predicted probability $h_\theta(x^{(i)})$ for each sample.
+5. Compute the cost (binary cross-entropy) based on the predicted probabilities and true labels $y^{(i)}$.
+6. Calculate the gradient of the cost function with respect to each parameter $\theta_j$.
+7. Update the parameters $\theta_j$ by subtracting the learning rate $\alpha$ times the gradient.
+8. Repeat steps 3-7 until the parameters converge or a maximum number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `penalty` | `str` | `'l2'` | 'l1', 'l2', 'elasticnet', 'none' | Specifies the norm of the penalty (regularization term) to be used. Options include 'l1', 'l2', 'elasticnet', or 'none'. |
+| `C` | `float` | `1.0` | float > 0 | Inverse of regularization strength; must be a positive float. Smaller values specify stronger regularization. |
+| `solver` | `str` | `'lbfgs'` | 'lbfgs', 'liblinear', 'newton-cg', 'newton-cholesky', 'sag', 'saga' | Algorithm to use in the optimization problem. Different solvers support different penalty types. |
+| `max_iter` | `int` | `100` | int > 0 | Maximum number of iterations taken for the solvers to converge. |
+| `multi_class` | `str` | `'auto'` | 'auto', 'ovr', 'multinomial' | Determines how to handle multi-class classification problems. 'ovr' (one-vs-rest) or 'multinomial'. |
+| `random_state` | `int or RandomState instance` | `None` | int, RandomState instance, or None | Used when solver is 'sag', 'saga', or 'liblinear' to shuffle the data. Pass an int for reproducible output. |
+| `class_weight` | `dict or 'balanced'` | `None` | dict, 'balanced', or None | Weights associated with classes in the form {class_label: weight}. Useful for imbalanced datasets. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Logistic Regression is highly interpretable, as the coefficients indicate the impact of each feature on the log-odds of the outcome.
+- It is computationally efficient and scales well to large datasets, making it suitable for real-time predictions.
+- The model provides probability scores, which are useful for ranking predictions and setting custom decision thresholds.
+- It serves as an excellent baseline model due to its simplicity and robust performance on linearly separable data.
+- Regularization techniques (L1, L2) can be easily incorporated to prevent overfitting and improve generalization.
+
+## Weaknesses
+
+- Logistic Regression assumes a linear relationship between the independent variables and the log-odds of the dependent variable, which may not hold for complex, non-linear relationships.
+- It can be sensitive to outliers in the data, as they can significantly influence the estimated coefficients.
+- The model struggles with multicollinearity among independent variables, which can lead to unstable and less interpretable coefficients.
+- It is primarily designed for binary classification and requires extensions (e.g., one-vs-rest) for multi-class problems, which can sometimes be less effective than native multi-class algorithms.
+- Feature engineering is often required to capture complex interactions or non-linear patterns, as the model itself does not inherently learn them.
+
+## Use Cases
+
+### Healthcare
+
+Predicting the probability of a patient having a certain disease based on symptoms, medical history, and test results.
+
+### Finance
+
+Assessing credit risk by predicting the likelihood of loan default based on an applicant's financial history and demographics.
+
+### Marketing
+
+Predicting customer churn or the likelihood of a customer purchasing a product based on their browsing behavior and demographics.
+
+### Spam Detection
+
+Classifying emails as spam or not spam based on the presence of certain keywords and sender characteristics.
+
+### Social Sciences
+
+Modeling the probability of a specific social outcome (e.g., voting behavior) based on demographic and socioeconomic factors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Logistic Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Logistic Regression Lab" />
+
+## References
+
+- Cox (1958). Cox.
+- [scikit-learn: LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)

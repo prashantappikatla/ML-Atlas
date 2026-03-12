@@ -1,0 +1,173 @@
+---
+title: "Naive Bayes"
+slug: "naive-bayes"
+category: "supervised"
+subcategory: "classification"
+year: 1950
+author: "Bayesian classifier family"
+paper: "Bayesian classifier family"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["baseline", "classification", "fast", "generative-model", "probabilistic", "simple", "supervised-learning", "text-classification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bernoulli-naive-bayes"
+  - "gaussian-naive-bayes"
+  - "k-nearest-neighbors"
+  - "logistic-regression"
+  - "multinomial-naive-bayes"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Naive Bayes is a family of probabilistic classification algorithms rooted in Bayes' Theorem, distinguished by its 'naive' assumption of conditional independence among features given the class label. Despite this simplifying assumption, it often performs remarkably well, particularly in text classification and other high-dimensional datasets. Its simplicity and computational efficiency make it a popular baseline model for various supervised learning tasks.
+
+## History
+
+**1763** — Thomas Bayes' seminal work, 'An Essay towards solving a Problem in the Doctrine of Chances,' was published posthumously, introducing what is now known as Bayes' Theorem.
+
+**1950** — The broader application of Bayesian decision theory began to emerge in statistical pattern recognition and classification problems, laying the groundwork for probabilistic classifiers.
+
+**1960** — The 'naive' conditional independence assumption was increasingly adopted to make Bayesian classifiers computationally tractable for problems with many features, simplifying the joint probability calculation.
+
+**1990** — Naive Bayes gained significant popularity and widespread adoption, particularly for text classification tasks such as spam filtering and document categorization, due to its effectiveness and speed.
+
+## Mathematical Intuition
+
+### Bayes' Theorem Foundation
+
+At its core, Naive Bayes applies Bayes' Theorem to determine the probability of a class $C$ given observed features $X = (x_1, x_2, ..., x_n)$. The theorem states:$$P(C|X) = \frac{P(X|C)P(C)}{P(X)}$$Here, $P(C|X)$ is the posterior probability (what we want to find), $P(X|C)$ is the likelihood, $P(C)$ is the prior probability of the class, and $P(X)$ is the evidence. Since $P(X)$ is constant for all classes, we aim to maximize the numerator.
+
+$$
+P(C|X) = \frac{P(X|C)P(C)}{P(X)}
+$$
+
+### The Naive Conditional Independence Assumption
+
+The 'naive' aspect of Naive Bayes comes from the assumption that all features $x_i$ are conditionally independent of each other given the class $C$. This simplifies the likelihood term $P(X|C)$ significantly:$$P(X|C) = P(x_1, x_2, ..., x_n | C) = \prod_{i=1}^{n} P(x_i | C)$$This assumption drastically reduces the number of parameters that need to be estimated, making the model computationally efficient, especially for high-dimensional data.
+
+$$
+P(X|C) = P(x_1, x_2, ..., x_n | C) = \prod_{i=1}^{n} P(x_i | C)
+$$
+
+### Classification Rule Derivation
+
+Combining Bayes' Theorem with the naive assumption, the classification rule for a new instance $X$ becomes finding the class $C^*$ that maximizes the posterior probability:$$C^* = \arg\max_C P(C|X) = \arg\max_C P(C) \prod_{i=1}^{n} P(x_i | C)$$The prior probabilities $P(C)$ and the conditional probabilities $P(x_i|C)$ are estimated from the training data.
+
+$$
+C^* = \arg\max_C P(C|X) = \arg\max_C P(C) \prod_{i=1}^{n} P(x_i | C)
+$$
+
+### Parameter Estimation Methods
+
+The probabilities $P(C)$ and $P(x_i|C)$ are typically estimated using Maximum Likelihood Estimation (MLE) from the training data. For $P(C)$, it's simply the frequency of class $C$ in the training set: $P(C) = \frac{\text{count}(C)}{\text{total samples}}$. For $P(x_i|C)$, the estimation method depends on the nature of the feature $x_i$ (e.g., Gaussian for continuous, Multinomial for counts, Bernoulli for binary). Smoothing techniques, like Laplace smoothing, are often applied to prevent zero probabilities for unseen feature values.
+
+$$
+P(C) = \frac{\text{count}(C)}{\text{total samples}}
+$$
+
+## Algorithm Steps
+
+1. Given a training dataset with features $X$ and corresponding class labels $C$, separate the data by class.
+2. For each class $C_k$, calculate its prior probability $P(C_k)$ by counting its occurrences and dividing by the total number of samples.
+3. For each feature $x_i$ and each class $C_k$, estimate the conditional probability $P(x_i|C_k)$ based on the distribution of $x_i$ within samples belonging to $C_k$. This step varies depending on the specific Naive Bayes variant (e.g., Gaussian, Multinomial, Bernoulli).
+4. For a new, unseen data instance $X_{new} = (x_1, x_2, ..., x_n)$, calculate the posterior probability for each class $C_k$ using the formula: $P(C_k|X_{new}) \propto P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
+5. The instance $X_{new}$ is assigned to the class $C^*$ that yields the highest posterior probability: $C^* = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | non-negative float | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied. Used in MultinomialNB and BernoulliNB. |
+| `fit_prior` | `bool` | `True` | True, False | Whether to learn class prior probabilities or assume uniform priors. If False, a uniform prior is used. |
+| `class_prior` | `array-like` | `None` | array of floats, sum to 1 | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data. Must sum to 1. |
+| `var_smoothing` | `float` | `1e-09` | non-negative float | Portion of the largest variance of all features that is added to variances for calculation stability. Used in GaussianNB. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Naive Bayes is computationally efficient and scales well to large datasets and high-dimensional feature spaces.
+- It requires a relatively small amount of training data to estimate the necessary parameters, especially compared to more complex models.
+- The algorithm is simple to implement and interpret, making it a good baseline model for classification tasks.
+- It performs particularly well in text classification problems, such as spam detection and sentiment analysis.
+- Naive Bayes can handle both continuous and discrete data types, provided the appropriate variant (e.g., Gaussian, Multinomial) is chosen.
+- It is robust to irrelevant features, as they tend to have little impact on the posterior probabilities.
+
+## Weaknesses
+
+- The 'naive' assumption of conditional independence among features rarely holds true in real-world datasets, which can lead to suboptimal performance.
+- Naive Bayes is known to be a 'bad estimator' of probabilities, meaning its predicted probability values might not be accurate, even if its classification accuracy is high.
+- If a categorical feature value is not observed in the training data for a particular class, the model will assign a zero probability, leading to a zero posterior probability for that class, which can be problematic without smoothing.
+- Its performance can degrade significantly if features are highly correlated, as the independence assumption is violated.
+
+## Use Cases
+
+### Email Filtering
+
+Widely used for spam detection, classifying emails as 'spam' or 'not spam' based on the frequency of words and phrases in the email content.
+
+### Sentiment Analysis
+
+Applied to classify the sentiment of text (e.g., product reviews, social media posts) as positive, negative, or neutral by analyzing word occurrences.
+
+### Document Classification
+
+Used to categorize documents into predefined classes, such as news articles by topic or legal documents by type, based on their textual content.
+
+### Medical Diagnosis
+
+Can be employed in diagnostic systems to predict the likelihood of a disease given a set of symptoms and patient characteristics.
+
+### Recommendation Systems
+
+Can be used as a component in recommending items to users by predicting the probability of a user liking an item based on past preferences and item features.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Naive Bayes from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Naive Bayes Lab" />
+
+## References
+
+- Bayesian classifier family (1950). Bayesian classifier family.
+- [scikit-learn: GaussianNB](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html)

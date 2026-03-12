@@ -1,0 +1,195 @@
+---
+title: "Spectral Clustering"
+slug: "spectral-clustering"
+category: "unsupervised"
+subcategory: "clustering"
+year: 2001
+author: "Ng, Jordan, Weiss"
+paper: "Ng, Jordan, Weiss"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["clustering", "dimensionality-reduction", "eigenvalue-decomposition", "graph-theory", "kernel-methods", "non-convex-clusters", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "dbscan"
+  - "isomap"
+  - "k-means"
+  - "k-nearest-neighbors"
+  - "kernel-pca"
+---
+
+## Overview
+
+Spectral Clustering is a clustering technique that leverages the eigenvalues and eigenvectors of a similarity matrix to perform dimensionality reduction before applying a standard clustering algorithm, typically [K-Means](/algorithms/unsupervised/clustering/k-means). It is particularly effective at identifying non-convex clusters and clusters embedded in complex structures, by transforming the data into a lower-dimensional space where clusters become linearly separable. The core idea involves constructing a similarity graph from the data points and then partitioning this graph based on its spectral properties.
+
+## History
+
+**1990** — Jianbo Shi and Jitendra Malik introduce Normalized Cut for image segmentation, a foundational work applying spectral graph theory to partitioning problems.
+
+**1999** — Marina Meilă and Jianbo Shi publish "Learning with Kernels and Spectral Clustering," formalizing the connection between kernel methods and spectral clustering.
+
+**2001** — Andrew Ng, Michael Jordan, and Yair Weiss publish "On Spectral Clustering: Analysis and an algorithm," which is widely considered the seminal paper, popularizing a simplified and effective algorithm.
+
+**2002** — Ulrike von Luxburg and Matthias Hein contribute to the theoretical understanding of spectral clustering, particularly regarding its consistency and convergence properties.
+
+**2007** — Ulrike von Luxburg publishes "A Tutorial on Spectral Clustering," providing a comprehensive overview and practical guidelines, further solidifying its place in machine learning.
+
+## Mathematical Intuition
+
+### Graph Construction and Adjacency
+
+Spectral clustering begins by representing the data points as nodes in a graph, where edges connect similar points. The strength of these connections is quantified by a similarity function, often a Gaussian (RBF) kernel, which forms the adjacency matrix $W$. For $n$ data points $x_1, \dots, x_n$, the entry $W_{ij}$ represents the similarity between $x_i$ and $x_j$. 
+$$W_{ij} = \exp(-\frac{\|x_i - x_j\|^2}{2\sigma^2})$$
+where $\sigma$ is a scaling parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) graph can be constructed, where $W_{ij} > 0$ only if $x_i$ is among the [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) of $x_j$ (or vice-versa).
+
+$$
+W_{ij} = \exp(-\frac{\|x_i - x_j\|^2}{2\sigma^2})
+$$
+
+### Laplacian Matrix Definition
+
+The graph Laplacian matrix is central to spectral clustering. For an unweighted graph, the unnormalized Laplacian $L$ is defined as $L = D - W$, where $D$ is the degree matrix, a diagonal matrix with $D_{ii} = \sum_j W_{ij}$. The normalized Laplacian matrices, such as the symmetric normalized Laplacian $L_{sym} = D^{-1/2} L D^{-1/2} = I - D^{-1/2} W D^{-1/2}$ or the random walk normalized Laplacian $L_{rw} = D^{-1} L = I - D^{-1} W$, are often preferred due to their theoretical properties related to graph cuts and random walks. These matrices encode the structure of the graph in a way that highlights connectivity and partitions.
+
+$$
+L = D - W
+$$
+
+$$
+D_{ii} = \sum_j W_{ij}
+$$
+
+$$
+L_{sym} = D^{-1/2} L D^{-1/2} = I - D^{-1/2} W D^{-1/2}
+$$
+
+$$
+L_{rw} = D^{-1} L = I - D^{-1} W
+$$
+
+### Eigenvalue Decomposition for Embedding
+
+The core idea is to find a low-dimensional embedding of the data by computing the eigenvectors corresponding to the smallest eigenvalues of the Laplacian matrix. For a graph with $k$ connected components, the unnormalized Laplacian has $k$ eigenvalues equal to zero, with their corresponding eigenvectors indicating the connected components. For clustering into $k$ groups, we typically compute the $k$ eigenvectors corresponding to the $k$ smallest non-zero eigenvalues of a normalized Laplacian. These eigenvectors form the columns of an embedding matrix $U \in \mathbb{R}^{n \times k}$.
+
+$$
+U \in \mathbb{R}^{n \times k}
+$$
+
+### Clustering in Embedded Space
+
+After obtaining the low-dimensional embedding matrix $U$, each row $u_i \in \mathbb{R}^k$ represents the embedded feature vector for the original data point $x_i$. These embedded points are then clustered using a standard clustering algorithm, most commonly [K-Means](/algorithms/unsupervised/clustering/k-means). The [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm partitions the $n$ rows of $U$ into $k$ clusters, and these cluster assignments are then mapped back to the original data points, providing the final clustering result. This step leverages the fact that the spectral embedding often makes the clusters linearly separable.
+
+$$
+u_i \in \mathbb{R}^k
+$$
+
+## Algorithm Steps
+
+1. Construct a similarity graph $G=(V,E)$ from the $n$ data points, where $V$ is the set of data points and $E$ represents similarities, typically by computing an adjacency matrix $W$ using a kernel function or k-nearest neighbors.
+2. Compute the degree matrix $D$, a diagonal matrix where $D_{ii} = \sum_j W_{ij}$.
+3. Form the graph Laplacian matrix, choosing from options like the unnormalized Laplacian $L = D - W$, the symmetric normalized Laplacian $L_{sym} = D^{-1/2} L D^{-1/2}$, or the random walk normalized Laplacian $L_{rw} = D^{-1} L$.
+4. Compute the $k$ eigenvectors corresponding to the $k$ smallest eigenvalues of the chosen Laplacian matrix.
+5. Form an $n \times k$ matrix $U$ where each column is one of the computed eigenvectors.
+6. Normalize each row of $U$ to have unit length, if using normalized Laplacians, to ensure points lie on a sphere, which can improve k-means performance; let this normalized matrix be $Y$.
+7. Treat each row of $Y$ as a new data point in a $k$-dimensional space and apply the k-means algorithm to cluster these $n$ points into $k$ clusters.
+8. Assign the original data points to the cluster corresponding to their row's cluster assignment in the k-means result.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int` | `8` | integer > 0 | The number of clusters to form. |
+| `eigen_solver` | `str` | `None` | {'arpack', 'lobpcg', 'amg'} | The solver for the eigenvalue problem. 'arpack' is for sparse matrices, 'lobpcg' is for large-scale problems, 'amg' is for multigrid methods. If None, it defaults to 'arpack' for sparse input and 'lobpcg' for dense input. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, or None | Determines random number generation for k-means initialization. Use an int for reproducible results. |
+| `n_init` | `int` | `10` | integer > 0 | Number of times the k-means algorithm is run with different centroid seeds. The final result is the best output of n_init consecutive runs in terms of inertia. |
+| `gamma` | `float` | `1.0` | float > 0 | Kernel coefficient for 'rbf', 'poly', 'sigmoid', 'laplacian' and 'chi2' kernels. Ignored by other kernels. |
+| `affinity` | `str` | `'rbf'` | {'nearest_neighbors', 'rbf', 'laplacian', 'chi2', 'cosine', 'precomputed'} | How to construct the affinity matrix. 'nearest_neighbors' constructs a k-NN graph. 'rbf' uses a radial basis function kernel. 'precomputed' expects a user-provided affinity matrix. |
+| `n_neighbors` | `int` | `10` | integer > 0 | Number of neighbors to use when constructing the affinity matrix using the 'nearest_neighbors' method. |
+| `assign_labels` | `str` | `'kmeans'` | {'kmeans', 'discretize'} | The strategy to use to assign labels in the embedding space. 'kmeans' uses k-means. 'discretize' uses a simpler heuristic. |
+| `degree` | `float` | `3` | float > 0 | Degree of the polynomial kernel ('poly'). Ignored by other kernels. |
+| `coef0` | `float` | `1` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- It can discover arbitrarily shaped clusters, unlike algorithms like k-means which are biased towards convex shapes.
+- The algorithm is robust to noise and outliers if the similarity graph is constructed appropriately (e.g., using k-nearest neighbors).
+- It provides a natural way to incorporate domain knowledge through the choice of similarity function and graph construction.
+- Spectral clustering can effectively handle data that is not linearly separable in the original feature space by transforming it into a lower-dimensional space.
+- The method is well-grounded in graph theory and linear algebra, offering strong theoretical guarantees under certain conditions.
+
+## Weaknesses
+
+- The choice of similarity function and its parameters (e.g., $\sigma$ for RBF kernel, $k$ for k-NN graph) significantly impacts the clustering quality and can be difficult to tune.
+- The computational cost involves eigenvalue decomposition of an $n \times n$ matrix, which can be prohibitive for very large datasets ($O(n^3)$ or $O(n^2 k)$ for sparse matrices).
+- The number of clusters, $k$, must be specified in advance, which is a common limitation for many clustering algorithms.
+- The results can be sensitive to the initial centroids chosen by the k-means algorithm in the final step.
+- Interpreting the clusters found by spectral clustering can be less intuitive than with other methods, as they are derived from an abstract spectral embedding.
+
+## Use Cases
+
+### Image Segmentation
+
+Identifying distinct objects or regions within an image by clustering pixels based on their color, texture, and spatial proximity.
+
+### Social Network Analysis
+
+Detecting communities or groups of users with similar interests or interactions within a social network graph.
+
+### Bioinformatics
+
+Grouping genes or proteins with similar expression patterns or functional relationships based on their interaction networks.
+
+### Document Clustering
+
+Organizing collections of text documents into thematic groups by constructing a similarity graph based on semantic content.
+
+### Anomaly Detection
+
+Identifying unusual data points that do not fit well into any cluster, often by analyzing their connectivity in the similarity graph.
+
+### Computer Vision
+
+Clustering features extracted from images or videos, such as motion patterns or object parts, for recognition or tracking tasks.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Spectral Clustering from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import SpectralClustering
+
+model = SpectralClustering()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Spectral Clustering Lab" />
+
+## References
+
+- Ng, Jordan, Weiss (2001). Ng, Jordan, Weiss.
+- [scikit-learn: SpectralClustering](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html)

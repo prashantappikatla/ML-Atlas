@@ -1,0 +1,206 @@
+---
+title: "Diffusion Model"
+slug: "diffusion-model"
+category: "generative"
+subcategory: "diffusion"
+year: 2015
+author: "Sohl-Dickstein et al."
+paper: "Sohl-Dickstein et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "denoising", "generative-model", "image-synthesis", "neural-networks", "score-matching", "stochastic-process", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "denoising-autoencoder"
+  - "latent-diffusion"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Diffusion Models are a class of generative models that learn to reverse a gradual noising process, transforming random noise into coherent data samples. They operate by iteratively denoising a noisy input, guided by a neural network trained to predict the noise added at each step. This approach enables the synthesis of high-quality, diverse samples across various data modalities, particularly excelling in image and audio generation.
+
+## History
+
+**2015** — Sohl-Dickstein et al. introduced "Deep Unsupervised Learning using Nonequilibrium Thermodynamics," proposing Denoising Diffusion Probabilistic Models (DDPMs) as a generative modeling framework inspired by statistical physics.
+
+**2020** — Ho et al. significantly advanced DDPMs, demonstrating their ability to generate high-quality images competitive with GANs and VAEs, along with a simplified training objective.
+
+**2020** — Song et al. concurrently developed "Score-Based Generative Modeling through Stochastic Differential Equations," establishing a theoretical connection between diffusion models and score-based models.
+
+**2021** — Nichol et al. introduced improved DDPMs, enhancing sample quality and computational efficiency through techniques like cosine noise schedules and learned variance.
+
+**2021** — Song et al. proposed Denoising Diffusion Implicit Models (DDIMs), enabling faster sampling and deterministic generation paths, which significantly reduced inference time.
+
+**2022** — Rombach et al. introduced [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) Models (LDMs), which perform the diffusion process in a compressed latent space, drastically reducing computational cost and memory requirements for high-resolution image generation.
+
+## Mathematical Intuition
+
+### Forward Diffusion Process
+
+The forward process gradually adds Gaussian noise to an input data sample $x_0$ over $T$ discrete time steps, creating a sequence of noisy samples $x_1, x_2, ..., x_T$. Each step $t$ adds a small amount of noise, transforming $x_{t-1}$ into $x_t$ according to a fixed Markov chain. The variance schedule $eta_1, ..., eta_T$ controls the amount of noise added at each step. This allows for a direct sampling of $x_t$ from $x_0$ using the reparameterization trick.
+
+$$
+q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1 - \beta_t} x_{t-1}, \beta_t I)
+$$
+
+$$
+q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1 - \bar{\alpha}_t) I)
+$$
+
+$$
+\alpha_t = 1 - \beta_t
+$$
+
+$$
+\bar{\alpha}_t = \prod_{s=1}^t \alpha_s
+$$
+
+### Reverse Diffusion Process
+
+The reverse process aims to invert the forward process, starting from pure Gaussian noise $x_T \sim \mathcal{N}(0, I)$ and iteratively denoising it to recover a data sample $x_0$. This reverse transition $q(x_{t-1} | x_t)$ is intractable, so a neural network $p_\theta(x_{t-1} | x_t)$ is trained to approximate it. The network typically predicts the noise $\epsilon_\theta(x_t, t)$ that was added at step $t$, which allows for an estimation of $x_0$ from $x_t$.
+
+$$
+q(x_{t-1} | x_t, x_0) = \mathcal{N}(x_{t-1}; \tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t I)
+$$
+
+$$
+\tilde{\mu}_t(x_t, x_0) = \frac{\sqrt{\alpha_t}(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} x_t + \frac{\sqrt{\bar{\alpha}_{t-1}}\beta_t}{1 - \bar{\alpha}_t} x_0
+$$
+
+$$
+\tilde{\beta}_t = \frac{1 - \bar{\alpha}_{t-1}}{1 - \bar{\alpha}_t} \beta_t
+$$
+
+$$
+\epsilon_\theta(x_t, t)
+$$
+
+### Training Objective Function
+
+The training objective is to minimize the difference between the predicted noise $\epsilon_\theta(x_t, t)$ and the actual noise $\epsilon$ added at step $t$. This is a simplified version of the Evidence Lower Bound (ELBO) and is typically a mean squared error loss. The noisy sample $x_t$ is directly sampled from $x_0$ using the reparameterization trick, making the training efficient.
+
+$$
+\mathcal{L}_{simple} = \mathbb{E}_{t \sim U(1, T), x_0 \sim q(x_0), \epsilon \sim \mathcal{N}(0, I)} \left[ ||\epsilon - \epsilon_\theta(\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t)||^2 \right]
+$$
+
+$$
+x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon
+$$
+
+### Sampling New Data
+
+To generate a new sample, one starts with a pure noise sample $x_T \sim \mathcal{N}(0, I)$. The trained neural network then iteratively denoises this sample by predicting the noise $\epsilon_\theta(x_t, t)$ at each step $t$ from $T$ down to $1$. This prediction is used to estimate $x_{t-1}$ from $x_t$, gradually refining the sample until a clean data sample $x_0$ is obtained.
+
+$$
+x_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t}} \epsilon_\theta(x_t, t) \right) + \sigma_t z
+$$
+
+$$
+z \sim \mathcal{N}(0, I)
+$$
+
+## Algorithm Steps
+
+1. Define a forward diffusion process that gradually adds Gaussian noise to data samples $x_0$ over $T$ steps, resulting in noisy samples $x_t$.
+2. Choose a neural network architecture, typically a U-Net, to serve as the noise predictor $\epsilon_\theta(x_t, t)$.
+3. During training, for each data sample $x_0$ in a batch, randomly sample a time step $t \in [1, T]$.
+4. Sample noise $\epsilon \sim \mathcal{N}(0, I)$ and compute the noisy sample $x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon$.
+5. Pass $x_t$ and $t$ to the neural network to predict the noise $\epsilon_\theta(x_t, t)$.
+6. Compute the loss as the mean squared error between the true noise $\epsilon$ and the predicted noise $\epsilon_\theta(x_t, t)$, then update the network parameters using gradient descent.
+7. Repeat steps 3-6 until the network is sufficiently trained to accurately predict noise at various time steps.
+8. For sampling, initialize $x_T \sim \mathcal{N}(0, I)$ and iteratively apply the reverse diffusion step from $t=T$ down to $t=1$ using the trained $\epsilon_\theta(x_t, t)$ to generate $x_{t-1}$, eventually yielding a clean sample $x_0$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_diffusion_steps` | `integer` | `1000` | 1 to 2000 | The total number of discrete time steps $T$ in the forward and reverse diffusion process. |
+| `beta_schedule` | `string` | `linear` | linear, cosine, quadratic, sigmoid | The schedule for the variance $\beta_t$ of the noise added at each step. Common options include "linear", "cosine", "quadratic". |
+| `model_architecture` | `string` | `unet` | unet, transformer | The neural network architecture used as the noise predictor $\epsilon_\theta$. U-Net is the most common choice. |
+| `optimizer` | `string` | `AdamW` | Adam, AdamW, SGD | The optimization algorithm used to train the neural network. |
+| `learning_rate` | `float` | `1e-4` | 1e-6 to 1e-3 | The step size for the optimizer during training. |
+| `loss_type` | `string` | `l2` | l1, l2, huber | The type of loss function used to compare predicted noise with true noise. "l2" (MSE) is standard. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Diffusion models are capable of generating highly realistic and diverse samples, often surpassing the quality of GANs in certain domains.
+- Their training process is generally more stable compared to Generative Adversarial Networks, avoiding common issues like mode collapse.
+- The architecture allows for flexible conditioning, enabling control over generated content through text prompts, class labels, or other inputs.
+- They provide excellent mode coverage, meaning they can represent the full diversity of the training data distribution.
+- The iterative denoising process offers a natural way to control the trade-off between sample quality and diversity during generation.
+- The underlying mathematical framework is robust and well-understood, drawing connections to score-based models and stochastic differential equations.
+
+## Weaknesses
+
+- Sampling new data from diffusion models is computationally intensive and significantly slower than GANs or VAEs, requiring many sequential steps.
+- Training diffusion models, especially for high-resolution data, demands substantial computational resources and memory.
+- The large number of diffusion steps can lead to high inference latency, making real-time applications challenging.
+- The choice of noise schedule and network architecture can significantly impact performance, requiring careful hyperparameter tuning.
+- While stable, training can still be sensitive to learning rates and other optimization parameters.
+
+## Use Cases
+
+### Image Synthesis
+
+Generating photorealistic images from text descriptions, creating novel artistic styles, or performing image-to-image translation.
+
+### Audio Generation
+
+Synthesizing realistic speech, music, or sound effects, often used in text-to-speech or music composition tools.
+
+### Video Generation
+
+Creating short video clips from text prompts or generating future frames in a sequence.
+
+### Drug Discovery
+
+Designing novel molecular structures with desired properties by treating molecules as graph-like data and diffusing in latent space.
+
+### Medical Imaging
+
+Generating synthetic medical images for data augmentation, privacy-preserving data sharing, or anomaly detection.
+
+### Data Augmentation
+
+Creating diverse synthetic data samples to expand training datasets for other machine learning tasks, especially in computer vision.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Diffusion Model from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Diffusion Model does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Diffusion Model Lab" />
+
+## References
+
+- Sohl-Dickstein et al. (2015). Sohl-Dickstein et al..

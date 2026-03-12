@@ -1,0 +1,197 @@
+---
+title: "Gradient Boosting Classifier"
+slug: "gradient-boosting-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 1999
+author: "Friedman"
+paper: "Friedman"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["additive-model", "boosting", "classification", "decision-trees", "ensemble", "gradient-descent", "sequential", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adaboost"
+  - "bagging-classifier"
+  - "decision-tree-classifier"
+  - "logistic-regression"
+  - "random-forest-classifier"
+  - "xgboost"
+---
+
+## Overview
+
+Gradient Boosting Classifier is an ensemble machine learning algorithm that builds a strong predictive model by sequentially combining multiple weak learners, typically decision trees. It operates by iteratively training new models to correct the errors (residuals) of previous models, using a gradient descent optimization approach. This method allows for highly accurate predictions by focusing on misclassified instances in each iteration, making it particularly effective for complex classification tasks.
+
+## History
+
+**1990** — Yoav Freund and Robert Schapire introduce [AdaBoost](/algorithms/supervised/classification/adaboost), a foundational boosting algorithm that adaptively weights misclassified samples.
+
+**1999** — Jerome Friedman introduces Gradient Boosting Machines (GBM), generalizing boosting to arbitrary differentiable loss functions by fitting new models to the negative gradient of the loss function.
+
+**2001** — Jerome Friedman publishes "Greedy Function Approximation: A Gradient Boosting Machine," formally detailing the algorithm and its theoretical underpinnings.
+
+**2002** — Jerome Friedman publishes "Stochastic Gradient Boosting," introducing subsampling of the training data at each iteration to reduce variance and computation time.
+
+**2014** — Tianqi Chen and Carlos Guestrin introduce [XGBoost](/algorithms/supervised/regression/xgboost), an optimized and scalable implementation of gradient boosting that significantly improves performance and efficiency.
+
+## Mathematical Intuition
+
+### Additive Model and Loss Minimization
+
+Gradient Boosting constructs an additive model $F(x)$ by combining multiple weak learners $h_m(x)$. The primary objective is to minimize a differentiable loss function $L(y, F(x))$ over the training data. The model is built iteratively, where each new learner is chosen to improve the overall model's fit by reducing the loss.
+$$F(x) = \sum_{m=0}^M \nu h_m(x)$$
+Here, $F(x)$ is the final prediction function, $h_m(x)$ is the $m$-th weak learner, and $\nu$ is the learning rate.
+
+$$
+F(x) = \sum_{m=0}^M \nu h_m(x)
+$$
+
+$$
+L(y, F(x))
+$$
+
+### Gradient Descent and Pseudo-Residuals
+
+Instead of directly fitting to residuals as in traditional boosting, Gradient Boosting employs a gradient descent approach. At each iteration $m$, a new weak learner is trained to predict the negative gradient of the loss function with respect to the current model's prediction. These negative gradients are often referred to as 'pseudo-residuals'. For each observation $i$, the pseudo-residual $r_{im}$ is calculated as:
+$$r_{im} = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x_i)}$$
+This effectively directs the new learner to focus on the errors made by the ensemble of previous learners $F_{m-1}(x)$.
+
+$$
+r_{im} = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x_i)}
+$$
+
+$$
+F_{m-1}(x)
+$$
+
+### Updating the Model
+
+Once the pseudo-residuals are computed, a new weak learner $h_m(x)$ (typically a regression tree) is fitted to these pseudo-residuals. The output of this tree is then scaled by a learning rate $\nu$ and added to the existing model to form the updated model $F_m(x)$. For classification tasks, the final output $F_M(x)$ is typically passed through a link function (e.g., sigmoid for binary classification or softmax for multi-class classification) to produce class probabilities.
+$$F_m(x) = F_{m-1}(x) + \nu \cdot h_m(x)$$
+In practice, the leaf values of the regression tree $h_m(x)$ are often optimized to directly minimize the loss function within each leaf region, rather than simply using the predicted pseudo-residual.
+
+$$
+F_m(x) = F_{m-1}(x) + \nu \cdot h_m(x)
+$$
+
+$$
+F_M(x)
+$$
+
+## Algorithm Steps
+
+1. Initialize the model with a constant value $F_0(x) = \arg\min_{\gamma} \sum_{i=1}^N L(y_i, \gamma)$, which is typically the log-odds for binary classification.
+2. For $m = 1$ to $M$ (number of boosting iterations):
+3. Compute the pseudo-residuals for each observation $i=1, \dots, N$: $r_{im} = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x_i)}$.
+4. Fit a base learner $h_m(x)$ (e.g., a regression tree) to the pseudo-residuals $r_{im}$ as targets, using the original features $x_i$.
+5. For each leaf $j$ of the tree $h_m(x)$, calculate the optimal output value $\gamma_{jm}$ by minimizing the loss function: $\gamma_{jm} = \arg\min_{\gamma} \sum_{x_i \in R_{jm}} L(y_i, F_{m-1}(x_i) + \gamma)$, where $R_{jm}$ is the region for leaf $j$.
+6. Update the model: $F_m(x) = F_{m-1}(x) + \nu \sum_{j=1}^{J_m} \gamma_{jm} \mathbb{I}(x \in R_{jm})$, where $\nu$ is the learning rate and $J_m$ is the number of leaves in $h_m(x)$.
+7. The final model is $F_M(x)$. For classification, apply a suitable transformation (e.g., sigmoid for binary, softmax for multi-class) to $F_M(x)$ to obtain class probabilities.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `loss` | `str` | `'log_loss'` | 'log_loss', 'exponential' | The loss function to be optimized. 'log_loss' refers to logistic regression for binary and multi-class classification, while 'exponential' corresponds to the AdaBoost algorithm. |
+| `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages (weak learners) to perform. A higher number generally leads to a more robust model but increases computation time and risk of overfitting. |
+| `learning_rate` | `float` | `0.1` | float in (0.0, 1.0] | Shrinks the contribution of each tree by `learning_rate`. There is a trade-off between `learning_rate` and `n_estimators`. |
+| `subsample` | `float` | `1.0` | float in (0.0, 1.0] | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce stochasticity, which can reduce variance and improve generalization. |
+| `criterion` | `str` | `'friedman_mse'` | 'friedman_mse', 'squared_error' | The function to measure the quality of a split in the regression trees. 'friedman_mse' uses Friedman's improvement score, 'squared_error' uses mean squared error. |
+| `min_samples_split` | `int or float` | `2` | integer >= 2 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. Can be an absolute number or a fraction of the total samples. |
+| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 0.5] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
+| `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators. Controls the complexity of the base learners. |
+| `max_features` | `str or int or float` | `None` | None, 'auto', 'sqrt', 'log2', integer > 0, float in (0.0, 1.0] | The number of features to consider when looking for the best split. Can be 'auto', 'sqrt', 'log2', an integer, or a float. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Gradient Boosting often achieves very high predictive accuracy, frequently outperforming many other machine learning algorithms on tabular data.
+- It can effectively handle mixed data types, including numerical and categorical features, without extensive preprocessing.
+- The algorithm is robust to outliers when appropriate loss functions, such as Huber loss, are employed (though 'log_loss' is standard for classification).
+- It is capable of capturing complex non-linear relationships between features and the target variable.
+- Gradient Boosting provides feature importance scores, which can aid in understanding the relative contribution of different features to the predictions.
+- With proper hyperparameter tuning and regularization techniques like subsampling, it can be less prone to overfitting than some other complex models.
+
+## Weaknesses
+
+- Gradient Boosting can be computationally intensive and slow to train, especially on very large datasets or with a high number of estimators.
+- It requires careful tuning of multiple hyperparameters to achieve optimal performance and prevent overfitting, which can be a time-consuming process.
+- The sequential nature of the boosting process makes it inherently difficult to parallelize the training procedure effectively across multiple cores or machines.
+- The model can be sensitive to noisy data, as errors or outliers in early iterations can propagate and negatively impact subsequent learners.
+- The resulting ensemble model is less interpretable than a single decision tree, making it challenging to explain individual predictions in a straightforward manner.
+
+## Use Cases
+
+### Finance
+
+Used for credit risk assessment, fraud detection, and predicting customer churn due to its high accuracy in classification tasks.
+
+### Healthcare
+
+Applied in disease diagnosis based on patient data, predicting treatment outcomes, and identifying patients at high risk for certain conditions.
+
+### Marketing
+
+Utilized for customer segmentation, predicting purchasing behavior, and optimizing targeted advertising campaigns to improve conversion rates.
+
+### E-commerce
+
+Employed in building recommender systems, predicting product demand, and detecting fraudulent transactions to enhance user experience and security.
+
+### Manufacturing
+
+Used for predictive maintenance by forecasting equipment failures and for quality control by identifying defects in production lines.
+
+### Environmental Science
+
+Applied in predicting weather patterns, climate modeling, and mapping species distribution based on various environmental factors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gradient Boosting Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GradientBoostingClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gradient Boosting Classifier Lab" />
+
+## References
+
+- Friedman (1999). Friedman.
+- [scikit-learn: GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)

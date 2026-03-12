@@ -1,0 +1,207 @@
+---
+title: "Stacking"
+slug: "stacking"
+category: "supervised"
+subcategory: "classification"
+year: 1992
+author: "Wolpert"
+paper: "Wolpert"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["classification", "cross-validation", "ensemble-learning", "high-complexity", "meta-learning", "model-combination", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "catboost"
+  - "lightgbm"
+  - "voting-classifier"
+  - "xgboost"
+---
+
+## Overview
+
+Stacking, or Stacked Generalization, is an advanced ensemble learning technique that combines predictions from multiple diverse base models (level-0 models) using a meta-model (level-1 model) to make a final prediction. It aims to improve predictive accuracy by leveraging the strengths of different learning algorithms and correcting their individual biases. The core idea involves training the meta-model on the outputs (predictions) of the base models, treating these predictions as new features. This approach often yields superior performance compared to individual models or simpler ensemble methods like Bagging or Boosting.
+
+## History
+
+**1992** — David Wolpert introduced Stacked Generalization in his seminal paper 'Stacked Generalization,' laying the theoretical foundation for combining multiple models.
+
+**1994** — Leo Breiman further explored model combination techniques, contributing to the broader understanding of ensemble methods and their theoretical underpinnings.
+
+**2007** — The Netflix Prize competition showcased the power of sophisticated ensemble methods, including variations of stacking, as winning teams extensively used them for state-of-the-art recommendations.
+
+**2010** — With increasing computational power and the rise of open-source libraries, stacking became more practical and gained wider adoption in machine learning competitions and industry applications.
+
+**2016** — Scikit-learn, a popular Python machine learning library, introduced `StackingClassifier` and `StackingRegressor`, making the algorithm more accessible to practitioners.
+
+## Mathematical Intuition
+
+### Combining Diverse Base Models
+
+Stacking operates on the principle that a combination of diverse models can yield a more robust and accurate prediction than any single model. Let $D = \{(x_i, y_i)\}_{i=1}^N$ be the training dataset. We train $K$ distinct base models, $h_1, h_2, \dots, h_K$, on this dataset. Each base model $h_k$ learns a mapping $f_k: X \to Y$. For each instance $x_i$, the prediction from the $k$-th base model is given by:
+$$ \hat{y}_{ik} = h_k(x_i) $$
+These individual predictions form the basis for the meta-model's input.
+
+$$
+D = \{(x_i, y_i)\}_{i=1}^N
+$$
+
+$$
+\hat{y}_{ik} = h_k(x_i)
+$$
+
+### Meta-Model Training Strategy
+
+The core innovation of stacking is the training of a meta-model (or blender) on the predictions of the base models. To prevent overfitting, these base model predictions are typically generated using a cross-validation scheme. For each instance $x_i$ in the training set, the prediction $\hat{y}_{ik}$ is obtained from a base model $h_k$ that was trained on a subset of $D$ that *does not* include $x_i$. This creates a new dataset $D' = \{(\mathbf{z}_i, y_i)\}_{i=1}^N$, where $\mathbf{z}_i = [\hat{y}_{i1}, \hat{y}_{i2}, \dots, \hat{y}_{iK}]$ are the 'meta-features' for the $i$-th instance. The meta-model $g$ is then trained on $D'$:
+$$ g: \mathbb{R}^K \to Y $$
+The meta-model learns how to optimally combine the base model predictions.
+
+$$
+D' = \{(\mathbf{z}_i, y_i)\}_{i=1}^N
+$$
+
+$$
+\mathbf{z}_i = [\hat{y}_{i1}, \hat{y}_{i2}, \dots, \hat{y}_{iK}]
+$$
+
+$$
+g: \mathbb{R}^K \to Y
+$$
+
+### Generalization and Diversity
+
+The effectiveness of stacking relies heavily on the diversity of the base models. If all base models make similar errors, the meta-model will struggle to correct them. By employing different types of algorithms (e.g., tree-based, linear, kernel-based) or the same algorithm with varied hyperparameters, the base models capture distinct aspects of the data. The cross-validation strategy for generating meta-features ensures that the meta-model learns to generalize from out-of-fold predictions, thereby reducing the risk of overfitting to the base models' training errors and promoting robust generalization.
+
+### Prediction Phase Mechanics
+
+For a new unseen instance $x_{new}$, the prediction process involves two sequential stages. First, each trained base model $h_k$ (which were trained on the full original dataset) makes a prediction:
+$$ \hat{y}_{new, k} = h_k(x_{new}) $$
+These predictions then form the meta-feature vector $\mathbf{z}_{new} = [\hat{y}_{new, 1}, \hat{y}_{new, 2}, \dots, \hat{y}_{new, K}]$. Finally, the trained meta-model $g$ uses this vector to produce the ultimate prediction:
+$$ \hat{y}_{final} = g(\mathbf{z}_{new}) $$
+This two-stage process ensures that the meta-model leverages the combined insights of all base learners.
+
+$$
+\hat{y}_{new, k} = h_k(x_{new})
+$$
+
+$$
+\mathbf{z}_{new} = [\hat{y}_{new, 1}, \hat{y}_{new, 2}, \dots, \hat{y}_{new, K}]
+$$
+
+$$
+\hat{y}_{final} = g(\mathbf{z}_{new})
+$$
+
+## Algorithm Steps
+
+1. Divide the original training dataset $D$ into $K$ folds for cross-validation.
+2. For each base model $h_j$ (from $j=1$ to $M$ base models): for each fold $k$ (from $k=1$ to $K$), train $h_j$ on the data from $K-1$ folds (training folds) and predict on the $k$-th fold (validation fold) to generate out-of-fold predictions $\hat{y}_{i,j}$ for instances in that fold.
+3. After iterating through all folds, concatenate the out-of-fold predictions for each $h_j$ to form a full set of predictions $\mathbf{p}_j$ for the entire training dataset.
+4. Train each base model $h_j$ on the *entire* original training dataset $D$ to be used for final predictions on new data.
+5. Construct a new training dataset for the meta-model, where each instance $x_i$ from the original training set is represented by a feature vector $\mathbf{z}_i = [\hat{y}_{i,1}, \hat{y}_{i,2}, \dots, \hat{y}_{i,M}]$ (the predictions from the base models) and the original target $y_i$.
+6. Train the meta-model $g$ on this new dataset $(\mathbf{z}_i, y_i)$.
+7. To make a prediction for a new unseen instance $x_{new}$: obtain predictions from each of the $M$ base models (trained on the full $D$), forming $\hat{y}_{new,j} = h_j(x_{new})$.
+8. Form the meta-feature vector $\mathbf{z}_{new} = [\hat{y}_{new,1}, \hat{y}_{new,2}, \dots, \hat{y}_{new,M}]$ and apply the trained meta-model $g$ to $\mathbf{z}_{new}$ to get the final prediction $\hat{y}_{final} = g(\mathbf{z}_{new})$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `estimators` | `list` | `None` | list of (str, estimator) tuples | The list of (name, estimator) tuples used as base models, where 'name' is a string and 'estimator' is a scikit-learn compatible estimator. |
+| `final_estimator` | `estimator` | `None` | scikit-learn compatible estimator | The meta-model that combines the base model predictions; if None, a default classifier (LogisticRegression) or regressor (Ridge) is used. |
+| `cv` | `int, cross-validation generator or an iterable` | `None` | integer (number of folds), CV splitter object, or iterable | Determines the cross-validation splitting strategy used to generate out-of-fold predictions for the meta-model training. |
+| `stack_method` | `str` | `'auto'` | 'auto', 'predict_proba', 'decision_function', 'predict' | The method used to collect predictions from base estimators for the meta-model. Options include 'predict_proba', 'decision_function', 'predict', or 'auto'. |
+| `n_jobs` | `int` | `None` | integer or -1 | The number of jobs to run in parallel for fit. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+| `passthrough` | `bool` | `False` | True, False | When True, the original features are passed to the final_estimator along with the predictions of the base estimators. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Stacking often achieves higher predictive accuracy than individual base models or simpler ensemble methods by intelligently combining diverse predictions.
+- It can leverage the strengths of different learning algorithms, allowing each base model to capture distinct patterns in the data.
+- The meta-model can learn complex relationships between the base model predictions, potentially correcting for their individual biases and errors.
+- The cross-validation strategy for generating meta-features helps to prevent overfitting of the meta-model to the training data.
+- It is highly flexible, allowing for the combination of virtually any type of base learner and meta-learner.
+- Stacking can be particularly effective in situations where no single model consistently outperforms others across all data subsets.
+
+## Weaknesses
+
+- Stacking is computationally more expensive and time-consuming to train compared to single models or simpler ensembles due to multiple training stages and cross-validation.
+- The complexity of the overall model can make interpretation challenging, as it is difficult to understand the individual contributions of base models and the meta-model.
+- Careful selection of base models and the meta-model is crucial; poor choices can lead to diminished returns or even worse performance.
+- Overfitting can still occur if the base models are not sufficiently diverse or if the meta-model is too complex relative to the amount of meta-features.
+- The process requires careful management of data splits to avoid data leakage between base models and the meta-model, which can be a source of error.
+
+## Use Cases
+
+### Machine Learning Competitions
+
+Often employed by winning teams in Kaggle and other data science competitions to achieve state-of-the-art performance by combining diverse models.
+
+### Fraud Detection
+
+Combining various models (e.g., tree-based, neural networks) to identify complex patterns indicative of fraudulent transactions with higher accuracy.
+
+### Medical Diagnosis
+
+Integrating predictions from different diagnostic models to improve the accuracy and robustness of disease detection and prognosis.
+
+### Recommendation Systems
+
+Blending outputs from collaborative filtering, content-based, and matrix factorization models to provide more personalized and accurate recommendations.
+
+### Financial Forecasting
+
+Combining diverse time series models and regression models to predict stock prices, market trends, or economic indicators with enhanced reliability.
+
+### Image Classification
+
+Stacking predictions from different convolutional neural network architectures to enhance classification accuracy on complex image datasets.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Stacking from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Stacking
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Stacking()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Stacking Lab" />
+
+## References
+
+- Wolpert (1992). Wolpert.
+- [scikit-learn: Stacking](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Stacking.html)

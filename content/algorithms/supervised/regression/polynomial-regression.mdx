@@ -1,0 +1,188 @@
+---
+title: "Polynomial Regression"
+slug: "polynomial-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1900
+author: "Classical statistical modeling"
+paper: "Classical statistical modeling"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["curve-fitting", "feature-engineering", "linear-model", "non-linear-modeling", "regression", "statistical-model", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "lasso-regression"
+  - "linear-regression"
+  - "ridge-regression"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Polynomial Regression extends [Linear Regression](/algorithms/supervised/regression/linear-regression) by modeling the relationship between the independent variable and the dependent variable as an $n$-th degree polynomial. It allows for fitting non-linear relationships by transforming the original features into polynomial features and then applying a linear model to these transformed features. This method provides greater flexibility than simple [Linear Regression](/algorithms/supervised/regression/linear-regression) for capturing complex patterns in data.
+
+## History
+
+**1900** — Classical statistical modeling laid the groundwork for fitting curves to data, with polynomial functions being a natural extension of linear models.
+
+**1920** — The method of least squares, fundamental to polynomial regression, was widely adopted for estimating parameters in statistical models across various scientific disciplines.
+
+**1950** — With the advent of digital computers, the computational burden of fitting higher-degree polynomials became more manageable, significantly increasing its practical applicability in research and industry.
+
+**1970** — Polynomial regression became a standard technique in econometrics, engineering, and various scientific fields for modeling non-linear trends and relationships in observed data.
+
+**2000** — The rise of machine learning frameworks integrated polynomial feature transformation as a preprocessing step, making it accessible within broader ML pipelines for non-linear modeling.
+
+## Mathematical Intuition
+
+### Polynomial Feature Transformation
+
+Polynomial Regression transforms the original features into a higher-dimensional space by creating polynomial combinations of the input variables. For a single feature $x$, a polynomial of degree $d$ would generate features $1, x, x^2, ..., x^d$. For multiple features $x_1, x_2, ..., x_k$, it includes terms like $x_i^p$ and interaction terms like $x_i x_j$. For example, for two features $x_1, x_2$ and degree $d=2$, the transformed features would be $1, x_1, x_2, x_1^2, x_2^2, x_1 x_2$.
+
+$$
+\phi(x) = [1, x, x^2, ..., x^d]
+$$
+
+$$
+\phi(x_1, x_2) = [1, x_1, x_2, x_1^2, x_2^2, x_1 x_2]
+$$
+
+### Linear Model Formulation
+
+After the polynomial transformation, the model becomes a [Linear Regression](/algorithms/supervised/regression/linear-regression) problem in the new feature space. Let $\mathbf{x}$ be the original feature vector and $\phi(\mathbf{x})$ be the transformed polynomial feature vector. The predicted output $\hat{y}$ is then a linear combination of these transformed features, expressed as a dot product of the coefficient vector $\mathbf{\theta}$ and the transformed feature vector $\phi(\mathbf{x})$.
+$$ \hat{y} = \theta_0 + \theta_1 \phi_1(\mathbf{x}) + ... + \theta_m \phi_m(\mathbf{x}) = \mathbf{\theta}^T \phi(\mathbf{x}) $$
+
+$$
+\hat{y} = \theta_0 + \theta_1 \phi_1(\mathbf{x}) + ... + \theta_m \phi_m(\mathbf{x}) = \mathbf{\theta}^T \phi(\mathbf{x})
+$$
+
+### Ordinary Least Squares Optimization
+
+The objective is to find the coefficient vector $\mathbf{\theta}$ that minimizes the sum of squared residuals, which is the standard Ordinary Least Squares (OLS) criterion. Given a dataset of $N$ samples $(\mathbf{x}^{(i)}, y^{(i)})$, the cost function $J(\mathbf{\theta})$ is the Mean Squared Error (MSE).
+$$ J(\mathbf{\theta}) = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \hat{y}^{(i)})^2 = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \mathbf{\theta}^T \phi(\mathbf{x}^{(i)}))^2 $$
+Minimizing this cost function with respect to $\mathbf{\theta}$ yields the optimal coefficients.
+
+$$
+J(\mathbf{\theta}) = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \hat{y}^{(i)})^2 = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \mathbf{\theta}^T \phi(\mathbf{x}^{(i)}))^2
+$$
+
+### Normal Equation Solution
+
+For the OLS problem, the optimal coefficients $\mathbf{\theta}$ can be found analytically using the normal equation. Let $\mathbf{\Phi}$ be the design matrix where each row is $\phi(\mathbf{x}^{(i)})^T$, and $\mathbf{y}$ be the vector of target values. The closed-form solution provides the exact coefficients that minimize the MSE, assuming $\mathbf{\Phi}^T \mathbf{\Phi}$ is invertible.
+$$ \mathbf{\theta} = (\mathbf{\Phi}^T \mathbf{\Phi})^{-1} \mathbf{\Phi}^T \mathbf{y} $$
+
+$$
+\mathbf{\theta} = (\mathbf{\Phi}^T \mathbf{\Phi})^{-1} \mathbf{\Phi}^T \mathbf{y}
+$$
+
+## Algorithm Steps
+
+1. Choose the degree $d$ of the polynomial to model the relationship between features and the target variable.
+2. Transform the original input features $\mathbf{X}$ into polynomial features $\mathbf{\Phi}(\mathbf{X})$ by creating all polynomial combinations of the features up to the chosen degree $d$.
+3. Construct the design matrix $\mathbf{\Phi}$ where each row corresponds to the transformed features of a single data point.
+4. Formulate the linear model $\hat{y} = \mathbf{\Phi} \mathbf{\theta}$, where $\mathbf{\theta}$ is the vector of coefficients.
+5. Calculate the optimal coefficients $\mathbf{\theta}$ by minimizing the Mean Squared Error (MSE) cost function, typically using the Ordinary Least Squares (OLS) method.
+6. Apply the normal equation $\mathbf{\theta} = (\mathbf{\Phi}^T \mathbf{\Phi})^{-1} \mathbf{\Phi}^T \mathbf{y}$ to directly compute the coefficients.
+7. Use the learned coefficients $\mathbf{\theta}$ to make predictions on new, unseen data by first transforming its features into polynomial features and then applying the linear model.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `degree` | `int` | `2` | integer >= 1 | The degree of the polynomial features. Higher degrees create more complex models. |
+| `interaction_only` | `bool` | `False` | True, False | If true, only interaction features are produced: features that are products of at most `degree` distinct input features (no powers of individual features). |
+| `include_bias` | `bool` | `True` | True, False | If true, then include a bias (intercept) term in the polynomial features, which is a column of ones. |
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations (i.e. data is expected to be centered). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It can model non-linear relationships between variables, offering more flexibility than simple linear regression.
+- The underlying model remains linear in the transformed feature space, allowing the use of well-understood linear regression techniques.
+- It is relatively simple to implement and interpret for lower degrees, especially with a single independent variable.
+- Provides a good balance between model complexity and interpretability for moderately non-linear data.
+- The closed-form solution for coefficients makes training fast for datasets where the design matrix is not excessively large.
+
+## Weaknesses
+
+- High-degree polynomials can lead to overfitting, especially with limited data, resulting in poor generalization to new data.
+- The number of features grows polynomially with the degree and the number of original features, leading to increased computational cost and potential multicollinearity.
+- Extrapolation beyond the range of the training data can be highly unreliable due to the nature of polynomial functions.
+- Interpretation becomes challenging as the degree increases and interaction terms proliferate.
+- Sensitive to outliers, as squared errors heavily penalize large deviations.
+
+## Use Cases
+
+### Economics
+
+Modeling economic growth trends or relationships between economic indicators that exhibit non-linear patterns over time.
+
+### Engineering
+
+Predicting material stress-strain curves or fluid dynamics where physical relationships are often non-linear.
+
+### Physics
+
+Analyzing experimental data to fit curves for phenomena like projectile motion or temperature-dependent material properties.
+
+### Biology
+
+Modeling growth curves of organisms or enzyme kinetics, which often follow non-linear trajectories.
+
+### Finance
+
+Forecasting stock prices or commodity values where trends might not be strictly linear over different periods.
+
+### Environmental Science
+
+Predicting pollutant concentrations or climate variables that show complex, non-linear dependencies on various factors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Polynomial Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import PolynomialRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = PolynomialRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Polynomial Regression Lab" />
+
+## References
+
+- Classical statistical modeling (1900). Classical statistical modeling.
+- [scikit-learn: PolynomialRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PolynomialRegression.html)

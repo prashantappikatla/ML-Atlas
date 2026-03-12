@@ -1,0 +1,237 @@
+---
+title: "Label Propagation"
+slug: "label-propagation"
+category: "supervised"
+subcategory: "classification"
+year: 2002
+author: "Zhu & Ghahramani"
+paper: "Zhu & Ghahramani"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["classification", "graph-based", "iterative-algorithm", "label-propagation", "manifold-learning", "semi-supervised-learning", "transductive"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "k-nearest-neighbors"
+  - "label-spreading"
+  - "spectral-clustering"
+---
+
+## Overview
+
+Label Propagation is a semi-supervised learning algorithm designed to classify unlabeled data points by leveraging a small amount of labeled data. It operates by constructing a similarity graph where nodes represent data points and edges quantify their similarity. Labels are then iteratively propagated from the labeled nodes to their neighbors, spreading through the graph until a stable state is reached. This approach effectively smooths labels over connected components, assuming similar data points should have similar labels.
+
+## History
+
+**2002** — Xiaojin Zhu and Zoubin Ghahramani introduced the foundational Label Propagation algorithm in their paper "Learning from Labeled and Unlabeled Data with Label Propagation," establishing its mathematical framework.
+
+**2003** — Zhu, Ghahramani, and Lafferty further explored the theoretical properties and connections to Gaussian random fields and harmonic functions in their work on semi-supervised learning.
+
+**2007** — Dengyong Zhou and colleagues introduced the related [Label Spreading](/algorithms/supervised/classification/label-spreading) algorithm in "Learning with local and global consistency," which adds a regularization term to the propagation process.
+
+**2009** — The algorithm gained broader recognition and was integrated into various machine learning libraries, becoming a standard technique for semi-supervised classification tasks.
+
+**2010** — Research continued to focus on scaling Label Propagation to larger datasets, improving its robustness to noise, and extending its application to diverse domains such as image processing and social network analysis.
+
+## Mathematical Intuition
+
+### Graph Construction and Similarity
+
+The algorithm begins by constructing a similarity graph $G=(V, E)$, where $V$ is the set of all labeled and unlabeled data points, and $E$ represents the edges between them. The weight $w_{ij}$ of an edge between nodes $i$ and $j$ quantifies their similarity. A common choice for computing similarity is the Radial Basis Function (RBF) kernel:
+$$w_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)$$
+where $x_i$ and $x_j$ are the feature vectors of points $i$ and $j$, and $\sigma$ is a bandwidth parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) (k-NN) graph can be constructed, where $w_{ij}=1$ if $j$ is among the $k$ nearest neighbors of $i$ (or vice-versa), and $0$ otherwise.
+
+$$
+G=(V, E)
+$$
+
+$$
+w_{ij}
+$$
+
+$$
+w_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)
+$$
+
+$$
+x_i
+$$
+
+$$
+x_j
+$$
+
+$$
+\sigma
+$$
+
+$$
+k
+$$
+
+### Iterative Label Propagation
+
+Let $Y_L$ be the set of initial labels for the labeled data points and $Y_U$ be the unknown labels for the unlabeled points. The algorithm iteratively updates the label distribution $F_{ic}$ for each node $i$ and class $c$, representing the probability that node $i$ belongs to class $c$. The update rule for $F$ is given by:
+$$F^{(t+1)} = P F^{(t)}$$
+where $P$ is the row-normalized affinity matrix, $P_{ij} = w_{ij} / \sum_k w_{ik}$. In each iteration, the labels of the labeled data points are clamped to their initial values to prevent them from changing. This means that for labeled points $i \in L$, $F_{ic}$ is reset to its initial value $Y_{ic}$ after each propagation step.
+
+$$
+Y_L
+$$
+
+$$
+Y_U
+$$
+
+$$
+F_{ic}
+$$
+
+$$
+F^{(t+1)} = P F^{(t)}
+$$
+
+$$
+P
+$$
+
+$$
+P_{ij} = w_{ij} / \sum_k w_{ik}
+$$
+
+$$
+i \in L
+$$
+
+$$
+Y_{ic}
+$$
+
+### Convergence and Fixed Point
+
+The iterative process continues until the label distribution $F$ converges to a stable state. The convergence is guaranteed under certain conditions, as the process can be viewed as solving a system of linear equations or finding the harmonic function on the graph. The fixed point $F^*$ satisfies $F^* = P F^*$, subject to the constraint that the labels of the initially labeled points remain fixed. The final label for an unlabeled point $i$ is typically assigned to the class $c$ for which $F^*_{ic}$ is maximal.
+
+$$
+F
+$$
+
+$$
+F^*
+$$
+
+$$
+F^* = P F^*
+$$
+
+$$
+F^*_{ic}
+$$
+
+## Algorithm Steps
+
+1. Combine all labeled and unlabeled data points into a single dataset.
+2. Construct a similarity graph where each data point is a node, computing edge weights $w_{ij}$ between all pairs of nodes $i$ and $j$ using a similarity function (e.g., RBF kernel or k-NN).
+3. Initialize a label matrix $F$ where $F_{ic}$ is 1 if point $i$ is initially labeled as class $c$, and 0 otherwise; for unlabeled points, $F_{ic}$ can be initialized to 0 or a uniform distribution.
+4. Normalize the affinity matrix $W$ to create a transition matrix $P$, where $P_{ij} = w_{ij} / \sum_k w_{ik}$.
+5. Iteratively update the label matrix $F$ using the propagation rule $F^{(t+1)} = P F^{(t)}$.
+6. After each iteration, clamp the labels of the initially labeled data points back to their original values to ensure they do not change.
+7. Repeat the update and clamping steps until the label matrix $F$ converges (i.e., the change between $F^{(t+1)}$ and $F^{(t)}$ falls below a predefined tolerance $\text{tol}$) or a maximum number of iterations $\text{max_iter}$ is reached.
+8. Assign each unlabeled data point to the class with the highest probability in its final label distribution row $F^*_i$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `string` | `'rbf'` | 'rbf', 'knn' | Specifies the kernel function to use for constructing the similarity matrix. |
+| `gamma` | `float` | `20.0` | positive float | Parameter for the RBF kernel, $\gamma = 1/(2\sigma^2)$. Ignored for 'knn' kernel. |
+| `n_neighbors` | `int` | `7` | positive integer | Number of neighbors to use for the 'knn' kernel. Ignored for 'rbf' kernel. |
+| `max_iter` | `int` | `1000` | positive integer | Maximum number of iterations allowed for the propagation algorithm to converge. |
+| `tol` | `float` | `0.001` | positive float | Convergence tolerance. The algorithm stops if the change in label distribution between iterations is below this value. |
+| `n_jobs` | `int or None` | `None` | integer or None | The number of parallel jobs to run for neighbors search. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- Label Propagation effectively leverages both labeled and unlabeled data, making it suitable for scenarios with limited labeled samples.
+- The algorithm is conceptually simple and intuitive, based on the idea that similar points should have similar labels.
+- It does not make strong assumptions about the underlying data distribution, offering flexibility for various datasets.
+- Label Propagation can capture complex, non-linear relationships between data points through the graph structure.
+- The algorithm is relatively easy to implement and understand the propagation mechanism.
+
+## Weaknesses
+
+- Performance is highly dependent on the quality of the similarity graph construction, especially the choice of kernel and its parameters.
+- The algorithm can be computationally expensive for large datasets due to the need to construct and operate on a dense similarity matrix.
+- It is sensitive to noise and outliers in the data, as incorrect similarities can propagate misleading labels.
+- The algorithm can struggle if the labeled data points are not representative or are poorly distributed within the data manifold.
+- Label Propagation does not explicitly learn a decision boundary, which can make interpretation and generalization to new, unseen data challenging without re-running the full propagation.
+
+## Use Cases
+
+### Image Segmentation
+
+Identifying distinct regions or objects within an image by propagating labels from a few manually labeled pixels to neighboring pixels.
+
+### Document Classification
+
+Classifying large collections of text documents with only a small subset of pre-labeled documents, by building a similarity graph based on document content.
+
+### Social Network Analysis
+
+Identifying communities or predicting attributes of users in a social network by propagating known labels from a few users to their connections.
+
+### Bioinformatics
+
+Classifying genes or proteins based on their interaction networks, where only a small fraction of these entities have known functions.
+
+### Fraud Detection
+
+Identifying fraudulent transactions or accounts by propagating 'fraudulent' labels from known instances to similar, unlabeled ones in a transaction graph.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Label Propagation from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import LabelPropagation
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = LabelPropagation()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Label Propagation Lab" />
+
+## References
+
+- Zhu & Ghahramani (2002). Zhu & Ghahramani.
+- [scikit-learn: LabelPropagation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LabelPropagation.html)

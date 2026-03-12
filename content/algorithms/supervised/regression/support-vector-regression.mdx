@@ -1,0 +1,198 @@
+---
+title: "Support Vector Regression"
+slug: "support-vector-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1996
+author: "Vapnik"
+paper: "Vapnik"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["convex-optimization", "epsilon-loss", "kernel-methods", "large-margin", "regression", "regularization", "supervised-learning", "support-vector-machines"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gaussian-process-regression"
+  - "kernel-ridge-regression"
+  - "lasso-regression"
+  - "linear-regression"
+  - "ridge-regression"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Support Vector Regression (SVR) is a supervised learning algorithm that applies the principles of Support Vector Machines (SVMs) to regression tasks. It aims to find a function that deviates from the true targets by no more than a specified $\epsilon$ (epsilon) for all training data, while simultaneously minimizing the model's complexity. This approach focuses on finding a "tube" around the regression line, where errors within the tube are ignored, making it robust to noise and outliers.
+
+## History
+
+**1992** — Bernhard Boser, Isabelle Guyon, and Vladimir Vapnik introduced the [Support Vector Machine](/algorithms/supervised/classification/support-vector-machine) (SVM) for classification, laying the foundational concepts of maximal margin classifiers.
+
+**1995** — Vladimir Vapnik published "The Nature of Statistical Learning Theory," which formalized the theoretical framework for SVMs and statistical learning theory, providing the basis for extending SVMs to regression.
+
+**1996** — Corinna Cortes and Vladimir Vapnik formally introduced the $\epsilon$-Support Vector Regression (SVR) algorithm, adapting the SVM framework to handle continuous target variables by introducing an $\epsilon$-insensitive loss function.
+
+**1997** — Alex Smola and Bernhard Schölkopf further developed the theoretical and practical aspects of SVR, including the use of kernel functions for non-[Linear Regression](/algorithms/supervised/regression/linear-regression).
+
+## Mathematical Intuition
+
+### Epsilon-Insensitive Loss Function
+
+The core idea of SVR is to find a function $f(x)$ that has at most $\epsilon$ deviation from the actual target $y$ for all training data, while being as flat as possible. This is achieved through an $\epsilon$-insensitive loss function, which penalizes errors only if they fall outside an $\epsilon$-tube around the predicted value.
+$$L_\epsilon(y, f(x)) = \max(0, |y - f(x)| - \epsilon)$$
+Here, $y$ is the true value, $f(x)$ is the predicted value, and $\epsilon \ge 0$ defines the width of the insensitive zone.
+
+$$
+L_\epsilon(y, f(x)) = \max(0, |y - f(x)| - \epsilon)
+$$
+
+### Primal Optimization Problem
+
+For linear SVR, the goal is to find a weight vector $w$ and bias $b$ that define the regression function $f(x) = w \cdot x + b$. The optimization problem minimizes the model's complexity (represented by $||w||^2$) while ensuring that prediction errors are within the $\epsilon$-tube, allowing for some violations through slack variables $\xi_i$ and $\xi_i^*$.
+$$\min_{w, b, \xi, \xi^*} \frac{1}{2} ||w||^2 + C \sum_{i=1}^N (\xi_i + \xi_i^*)$$
+subject to:
+$$y_i - (w \cdot x_i + b) \le \epsilon + \xi_i$$
+$$(w \cdot x_i + b) - y_i \le \epsilon + \xi_i^*$$
+$$\xi_i, \xi_i^* \ge 0 \quad \text{for } i=1, \dots, N$$
+The constant $C > 0$ is a regularization parameter that controls the trade-off between model flatness and the amount of allowed deviation from the $\epsilon$-tube.
+
+$$
+\min_{w, b, \xi, \xi^*} \frac{1}{2} ||w||^2 + C \sum_{i=1}^N (\xi_i + \xi_i^*)
+$$
+
+$$
+y_i - (w \cdot x_i + b) \le \epsilon + \xi_i
+$$
+
+$$
+(w \cdot x_i + b) - y_i \le \epsilon + \xi_i^*
+$$
+
+$$
+\xi_i, \xi_i^* \ge 0 \quad \text{for } i=1, \dots, N
+$$
+
+### Dual Formulation and Kernels
+
+To solve the primal problem, it is typically transformed into its dual form using Lagrange multipliers. This dual formulation allows the use of the kernel trick, enabling SVR to model non-linear relationships without explicitly mapping data into higher-dimensional feature spaces. The regression function in the dual form becomes:
+$$f(x) = \sum_{i=1}^N (\alpha_i - \alpha_i^*) K(x_i, x) + b$$
+where $\alpha_i, \alpha_i^*$ are Lagrange multipliers, and $K(x_i, x)$ is a kernel function (e.g., linear, polynomial, radial basis function) that computes the dot product in the transformed feature space. The training points $x_i$ for which $\alpha_i - \alpha_i^* \ne 0$ are called support vectors.
+
+$$
+f(x) = \sum_{i=1}^N (\alpha_i - \alpha_i^*) K(x_i, x) + b
+$$
+
+## Algorithm Steps
+
+1. Define the $\epsilon$-insensitive loss function, which ignores errors smaller than $\epsilon$ and penalizes larger errors linearly.
+2. Formulate the primal optimization problem to minimize the squared L2-norm of the weight vector $w$ (to maximize flatness) and the sum of slack variables $\xi_i, \xi_i^*$ (to penalize errors outside the $\epsilon$-tube).
+3. Introduce Lagrange multipliers to convert the constrained primal problem into an unconstrained dual optimization problem.
+4. Solve the resulting quadratic programming problem to find the optimal Lagrange multipliers $\alpha_i$ and $\alpha_i^*$.
+5. Use the optimal Lagrange multipliers to determine the weight vector $w = \sum_{i=1}^N (\alpha_i - \alpha_i^*) x_i$ and the bias term $b$.
+6. Construct the final regression function $f(x) = w \cdot x + b$, or $f(x) = \sum_{i=1}^N (\alpha_i - \alpha_i^*) K(x_i, x) + b$ when using a kernel function.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `string` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | The kernel type to be used in the algorithm. |
+| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `gamma` | `string or float` | `scale` | 'scale', 'auto', or float > 0 | Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. Can be 'scale' (1 / (n_features * X.var())) or 'auto' (1 / n_features). |
+| `coef0` | `float` | `0.0` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `C` | `float` | `1.0` | float > 0 | Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive. |
+| `epsilon` | `float` | `0.1` | float >= 0 | Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value. |
+| `shrinking` | `boolean` | `True` | True, False | Whether to use the shrinking heuristic. |
+| `tol` | `float` | `1e-3` | float > 0 | Tolerance for stopping criterion. |
+| `cache_size` | `float` | `200` | float > 0 | Specify the size of the kernel cache (in MB). |
+| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within solver, or -1 for no limit. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- SVR is effective in high-dimensional spaces, even when the number of features exceeds the number of samples.
+- The $\epsilon$-insensitive loss function makes SVR robust to outliers and noise in the data.
+- SVR can model non-linear relationships by employing various kernel functions, extending its applicability beyond linear models.
+- The optimization problem is convex, guaranteeing that the global optimum is found, unlike some other non-linear models.
+- The model complexity is controlled by the number of support vectors, which can be sparse for certain problems.
+
+## Weaknesses
+
+- SVR can be computationally intensive and slow to train on very large datasets due to the quadratic programming optimization.
+- The performance of SVR is highly dependent on the proper selection of the kernel function and hyperparameters like $C$ and $\epsilon$.
+- SVR does not directly provide probabilistic outputs, making it harder to interpret prediction uncertainties.
+- The memory requirement can be substantial for large datasets if the number of support vectors becomes high.
+
+## Use Cases
+
+### Financial Forecasting
+
+Predicting stock prices, market trends, or currency exchange rates based on historical data and economic indicators.
+
+### Medical Diagnosis
+
+Estimating disease progression markers or predicting patient outcomes based on clinical and biological data.
+
+### Environmental Modeling
+
+Forecasting air pollution levels, water quality parameters, or climate change indicators.
+
+### Energy Consumption Prediction
+
+Predicting electricity demand or building energy usage based on weather, occupancy, and historical patterns.
+
+### Drug Discovery
+
+Modeling quantitative structure-activity relationships (QSAR) to predict the biological activity of chemical compounds.
+
+### Quality Control
+
+Predicting product quality metrics in manufacturing processes based on sensor data and process parameters.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Support Vector Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.svm import SVR
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = SVR()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Support Vector Regression Lab" />
+
+## References
+
+- Vapnik (1996). Vapnik.
+- [scikit-learn: SVR](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html)

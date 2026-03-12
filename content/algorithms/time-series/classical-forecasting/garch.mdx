@@ -1,0 +1,182 @@
+---
+title: "GARCH"
+slug: "garch"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1986
+author: "Bollerslev"
+paper: "Bollerslev"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["conditional-heteroskedasticity", "econometrics", "financial-modeling", "forecasting", "risk-management", "time-series", "volatility-modeling"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arch"
+  - "arima"
+  - "arma"
+---
+
+## Overview
+
+Generalized Autoregressive Conditional Heteroskedasticity (GARCH) models are statistical tools used to model and forecast time-varying volatility in financial and economic time series. They extend the Autoregressive Conditional Heteroskedasticity (ARCH) model by allowing the conditional variance to depend not only on past squared error terms but also on past conditional variances, providing a more parsimonious and flexible representation of volatility clustering. GARCH models are particularly effective in capturing the stylized facts of financial returns, such as heavy tails and volatility persistence.
+
+## History
+
+**1982** — Robert Engle introduced the Autoregressive Conditional Heteroskedasticity (ARCH) model, providing a framework to model time-varying volatility in economic time series.
+
+**1986** — Tim Bollerslev generalized Engle's ARCH model to the GARCH model, allowing the conditional variance to depend on past conditional variances, which significantly improved its ability to capture volatility persistence more parsimoniously.
+
+**1993** — Daniel Nelson introduced the Exponential GARCH (EGARCH) model, which addresses the leverage effect, where negative shocks tend to increase volatility more than positive shocks of the same magnitude.
+
+**1993** — Glosten, Jagannathan, and Runkle proposed the GJR-GARCH model, another asymmetric GARCH variant that also captures the leverage effect by allowing different impacts for positive and negative past shocks.
+
+**1995** — Bollerslev and Ghysels introduced the concept of GARCH-in-Mean (GARCH-M) models, where the conditional mean of the series is a function of its conditional variance, reflecting risk-return trade-offs.
+
+## Mathematical Intuition
+
+### ARCH Model Foundation
+
+The ARCH(p) model describes a process $y_t$ where the conditional variance, $h_t$, depends on $p$ past squared error terms. Specifically, if $y_t = \mu_t + \epsilon_t$ where $\epsilon_t = z_t \sqrt{h_t}$ and $z_t \sim N(0,1)$, then the conditional variance is given by:
+$$h_t = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2$$
+For stationarity, $\alpha_0 > 0$ and $\alpha_i \ge 0$ for all $i$. The sum of $\alpha_i$ must be less than 1 for the unconditional variance to be finite.
+
+$$
+h_t = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2
+$$
+
+$$
+\epsilon_t = z_t \sqrt{h_t}
+$$
+
+### GARCH Model Extension
+
+The GARCH(p,q) model extends ARCH by including $q$ past conditional variance terms in the equation for $h_t$. The conditional variance is defined as:
+$$h_t = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2 + \sum_{j=1}^{q} \beta_j h_{t-j}$$
+Here, $\alpha_0 > 0$, $\alpha_i \ge 0$, and $\beta_j \ge 0$. The sum of the ARCH and GARCH coefficients, $\sum_{i=1}^{p} \alpha_i + \sum_{j=1}^{q} \beta_j$, must be less than 1 for the process to be weakly stationary and for the unconditional variance to be finite.
+
+$$
+h_t = \alpha_0 + \sum_{i=1}^{p} \alpha_i \epsilon_{t-i}^2 + \sum_{j=1}^{q} \beta_j h_{t-j}
+$$
+
+### GARCH Stationarity Conditions
+
+For a GARCH(p,q) process to be weakly stationary, the sum of its ARCH and GARCH coefficients must be less than one. That is, $\sum_{i=1}^{p} \alpha_i + \sum_{j=1}^{q} \beta_j < 1$. If this condition holds, the unconditional variance of $\epsilon_t$ is finite and given by $\sigma^2 = \frac{\alpha_0}{1 - \sum_{i=1}^{p} \alpha_i - \sum_{j=1}^{q} \beta_j}$. If the sum equals 1, the model is an Integrated GARCH (IGARCH) model, implying infinite persistence of shocks to volatility.
+
+$$
+\sum_{i=1}^{p} \alpha_i + \sum_{j=1}^{q} \beta_j < 1
+$$
+
+$$
+\sigma^2 = \frac{\alpha_0}{1 - \sum_{i=1}^{p} \alpha_i - \sum_{j=1}^{q} \beta_j}
+$$
+
+### Parameter Estimation via MLE
+
+GARCH model parameters are typically estimated using Maximum Likelihood Estimation (MLE). Assuming the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$ follow a standard normal distribution, the log-likelihood function for a series of $T$ observations is:
+$$L(\theta) = -\frac{T}{2} \log(2\pi) - \frac{1}{2} \sum_{t=1}^{T} (\log(h_t) + \frac{\epsilon_t^2}{h_t})$$
+where $\theta$ represents the vector of all model parameters ($\alpha_0, \alpha_i, \beta_j$, and any mean model parameters). Numerical optimization techniques are used to find the parameters that maximize this likelihood function.
+
+$$
+L(\theta) = -\frac{T}{2} \log(2\pi) - \frac{1}{2} \sum_{t=1}^{T} (\log(h_t) + \frac{\epsilon_t^2}{h_t})
+$$
+
+$$
+z_t = \epsilon_t / \sqrt{h_t}
+$$
+
+## Algorithm Steps
+
+1. Specify a mean equation for the time series $y_t$, such as an ARMA model, to model the conditional mean $\mu_t$.
+2. Estimate the parameters of the mean equation and obtain the residuals $\epsilon_t = y_t - \hat{\mu}_t$.
+3. Specify the GARCH(p,q) variance equation for the conditional variance $h_t$, which depends on past squared residuals $\epsilon_{t-i}^2$ and past conditional variances $h_{t-j}$.
+4. Estimate the parameters of both the mean and variance equations simultaneously using Maximum Likelihood Estimation (MLE), typically assuming a distribution for the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$.
+5. Check the adequacy of the fitted model by analyzing the standardized residuals for any remaining autocorrelation or heteroskedasticity using Ljung-Box tests or ARCH-LM tests.
+6. If the model is deemed adequate, use the estimated parameters to forecast future conditional variances and, consequently, future volatility.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `p` | `integer` | `1` | p >= 0 | The order of the ARCH component, representing the number of lagged squared residuals included in the conditional variance equation. |
+| `q` | `integer` | `1` | q >= 0 | The order of the GARCH component, representing the number of lagged conditional variances included in the conditional variance equation. |
+| `mean` | `string` | `Constant` | ['Constant', 'ARX', 'ARMA', 'Zero'] | The type of mean model to use for the time series. Common options include 'Constant', 'ARX' (autoregressive with exogenous regressors), or 'ARMA'. |
+| `lags` | `integer or list of integers` | `None` | lags >= 0 or list/tuple of integers | The number of lags for the autoregressive (AR) and moving average (MA) components if an 'ARX' or 'ARMA' mean model is selected. Can be a single integer for AR order or a list/tuple for (AR_order, MA_order). |
+| `dist` | `string` | `normal` | ['normal', 'studentst', 'skewstudent', 'ged'] | The assumed distribution for the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$. Common choices include 'normal', 'studentst' (Student's t-distribution), or 'skewstudent'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- GARCH models effectively capture volatility clustering, a common stylized fact in financial time series where large changes tend to be followed by large changes, and small by small.
+- They provide a robust framework for forecasting future conditional variances, which is crucial for risk management, option pricing, and portfolio optimization.
+- The GARCH(1,1) model is often surprisingly effective and parsimonious, requiring only a few parameters to capture complex volatility dynamics.
+- GARCH models can be extended to incorporate various features, such as asymmetric responses to positive and negative shocks or different error distributions.
+- They allow for the calculation of time-varying risk measures, such as Value-at-Risk (VaR), which are more realistic than those derived from constant variance models.
+
+## Weaknesses
+
+- Standard GARCH models assume a symmetric response to positive and negative shocks, which is often contradicted by empirical evidence of the leverage effect in financial markets.
+- The assumption of a specific distribution for the standardized residuals may not always hold, potentially leading to biased parameter estimates and inaccurate forecasts.
+- GARCH models can be sensitive to the choice of initial parameter values during numerical optimization, potentially converging to local optima.
+- Estimating high-order GARCH models can be computationally intensive and may suffer from convergence issues due to the large number of parameters.
+- GARCH models are purely statistical and do not provide economic explanations for the underlying causes of volatility changes.
+
+## Use Cases
+
+### Financial Risk Management
+
+Used to estimate and forecast Value-at-Risk (VaR) and Expected Shortfall (ES) for portfolios, helping financial institutions manage market risk.
+
+### Option Pricing
+
+Provides more accurate volatility inputs for option pricing models, such as the Black-Scholes model, which typically assumes constant volatility.
+
+### Portfolio Optimization
+
+Helps investors construct portfolios by providing dynamic estimates of asset volatilities and correlations, leading to more robust asset allocation strategies.
+
+### Macroeconomic Forecasting
+
+Applied to macroeconomic variables like inflation or GDP growth to model and forecast their time-varying uncertainty, aiding policy decisions.
+
+### Algorithmic Trading
+
+Used in high-frequency trading strategies to dynamically adjust position sizes or risk exposure based on real-time volatility estimates.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GARCH from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GARCH does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GARCH Lab" />
+
+## References
+
+- Bollerslev (1986). Bollerslev.

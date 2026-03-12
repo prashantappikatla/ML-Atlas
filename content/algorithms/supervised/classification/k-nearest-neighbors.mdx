@@ -1,0 +1,175 @@
+---
+title: "k-Nearest Neighbors"
+slug: "k-nearest-neighbors"
+category: "supervised"
+subcategory: "classification"
+year: 1967
+author: "Cover & Hart"
+paper: "Cover & Hart"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "distance-based", "instance-based", "lazy-learning", "memory-based", "non-parametric", "pattern-recognition", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-classifier"
+  - "logistic-regression"
+  - "naive-bayes"
+  - "radial-basis-function-network"
+  - "support-vector-machine"
+---
+
+## Overview
+
+k-Nearest Neighbors (kNN) is a non-parametric, instance-based learning algorithm used for both classification and regression tasks. It classifies a new data point by finding the $k$ closest data points in the training set and assigning the class label that is most frequent among these neighbors. As a lazy learning algorithm, kNN defers generalization beyond the training data until a query is made, making it simple to understand and implement. Its effectiveness heavily relies on the choice of distance metric and the value of $k$.
+
+## History
+
+**1951** — Evelyn Fix and Joseph Hodges introduce the k-Nearest Neighbor rule in an unpublished USAF report, laying the theoretical groundwork for non-parametric classification.
+
+**1967** — Thomas Cover and Peter Hart publish "Nearest Neighbor Pattern Classification," formally introducing the k-Nearest Neighbor algorithm and analyzing its error rate properties, establishing it as a foundational method.
+
+**1970** — The algorithm gains recognition in pattern recognition and statistical classification literature, with further theoretical work exploring its asymptotic properties and convergence rates.
+
+**1990** — With increasing computational power and larger datasets, kNN sees broader application in various fields, including data mining and machine learning, despite its computational complexity for large-scale problems.
+
+**2000** — Advances in data structures like k-d trees and ball trees, along with approximate nearest neighbor search algorithms, begin to address kNN's computational challenges, making it more practical for high-dimensional and large datasets.
+
+## Mathematical Intuition
+
+### Distance Metrics for Closeness
+
+The core of kNN relies on measuring the "closeness" between data points. Common distance metrics include Euclidean distance and Manhattan distance. For two points $x = (x_1, ..., x_n)$ and $y = (y_1, ..., y_n)$ in an $n$-dimensional feature space, the Minkowski distance is a generalized form:
+$$d(x, y) = \left(\sum_{i=1}^{n} |x_i - y_i|^p\right)^{1/p}$$
+When $p=2$, this becomes the Euclidean distance: $d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$. When $p=1$, it is the Manhattan distance: $d(x, y) = \sum_{i=1}^{n} |x_i - y_i|$. The choice of metric significantly impacts neighbor identification.
+
+$$
+d(x, y) = \left(\sum_{i=1}^{n} |x_i - y_i|^p\right)^{1/p}
+$$
+
+$$
+d(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+$$
+
+$$
+d(x, y) = \sum_{i=1}^{n} |x_i - y_i|
+$$
+
+### Nearest Neighbor Selection
+
+For a new, unlabeled data point (query point), the algorithm calculates its distance to every point in the training dataset using the chosen distance metric. These distances are then sorted, and the $k$ training points with the smallest distances are identified as the nearest neighbors. The hyperparameter $k$ is crucial; a small $k$ can make the model sensitive to noise, while a large $k$ can smooth out the decision boundary but might obscure local patterns.
+
+### Classification by Majority Vote
+
+Once the $k$ nearest neighbors are identified, their class labels are collected. For classification tasks, the new data point is assigned the class label that appears most frequently among these $k$ neighbors. This is known as majority voting. If `weights='distance'` is used, neighbors are weighted by the inverse of their distance, meaning closer neighbors contribute more to the final classification decision.
+
+## Algorithm Steps
+
+1. Store the entire training dataset, including feature vectors and corresponding class labels.
+2. For a new, unlabeled data point (query point), calculate its distance to every point in the training dataset using a chosen distance metric, such as Euclidean distance.
+3. Sort the calculated distances in ascending order and identify the $k$ training data points that have the smallest distances to the query point.
+4. Collect the class labels of these $k$ nearest neighbors.
+5. Assign the query point the class label that is most frequent among the $k$ nearest neighbors (majority vote).
+6. If weights are used (e.g., `weights='distance'`), assign the query point the class label that has the highest sum of weights among the $k$ nearest neighbors, where weights are typically inversely proportional to distance.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_neighbors` | `int` | `5` | integer > 0 | The number of neighbors to use for classification or regression. |
+| `weights` | `str or callable` | `'uniform'` | 'uniform', 'distance', or a callable function | Weight function used in prediction. 'uniform' assigns equal weights to all neighbors. 'distance' weights points by the inverse of their distance. |
+| `algorithm` | `str` | `'auto'` | 'auto', 'ball_tree', 'kd_tree', 'brute' | Algorithm used to compute the nearest neighbors. 'auto' attempts to decide the most appropriate algorithm based on the data. 'ball_tree' and 'kd_tree' use tree-based structures, while 'brute' uses brute-force search. |
+| `leaf_size` | `int` | `30` | integer > 0 | Leaf size passed to BallTree or KDTree. This can affect the speed of construction and query, as well as the memory required to store the tree. |
+| `p` | `int` | `2` | integer >= 1 | Power parameter for the Minkowski metric. $p=1$ corresponds to Manhattan distance, and $p=2$ corresponds to Euclidean distance. |
+| `metric` | `str or callable` | `'minkowski'` | 'minkowski', 'euclidean', 'manhattan', 'chebyshev', or other valid distance metrics | The distance metric to use for the tree. Can be a string identifying a metric or a callable function. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is simple to understand and implement, making it a good baseline algorithm for many classification tasks.
+- As a non-parametric method, it makes no assumptions about the underlying data distribution, allowing it to model complex decision boundaries.
+- It is effective for multi-class classification problems without requiring specific modifications or transformations.
+- The algorithm can adapt to new training data easily, as it only involves storing new instances.
+- It is robust to noisy training data if the hyperparameter $k$ is chosen appropriately to average out local noise.
+
+## Weaknesses
+
+- The computational cost for prediction can be very high for large datasets, as it requires calculating distances to all training points.
+- It is highly sensitive to the scale of features and irrelevant features, as these can disproportionately influence distance calculations.
+- The algorithm struggles with high-dimensional data (curse of dimensionality), where distances become less meaningful and all points appear equidistant.
+- It requires storing the entire training dataset in memory, which can be prohibitive for very large datasets.
+- The choice of the hyperparameter $k$ and the distance metric significantly impacts performance and often requires careful tuning.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Classifying diseases based on patient symptoms and medical test results by comparing to similar past cases with known diagnoses.
+
+### Recommendation Systems
+
+Suggesting products, movies, or content to users based on the preferences or behaviors of similar users in a collaborative filtering approach.
+
+### Financial Fraud Detection
+
+Identifying potentially fraudulent transactions by finding patterns that deviate significantly from typical, legitimate transaction behaviors.
+
+### Image Recognition
+
+Simple image classification tasks, often after feature extraction (e.g., HOG features), by comparing feature vectors of new images to known ones.
+
+### Handwriting Recognition
+
+Classifying handwritten characters or digits by comparing their vectorized representations to a database of known examples.
+
+### Customer Segmentation
+
+Grouping customers with similar purchasing behaviors, demographics, or engagement patterns for targeted marketing strategies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement k-Nearest Neighbors from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = KNeighborsClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="k-Nearest Neighbors Lab" />
+
+## References
+
+- Cover & Hart (1967). Cover & Hart.
+- [scikit-learn: KNeighborsClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html)

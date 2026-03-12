@@ -1,0 +1,206 @@
+---
+title: "MAE (Masked Autoencoder)"
+slug: "mae-masked-autoencoder"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2021
+author: "He et al."
+paper: "He et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["autoencoder", "computer-vision", "deep-learning", "image-reconstruction", "pre-training", "representation-learning", "self-supervised-learning", "vision-transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "byol"
+  - "denoising-autoencoder"
+  - "simclr"
+  - "transformer"
+  - "vision-transformer"
+---
+
+## Overview
+
+Masked Autoencoders (MAE) are a self-supervised learning method for computer vision that pre-trains Vision Transformers by reconstructing masked image patches. It employs an asymmetric encoder-decoder architecture, where the encoder processes only a small subset of visible patches, and a lightweight decoder reconstructs the missing pixels from the encoder's output and mask tokens. This approach achieves high computational efficiency and learns robust visual representations by forcing the model to understand global image context from limited local information.
+
+## History
+
+**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, revolutionizing sequence modeling and laying the groundwork for attention-based models in various domains.
+
+**2018** — Devlin et al. introduce BERT, a pre-training method for natural language processing that uses masked language modeling, inspiring similar masking strategies in other modalities.
+
+**2020** — Dosovitskiy et al. demonstrate the effectiveness of Vision Transformers (ViT) for image classification, showing that a pure [Transformer](/algorithms/deep-learning/transformers/transformer) applied directly to sequences of image patches can achieve competitive performance.
+
+**2021** — He et al. introduce Masked Autoencoders (MAE), adapting the masked modeling idea to computer vision with an asymmetric encoder-decoder design, achieving state-of-the-art results in self-supervised image pre-training.
+
+## Mathematical Intuition
+
+### Image Patchification and Masking
+
+An input image $X \in \mathbb{R}^{H \times W \times C}$ is first divided into a sequence of non-overlapping patches $P = \{p_1, p_2, \dots, p_N\}$, where $N$ is the total number of patches. A high proportion of these patches, typically 75%, are randomly selected and "masked out." The visible patches $P_{vis}$ are then linearly embedded and passed to the encoder, while the masked patches $P_{mask}$ are discarded for the encoder input.
+$$ P_{vis} = \text{sample}(P, \text{mask_ratio}) $$
+$$ P_{mask} = P \setminus P_{vis} $$
+
+$$
+X \in \mathbb{R}^{H \times W \times C}
+$$
+
+$$
+P = \{p_1, p_2, \dots, p_N\}
+$$
+
+$$
+P_{vis} = \text{sample}(P, \text{mask_ratio})
+$$
+
+$$
+P_{mask} = P \setminus P_{vis}
+$$
+
+### Asymmetric Encoder-Decoder Architecture
+
+The encoder, typically a standard [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)), only operates on the embedded visible patches. This significantly reduces computational cost during pre-training. The decoder, a much shallower [Transformer](/algorithms/deep-learning/transformers/transformer), takes the encoder's output for visible patches and a set of learnable "mask tokens" for the masked positions. It then attempts to reconstruct the original pixel values of the masked patches.
+$$ Z_{enc} = \text{Encoder}(\text{Embed}(P_{vis})) $$
+$$ \hat{P}_{rec} = \text{Decoder}(\text{Concat}(Z_{enc}, \text{MaskTokens})) $$
+
+$$
+Z_{enc} = \text{Encoder}(\text{Embed}(P_{vis}))
+$$
+
+$$
+\hat{P}_{rec} = \text{Decoder}(\text{Concat}(Z_{enc}, \text{MaskTokens}))
+$$
+
+### Reconstruction Objective
+
+The objective of MAE is to reconstruct the original pixel values of the masked patches. The loss function is typically the Mean Squared Error (MSE) between the predicted pixel values $\hat{P}_{mask}$ and the original pixel values $P_{mask}$ of only the masked patches. This focuses the learning on predicting missing information rather than simply encoding existing information.
+$$ \mathcal{L} = \frac{1}{|P_{mask}|} \sum_{p_i \in P_{mask}} \| \text{pixels}(p_i) - \text{pixels}(\hat{p}_i) \|_2^2 $$
+where $\text{pixels}(p_i)$ denotes the original pixel values of patch $p_i$, and $\text{pixels}(\hat{p}_i)$ are the reconstructed pixel values for that patch.
+
+$$
+\hat{P}_{mask}
+$$
+
+$$
+P_{mask}
+$$
+
+$$
+\mathcal{L} = \frac{1}{|P_{mask}|} \sum_{p_i \in P_{mask}} \| \text{pixels}(p_i) - \text{pixels}(\hat{p}_i) \|_2^2
+$$
+
+$$
+\text{pixels}(p_i)
+$$
+
+$$
+\text{pixels}(\hat{p}_i)
+$$
+
+## Algorithm Steps
+
+1. An input image is divided into a grid of non-overlapping patches.
+2. A high percentage (e.g., 75%) of these patches are randomly selected and masked out, meaning they are removed from the input sequence.
+3. The remaining visible patches are linearly embedded and augmented with positional embeddings.
+4. These embedded visible patches are fed into a Vision Transformer encoder, which processes them to produce a set of latent representations.
+5. For the decoder input, the encoder's output for the visible patches is combined with a set of learnable mask tokens, each representing a masked patch, and their corresponding positional embeddings.
+6. A lightweight Vision Transformer decoder processes this combined sequence to predict the pixel values for all original patches.
+7. A Mean Squared Error (MSE) loss is calculated only between the predicted pixel values and the original pixel values of the masked patches.
+8. The model parameters (encoder and decoder) are updated via backpropagation to minimize this reconstruction loss.
+9. After pre-training, the decoder is discarded, and the pre-trained encoder is used for downstream tasks by adding a task-specific head.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `mask_ratio` | `float` | `0.75` | 0.0 to 1.0 | The proportion of image patches to be masked out during pre-training. |
+| `patch_size` | `int` | `16` | positive integer | The size of the square patches (e.g., 16x16 pixels) into which the input image is divided. |
+| `encoder_depth` | `int` | `12` | positive integer | The number of transformer layers in the encoder. |
+| `encoder_embed_dim` | `int` | `768` | positive integer | The dimension of the embedding space for patches in the encoder. |
+| `decoder_depth` | `int` | `8` | positive integer | The number of transformer layers in the decoder. |
+| `decoder_embed_dim` | `int` | `512` | positive integer | The dimension of the embedding space for patches in the decoder. |
+| `learning_rate` | `float` | `1e-3` | positive float | The initial learning rate for the optimizer during pre-training. |
+| `weight_decay` | `float` | `0.05` | non-negative float | The weight decay (L2 regularization) applied to the model parameters. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- The high masking ratio forces the model to learn robust and non-trivial representations by inferring large missing regions from limited context.
+- Its asymmetric encoder-decoder design significantly reduces computational cost during pre-training, as the encoder only processes a small fraction of the input patches.
+- MAE scales effectively to large datasets and model sizes, achieving state-of-the-art performance on various downstream computer vision tasks.
+- The simple pixel-level reconstruction objective avoids the need for complex contrastive learning frameworks or specialized data augmentations.
+- The pre-trained encoder can be directly fine-tuned for various downstream tasks with minimal modifications, demonstrating strong transferability.
+- It provides a strong baseline for self-supervised learning in computer vision, often outperforming other methods with simpler implementation.
+
+## Weaknesses
+
+- MAE is primarily designed for image data and its direct application to other data modalities like text or tabular data is not straightforward without significant adaptation.
+- Reconstructing pixel values might not always capture high-level semantic information as effectively as other self-supervised methods that focus on feature similarity.
+- Training large MAE models still requires substantial computational resources and time, despite its efficiency gains over full-input encoders.
+- The performance can be sensitive to the choice of masking ratio and patch size, which may require careful tuning for specific datasets.
+- The decoder is discarded after pre-training, meaning its learned representations are not directly utilized in downstream tasks, which might be seen as inefficient.
+
+## Use Cases
+
+### Image Classification
+
+Pre-training with MAE significantly improves the performance of Vision Transformers on large-scale image classification benchmarks like ImageNet.
+
+### Object Detection
+
+MAE pre-trained encoders can be fine-tuned as backbones for object detection models, leading to improved accuracy and faster convergence.
+
+### Semantic Segmentation
+
+The learned representations from MAE are highly effective when used as features for semantic segmentation tasks, enabling precise pixel-level classification.
+
+### Medical Imaging Analysis
+
+Applying MAE to medical images allows for self-supervised pre-training on large unlabeled datasets, which is crucial in domains with limited annotated data.
+
+### Remote Sensing
+
+MAE can pre-train models on satellite imagery, enabling robust feature extraction for tasks such as land cover classification and change detection.
+
+### Content-Based Image Retrieval
+
+The powerful visual features learned by MAE can be used to build efficient and accurate content-based image retrieval systems.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MAE (Masked Autoencoder) from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MAE (Masked Autoencoder) does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MAE (Masked Autoencoder) Lab" />
+
+## References
+
+- He et al. (2021). He et al..

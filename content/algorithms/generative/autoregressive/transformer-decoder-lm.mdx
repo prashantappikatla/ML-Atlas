@@ -1,0 +1,177 @@
+---
+title: "Transformer Decoder LM"
+slug: "transformer-decoder-lm"
+category: "generative"
+subcategory: "autoregressive"
+year: 2018
+author: "GPT-style models"
+paper: "GPT-style models"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["attention", "autoregressive", "deep-learning", "generative", "language-modeling", "natural-language-processing", "sequence-generation", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "bert"
+  - "gpt"
+  - "recurrent-neural-network"
+  - "t5"
+  - "transformer"
+---
+
+## Overview
+
+A [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder Language Model (LM) is an autoregressive neural network architecture designed for generating sequences of text, token by token. It leverages a stack of decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) blocks, each employing masked self-attention to ensure that predictions for a given position depend only on previous positions in the sequence. This architecture excels at capturing long-range dependencies and generating coherent, contextually relevant text, making it a cornerstone for modern large language models.
+
+## History
+
+**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture in "Attention Is All You Need," which laid the foundation with its self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), replacing recurrent layers.
+
+**2018** — Radford et al. introduced GPT-1 (Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer)), adapting the decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) architecture for unsupervised pre-training on a large text corpus, demonstrating its effectiveness for language modeling.
+
+**2019** — OpenAI released GPT-2, a significantly larger [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM, showcasing improved text generation capabilities and the potential for zero-shot task performance without explicit fine-tuning.
+
+**2020** — GPT-3 was introduced, further scaling the decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) LM to 175 billion parameters, demonstrating remarkable few-shot learning abilities and setting new benchmarks for generative AI.
+
+## Mathematical Intuition
+
+### Masked Self-Attention Mechanism
+
+The core of the [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM is the masked self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which allows each token in a sequence to attend to all preceding tokens (including itself) to compute a weighted sum of their values. This masking is crucial for autoregressive generation, preventing information leakage from future tokens. For a given query $Q$, keys $K$, and values $V$, the scaled dot-product attention is calculated as:
+$$Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}} + M)V$$
+Here, $d_k$ is the dimension of the keys, and $M$ is the attention mask. The mask $M$ is a lower triangular matrix (or equivalent) where elements corresponding to future positions are set to $-\infty$ (or a very large negative number) before the softmax, effectively zeroing out their contribution.
+
+$$
+Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}} + M)V
+$$
+
+### Positional Encoding Integration
+
+Since the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture does not inherently process sequences in order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens. These encodings are typically sinusoidal functions, allowing the model to learn to attend to different positions based on their relative distance.
+$$PE_{(pos, 2i)} = sin(pos / 10000^{2i/d_{model}})$$ 
+$$PE_{(pos, 2i+1)} = cos(pos / 10000^{2i/d_{model}})$$ 
+where $pos$ is the position, $i$ is the dimension index, and $d_{model}$ is the embedding dimension. The input to the first decoder layer is the sum of the token embedding and its corresponding positional encoding.
+
+$$
+PE_{(pos, 2i)} = sin(pos / 10000^{2i/d_{model}})
+$$
+
+$$
+PE_{(pos, 2i+1)} = cos(pos / 10000^{2i/d_{model}})
+$$
+
+### Decoder Block Structure
+
+A [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM consists of a stack of identical decoder blocks. Each block typically contains two main sub-layers: a masked multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) and a position-wise feed-forward network. Both sub-layers are followed by a residual connection and layer normalization. The output of each sub-layer is $LayerNorm(x + Sublayer(x))$, where $Sublayer(x)$ is the function implemented by the sub-layer itself. The feed-forward network applies two linear transformations with a ReLU activation in between:
+$$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$$
+This structure allows the model to process information at different levels of abstraction and combine it effectively.
+
+$$
+LayerNorm(x + Sublayer(x))
+$$
+
+$$
+FFN(x) = max(0, xW_1 + b_1)W_2 + b_2
+$$
+
+## Algorithm Steps
+
+1. Convert input tokens into dense vector embeddings using an embedding layer.
+2. Add positional encodings to the token embeddings to incorporate sequence order information.
+3. Pass the combined embeddings through a stack of $N$ identical decoder layers.
+4. Within each decoder layer, first apply a masked multi-head self-attention mechanism, followed by a residual connection and layer normalization.
+5. Next, apply a position-wise feed-forward network to the output of the attention sub-layer, also followed by a residual connection and layer normalization.
+6. After the final decoder layer, pass the output through a linear layer to project it to the vocabulary size.
+7. Apply a softmax function to the linear layer's output to obtain a probability distribution over the next possible token.
+8. During training, calculate the cross-entropy loss between the predicted probabilities and the actual next token, then use backpropagation and an optimizer (e.g., Adam) to update model weights.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_layers` | `int` | `6` | integer > 0 | The number of identical decoder layers in the model stack. |
+| `d_model` | `int` | `512` | integer > 0 | The dimensionality of the input and output of each sub-layer, and the embedding dimension. |
+| `n_heads` | `int` | `8` | integer > 0, typically a divisor of d_model | The number of attention heads in the multi-head attention mechanism. |
+| `d_ff` | `int` | `2048` | integer > 0 | The dimensionality of the inner-layer of the position-wise feed-forward networks. |
+| `dropout_rate` | `float` | `0.1` | [0.0, 1.0] | The dropout probability applied to the output of each sub-layer before residual connection and normalization. |
+| `max_sequence_length` | `int` | `512` | integer > 0 | The maximum length of input sequences the model can process. |
+| `vocab_size` | `int` | `30000` | integer > 0 | The size of the vocabulary, determining the output dimension of the final linear layer. |
+| `learning_rate` | `float` | `0.0001` | float > 0 | The initial learning rate for the optimizer during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Transformer Decoder LMs can capture very long-range dependencies in sequences due to the global nature of the attention mechanism.
+- The parallelizability of attention calculations allows for efficient training on modern hardware, unlike sequential recurrent networks.
+- These models scale effectively with increased data and parameters, leading to emergent capabilities in larger models.
+- They are highly effective at generating coherent, contextually relevant, and diverse text for a wide range of tasks.
+- Pre-trained Transformer Decoder LMs can perform well on downstream tasks with minimal or no fine-tuning (zero-shot/few-shot learning).
+
+## Weaknesses
+
+- Training Transformer Decoder LMs requires immense computational resources and large datasets, making them expensive to develop and deploy.
+- The quadratic complexity of the attention mechanism with respect to sequence length can be a bottleneck for very long sequences.
+- Generated text can sometimes be factually incorrect, nonsensical, or reflect biases present in the training data.
+- Interpreting the internal workings and decision-making process of large Transformer models remains challenging.
+- These models lack explicit world knowledge or common sense reasoning, often relying on statistical patterns learned from text.
+
+## Use Cases
+
+### Text Generation
+
+Creating human-like text for various purposes, including creative writing, content generation, and automated report writing.
+
+### Conversational AI
+
+Powering chatbots and virtual assistants to generate natural and contextually appropriate responses in dialogue systems.
+
+### Code Generation
+
+Assisting software developers by generating code snippets, completing functions, or translating natural language descriptions into code.
+
+### Abstractive Summarization
+
+Generating concise and coherent summaries of longer documents by understanding and rephrasing key information.
+
+### Question Answering
+
+Generating direct answers to natural language questions based on provided context or general knowledge learned during pre-training.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Transformer Decoder LM from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Transformer Decoder LM does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Transformer Decoder LM Lab" />
+
+## References
+
+- GPT-style models (2018). GPT-style models.

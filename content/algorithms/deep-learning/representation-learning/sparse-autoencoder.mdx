@@ -1,0 +1,220 @@
+---
+title: "Sparse Autoencoder"
+slug: "sparse-autoencoder"
+category: "deep-learning"
+subcategory: "representation-learning"
+year: 2007
+author: "Ng et al."
+paper: "Ng et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["autoencoders", "deep-learning", "dimensionality-reduction", "feature-extraction", "feature-learning", "neural-networks", "representation-learning", "sparsity", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "denoising-autoencoder"
+  - "non-negative-matrix-factorization"
+  - "restricted-boltzmann-machine"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Sparse Autoencoders are a type of unsupervised neural network designed to learn efficient, sparse representations of input data. They achieve this by training an [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) with an additional sparsity constraint on the hidden layer activations, forcing only a small subset of neurons to be active for any given input. This encourages the network to discover salient features and disentangled representations, making them effective for dimensionality reduction and feature learning.
+
+## History
+
+**2006** — Geoffrey Hinton and Ruslan Salakhutdinov introduced deep autoencoders for unsupervised pre-training of deep neural networks, demonstrating their ability to learn useful feature hierarchies.
+
+**2007** — Andrew Ng and his colleagues introduced the concept of Sparse Autoencoders, adding a sparsity penalty to the hidden layer activations to encourage more disentangled and interpretable features.
+
+**2008** — Pascal Vincent et al. introduced Denoising Autoencoders, which learn robust representations by reconstructing a clean input from a corrupted version.
+
+**2010** — Salah Rifai et al. proposed Contractive Autoencoders, which penalize the Frobenius norm of the Jacobian of the encoder's activation function to learn robust features.
+
+**2013** — Kingma and Welling introduced Variational Autoencoders (VAEs), a generative model that learns a probabilistic mapping from data to a latent space.
+
+## Mathematical Intuition
+
+### Autoencoder Reconstruction Loss
+
+An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The primary objective is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. A common choice for reconstruction loss for real-valued data is the squared error:
+$$ L_{reconstruction}(x, r) = ||x - r||^2 $$
+For binary data, cross-entropy loss is often used:
+$$ L_{reconstruction}(x, r) = -\sum_{k=1}^{d} [x_k \log(r_k) + (1 - x_k) \log(1 - r_k)] $$
+where $d$ is the dimensionality of the input.
+
+$$
+h = f(x)
+$$
+
+$$
+r = g(h)
+$$
+
+$$
+L_{reconstruction}(x, r) = ||x - r||^2
+$$
+
+$$
+L_{reconstruction}(x, r) = -\sum_{k=1}^{d} [x_k \log(r_k) + (1 - x_k) \log(1 - r_k)]
+$$
+
+### Sparsity Constraint on Activations
+
+To enforce sparsity, we want the average activation of each hidden unit to be close to a small value, $\rho$ (the sparsity parameter, typically close to zero, e.g., 0.05). Let $\hat{\rho}_j$ be the average activation of hidden unit $j$ over the training set:
+$$ \hat{\rho}_j = \frac{1}{m} \sum_{i=1}^{m} a_j^{(i)}(x^{(i)}) $$
+where $a_j^{(i)}(x^{(i)})$ is the activation of hidden unit $j$ for input $x^{(i)}$, and $m$ is the number of training examples. We penalize deviations of $\hat{\rho}_j$ from $\rho$. The Kullback-Leibler (KL) divergence is commonly used for this:
+$$ L_{sparsity}(\rho || \hat{\rho}_j) = \rho \log \frac{\rho}{\hat{\rho}_j} + (1 - \rho) \log \frac{1 - \rho}{1 - \hat{\rho}_j} $$
+
+$$
+\rho
+$$
+
+$$
+\hat{\rho}_j = \frac{1}{m} \sum_{i=1}^{m} a_j^{(i)}(x^{(i)})
+$$
+
+$$
+a_j^{(i)}(x^{(i)})
+$$
+
+$$
+L_{sparsity}(\rho || \hat{\rho}_j) = \rho \log \frac{\rho}{\hat{\rho}_j} + (1 - \rho) \log \frac{1 - \rho}{1 - \hat{\rho}_j}
+$$
+
+### Total Objective Function
+
+The overall cost function for a Sparse [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) combines the reconstruction loss and the sparsity penalty, weighted by a sparsity parameter $\beta$:
+$$ J_{sparse}(W, b) = L_{reconstruction}(x, g(f(x))) + \beta \sum_{j=1}^{s_2} L_{sparsity}(\rho || \hat{\rho}_j) $$
+where $s_2$ is the number of hidden units, $W$ represents the weights, and $b$ represents the biases. The $\beta$ parameter controls the strength of the sparsity penalty, balancing reconstruction accuracy with the desired level of sparsity.
+
+$$
+J_{sparse}(W, b) = L_{reconstruction}(x, g(f(x))) + \beta \sum_{j=1}^{s_2} L_{sparsity}(\rho || \hat{\rho}_j)
+$$
+
+$$
+s_2
+$$
+
+$$
+W
+$$
+
+$$
+b
+$$
+
+$$
+\beta
+$$
+
+## Algorithm Steps
+
+1. Initialize the network weights and biases randomly, typically with small values.
+2. For each training epoch, iterate through mini-batches of input data.
+3. For each input $x$ in a mini-batch, perform a forward pass to compute the hidden layer activations $h = f(x)$ and the output reconstruction $r = g(h)$.
+4. Calculate the reconstruction loss $L_{reconstruction}(x, r)$ between the input and its reconstruction.
+5. Calculate the average activation $\hat{\rho}_j$ for each hidden unit $j$ across the current mini-batch.
+6. Compute the sparsity penalty using the KL divergence $L_{sparsity}(\rho || \hat{\rho}_j)$ for each hidden unit $j$.
+7. Combine the reconstruction loss and the weighted sparsity penalty to form the total cost function $J_{sparse}$.
+8. Compute the gradients of $J_{sparse}$ with respect to the network weights and biases using backpropagation.
+9. Update the weights and biases using an optimization algorithm (e.g., gradient descent, Adam) to minimize the total cost function.
+10. Repeat steps 2-9 until convergence or a predefined number of epochs is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers, each > 0 | The sizes of the hidden layers in the encoder and decoder. For a single hidden layer, this would be (n_hidden_units,). |
+| `activation` | `string` | `relu` | 'relu', 'sigmoid', 'tanh' | Activation function for the hidden layers. |
+| `optimizer` | `string` | `adam` | 'adam', 'sgd', 'lbfgs' | The optimization algorithm to use for weight updates. |
+| `learning_rate_init` | `float` | `0.001` | float > 0 | The initial learning rate used by the optimizer. |
+| `max_iter` | `integer` | `200` | integer > 0 | Maximum number of epochs (iterations) to train the model. |
+| `batch_size` | `integer` | `32` | integer > 0 | Size of mini-batches for stochastic optimizers. |
+| `sparsity_target` | `float` | `0.01` | 0.0 < float < 1.0 | The desired average activation value for each hidden unit ($\rho$). |
+| `sparsity_weight` | `float` | `1.0` | float >= 0 | The weight of the sparsity penalty term in the total cost function ($\beta$). |
+| `alpha` | `float` | `0.0001` | float >= 0 | L2 regularization term (weight decay) parameter. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Learns compact and meaningful representations of data in an unsupervised manner.
+- Encourages the discovery of disentangled features, where different hidden units respond to distinct aspects of the input.
+- Can be used for effective dimensionality reduction, preserving important information while reducing feature space.
+- The sparse representations can improve the performance of downstream supervised learning tasks.
+- Can act as a pre-training step for deep neural networks, initializing weights to a more favorable state.
+- The learned features are often more robust to noise and minor variations in the input data.
+
+## Weaknesses
+
+- Requires careful tuning of hyperparameters, especially the sparsity target $\rho$ and the sparsity weight $\beta$.
+- Can be sensitive to the choice of activation functions and the network architecture.
+- Training can be computationally intensive, especially for large datasets and deep architectures.
+- Without proper regularization, it might learn trivial identity mappings, failing to extract meaningful features.
+- The interpretability of learned sparse features can still be challenging in complex models.
+
+## Use Cases
+
+### Anomaly Detection
+
+Training on normal data, anomalies will result in high reconstruction error, indicating unusual patterns that deviate from the learned normal representation.
+
+### Dimensionality Reduction
+
+Compressing high-dimensional data into a lower-dimensional sparse representation for efficient storage, visualization, or as input to other models.
+
+### Feature Extraction
+
+Learning a set of sparse, high-level features from raw data that can then be used as input for other machine learning models, improving their performance.
+
+### Image Denoising
+
+Learning to reconstruct clean images from noisy inputs, particularly when combined with [Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/deep-learning/representation-learning/denoising-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) principles to enhance robustness.
+
+### Data Compression
+
+Encoding data into a compact sparse code, which can then be decoded to reconstruct the original data with minimal loss, useful for efficient data storage and transmission.
+
+### Pre-training Deep Networks
+
+Initializing weights of deep neural networks with features learned by sparse autoencoders to improve training stability, accelerate convergence, and enhance overall performance.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Sparse Autoencoder from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Sparse Autoencoder does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Sparse Autoencoder Lab" />
+
+## References
+
+- Ng et al. (2007). Ng et al..

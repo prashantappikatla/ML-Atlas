@@ -1,0 +1,170 @@
+---
+title: "LeNet"
+slug: "lenet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 1998
+author: "LeCun et al."
+paper: "LeCun et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-network", "deep-learning", "digit-recognition", "feature-extraction", "image-classification", "neural-network", "pioneering-algorithm"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "perceptron"
+  - "resnet"
+  - "vgg"
+---
+
+## Overview
+
+LeNet is a pioneering convolutional neural network (CNN) architecture designed for handwritten digit recognition. It introduced key concepts like convolutional layers, subsampling (pooling) layers, and a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron) for classification, demonstrating the effectiveness of end-to-end learning for visual pattern recognition. Its hierarchical structure allows for automatic extraction of increasingly complex features from raw pixel data, forming the foundation for modern deep learning in computer vision.
+
+## History
+
+**1989** — Yann LeCun introduces backpropagation to train a convolutional neural network for handwritten digit recognition, demonstrating its practical applicability.
+
+**1994** — LeCun et al. publish "Backpropagation Applied to Handwritten Zip Code Recognition," detailing early CNN architectures and their success in real-world tasks.
+
+**1998** — LeCun, Bottou, Bengio, and Haffner publish "Gradient-Based Learning Applied to Document Recognition," introducing LeNet-5, a refined CNN architecture that became highly influential.
+
+**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), a deeper CNN architecture, wins the ImageNet Large Scale Visual Recognition Challenge, reigniting widespread interest and research in convolutional neural networks, building upon LeNet's foundational principles.
+
+## Mathematical Intuition
+
+### Feature Extraction via Convolution
+
+The convolutional layer applies a set of learnable filters (kernels) to the input image. Each filter slides across the input, performing a dot product between the filter and the local region of the input it covers. This operation generates a feature map, highlighting specific patterns or features like edges or textures. The output of a convolution operation $(I * K)(x, y)$ for an input image $I$ and a kernel $K$ at position $(x, y)$ is given by:$$ (I * K)(x, y) = \sum_{i=-\infty}^{\infty} \sum_{j=-\infty}^{\infty} I(x-i, y-j) K(i, j) $$
+
+$$
+(I * K)(x, y) = \sum_{i=-\infty}^{\infty} \sum_{j=-\infty}^{\infty} I(x-i, y-j) K(i, j)
+$$
+
+### Downsampling with Pooling
+
+Subsampling layers, often called pooling layers, reduce the spatial dimensions of the feature maps, thereby reducing the number of parameters and computational cost, and helping to achieve spatial invariance to small translations. LeNet-5 primarily used average pooling. For a pooling window of size $N$ (e.g., $2 \times 2$ means $N=4$), the average of the values within the window is taken. The pooled value $P_{x,y}$ for a feature map $F$ at position $(x,y)$ is:$$ P_{x,y} = \frac{1}{N} \sum_{i=0}^{\sqrt{N}-1} \sum_{j=0}^{\sqrt{N}-1} F_{x \cdot \sqrt{N} + i, y \cdot \sqrt{N} + j} $$
+
+$$
+P_{x,y} = \frac{1}{N} \sum_{i=0}^{\sqrt{N}-1} \sum_{j=0}^{\sqrt{N}-1} F_{x \cdot \sqrt{N} + i, y \cdot \sqrt{N} + j}
+$$
+
+### Non-linearity with Activation Functions
+
+After each convolutional layer, a non-linear activation function is applied to introduce non-linearity into the model, enabling it to learn more complex patterns. LeNet-5 originally used the hyperbolic tangent (tanh) function, $f(x) = \tanh(x)$, or sigmoid, $f(x) = (1 + e^{-x})^{-1}$. These functions map the input to a bounded range, typically $(-1, 1)$ for tanh or $(0, 1)$ for sigmoid. The tanh function is defined as:$$ \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} $$
+
+$$
+\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+$$
+
+### Cross-Entropy Loss
+
+For classification tasks, LeNet typically uses a loss function like the cross-entropy loss to quantify the difference between the predicted probability distribution and the true distribution. For a multi-class classification problem with $C$ classes, the cross-entropy loss for a single sample is given by $L = -\sum_{c=1}^{C} y_c \log(\hat{y}_c)$, where $y_c$ is a binary indicator (0 or 1) if class $c$ is the correct classification, and $\hat{y}_c$ is the predicted probability of class $c$. This loss function is minimized during training to improve classification accuracy.
+
+$$
+L = -\sum_{c=1}^{C} y_c \log(\hat{y}_c)
+$$
+
+## Algorithm Steps
+
+1. Input an image into the first convolutional layer, which applies a set of learnable filters to produce feature maps.
+2. Apply a non-linear activation function (e.g., tanh) to the output of the convolutional layer.
+3. Perform subsampling (average pooling) on the feature maps to reduce their spatial dimensions and introduce translation invariance.
+4. Repeat the convolutional and subsampling steps, typically with more filters and smaller feature maps.
+5. Flatten the final feature maps into a single vector to prepare for fully connected layers.
+6. Pass the flattened vector through one or more fully connected layers, which perform high-level reasoning.
+7. Apply a final activation function (e.g., softmax) to the output of the last fully connected layer to obtain class probabilities.
+8. Calculate the loss (e.g., cross-entropy) between the predicted probabilities and the true labels, then update model weights using backpropagation and an optimization algorithm like stochastic gradient descent.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_filters` | `int` | `6` | positive integer | The number of filters (kernels) to apply in a convolutional layer, determining the depth of the output feature maps. |
+| `kernel_size` | `tuple of int` | `(5, 5)` | tuple of positive integers (e.g., (3, 3), (5, 5)) | The dimensions of the convolutional kernel (filter) used to extract features from the input. |
+| `stride` | `tuple of int` | `(1, 1)` | tuple of positive integers (e.g., (1, 1), (2, 2)) | The step size at which the kernel slides across the input image, affecting the output feature map size. |
+| `padding` | `string` | `valid` | 'valid', 'same' | The type of padding applied to the input image before convolution, either 'valid' (no padding) or 'same' (output size matches input size). |
+| `activation` | `string` | `tanh` | 'tanh', 'sigmoid', 'relu' | The non-linear activation function applied after convolutional layers to introduce non-linearity. |
+| `pool_size` | `tuple of int` | `(2, 2)` | tuple of positive integers (e.g., (2, 2)) | The size of the pooling window used for downsampling feature maps. |
+| `optimizer` | `string` | `sgd` | 'sgd', 'adam', 'rmsprop' | The optimization algorithm used to update model weights during training. |
+| `learning_rate` | `float` | `0.01` | positive float (e.g., 0.001 to 0.1) | The step size used by the optimizer to adjust model weights during training. |
+| `batch_size` | `int` | `32` | positive integer (e.g., 16, 32, 64) | The number of samples processed before the model's internal parameters are updated. |
+| `epochs` | `int` | `10` | positive integer | The number of complete passes through the entire training dataset. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- LeNet pioneered the use of convolutional layers for automatic feature extraction, eliminating the need for manual feature engineering.
+- Its hierarchical architecture allows for learning increasingly abstract and robust representations of visual data.
+- The combination of convolution and pooling layers provides a degree of translation invariance, making it robust to small shifts in input patterns.
+- LeNet demonstrated the effectiveness of end-to-end learning for image classification tasks, from raw pixels to final predictions.
+- It laid the foundational principles for modern deep convolutional neural networks, influencing subsequent architectures significantly.
+
+## Weaknesses
+
+- LeNet's architecture is relatively shallow compared to modern CNNs, limiting its capacity to learn very complex patterns from large, diverse datasets.
+- The use of sigmoid/tanh activation functions can suffer from vanishing gradients, especially in deeper networks, hindering effective training.
+- It was primarily designed for small, grayscale images (like handwritten digits) and would require significant modifications and computational resources for larger, color images.
+- The average pooling used in LeNet-5 can sometimes lead to a loss of fine-grained information compared to max pooling.
+- Training LeNet can be computationally intensive for larger datasets or higher-resolution images due to the nature of deep learning.
+
+## Use Cases
+
+### Optical Character Recognition (OCR)
+
+Identifying handwritten digits and characters in scanned documents or images, such as for form processing.
+
+### Bank Check Processing
+
+Automating the reading and verification of handwritten amounts on bank checks, improving efficiency and accuracy.
+
+### Postal Automation
+
+Sorting mail by recognizing handwritten zip codes on envelopes, a task for which LeNet-5 was originally developed.
+
+### Simple Image Classification
+
+Classifying small, low-resolution images into a limited number of categories, serving as a baseline for more complex tasks.
+
+### Quality Control
+
+Detecting simple visual defects in manufacturing processes where patterns are relatively consistent and small.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement LeNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# LeNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="LeNet Lab" />
+
+## References
+
+- LeCun et al. (1998). LeCun et al..

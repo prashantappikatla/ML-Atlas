@@ -1,0 +1,174 @@
+---
+title: "Complement Naive Bayes"
+slug: "complement-naive-bayes"
+category: "supervised"
+subcategory: "classification"
+year: 2003
+author: "Rennie et al."
+paper: "Rennie et al."
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["bag-of-words", "classification", "imbalanced-data", "low-complexity", "naive-bayes", "probabilistic-model", "supervised-learning", "text-classification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bernoulli-naive-bayes"
+  - "gaussian-naive-bayes"
+  - "logistic-regression"
+  - "multinomial-naive-bayes"
+  - "naive-bayes"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a variant of the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) algorithm specifically designed to handle imbalanced datasets, particularly prevalent in text classification. Instead of directly modeling the probability of features given a class, it models the probability of features given the complement of a class. This approach helps mitigate the bias towards majority classes that can occur in standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) when dealing with skewed data distributions.
+
+## History
+
+**2003** — Jason D. Rennie, Lee Son, and David R. Moxon introduced Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) in their paper "Tackling the Poor Assumptions of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) Text Classifiers," addressing issues with standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes), particularly its sensitivity to class imbalance and feature independence assumptions in text classification.
+
+**2006** — The algorithm gained further recognition and was included in popular machine learning libraries, demonstrating its practical utility for text classification tasks, especially for imbalanced data.
+
+**2010** — Continued research and application in various domains, particularly where datasets exhibit significant class skew, solidified its role as a robust baseline for imbalanced classification problems.
+
+## Mathematical Intuition
+
+### Naive Bayes Classifier Review
+
+The standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier is based on Bayes' Theorem, which states that the posterior probability of a class $C_k$ given an instance $\mathbf{x} = (x_1, \dots, x_n)$ is $P(C_k | \mathbf{x}) = \frac{P(\mathbf{x} | C_k) P(C_k)}{P(\mathbf{x})}$. Due to the "naive" assumption of feature independence, the likelihood $P(\mathbf{x} | C_k)$ is simplified to a product of individual feature probabilities: $P(\mathbf{x} | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$. The classifier then assigns the instance to the class that maximizes this posterior probability: $\hat{C} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
+
+$$
+P(C_k | \mathbf{x}) = \frac{P(\mathbf{x} | C_k) P(C_k)}{P(\mathbf{x})}
+$$
+
+$$
+P(\mathbf{x} | C_k) = \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+$$
+\hat{C} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+### Addressing Class Imbalance
+
+A significant challenge for standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) arises with imbalanced datasets. When a class $C_k$ has very few training examples, the estimates for $P(x_i | C_k)$ can be unreliable, sparse, or even zero, especially with many features. This can lead to a strong bias towards the majority classes, as their likelihood estimates are more robust due to a larger number of samples, causing the classifier to misclassify minority class instances.
+
+### Complementary Class Probabilities
+
+Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) addresses this by modeling the probability of features given the *complement* of a class, denoted as $\bar{C_k}$. The complement class $\bar{C_k}$ consists of all training samples that do *not* belong to class $C_k$. By using the complement, the model leverages a larger pool of data for each probability estimate, as $\bar{C_k}$ typically contains more samples than a minority class $C_k$. This leads to more robust and less biased estimates for $P(x_i | \bar{C_k})$.
+
+### Complement Naive Bayes Decision Rule
+
+Instead of maximizing $P(C_k | \mathbf{x})$, Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) assigns an instance $\mathbf{x}$ to the class $C_k$ that minimizes the posterior probability of its complement, $P(\bar{C_k} | \mathbf{x})$. This is mathematically equivalent to maximizing $P(C_k | \mathbf{x})$. Using Bayes' Theorem and the naive assumption for the complement, we have $P(\bar{C_k} | \mathbf{x}) \propto P(\bar{C_k}) \prod_{i=1}^{n} P(x_i | \bar{C_k})$. The decision rule becomes to choose the class $C_k$ that minimizes the score $S_k = \log P(\bar{C_k}) + \sum_{i=1}^{n} \log P(x_i | \bar{C_k})$. The probabilities $P(x_i | \bar{C_k})$ are estimated from all samples not in $C_k$, often with additive smoothing.
+
+$$
+P(\bar{C_k} | \mathbf{x}) \propto P(\bar{C_k}) \prod_{i=1}^{n} P(x_i | \bar{C_k})
+$$
+
+$$
+S_k = \log P(\bar{C_k}) + \sum_{i=1}^{n} \log P(x_i | \bar{C_k})
+$$
+
+## Algorithm Steps
+
+1. For each class $C_k$ in the training data, construct its complement dataset $\bar{D_k}$ by combining all training samples that do not belong to $C_k$.
+2. For each feature $x_i$ and each class complement $\bar{C_k}$, calculate the likelihood $P(x_i | \bar{C_k})$ using the samples in $\bar{D_k}$, typically applying Laplace (additive) smoothing with parameter $\alpha$.
+3. Calculate the prior probability $P(\bar{C_k})$ for each complement class, which is the proportion of samples in the training set not belonging to $C_k$.
+4. For a new instance $\mathbf{x}$ to be classified, calculate the "complement score" for each class $C_k$ using the formula: $S_k = \log P(\bar{C_k}) + \sum_{i=1}^{n} \log P(x_i | \bar{C_k})$.
+5. Assign the instance $\mathbf{x}$ to the class $C_k$ for which the complement score $S_k$ is minimized.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | >= 0 | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied. Must be non-negative. |
+| `fit_prior` | `bool` | `True` | True, False | Whether to learn class prior probabilities ($P(\bar{C_k})$) or assume equal priors for all complement classes. |
+| `class_prior` | `array-like of shape (n_classes,)` | `None` | array of probabilities summing to 1, or None | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data. This parameter is typically used to set $P(C_k)$ directly, which then implies $P(\bar{C_k})$. |
+| `force_alpha` | `bool` | `False` | True, False | If False and alpha is less than 1e-10, it will be set to 1e-10. If True, alpha will remain as is. This parameter is for backward compatibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is particularly robust to imbalanced datasets, mitigating the bias towards majority classes often seen in standard Naive Bayes.
+- The model is simple, computationally efficient, and scales well to large datasets with many features.
+- It provides good performance on text classification tasks, even with sparse feature representations.
+- The algorithm is easy to implement and interpret, making it a good baseline classifier.
+- It can handle high-dimensional data effectively due to its independence assumption.
+
+## Weaknesses
+
+- The core "naive" assumption of feature independence given the class complement rarely holds true in real-world data, potentially limiting accuracy.
+- It may perform suboptimally compared to more complex models when the dataset is well-balanced or when complex feature interactions are crucial.
+- The model's performance can be sensitive to the choice of smoothing parameter, especially with very sparse data.
+- It is primarily designed for discrete or count-based features, requiring preprocessing for continuous data.
+
+## Use Cases
+
+### Spam Detection
+
+Classifying emails as spam or not spam, where spam messages often represent a minority class in email datasets.
+
+### Sentiment Analysis
+
+Determining the sentiment (positive, negative, neutral) of product reviews or social media posts, which can exhibit imbalanced sentiment distributions.
+
+### Document Categorization
+
+Assigning news articles or scientific papers to predefined categories, especially when some categories are less represented than others.
+
+### Medical Diagnosis
+
+Identifying rare diseases based on patient symptoms, where the 'diseased' class is typically a small fraction of the population.
+
+### Fraud Detection
+
+Detecting fraudulent transactions in financial datasets, where fraudulent cases are significantly outnumbered by legitimate ones.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Complement Naive Bayes from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import ComplementNaiveBayes
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ComplementNaiveBayes()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Complement Naive Bayes Lab" />
+
+## References
+
+- Rennie et al. (2003). Rennie et al..
+- [scikit-learn: ComplementNaiveBayes](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ComplementNaiveBayes.html)

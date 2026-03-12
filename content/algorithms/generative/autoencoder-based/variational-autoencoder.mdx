@@ -1,0 +1,168 @@
+---
+title: "Variational Autoencoder"
+slug: "variational-autoencoder"
+category: "generative"
+subcategory: "autoencoder-based"
+year: 2013
+author: "Kingma & Welling"
+paper: "Kingma & Welling"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["autoencoder", "data-generation", "deep-learning", "generative-model", "latent-space", "probabilistic-model", "unsupervised-learning", "variational-inference"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "beta-vae"
+  - "denoising-autoencoder"
+  - "normalizing-flow"
+---
+
+## Overview
+
+Variational Autoencoders (VAEs) are a class of generative models that learn a probabilistic mapping from data to a continuous latent space and back. Unlike traditional autoencoders, VAEs model the latent space as a probability distribution, enabling the generation of novel data samples by sampling from this learned distribution. This probabilistic approach allows VAEs to generate diverse outputs and provides a structured latent representation suitable for interpolation and other latent space manipulations.
+
+## History
+
+**2013** — Diederik P. Kingma and Max Welling introduced the Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) in their seminal paper "Auto-Encoding Variational Bayes," establishing a new paradigm for deep generative models based on variational inference.
+
+**2016** — Conditional Variational Autoencoders (CVAEs) were proposed, extending VAEs to generate data conditioned on specific attributes or labels.
+
+**2017** — $eta$-VAEs were introduced to encourage disentangled representations in the latent space by weighting the KL divergence term in the ELBO objective.
+
+**2018** — Adversarial Variational Bayes (AVB) combined VAEs with adversarial training to improve the quality of generated samples and address posterior collapse.
+
+## Mathematical Intuition
+
+### Variational Inference Foundation
+
+VAEs leverage variational inference to approximate the intractable true posterior distribution $p(z|x)$ over latent variables $z$ given observed data $x$. Instead of directly computing $p(z|x)$, which often involves an intractable marginal likelihood $p(x)$, VAEs introduce an approximate posterior $q_\phi(z|x)$, typically a simple distribution like a Gaussian, parameterized by an encoder network with weights $\phi$. The goal is to minimize the Kullback-Leibler (KL) divergence between $q_\phi(z|x)$ and $p(z|x)$.
+
+$$
+D_{KL}(q_\phi(z|x) || p(z|x)) = \mathbb{E}_{q_\phi(z|x)}[\log q_\phi(z|x) - \log p(z|x)]
+$$
+
+### Evidence Lower Bound (ELBO)
+
+Minimizing $D_{KL}(q_\phi(z|x) || p(z|x))$ is equivalent to maximizing the Evidence Lower Bound (ELBO) of the marginal likelihood $\log p(x)$. The ELBO objective function, which VAEs optimize, can be decomposed into two terms: a reconstruction term and a regularization term.
+$$\log p(x) \ge \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) || p(z))$$
+The first term, $\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)]$, is the expected negative reconstruction error, encouraging the decoder $p_\theta(x|z)$ to accurately reconstruct the input $x$ from a latent sample $z$. The second term, $-D_{KL}(q_\phi(z|x) || p(z))$, acts as a regularizer, forcing the approximate posterior $q_\phi(z|x)$ to stay close to a prior distribution $p(z)$, typically a standard normal distribution.
+
+$$
+\log p(x) \ge \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) || p(z))
+$$
+
+### Reparameterization Trick for Gradients
+
+To enable backpropagation through the sampling process from $q_\phi(z|x)$, the reparameterization trick is employed. If $q_\phi(z|x)$ is a Gaussian distribution with mean $\mu(x)$ and standard deviation $\sigma(x)$ (output by the encoder), a sample $z$ cannot be directly obtained in a differentiable manner. Instead, $z$ is sampled from a standard normal distribution $\mathcal{N}(0, I)$ and then transformed:
+$$z = \mu(x) + \sigma(x) \odot \epsilon$$
+where $\epsilon \sim \mathcal{N}(0, I)$ is a random noise vector. This reparameterization separates the stochasticity from the network parameters $\phi$ and $\theta$, allowing gradients to flow through $\mu(x)$ and $\sigma(x)$ during training.
+
+$$
+z = \mu(x) + \sigma(x) \odot \epsilon
+$$
+
+## Algorithm Steps
+
+1. An input data point $x$ is fed into the encoder network.
+2. The encoder outputs the parameters (mean $\mu$ and log-variance $\log \sigma^2$) of the approximate posterior distribution $q_\phi(z|x)$ in the latent space.
+3. A latent vector $z$ is sampled from this distribution using the reparameterization trick: $z = \mu + \sigma \odot \epsilon$, where $\epsilon \sim \mathcal{N}(0, I)$.
+4. The sampled latent vector $z$ is passed to the decoder network.
+5. The decoder reconstructs the input data, producing an output $x'$.
+6. The reconstruction loss (e.g., mean squared error for continuous data or binary cross-entropy for binary data) is calculated between $x$ and $x'$.
+7. The Kullback-Leibler (KL) divergence between the approximate posterior $q_\phi(z|x)$ and the prior $p(z)$ (typically $\mathcal{N}(0, I)$) is calculated.
+8. The total loss, the negative ELBO, is computed as the sum of the reconstruction loss and the KL divergence term.
+9. The network parameters (encoder $\phi$ and decoder $\theta$) are updated via backpropagation to minimize this total loss.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `latent_dim` | `integer` | `20` | integer > 0 | Dimensionality of the latent space, representing the number of latent variables. |
+| `encoder_layers` | `list of integers` | `[256, 128]` | list of integers > 0 | List specifying the number of units in each hidden layer of the encoder network. |
+| `decoder_layers` | `list of integers` | `[128, 256]` | list of integers > 0 | List specifying the number of units in each hidden layer of the decoder network. |
+| `learning_rate` | `float` | `0.001` | float > 0 | The learning rate for the optimizer used during training. |
+| `kl_weight` | `float` | `1.0` | float >= 0 | Weight applied to the Kullback-Leibler divergence term in the ELBO objective, controlling the regularization strength (e.g., for beta-VAE). |
+| `reconstruction_loss_type` | `string` | `mse` | 'mse', 'bce' | Type of loss function used for the reconstruction term (e.g., 'mse' for mean squared error, 'bce' for binary cross-entropy). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- VAEs provide a continuous and structured latent space, enabling smooth interpolation between data points.
+- They offer a probabilistic framework for generative modeling, allowing for uncertainty quantification in the latent representations.
+- The reparameterization trick allows for end-to-end training using gradient-based optimization methods.
+- VAEs are less prone to mode collapse compared to Generative Adversarial Networks, as they optimize a lower bound on the data likelihood.
+- The learned latent space can be used for various downstream tasks such as anomaly detection and dimensionality reduction.
+- They can generate diverse and novel samples that resemble the training data distribution.
+
+## Weaknesses
+
+- Generated samples from VAEs often appear blurry or less sharp than those produced by Generative Adversarial Networks.
+- The Evidence Lower Bound (ELBO) is a lower bound on the true log-likelihood, meaning the model might not fully capture the data distribution.
+- VAEs can suffer from "posterior collapse," where the approximate posterior $q_\phi(z|x)$ collapses to the prior $p(z)$, making the latent variables uninformative.
+- Tuning the weight of the KL divergence term (e.g., in $\beta$-VAEs) can be challenging and significantly impact the quality of generation and disentanglement.
+- The assumption of a simple prior distribution (e.g., Gaussian) might limit the expressiveness of the latent space for complex data distributions.
+
+## Use Cases
+
+### Image Generation
+
+Creating novel images, such as faces or objects, by sampling from the learned latent space.
+
+### Anomaly Detection
+
+Identifying unusual data points by measuring their reconstruction error or their position in the latent space.
+
+### Data Imputation
+
+Filling in missing values in datasets by leveraging the learned data distribution and latent representations.
+
+### Drug Discovery
+
+Generating new molecular structures with desired properties by exploring the latent space of chemical compounds.
+
+### Text Generation
+
+Producing new sentences or documents that maintain semantic coherence and style.
+
+### Dimensionality Reduction
+
+Learning meaningful low-dimensional representations of high-dimensional data for visualization or further analysis.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Variational Autoencoder from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Variational Autoencoder does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Variational Autoencoder Lab" />
+
+## References
+
+- Kingma & Welling (2013). Kingma & Welling.

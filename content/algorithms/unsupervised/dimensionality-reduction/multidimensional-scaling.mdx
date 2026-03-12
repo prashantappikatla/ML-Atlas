@@ -1,0 +1,229 @@
+---
+title: "Multidimensional Scaling"
+slug: "multidimensional-scaling"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1958
+author: "Torgerson"
+paper: "Torgerson"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["data-embedding", "dimensionality-reduction", "distance-preserving", "manifold-learning", "metric-learning", "non-linear", "unsupervised-learning", "visualization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "isomap"
+  - "locally-linear-embedding"
+---
+
+## Overview
+
+Multidimensional Scaling (MDS) is a dimensionality reduction technique that aims to represent a set of objects in a low-dimensional space such that the distances between points in the low-dimensional space approximate the original dissimilarities between the objects. It is particularly useful for visualizing the structure of data where only pairwise dissimilarities are known or meaningful. The core principle involves minimizing a "stress" function that quantifies the discrepancy between the input dissimilarities and the Euclidean distances in the embedded space.
+
+## History
+
+**1958** — Warren Torgerson introduced Classical Multidimensional Scaling, laying the groundwork for representing psychological stimuli in a spatial configuration based on their perceived similarities.
+
+**1964** — Roger Shepard developed non-metric MDS, allowing for the preservation of the rank order of dissimilarities rather than their exact values, which significantly broadened its applicability.
+
+**1964** — Joseph Kruskal formalized the concept of "stress" as a goodness-of-fit measure for MDS, providing a robust objective function for optimization.
+
+**1978** — Forrest W. Young and Robert M. de Leeuw developed the Alternating Least Squares (ALS) algorithm, a powerful iterative method for optimizing various MDS models, including non-metric MDS.
+
+## Mathematical Intuition
+
+### Goal: Preserve Pairwise Distances
+
+Multidimensional Scaling seeks to embed $N$ objects, for which a matrix of pairwise dissimilarities $\delta_{ij}$ is known, into a low-dimensional Euclidean space $\mathbb{R}^p$. The objective is to find coordinates $x_1, \dots, x_N \in \mathbb{R}^p$ such that the Euclidean distances $d_{ij} = \|x_i - x_j\|$ in the embedded space closely match the original dissimilarities $\delta_{ij}$. This transformation allows for visualization and interpretation of the underlying structure of the data.
+
+$$
+\delta_{ij}
+$$
+
+$$
+\mathbb{R}^p
+$$
+
+$$
+x_1, \dots, x_N \in \mathbb{R}^p
+$$
+
+$$
+d_{ij} = \|x_i - x_j\|
+$$
+
+### Kruskal's Stress Function
+
+To quantify the goodness of fit, MDS minimizes a "stress" function. A commonly used measure is Kruskal's Stress-1, defined as:
+$$ \text{Stress-1} = \sqrt{\frac{\sum_{i<j} (d_{ij} - \hat{d}_{ij})^2}{\sum_{i<j} d_{ij}^2}} $$
+Here, $d_{ij}$ are the Euclidean distances in the low-dimensional space, and $\hat{d}_{ij}$ are the disparities, which are transformations of the original dissimilarities $\delta_{ij}$. For metric MDS, $\hat{d}_{ij} = \delta_{ij}$. For non-metric MDS, $\hat{d}_{ij}$ are chosen to be monotonic with $\delta_{ij}$ while minimizing stress. The denominator normalizes the stress, making it comparable across different datasets.
+
+$$
+\text{Stress-1} = \sqrt{\frac{\sum_{i<j} (d_{ij} - \hat{d}_{ij})^2}{\sum_{i<j} d_{ij}^2}}
+$$
+
+$$
+d_{ij}
+$$
+
+$$
+\hat{d}_{ij}
+$$
+
+$$
+\delta_{ij}
+$$
+
+### Optimization via Gradient Descent
+
+Minimizing the stress function is typically a non-convex optimization problem. Iterative algorithms, such as gradient descent or majorization algorithms (e.g., SMACOF - Scaling by MAjorizing a COmplicated Function), are employed. The algorithm starts with an initial random configuration of points in the low-dimensional space and iteratively adjusts their positions to reduce the stress. For example, in gradient descent, the update rule for each coordinate $x_k$ might involve:
+$$ x_k^{(t+1)} = x_k^{(t)} - \eta \nabla_{x_k} \text{Stress} $$
+where $\eta$ is the learning rate and $\nabla_{x_k} \text{Stress}$ is the gradient of the stress function with respect to $x_k$.
+
+$$
+x_k^{(t+1)} = x_k^{(t)} - \eta \nabla_{x_k} \text{Stress}
+$$
+
+$$
+\eta
+$$
+
+$$
+\nabla_{x_k} \text{Stress}
+$$
+
+### Classical MDS (PCoA)
+
+Classical MDS, also known as Principal Coordinates Analysis (PCoA), provides an analytical solution when the input dissimilarities are Euclidean distances. It starts by converting the squared distance matrix $D^{(2)}$ into a centered inner product matrix $B$ using the double centering formula:
+$$ B = -\frac{1}{2} J D^{(2)} J $$
+where $J = I - \frac{1}{N} \mathbf{1}\mathbf{1}^T$ is the centering matrix. The matrix $B$ is then decomposed using eigenvalue decomposition $B = V \Lambda V^T$. The coordinates of the points in $p$-dimensional space are given by $X = V_p \Lambda_p^{1/2}$, where $V_p$ contains the eigenvectors corresponding to the $p$ largest positive eigenvalues in $\Lambda_p$. This method assumes metric dissimilarities and yields a unique solution up to rotation and translation.
+
+$$
+D^{(2)}
+$$
+
+$$
+B = -\frac{1}{2} J D^{(2)} J
+$$
+
+$$
+J = I - \frac{1}{N} \mathbf{1}\mathbf{1}^T
+$$
+
+$$
+B = V \Lambda V^T
+$$
+
+$$
+X = V_p \Lambda_p^{1/2}
+$$
+
+## Algorithm Steps
+
+1. Construct a pairwise dissimilarity matrix $\Delta$ where $\Delta_{ij}$ represents the dissimilarity between object $i$ and object $j$.
+2. Choose the desired dimensionality $p$ for the embedded space.
+3. Initialize the coordinates of the $N$ objects in $p$-dimensional space, $X^{(0)}$, typically randomly or using a principal components analysis of the data if available.
+4. Iteratively refine the coordinates $X^{(t)}$ to minimize the chosen stress function.
+5. In each iteration, calculate the Euclidean distances $d_{ij}^{(t)}$ between all pairs of points in the current configuration $X^{(t)}$.
+6. Compute the disparities $\hat{d}_{ij}^{(t)}$ from the original dissimilarities $\Delta_{ij}$. For metric MDS, $\hat{d}_{ij}^{(t)} = \Delta_{ij}$. For non-metric MDS, $\hat{d}_{ij}^{(t)}$ are chosen to be monotonic with $\Delta_{ij}$ while minimizing stress.
+7. Calculate the stress value based on $d_{ij}^{(t)}$ and $\hat{d}_{ij}^{(t)}$.
+8. Update the coordinates $X^{(t+1)}$ using an optimization algorithm (e.g., gradient descent or SMACOF) to reduce the stress.
+9. Repeat the distance calculation, disparity computation, stress calculation, and coordinate update steps until the change in stress falls below a predefined tolerance or a maximum number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | integer > 0 | The number of dimensions in which to embed the data. |
+| `metric` | `bool` | `True` | True, False | If True, perform metric MDS; otherwise, perform non-metric MDS. When False, the disparities are fit to be monotonic with the original dissimilarities. |
+| `n_init` | `int` | `4` | integer > 0 | Number of times the MDS algorithm will be run with different initializations. The results of the best run (in terms of stress) are returned. |
+| `max_iter` | `int` | `300` | integer > 0 | Maximum number of iterations of the SMACOF algorithm for a single run. |
+| `eps` | `float` | `1e-3` | float > 0 | Relative tolerance with regards to the stress for the SMACOF algorithm. The algorithm terminates if the change in stress is less than this value. |
+| `dissimilarity` | `str` | `euclidean` | 'euclidean', 'precomputed' | Specifies whether the input matrix is a data matrix ('euclidean') or a precomputed distance matrix ('precomputed'). |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, None | Determines random number generation for initialization of the algorithm. Pass an int for reproducible results across multiple function calls. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- MDS can handle any type of dissimilarity data, not just Euclidean distances, making it highly flexible.
+- It provides a direct visual representation of the relationships between objects, aiding in exploratory data analysis.
+- MDS does not require the original raw data; it can operate solely on a precomputed dissimilarity matrix.
+- Non-metric MDS is robust to monotonic transformations of the dissimilarities, making it suitable for ordinal data.
+- It can reveal hidden structures and clusters in data that might not be apparent in higher dimensions.
+- The resulting low-dimensional embedding preserves the relative distances, which is often more interpretable than other embeddings.
+
+## Weaknesses
+
+- MDS is computationally intensive for large datasets, as it requires calculating and optimizing over an $N \times N$ dissimilarity matrix.
+- The optimization process for non-metric MDS can converge to local minima, requiring multiple initializations.
+- The choice of dimensionality $p$ is often subjective and can significantly impact the interpretation of the results.
+- Interpreting the axes of the embedded space can be challenging, as they do not necessarily correspond to original features.
+- MDS is sensitive to noisy or inaccurate dissimilarity measures, which can distort the embedding.
+
+## Use Cases
+
+### Psychology
+
+Visualizing perceived similarities between stimuli, such as colors, sounds, or consumer products, based on human judgment.
+
+### Marketing
+
+Understanding brand positioning by mapping consumer perceptions of different brands based on survey data or product attributes.
+
+### Biology
+
+Analyzing genetic distances between species or populations to infer evolutionary relationships and population structure.
+
+### Information Retrieval
+
+Visualizing the semantic relationships between documents or terms based on their co-occurrence or similarity measures.
+
+### Ecology
+
+Mapping the ecological similarity of different habitats or species based on environmental factors or shared characteristics.
+
+### Sociology
+
+Representing social networks or relationships between individuals based on interaction frequencies or perceived closeness.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Multidimensional Scaling from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import MultidimensionalScaling
+
+model = MultidimensionalScaling()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Multidimensional Scaling Lab" />
+
+## References
+
+- Torgerson (1958). Torgerson.
+- [scikit-learn: MultidimensionalScaling](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MultidimensionalScaling.html)

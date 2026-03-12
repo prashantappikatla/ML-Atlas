@@ -1,0 +1,206 @@
+---
+title: "Local Outlier Factor"
+slug: "local-outlier-factor"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2000
+author: "Breunig et al."
+paper: "Breunig et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "density-based", "distance-based", "local-density", "non-parametric", "outlier-detection", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dbscan"
+  - "elliptic-envelope"
+  - "gaussian-mixture-model"
+  - "isolation-forest"
+  - "k-nearest-neighbors"
+  - "one-class-svm"
+  - "optics"
+---
+
+## Overview
+
+Local Outlier Factor (LOF) is an unsupervised anomaly detection algorithm that identifies anomalous data points by measuring their local deviation from their neighbors. It quantifies the degree of outlierness for each data point based on its local density relative to its neighbors. Points with significantly lower local density than their neighbors are considered outliers, making it effective at detecting anomalies in datasets with varying densities.
+
+## History
+
+**2000** — Breunig, Kriegel, Ng, and Sander introduced the Local Outlier Factor (LOF) algorithm in their seminal paper 'LOF: Identifying Density-Based Local Outliers' at SIGMOD, marking a significant advancement in density-based outlier detection.
+
+**2001** — The core concepts of local density and reachability distance, central to LOF, began to gain wider recognition within the data mining community for their ability to handle complex data distributions.
+
+**2009** — LOF was integrated into popular machine learning libraries, such as scikit-learn, significantly increasing its accessibility and widespread adoption for various anomaly detection tasks.
+
+**2010** — Research expanded to explore extensions and optimizations of LOF, including adaptations for high-dimensional data and streaming environments, addressing some of its initial limitations.
+
+## Mathematical Intuition
+
+### K-distance and Neighborhood
+
+The $k$-distance of an object $p$, denoted $k\text{-distance}(p)$, is defined as the distance $d(p,o)$ to its $k$-th nearest neighbor $o$. The $k$-distance neighborhood of $p$, $N_k(p)$, then includes all objects $o'$ such that their distance to $p$, $d(p,o')$, is less than or equal to $k\text{-distance}(p)$. This establishes a local context for each point.
+
+$$
+k\text{-distance}(p)
+$$
+
+$$
+N_k(p)
+$$
+
+$$
+d(p,o')
+$$
+
+### Reachability Distance Definition
+
+The reachability distance of object $p$ from object $o$ is defined as $\text{reach-dist}_k(p,o) = \max\{k\text{-distance}(o), d(p,o)\}$. This asymmetric distance metric ensures that the reachability distance is at least the $k$-distance of $o$, effectively smoothing out the influence of very close neighbors and focusing on the 'reachability' from denser regions.
+
+$$
+\text{reach-dist}_k(p,o) = \max\{k\text{-distance}(o), d(p,o)\}
+$$
+
+$$
+k\text{-distance}(o)
+$$
+
+$$
+d(p,o)
+$$
+
+### Local Reachability Density
+
+The Local Reachability Density (LRD) of an object $p$ quantifies how 'dense' $p$ is relative to its neighbors. It is the inverse of the average reachability distance from the objects in its $k$-distance neighborhood $N_k(p)$. A lower LRD value indicates that an object resides in a sparser region.
+$$ \text{lrd}_k(p) = \frac{|N_k(p)|}{\sum_{o \in N_k(p)} \text{reach-dist}_k(p,o)} $$
+
+$$
+\text{lrd}_k(p) = \frac{|N_k(p)|}{\sum_{o \in N_k(p)} \text{reach-dist}_k(p,o)}
+$$
+
+$$
+|N_k(p)|
+$$
+
+$$
+\sum_{o \in N_k(p)} \text{reach-dist}_k(p,o)
+$$
+
+### Local Outlier Factor Score
+
+The Local Outlier Factor (LOF) of an object $p$ is the average of the ratio of the LRDs of its neighbors to the LRD of $p$ itself. An LOF value close to 1 suggests that $p$ has a similar density to its neighbors. Values significantly greater than 1 indicate that $p$ is an outlier, as its density is lower than that of its neighbors.
+$$ \text{LOF}_k(p) = \frac{\sum_{o \in N_k(p)} \frac{\text{lrd}_k(o)}{\text{lrd}_k(p)}}{|N_k(p)|} $$
+
+$$
+\text{LOF}_k(p) = \frac{\sum_{o \in N_k(p)} \frac{\text{lrd}_k(o)}{\text{lrd}_k(p)}}{|N_k(p)|}
+$$
+
+$$
+\text{lrd}_k(o)
+$$
+
+$$
+\text{lrd}_k(p)
+$$
+
+## Algorithm Steps
+
+1. For each data point $p$ in the dataset, determine its $k$-distance, which is the distance to its $k$-th nearest neighbor.
+2. Identify the $k$-distance neighborhood $N_k(p)$ for each point $p$, comprising all points whose distance to $p$ is less than or equal to $k\text{-distance}(p)$.
+3. Calculate the reachability distance $\text{reach-dist}_k(p,o)$ for each point $p$ from every point $o$ in its $k$-distance neighborhood $N_k(p)$.
+4. Compute the Local Reachability Density (LRD) for each point $p$ using the formula $\text{lrd}_k(p) = \frac{|N_k(p)|}{\sum_{o \in N_k(p)} \text{reach-dist}_k(p,o)}$.
+5. Finally, calculate the Local Outlier Factor (LOF) for each point $p$ by comparing its LRD to the LRDs of its neighbors: $\text{LOF}_k(p) = \frac{\sum_{o \in N_k(p)} \frac{\text{lrd}_k(o)}{\text{lrd}_k(p)}}{|N_k(p)|}$.
+6. Points with an LOF value significantly greater than 1 are identified as outliers, with higher values indicating a greater degree of outlierness.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_neighbors` | `int` | `20` | integer, > 0 | Number of neighbors to use for k-distance calculations and to define the local neighborhood. |
+| `algorithm` | `str` | `auto` | {'auto', 'ball_tree', 'kd_tree', 'brute'} | Algorithm used to compute the nearest neighbors, optimizing for different data structures. |
+| `leaf_size` | `int` | `30` | integer, > 0 | Leaf size passed to BallTree or KDTree, affecting the speed and memory usage of the tree construction. |
+| `metric` | `str or callable` | `minkowski` | string or callable, e.g., 'euclidean', 'manhattan', 'chebyshev' | Metric used for the distance computation between data points. |
+| `p` | `int` | `2` | integer, > 0 | Parameter for the Minkowski metric. $p=1$ corresponds to Manhattan distance, and $p=2$ corresponds to Euclidean distance. |
+| `metric_params` | `dict or None` | `None` | dictionary or None | Additional keyword arguments for the metric function. |
+| `contamination` | `float or auto` | `auto` | float in (0., 0.5] or 'auto' | The proportion of outliers in the dataset. Used to define the threshold for outlier scores when predicting labels. |
+| `n_jobs` | `int or None` | `None` | integer, -1 for all processors | Number of parallel jobs to run for neighbors search. -1 means using all available processors. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- LOF effectively identifies outliers in datasets where different regions exhibit varying densities, a challenge for global methods.
+- The algorithm provides an outlier score for each data point, allowing for a nuanced ranking of anomalies based on their degree of outlierness.
+- LOF does not make strong assumptions about the underlying data distribution, making it robust to non-Gaussian or complex data structures.
+- As a local method, it can detect outliers that might be missed by global anomaly detection techniques that consider the entire dataset's distribution.
+- The interpretability of the LOF score, where values significantly greater than 1 indicate outlier status, provides a clear decision criterion.
+
+## Weaknesses
+
+- The computational complexity of LOF can be high, particularly for large datasets, scaling roughly as $O(N^2)$ in the worst case for distance calculations.
+- Performance is highly sensitive to the choice of the parameter $k$ (n_neighbors), which can be challenging to tune optimally without prior domain knowledge.
+- LOF struggles with high-dimensional data due to the 'curse of dimensionality,' where distance metrics become less meaningful and distinctions between densities blur.
+- It can be sensitive to noise, as noisy points might inadvertently affect local densities and lead to incorrect outlier classifications.
+- The algorithm does not inherently handle categorical features and requires appropriate numerical encoding or feature engineering prior to application.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual transaction patterns or fraudulent activities in financial datasets by flagging transactions with significantly different local densities.
+
+### Intrusion Detection
+
+Detecting anomalous network traffic or system calls that may indicate cyber attacks or unauthorized access attempts within IT infrastructure.
+
+### Manufacturing Quality Control
+
+Pinpointing defective products or anomalies in sensor readings from production lines, ensuring high product quality and operational efficiency.
+
+### Healthcare
+
+Discovering unusual patient data, such as rare disease patterns, erroneous medical readings, or atypical physiological responses in clinical datasets.
+
+### Environmental Monitoring
+
+Identifying abnormal sensor readings in environmental data, which could indicate pollution events, equipment malfunctions, or unusual natural phenomena.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Local Outlier Factor from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import LocalOutlierFactor
+
+model = LocalOutlierFactor()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Local Outlier Factor Lab" />
+
+## References
+
+- Breunig et al. (2000). Breunig et al..
+- [scikit-learn: LocalOutlierFactor](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LocalOutlierFactor.html)

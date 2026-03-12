@@ -1,0 +1,212 @@
+---
+title: "Word2Vec"
+slug: "word2vec"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2013
+author: "Mikolov et al."
+paper: "Mikolov et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "natural-language-processing", "neural-networks", "representation-learning", "self-supervised-learning", "text-mining", "vector-space-models", "word-embeddings"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "doc2vec"
+  - "fasttext"
+  - "glove"
+  - "latent-semantic-analysis"
+  - "transformer"
+---
+
+## Overview
+
+Word2Vec is a neural network-based technique for learning dense vector representations (embeddings) of words from large text corpora. It captures semantic and syntactic relationships between words by mapping them to a continuous vector space, where words with similar meanings are positioned closer together. The algorithm operates on the distributional hypothesis, inferring word meanings from their contexts, and offers two main architectures: Continuous Bag-of-Words (CBOW) and Skip-gram. These embeddings are highly valuable for various natural language processing tasks, providing a numerical foundation for understanding linguistic nuances.
+
+## History
+
+**2003** — Yoshua Bengio et al. published 'A Neural Probabilistic Language Model', introducing the concept of learning distributed representations for words, laying foundational work for modern word embeddings.
+
+**2013** — Tomas Mikolov et al. introduced Word2Vec in 'Efficient Estimation of Word Representations in Vector Space', presenting the Skip-gram and Continuous Bag-of-Words (CBOW) architectures for efficient word embedding learning.
+
+**2013** — Mikolov et al. further refined Word2Vec in 'Distributed Representations of Words and Phrases and their Compositionality', introducing optimization techniques like Negative Sampling and Hierarchical Softmax.
+
+**2014** — Google released a highly optimized C++ implementation of Word2Vec, significantly contributing to its widespread adoption and use in research and industry.
+
+**2014** — The Gensim library provided a popular and accessible Python implementation of Word2Vec, making the algorithm readily available to a broader community of machine learning practitioners.
+
+## Mathematical Intuition
+
+### Skip-gram Architecture Objective
+
+The Skip-gram model aims to predict the surrounding context words given a target word. For each word $w_t$ in the corpus, it considers a window of $C$ context words on either side. The objective is to maximize the log probability of observing the context words given the target word. This is typically formulated as maximizing the sum of log probabilities for each target-context pair:
+
+$$
+$$ \sum_{t=1}^{T} \sum_{-C \le j \le C, j \ne 0} \log P(w_{t+j} | w_t) $$
+$$
+
+$$
+The probability $P(w_o | w_i)$ is commonly defined using the softmax function:
+$$
+
+$$
+$$ P(w_o | w_i) = \frac{\exp(v_{w_o}'^T v_{w_i})}{\sum_{w=1}^{V} \exp(v_w'^T v_{w_i})} $$
+$$
+
+$$
+where $v_{w_i}$ is the input vector representation of word $w_i$, $v_{w_o}'$ is the output vector representation of word $w_o$, and $V$ is the vocabulary size.
+$$
+
+### CBOW Architecture Objective
+
+The Continuous Bag-of-Words (CBOW) model, conversely, predicts the current target word $w_t$ based on its surrounding context words $w_{t-C}, ..., w_{t+C}$. The context words are typically averaged or summed to form a single context vector. The objective function is to maximize the log probability of the target word given the context words:
+
+$$
+$$ \sum_{t=1}^{T} \log P(w_t | w_{t-C}, ..., w_{t+C}) $$
+$$
+
+$$
+The probability $P(w_t | \text{context})$ is also defined using softmax:
+$$
+
+$$
+$$ P(w_t | \text{context}) = \frac{\exp(v_{w_t}'^T \bar{v}_{\text{context}})}{\sum_{w=1}^{V} \exp(v_w'^T \bar{v}_{\text{context}})} $$
+$$
+
+$$
+where $\bar{v}_{\text{context}}$ is the average of the input vectors of the context words.
+$$
+
+### Negative Sampling Optimization
+
+To address the computational cost of the softmax function, which requires summing over the entire vocabulary $V$, Negative Sampling (NEG) is introduced. Instead of updating all output word vectors, NEG converts the multi-class classification problem into a binary classification problem for each (target, context) pair. For each positive pair $(w_i, w_o)$, it samples $k$ "negative" words $w_n$ that are not in the context. The objective function for Skip-gram with Negative Sampling is to maximize:
+
+$$
+$$ \log \sigma(v_{w_o}'^T v_{w_i}) + \sum_{k=1}^{K} E_{w_n \sim P_n(w)}[\log \sigma(-v_{w_n}'^T v_{w_i})] $$
+$$
+
+$$
+where $\sigma(x) = 1 / (1 + \exp(-x))$ is the sigmoid function, and $P_n(w)$ is the noise distribution, typically the unigram distribution raised to the $3/4$ power.
+$$
+
+### Hierarchical Softmax for Efficiency
+
+Hierarchical Softmax is another optimization technique that replaces the flat softmax layer with a binary Huffman tree. Each word in the vocabulary is a leaf node, and the probability of a word is computed as the product of probabilities of traversing the path from the root to that leaf. This reduces the complexity from $O(V)$ to $O(\log V)$ for each prediction. The probability $P(w_o | w_i)$ is calculated by traversing the tree, where at each internal node $n$, a binary classification is performed:
+
+$$
+$$ P(w_o | w_i) = \prod_{j=1}^{L(w_o)-1} \sigma(\text{sgn}(n(w_o, j+1)) \cdot v_{n(w_o, j)}^T v_{w_i}) $$
+$$
+
+$$
+where $L(w_o)$ is the length of the path from the root to $w_o$, $n(w_o, j)$ is the $j$-th node on this path, and $\text{sgn}(n(w_o, j+1))$ is $+1$ if $n(w_o, j+1)$ is the left child and $-1$ if it's the right child.
+$$
+
+## Algorithm Steps
+
+1. Preprocess the text corpus by tokenizing words, converting to lowercase, and optionally removing stop words or rare words below a minimum frequency threshold.
+2. Build a vocabulary of unique words from the preprocessed corpus, assigning a unique index to each word.
+3. Initialize two sets of word vectors: input vectors $v_w$ and output vectors $v_w'$ for each word $w$ in the vocabulary, typically with small random values.
+4. Choose an architecture: Skip-gram (predict context from target word) or CBOW (predict target word from context words).
+5. Iterate through each word $w_t$ in the corpus, defining a context window of size $C$ around it.
+6. For Skip-gram, for each target word $w_t$, iterate through its context words $w_c$ within the window and update vectors to maximize $P(w_c | w_t)$. For CBOW, average the input vectors of context words to form $\bar{v}_{\text{context}}$ and update vectors to maximize $P(w_t | \bar{v}_{\text{context}})$.
+7. Compute the prediction and loss for each (target, context) pair (or (context, target) for CBOW) using either Hierarchical Softmax or Negative Sampling to optimize the softmax calculation.
+8. Update the word vectors $v_w$ and $v_w'$ using stochastic gradient descent to minimize the loss function, adjusting the learning rate as training progresses.
+9. Repeat steps 5-8 for multiple epochs (iterations) over the entire corpus until convergence or a predefined number of iterations; the final word embeddings are typically the input vectors $v_w$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `vector_size` | `int` | `100` | positive integer | The dimensionality of the word vectors. |
+| `window` | `int` | `5` | positive integer | The maximum distance between the current and predicted word within a sentence. |
+| `min_count` | `int` | `5` | non-negative integer | Ignores all words with a total frequency lower than this. |
+| `workers` | `int` | `3` | positive integer | Use these many worker threads to train the model. |
+| `sg` | `int` | `0` | {0, 1} | Training algorithm: 1 for Skip-gram, 0 for CBOW. |
+| `hs` | `int` | `0` | {0, 1} | If 1, hierarchical softmax will be used for model training. If 0 (default), and 'negative' is non-zero, negative sampling will be used. |
+| `negative` | `int` | `5` | non-negative integer | If > 0, negative sampling will be used, this specifies how many 'noise words' should be drawn (usually between 5-20). |
+| `epochs` | `int` | `5` | positive integer | Number of iterations (epochs) over the corpus. |
+| `alpha` | `float` | `0.025` | 0.0 < alpha <= 1.0 | The initial learning rate. |
+| `seed` | `int` | `1` | integer | Seed for the random number generator for reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Word2Vec effectively captures semantic and syntactic relationships between words, allowing for analogies and similarity queries.
+- It is computationally efficient to train on very large text corpora compared to earlier neural language models.
+- The resulting word embeddings are dense and low-dimensional, making them suitable as features for various downstream machine learning tasks.
+- It can discover nuanced relationships between words that might not be explicitly encoded in dictionaries or rule-based systems.
+- The model is relatively simple in its architecture, making it easier to understand and implement.
+- Pre-trained Word2Vec models are widely available and can be used for transfer learning on smaller datasets.
+
+## Weaknesses
+
+- Word2Vec assigns a single vector to each word, failing to capture polysemy (words with multiple meanings) effectively.
+- It struggles with out-of-vocabulary (OOV) words, as it cannot generate embeddings for words not seen during training.
+- The model does not inherently account for word order within the context window, treating it as a bag of words.
+- Training quality is highly dependent on the size and quality of the training corpus; small or noisy corpora yield poor embeddings.
+- It does not directly model subword information, which can be beneficial for morphologically rich languages.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used as a foundational step to convert words into numerical features for tasks like sentiment analysis, machine translation, and text classification.
+
+### Information Retrieval
+
+Enhances search relevance by identifying documents containing semantically similar words to query terms, even if exact matches are absent.
+
+### Recommendation Systems
+
+Can be applied to user-item interactions (e.g., sequences of viewed products) to learn item embeddings, improving recommendation quality.
+
+### Bioinformatics
+
+Used to embed biological sequences (e.g., DNA, protein sequences) by treating k-mers as 'words' to find functional similarities.
+
+### Customer Support
+
+Powers chatbots and automated response systems by understanding the semantic content of user queries to route them to appropriate solutions.
+
+### Fraud Detection
+
+Helps identify unusual patterns in textual data, such as transaction descriptions or communication logs, by detecting anomalous word usage.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Word2Vec from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Word2Vec does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Word2Vec Lab" />
+
+## References
+
+- Mikolov et al. (2013). Mikolov et al..

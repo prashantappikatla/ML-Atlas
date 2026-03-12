@@ -1,0 +1,206 @@
+---
+title: "Tweedie Regression"
+slug: "tweedie-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1984
+author: "Exponential Dispersion Models"
+paper: "Exponential Dispersion Models"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["actuarial-science", "generalized-linear-model", "regression", "skewed-data", "statistical-model", "tweedie-distribution", "zero-inflated"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gamma-regression"
+  - "poisson-regression"
+---
+
+## Overview
+
+Tweedie Regression is a type of Generalized Linear Model (GLM) designed to model response variables that follow a Tweedie distribution. This algorithm is particularly effective for data exhibiting characteristics such as many zero values, right-skewness, and a variance that is proportional to a power of the mean. It provides a flexible framework to handle a continuum of distributions, bridging common models like Poisson, Gamma, and Normal distributions.
+
+## History
+
+**1984** — Bent Jørgensen formally introduced and unified Exponential Dispersion Models (EDMs), which include the Tweedie distributions as a key subclass, providing a comprehensive theoretical framework for these distributions.
+
+**1994** — The book 'The Generalized Linear Model Approach to Risk Theory' by P. Albrecher and H. U. Gerber further popularized the use of GLMs, including Tweedie distributions, in actuarial science for modeling claim frequencies and severities.
+
+**2000** — The increasing computational power and development of statistical software packages made Tweedie Regression more accessible for practitioners, allowing for efficient fitting of these complex models to large datasets.
+
+**2005** — The paper 'Tweedie's Compound Poisson Model for Insurance Claims' by J. A. Smyth and R. J. Verrall highlighted the practical utility of Tweedie models, particularly for zero-inflated, continuous data common in insurance.
+
+**2010** — The inclusion of Tweedie Regression in popular machine learning libraries and statistical software, such as R's 'statmod' package and later scikit-learn, broadened its adoption beyond specialized statistical fields into general machine learning applications.
+
+## Mathematical Intuition
+
+### Generalized Linear Model Framework
+
+Tweedie Regression operates within the Generalized Linear Model (GLM) framework, which models the relationship between a linear predictor and the mean of a response variable via a link function. For a response variable $Y$ and predictors $X$, the GLM assumes that $Y$ follows a distribution from the exponential family, and its expected value $E[Y|X] = \mu$ is related to the linear predictor $\eta = X\beta$ by a monotonic and differentiable link function $g$, such that $g(\mu) = \eta$. The goal is to estimate the coefficient vector $\beta$.
+
+$$
+g(E[Y|X]) = X\beta
+$$
+
+### Tweedie Distribution Properties
+
+The Tweedie distribution is a family of exponential dispersion models characterized by a power parameter $p$. Its key property is the mean-variance relationship: $Var(Y) = \phi \mu^p$, where $\phi > 0$ is the dispersion parameter and $\mu = E[Y]$. Different values of $p$ correspond to specific distributions: $p=0$ for Normal, $p=1$ for Poisson, $p=2$ for Gamma, and $p=3$ for Inverse Gaussian. For $p \in (1, 2)$, the Tweedie distribution is a compound Poisson-Gamma distribution, which is suitable for data with a mass at zero and positive continuous values.
+
+$$
+Var(Y) = \phi \mu^p
+$$
+
+$$
+p=0 \text{ (Normal)}
+$$
+
+$$
+p=1 \text{ (Poisson)}
+$$
+
+$$
+p=2 \text{ (Gamma)}
+$$
+
+$$
+p=3 \text{ (Inverse Gaussian)}
+$$
+
+$$
+p \in (1, 2) \text{ (Compound Poisson-Gamma)}
+$$
+
+### Negative Log-Likelihood Objective
+
+The parameters of the Tweedie Regression model are typically estimated by maximizing the likelihood function, or equivalently, minimizing the negative log-likelihood. For an exponential dispersion model, the negative log-likelihood can be expressed in terms of the unit deviance $d(y, \mu)$ and the dispersion parameter $\phi$. The objective function to minimize is: $$L(\beta) = \sum_{i=1}^N w_i \left( \frac{d(y_i, \mu_i)}{\phi} + c(y_i, \phi) \right)$$ where $w_i$ are observation weights, $y_i$ is the observed response, $\mu_i$ is the predicted mean, and $c(y_i, \phi)$ is a term independent of $\beta$. The unit deviance for the Tweedie distribution is given by: $$d(y, \mu) = \begin{cases} (y - \mu)^2 & p=0 \\ 2(y \log(y/\mu) - y + \mu) & p=1 \\ 2(\log(\mu/y) + y/\mu - 1) & p=2 \\ \frac{y^{2-p}}{(1-p)(2-p)} - \frac{\mu^{2-p}}{(1-p)(2-p)} - \frac{y\mu^{1-p}}{1-p} + \frac{\mu^{2-p}}{2-p} & p \neq 0, 1, 2 \end{cases}$$
+
+$$
+L(\beta) = \sum_{i=1}^N w_i \left( \frac{d(y_i, \mu_i)}{\phi} + c(y_i, \phi) \right)
+$$
+
+$$
+d(y, \mu) = \begin{cases} (y - \mu)^2 & p=0 \\ 2(y \log(y/\mu) - y + \mu) & p=1 \\ 2(\log(\mu/y) + y/\mu - 1) & p=2 \\ \frac{y^{2-p}}{(1-p)(2-p)} - \frac{\mu^{2-p}}{(1-p)(2-p)} - \frac{y\mu^{1-p}}{1-p} + \frac{\mu^{2-p}}{2-p} & p \neq 0, 1, 2 \end{cases}
+$$
+
+### Parameter Estimation via IRLS
+
+The model parameters $\beta$ are typically estimated using an iterative optimization algorithm, such as Iteratively Reweighted Least Squares (IRLS). This method linearizes the link function and iteratively solves a weighted least squares problem. In each iteration, the algorithm updates the working response $z$ and the weights $W$. The working response is $z = \eta + (y - \mu) \frac{d\eta}{d\mu}$, and the weights are $W = \left( \frac{d\mu}{d\eta} \right)^2 / Var(Y)$. The process continues until the change in $\beta$ falls below a specified tolerance or a maximum number of iterations is reached.
+
+$$
+z = \eta + (y - \mu) \frac{d\eta}{d\mu}
+$$
+
+$$
+W = \left( \frac{d\mu}{d\eta} \right)^2 / Var(Y)
+$$
+
+## Algorithm Steps
+
+1. Initialize the regression coefficients $\beta$ (e.g., with zeros or from a simple OLS fit) and set initial values for the mean $\mu$ and linear predictor $\eta$ based on the link function $g(\mu) = \eta = X\beta$.
+2. Calculate the current working response $z_i = \eta_i + (y_i - \mu_i) \frac{d\eta_i}{d\mu_i}$ for each observation $i$.
+3. Compute the iterative weights $w_i = \left( \frac{d\mu_i}{d\eta_i} \right)^2 / Var(Y_i)$, where $Var(Y_i) = \phi \mu_i^p$ for the Tweedie distribution.
+4. Perform a weighted least squares regression of the working response $z$ on the predictor matrix $X$ using the weights $w$ to obtain updated coefficients $\beta^{(t+1)}$.
+5. Update the linear predictor $\eta^{(t+1)} = X\beta^{(t+1)}$ and the mean $\mu^{(t+1)} = g^{-1}(\eta^{(t+1)})$.
+6. Check for convergence: if the change in coefficients $\beta$ or the deviance between iterations is below a specified tolerance, or if the maximum number of iterations is reached, stop the process.
+7. If not converged, repeat steps 2-6 with the updated $\mu$ and $\eta$ values.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `power` | `float` | `0.0` | any float | The power parameter $p$ of the Tweedie distribution. $p=0$ for Normal, $p=1$ for Poisson, $p=2$ for Gamma, $p \in (1, 2)$ for compound Poisson-Gamma. |
+| `alpha` | `float` | `1.0` | $\ge 0$ | Constant that multiplies the L2 penalty term. Set to 0 for no regularization. |
+| `fit_intercept` | `boolean` | `true` | true, false | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations. |
+| `link` | `str` | `auto` | 'auto', 'identity', 'log', 'sqrt' | The link function to use. 'auto' selects canonical link based on power. 'identity', 'log', 'sqrt' are common options. |
+| `solver` | `str` | `lbfgs` | 'lbfgs', 'newton-cg' | Algorithm to use in the optimization problem. 'lbfgs' is a quasi-Newton method, 'newton-cg' is a Newton method. |
+| `max_iter` | `int` | `100` | $> 0$ | The maximum number of iterations for the solver to converge. |
+| `tol` | `float` | `1e-4` | $> 0$ | The tolerance for the optimization stopping criterion. |
+| `warm_start` | `boolean` | `false` | true, false | When true, reuse the solution of the previous call to fit as initialization. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Tweedie Regression effectively models response variables with a mass at zero and continuous positive values, which are common in many real-world datasets.
+- It offers flexibility by encompassing a range of common distributions (Normal, Poisson, Gamma) through its power parameter $p$, allowing adaptation to various data characteristics.
+- The model provides interpretable coefficients, similar to other Generalized Linear Models, making it easier to understand the impact of predictors.
+- It naturally handles right-skewed data without requiring explicit data transformations, simplifying the preprocessing pipeline.
+- The mean-variance relationship of the Tweedie distribution allows for robust modeling of heteroscedastic data where variance changes with the mean.
+
+## Weaknesses
+
+- The choice of the power parameter $p$ can be challenging and significantly impacts model performance, often requiring cross-validation or domain expertise.
+- Tweedie Regression assumes that the response variable follows a Tweedie distribution, which may not always hold true for all datasets.
+- The iterative estimation process can be computationally intensive for very large datasets or when a high degree of precision is required.
+- The model's performance can be sensitive to outliers, especially if they heavily influence the mean-variance relationship.
+- Interpretation of coefficients can be less straightforward than Ordinary Least Squares due to the non-linear link function.
+
+## Use Cases
+
+### Actuarial Science
+
+Used for modeling insurance claims, where many policies have zero claims, and positive claims are often right-skewed and continuous, such as predicting claim frequency or severity.
+
+### Healthcare
+
+Applied to predict healthcare costs, which often have a large number of zero costs (no visit) and highly skewed positive costs for those who seek care.
+
+### Ecology
+
+Employed to model species abundance or biomass, where many sampling sites may have zero observations, and positive observations are typically skewed.
+
+### Finance
+
+Used for credit risk modeling, specifically for predicting loss given default (LGD), where many accounts have zero loss, and positive losses are skewed.
+
+### Marketing
+
+Can be used to model customer spending or purchase frequency, where many customers may not make a purchase (zero) and others have varied spending habits.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Tweedie Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import TweedieRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = TweedieRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Tweedie Regression Lab" />
+
+## References
+
+- Exponential Dispersion Models (1984). Exponential Dispersion Models.
+- [scikit-learn: TweedieRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TweedieRegression.html)

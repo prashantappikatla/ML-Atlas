@@ -1,0 +1,207 @@
+---
+title: "BiLSTM"
+slug: "bilstm"
+category: "deep-learning"
+subcategory: "sequence-models"
+year: 1997
+author: "Bidirectional recurrent models"
+paper: "Bidirectional recurrent models"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: true
+  graph: false
+tags: ["bidirectional", "deep-learning", "long-short-term-memory", "natural-language-processing", "recurrent-neural-networks", "sequence-labeling", "sequence-modeling", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "stacking"
+  - "transformer"
+---
+
+## Overview
+
+Bidirectional Long Short-Term Memory (BiLSTM) networks extend the capabilities of standard LSTMs by processing sequential data in both forward and backward directions simultaneously. This architecture allows the model to capture context from both past and future elements within a sequence, providing a more comprehensive understanding of the entire input. BiLSTMs are particularly effective for tasks where the output at any given time step depends on information from the complete input sequence, not just preceding elements.
+
+## History
+
+**1997** — Long Short-Term Memory (LSTM) networks were introduced by Sepp Hochreiter and Jürgen Schmidhuber, addressing the vanishing gradient problem in traditional RNNs.
+
+**1997** — Bidirectional Recurrent Neural Networks (BRNNs) were proposed by Mike Schuster and Kuldip K. Paliwal, enabling RNNs to process sequences in both forward and backward directions.
+
+**2005** — Alex Graves and Jürgen Schmidhuber applied BiLSTMs to handwriting recognition, demonstrating their effectiveness in practical applications and popularizing the combined architecture.
+
+**2013** — BiLSTMs gained significant traction in natural language processing tasks, particularly after their successful application in speech recognition and machine translation, becoming a standard component in many state-of-the-art models.
+
+**2015** — Deep BiLSTMs, [Stacking](/algorithms/supervised/classification/stacking) multiple BiLSTM layers, became common for more complex sequence modeling tasks, further enhancing their representational power for hierarchical feature learning.
+
+## Mathematical Intuition
+
+### LSTM Cell Gating Mechanisms
+
+The core of an LSTM cell lies in its gating mechanisms, which regulate the flow of information into and out of the cell state. The forget gate $f_t$ determines what information to discard from the previous cell state $C_{t-1}$. The input gate $i_t$ decides what new information from the current input $x_t$ and previous hidden state $h_{t-1}$ will be stored in the cell state. The candidate cell state $	ilde{C}_t$ is a new potential memory. Finally, the output gate $o_t$ controls what part of the cell state $C_t$ is exposed as the hidden state $h_t$. These gates use sigmoid activation functions to produce values between 0 and 1, acting as 'switches'.
+$$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$$
+$$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$$
+$$\tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C)$$
+$$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$
+$$o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)$$
+$$h_t = o_t \odot \tanh(C_t)$$
+
+$$
+f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
+$$
+
+$$
+i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)
+$$
+
+$$
+\tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C)
+$$
+
+$$
+C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t
+$$
+
+$$
+o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)
+$$
+
+$$
+h_t = o_t \odot \tanh(C_t)
+$$
+
+### Bidirectional Sequence Processing
+
+A BiLSTM processes the input sequence in two independent directions: a forward pass and a backward pass. The forward LSTM layer computes a sequence of hidden states $\vec{h}_t$ by iterating from $t=1$ to $T$. Concurrently, a separate backward LSTM layer computes a sequence of hidden states $\overleftarrow{h}_t$ by iterating from $t=T$ down to $1$. Each direction maintains its own set of weights and biases, allowing it to learn distinct representations of the sequence context. This dual processing ensures that each time step's representation incorporates information from both its past and its future within the sequence.
+$$\vec{h}_t = \text{LSTM}_{forward}(x_t, \vec{h}_{t-1})$$
+$$\overleftarrow{h}_t = \text{LSTM}_{backward}(x_t, \overleftarrow{h}_{t+1})$$
+
+$$
+\vec{h}_t = \text{LSTM}_{forward}(x_t, \vec{h}_{t-1})
+$$
+
+$$
+\overleftarrow{h}_t = \text{LSTM}_{backward}(x_t, \overleftarrow{h}_{t+1})
+$$
+
+### Combining Forward and Backward Outputs
+
+At each time step $t$, the hidden states from the forward LSTM ($\vec{h}_t$) and the backward LSTM ($\overleftarrow{h}_t$) are combined to form a single output representation $h_t$. The most common method for combination is concatenation, which effectively doubles the dimensionality of the hidden state and allows subsequent layers to learn from the combined context. Other methods include summation, element-wise multiplication, or averaging, each offering different ways to integrate the bidirectional information. The choice of combination method can impact the model's performance on specific tasks.
+$$h_t = [\vec{h}_t; \overleftarrow{h}_t]$$ (Concatenation)
+$$h_t = \vec{h}_t + \overleftarrow{h}_t$$ (Summation)
+$$h_t = (\vec{h}_t + \overleftarrow{h}_t) / 2$$ (Averaging)
+
+$$
+h_t = [\vec{h}_t; \overleftarrow{h}_t]
+$$
+
+$$
+h_t = \vec{h}_t + \overleftarrow{h}_t
+$$
+
+$$
+h_t = (\vec{h}_t + \overleftarrow{h}_t) / 2
+$$
+
+## Algorithm Steps
+
+1. Initialize the weights and biases for two separate LSTM layers: one for the forward pass and one for the backward pass.
+2. For each input sequence $X = (x_1, x_2, ..., x_T)$, perform a forward pass through the first LSTM layer, computing hidden states $\vec{h}_t$ and cell states $\vec{C}_t$ from $t=1$ to $T$.
+3. Concurrently, perform a backward pass through the second LSTM layer, computing hidden states $\overleftarrow{h}_t$ and cell states $\overleftarrow{C}_t$ from $t=T$ down to $1$.
+4. At each time step $t$, combine the forward hidden state $\vec{h}_t$ and the backward hidden state $\overleftarrow{h}_t$ to form a single output representation $h_t$, typically by concatenation: $h_t = [\vec{h}_t; \overleftarrow{h}_t]$.
+5. Pass the sequence of combined hidden states $(h_1, h_2, ..., h_T)$ through a final output layer (e.g., a dense layer with softmax for classification) to generate predictions for each time step.
+6. Calculate the loss between the model's predictions and the true labels using an appropriate loss function.
+7. Update the model's weights and biases for both LSTM layers and the output layer using an optimization algorithm (e.g., Adam, RMSprop) via backpropagation through time.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `units` | `integer` | `None` | positive integer | Dimensionality of the output space (number of LSTM cells/hidden units) for each direction. |
+| `activation` | `string` | `tanh` | linear, relu, sigmoid, softmax, softplus, softsign, tanh, selu, elu, exponential | Activation function to use for the cell state and output. Default is 'tanh'. |
+| `recurrent_activation` | `string` | `sigmoid` | linear, relu, sigmoid, softmax, softplus, softsign, tanh, selu, elu, exponential | Activation function to use for the recurrent step (gates). Default is 'sigmoid'. |
+| `use_bias` | `boolean` | `True` | True, False | Whether the layer uses a bias vector. |
+| `dropout` | `float` | `0.0` | 0.0 to 1.0 | Fraction of the units to drop for the linear transformation of the inputs. |
+| `recurrent_dropout` | `float` | `0.0` | 0.0 to 1.0 | Fraction of the units to drop for the linear transformation of the recurrent state. |
+| `return_sequences` | `boolean` | `False` | True, False | Whether to return the last output in the output sequence, or the full sequence. If True, returns the full sequence. |
+| `merge_mode` | `string` | `concat` | concat, sum, mul, ave, None | Mode by which the forward and backward outputs will be combined. 'concat' concatenates, 'sum' adds, 'mul' multiplies, 'ave' averages, or None for no merge. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Effectively captures long-range dependencies in sequential data by mitigating the vanishing gradient problem inherent in simpler RNNs.
+- Leverages context from both past and future elements in a sequence, leading to a more comprehensive understanding of the data.
+- Achieves high performance in sequence labeling tasks where the output at a given time step depends on the entire input sequence.
+- Robust to variations in sequence length due to its recurrent nature and ability to process variable-length inputs.
+- Can be stacked into deep architectures to learn hierarchical representations of sequential data, enhancing model capacity.
+- Less prone to catastrophic forgetting compared to simpler recurrent neural networks, maintaining learned information over longer sequences.
+
+## Weaknesses
+
+- Higher computational cost and memory usage compared to unidirectional LSTMs due to the need to process the sequence twice and maintain two sets of hidden states.
+- Cannot be used for real-time prediction tasks where future context is unavailable, as it requires the entire input sequence to be present before making a prediction.
+- More complex to implement and debug than simpler recurrent architectures, requiring careful handling of forward and backward passes.
+- Can still suffer from exploding gradients, though less frequently than vanilla RNNs, often necessitating techniques like gradient clipping.
+- Training can be slow, especially for very long sequences or deep architectures, due to the sequential nature of computations and increased parameter count.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used for named entity recognition, part-of-speech tagging, and sentiment analysis to understand context from both sides of a word or phrase.
+
+### Speech Recognition
+
+Applied to transcribe spoken language into text, where acoustic context from both before and after a phoneme is crucial for accurate interpretation.
+
+### Bioinformatics
+
+Utilized for protein structure prediction or gene sequence analysis, where the function of a segment depends on its surrounding context within the biological sequence.
+
+### Machine Translation
+
+Helps in translating sentences by considering the full context of words in both the source and target languages, improving translation quality.
+
+### Handwriting Recognition
+
+Processes sequences of pen strokes or pixel columns to recognize characters and words, benefiting from bidirectional context to resolve ambiguities.
+
+### Time Series Analysis
+
+Can be applied to tasks like anomaly detection or event classification in time series data, leveraging full temporal context for each point.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement BiLSTM from scratch
+```
+
+### Using scikit-learn
+
+```python
+# BiLSTM does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="BiLSTM Lab" />
+
+## References
+
+- Bidirectional recurrent models (1997). Bidirectional recurrent models.

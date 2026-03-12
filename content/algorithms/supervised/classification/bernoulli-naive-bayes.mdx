@@ -1,0 +1,183 @@
+---
+title: "Bernoulli Naive Bayes"
+slug: "bernoulli-naive-bayes"
+category: "supervised"
+subcategory: "classification"
+year: 2000
+author: "Binary event modeling"
+paper: "Binary event modeling"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["binary-features", "classification", "fast-training", "high-dimensional", "naive-bayes", "probabilistic-model", "supervised-learning", "text-classification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "complement-naive-bayes"
+  - "decision-tree-classifier"
+  - "gaussian-naive-bayes"
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "multinomial-naive-bayes"
+  - "naive-bayes"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm particularly suited for discrete features that are binary or boolean-valued. It operates under the 'naive' assumption of conditional independence between features given the class label, simplifying the computation of posterior probabilities. This variant of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) models the presence or absence of specific features, making it effective for tasks where feature occurrence, rather than frequency, is the primary signal.
+
+## History
+
+**1950** — The foundational principles of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classification emerged from early work in statistical pattern recognition, leveraging Bayes' Theorem for probabilistic inference.
+
+**1960** — Early applications of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) were explored, particularly in medical diagnosis and document classification, demonstrating its utility despite the strong independence assumption.
+
+**1990** — With the rise of machine learning and increased computational power, [Naive Bayes](/algorithms/supervised/classification/naive-bayes) experienced a resurgence, becoming a popular baseline algorithm, especially for text classification tasks.
+
+**2000** — The specific application of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) to binary event modeling, where features represent the presence or absence of attributes (e.g., words in a document), gained prominence, leading to the formalization of Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes).
+
+**2007** — The scikit-learn project was initiated, later including an efficient implementation of Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), making it readily accessible to a wider machine learning community.
+
+## Mathematical Intuition
+
+### Bayes' Theorem Foundation
+
+Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), like all [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifiers, is rooted in Bayes' Theorem, which describes the probability of an event, based on prior knowledge of conditions that might be related to the event. For a class $C_k$ and a feature vector $x = (x_1, x_2, ..., x_n)$, Bayes' Theorem states the posterior probability as:$$P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}$$The goal is to find the class $C_k$ that maximizes $P(C_k | x)$. Since $P(x)$ is constant for all classes, we only need to maximize $P(x | C_k) P(C_k)$.
+
+$$
+P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}
+$$
+
+### Naive Independence Assumption
+
+The 'naive' aspect of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) comes from the assumption that all features $x_i$ are conditionally independent given the class $C_k$. This simplifies the likelihood term $P(x | C_k)$ significantly:$$P(x | C_k) = P(x_1, x_2, ..., x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$$This assumption, while often violated in real-world data, makes the model computationally tractable and surprisingly effective in many applications.
+
+$$
+P(x | C_k) = \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+### Bernoulli Feature Distribution
+
+For Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), each feature $x_i$ is assumed to be a binary variable (0 or 1), following a Bernoulli distribution. The probability of a feature $x_i$ taking a specific value (0 or 1) given a class $C_k$ is modeled as:$$P(x_i | C_k) = p_{ik}^{x_i} (1 - p_{ik})^{1 - x_i}$$where $p_{ik}$ is the probability that feature $x_i$ is present (i.e., $x_i=1$) given class $C_k$. If $x_i=1$, the term is $p_{ik}$; if $x_i=0$, the term is $(1 - p_{ik})$.
+
+$$
+P(x_i | C_k) = p_{ik}^{x_i} (1 - p_{ik})^{1 - x_i}
+$$
+
+### Parameter Estimation and Classification
+
+The parameters $P(C_k)$ (prior probabilities) and $P(x_i | C_k)$ (likelihoods) are estimated from the training data using maximum likelihood estimation. The prior $P(C_k)$ is the proportion of training samples belonging to class $C_k$. The likelihood $p_{ik}$ is estimated as the proportion of samples in class $C_k$ where feature $x_i$ is present. To prevent zero probabilities, Laplace smoothing (additive smoothing) is often applied:$$p_{ik} = \frac{N_{ik} + \alpha}{N_k + \alpha \cdot 2}$$where $N_{ik}$ is the count of samples in class $C_k$ where feature $x_i=1$, $N_k$ is the total count of samples in class $C_k$, and $\alpha$ is the smoothing parameter (typically 1). The final classification rule for a new sample $x$ is:$$C_{pred} = \operatorname{argmax}_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$$
+
+$$
+p_{ik} = \frac{N_{ik} + \alpha}{N_k + \alpha \cdot 2}
+$$
+
+$$
+C_{pred} = \operatorname{argmax}_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+## Algorithm Steps
+
+1. Prepare the training data by ensuring all features are binary (0 or 1); if not, binarize them using a threshold.
+2. For each class $C_k$, calculate the prior probability $P(C_k)$ as the proportion of training samples belonging to that class.
+3. For each feature $x_i$ and each class $C_k$, estimate the likelihood $P(x_i=1 | C_k)$ by counting the occurrences of $x_i=1$ within class $C_k$ and dividing by the total count of samples in $C_k$. Apply Laplace smoothing to avoid zero probabilities.
+4. For a new, unseen sample $x = (x_1, ..., x_n)$, calculate the posterior probability $P(C_k | x)$ for each class $C_k$ using the formula $P(C_k | x) \propto P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
+5. The term $P(x_i | C_k)$ is $P(x_i=1 | C_k)$ if $x_i=1$, and $1 - P(x_i=1 | C_k)$ if $x_i=0$.
+6. Assign the new sample to the class $C_k$ that yields the highest posterior probability.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | $\alpha \ge 0$ | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied. Must be non-negative. |
+| `binarize` | `float or None` | `0.0` | any float or None | Threshold for binarizing (mapping to 0 or 1) numerical feature values. Features greater than this threshold are set to 1, otherwise 0. If None, input is assumed to be already binary. |
+| `fit_prior` | `bool` | `true` | true, false | Whether to learn class prior probabilities or assume equal priors for all classes. |
+| `class_prior` | `array-like of shape (n_classes,) or None` | `None` | array of floats summing to 1, or None | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data. If None, priors are adjusted based on training data. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Bernoulli Naive Bayes is computationally efficient and scales well to large datasets with many features.
+- It performs well with high-dimensional data, especially when features are binary and represent presence or absence.
+- The model is simple to understand and interpret due to its explicit probabilistic formulation.
+- It requires relatively small amounts of training data to estimate parameters effectively, particularly with smoothing.
+- It is robust to irrelevant features, as their probabilities tend to be similar across classes and thus have less impact on the final classification.
+- The algorithm is less prone to overfitting compared to more complex models, especially when the naive assumption holds reasonably well.
+
+## Weaknesses
+
+- The core 'naive' assumption of conditional independence between features given the class is often violated in real-world data, which can lead to suboptimal performance.
+- It struggles with continuous or count-based features unless they are explicitly binarized, potentially losing valuable information.
+- The model's performance can be sensitive to the choice of binarization threshold if features are not inherently binary.
+- It provides probability estimates that can be inaccurate, even if the classification decision is correct, due to the strong independence assumption.
+- Features that are highly correlated can disproportionately influence the classification outcome due to the independence assumption.
+
+## Use Cases
+
+### Text Classification
+
+Used for tasks like spam detection or sentiment analysis, where the presence or absence of specific keywords indicates the class of a document.
+
+### Document Categorization
+
+Applicable for assigning documents to predefined categories based on whether certain terms or phrases appear within them.
+
+### Medical Diagnosis
+
+Can be used to classify diseases based on the presence or absence of specific symptoms or test results.
+
+### Fraud Detection
+
+Identifies fraudulent transactions by modeling the presence or absence of suspicious attributes or patterns.
+
+### Recommendation Systems
+
+Predicts user preferences (e.g., whether a user will like an item) based on the presence or absence of features from past interactions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bernoulli Naive Bayes from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import BernoulliNaiveBayes
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = BernoulliNaiveBayes()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bernoulli Naive Bayes Lab" />
+
+## References
+
+- Binary event modeling (2000). Binary event modeling.
+- [scikit-learn: BernoulliNaiveBayes](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BernoulliNaiveBayes.html)

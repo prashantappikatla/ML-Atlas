@@ -1,0 +1,162 @@
+---
+title: "Beta-VAE"
+slug: "beta-vae"
+category: "generative"
+subcategory: "autoencoder-based"
+year: 2017
+author: "Higgins et al."
+paper: "Higgins et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["autoencoder", "deep-learning", "disentanglement", "generative-model", "image-generation", "representation-learning", "unsupervised-learning", "variational-autoencoder"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Beta-[Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (Beta-VAE) is an unsupervised deep generative model that extends the [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) by introducing a hyperparameter $\beta$ to encourage disentangled representations in the latent space. It aims to learn a factorized latent representation where individual dimensions correspond to independent generative factors of the data. This disentanglement improves the interpretability and robustness of the learned representations, making it easier to control specific attributes during data generation.
+
+## History
+
+**2013** — Diederik P. Kingma and Max Welling introduce the [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE), establishing a probabilistic framework for unsupervised learning of latent representations.
+
+**2014** — Danilo Jimenez Rezende, Shakir Mohamed, and Daan Wierstra independently propose a similar deep generative model with variational inference, further solidifying the VAE paradigm.
+
+**2017** — Irina Higgins et al. publish "$\beta$-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework," introducing the $\beta$ hyperparameter to explicitly balance reconstruction quality and latent disentanglement.
+
+**2018** — Subsequent research, including Annealed VAE and FactorVAE, builds upon Beta-VAE's principles to further enhance disentanglement and address challenges like posterior collapse.
+
+## Mathematical Intuition
+
+### Variational Autoencoder Objective
+
+The standard [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) aims to maximize the Evidence Lower Bound (ELBO), which serves as a lower bound on the log-likelihood of the observed data $\mathbf{x}$. The ELBO is expressed as the sum of a reconstruction term and a regularization term:
+$$L(\theta, \phi; \mathbf{x}) = E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))$$
+Here, $p_{\theta}(\mathbf{x}|\mathbf{z})$ is the decoder's likelihood, $q_{\phi}(\mathbf{z}|\mathbf{x})$ is the encoder's approximate posterior, and $p(\mathbf{z})$ is the prior distribution over the latent variables.
+
+$$
+L(\theta, \phi; \mathbf{x}) = E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))
+$$
+
+### Beta-VAE Objective Function
+
+Beta-VAE modifies the standard VAE objective by introducing a hyperparameter $\beta$ that scales the Kullback-Leibler (KL) divergence term. This modification allows for explicit control over the trade-off between reconstruction accuracy and the regularization of the latent space, which encourages disentanglement:
+$$L_{\beta}(\theta, \phi; \mathbf{x}) = E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - \beta \cdot D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))$$
+A higher value of $\beta$ places more emphasis on making the approximate posterior $q_{\phi}(\mathbf{z}|\mathbf{x})$ close to the prior $p(\mathbf{z})$, typically a standard normal distribution.
+
+$$
+L_{\beta}(\theta, \phi; \mathbf{x}) = E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - \beta \cdot D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))
+$$
+
+### Role of Beta Parameter
+
+The $\beta$ parameter acts as a Lagrange multiplier, effectively enforcing a capacity constraint on the latent bottleneck. By increasing $\beta$, the model is penalized more heavily for deviating from the prior distribution in its latent encoding. This increased pressure on the KL divergence term encourages the latent dimensions to become more independent and disentangled, meaning each dimension tends to capture a distinct generative factor of variation in the data. However, this often comes at the cost of some reconstruction quality, as the model prioritizes disentanglement over perfect fidelity.
+
+## Algorithm Steps
+
+1. Initialize the encoder and decoder neural networks with random weights.
+2. For each training iteration, sample a mini-batch of data $\mathbf{x}$ from the dataset.
+3. Pass $\mathbf{x}$ through the encoder network to obtain the parameters (mean $\mu$ and log-variance $\log \sigma^2$) of the approximate posterior $q_{\phi}(\mathbf{z}|\mathbf{x})$.
+4. Sample a latent vector $\mathbf{z}$ from $q_{\phi}(\mathbf{z}|\mathbf{x})$ using the reparameterization trick: $\mathbf{z} = \mu + \sigma \odot \epsilon$, where $\epsilon \sim N(0, I)$.
+5. Pass the sampled latent vector $\mathbf{z}$ through the decoder network to reconstruct the input data, yielding $\hat{\mathbf{x}}$.
+6. Compute the Beta-VAE loss function: $L_{\beta} = -E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] + \beta \cdot D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))$.
+7. Perform backpropagation to update the weights of both the encoder and decoder networks to minimize the loss.
+8. Repeat steps 2-7 until convergence or for a predefined number of epochs.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `beta` | `float` | `1.0` | > 0 | Controls the weight of the KL divergence term in the loss function, influencing the degree of disentanglement in the latent space. |
+| `latent_dim` | `int` | `20` | > 0 | Dimensionality of the latent space, which determines the number of disentangled factors the model can learn. |
+| `encoder_layers` | `list of int` | `[128, 64]` | list of positive integers | Number of units in each hidden layer of the encoder network. |
+| `decoder_layers` | `list of int` | `[64, 128]` | list of positive integers | Number of units in each hidden layer of the decoder network. |
+| `learning_rate` | `float` | `0.001` | > 0 | Step size for the optimizer during training, controlling how much the model weights are adjusted. |
+| `epochs` | `int` | `100` | > 0 | Number of complete passes through the entire training dataset. |
+| `batch_size` | `int` | `32` | > 0 | Number of samples processed before the model's internal parameters are updated. |
+| `optimizer` | `str` | `adam` | "adam", "rmsprop", "sgd" | Optimization algorithm to use for training the neural networks. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It can learn disentangled representations of underlying generative factors, improving interpretability of the latent space.
+- The disentangled latent space allows for more controlled and targeted manipulation of generated data attributes.
+- It provides a probabilistic framework for generative modeling, enabling sampling from the latent space to generate novel data.
+- The model can be used for anomaly detection by identifying data points with low reconstruction likelihood or high KL divergence.
+- The learned representations can be useful for downstream tasks such as classification or regression, especially with limited labeled data.
+
+## Weaknesses
+
+- Tuning the $\beta$ hyperparameter is crucial and often requires extensive experimentation, as it directly impacts the trade-off between reconstruction quality and disentanglement.
+- Achieving perfect disentanglement is challenging and not always guaranteed, especially for complex datasets with highly correlated factors.
+- Like other VAEs, Beta-VAE can suffer from "posterior collapse," where the latent variables are ignored, leading to a trivial posterior close to the prior.
+- The generative quality of Beta-VAE might be lower than other generative models like GANs, particularly for high-fidelity image generation.
+- Training can be sensitive to initialization and hyperparameter choices, potentially leading to unstable convergence.
+
+## Use Cases
+
+### Computer Vision
+
+Generating images with specific attributes controlled by disentangled latent factors, such as facial expressions or object rotations, for data augmentation or creative content generation.
+
+### Drug Discovery
+
+Learning disentangled representations of molecular properties to facilitate the design of new compounds with desired characteristics and to explore chemical space efficiently.
+
+### Recommendation Systems
+
+Decomposing user preferences or item features into independent factors to provide more personalized, interpretable, and robust recommendations.
+
+### Anomaly Detection
+
+Identifying unusual data points in complex datasets by analyzing their position in the learned latent space or their reconstruction error, useful in fraud detection or system monitoring.
+
+### Robotics
+
+Learning disentangled representations of environmental factors or robot states to improve control, task execution, and understanding of complex sensory inputs.
+
+### Neuroscience
+
+Modeling neural activity to discover disentangled latent factors that correspond to distinct cognitive processes or behavioral states.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Beta-VAE from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Beta-VAE does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Beta-VAE Lab" />
+
+## References
+
+- Higgins et al. (2017). Higgins et al..

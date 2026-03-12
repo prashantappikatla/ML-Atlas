@@ -1,0 +1,175 @@
+---
+title: "Indian Buffet Process"
+slug: "indian-buffet-process"
+category: "probabilistic"
+subcategory: "bayesian-nonparametrics"
+year: 2005
+author: "Griffiths & Ghahramani"
+paper: "Griffiths & Ghahramani"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian", "feature-discovery", "latent-features", "non-parametric", "prior", "probabilistic-modeling", "sparse-modeling", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "chinese-restaurant-process"
+  - "factor-analysis"
+  - "latent-dirichlet-allocation"
+  - "non-negative-matrix-factorization"
+---
+
+## Overview
+
+The Indian Buffet Process (IBP) is a non-parametric Bayesian prior over binary matrices, designed to model data as arising from an unknown, potentially infinite number of latent features. It provides a probabilistic framework for discovering shared features among observations without pre-specifying the number of features. This process generates sparse binary matrices where rows represent observations and columns represent features, with entries indicating the presence or absence of a feature. The IBP is particularly useful for unsupervised learning tasks where the underlying generative factors are unknown.
+
+## History
+
+**2005** — Thomas L. Griffiths and Zoubin Ghahramani introduce the Indian Buffet Process in their seminal paper, providing a non-parametric prior for latent feature models.
+
+**2007** — Thibaux and Jordan present a stick-breaking construction for the IBP, offering an alternative generative view and facilitating theoretical analysis.
+
+**2009** — Ghahramani, Griffiths, and Sollich publish a comprehensive review and introduction to the IBP, further popularizing its concepts and applications.
+
+**2011** — Doshi-Velez and Ghahramani introduce the two-parameter IBP (IBP($\alpha, \beta$)), extending the original IBP($\alpha$) to allow for more flexible sparsity patterns and feature sharing.
+
+**2012** — Adams, Ghahramani, and MacKay explore efficient inference methods for IBP models, including variational inference techniques, to address computational challenges.
+
+## Mathematical Intuition
+
+### The Buffet Metaphor
+
+The Indian Buffet Process is conceptualized through a metaphor involving customers and dishes. Imagine customers arriving sequentially at an Indian buffet. The first customer takes a Poisson($\alpha$) number of dishes. Subsequent customers choose dishes previously sampled by others with a probability proportional to the dish's popularity (number of previous customers who took it). Additionally, each new customer samples new dishes with a Poisson($\alpha/i$) rate, where $i$ is the customer's index. This process generates a binary matrix where rows are customers (observations) and columns are dishes (latent features), indicating which customer took which dish.
+
+$$
+P(\text{new dish for customer } i | \text{previous dishes}) \sim \text{Poisson}(\alpha/i)
+$$
+
+$$
+P(\text{existing dish } k \text{ for customer } i | \text{previous dishes}) = \frac{m_k}{i}
+$$
+
+### Prior over Binary Matrices
+
+The IBP defines a prior distribution over infinite binary matrices $Z \in \{0,1\}^{N \times K^+}$, where $N$ is the number of observations and $K^+$ is the (potentially infinite) number of latent features. Each entry $Z_{nk}=1$ indicates that observation $n$ possesses feature $k$. The IBP ensures that the number of features grows with the number of observations, but only a finite number of features are active for any finite set of observations. The 'rich-get-richer' property for existing features and the introduction of new features result in sparse matrices with a power-law distribution of feature popularity.
+
+$$
+Z \in \{0,1\}^{N \times K^+}
+$$
+
+$$
+Z_{nk}=1
+$$
+
+### Expected Number of Features
+
+A key property of the IBP is that the expected number of active features grows logarithmically with the number of observations. For $N$ observations, the expected number of distinct features sampled is approximately $\alpha \log N$. This characteristic allows the model to adapt its complexity to the data, discovering more features as more observations become available.
+
+$$
+\alpha \sum_{i=1}^N \frac{1}{i} \approx \alpha \log N
+$$
+
+## Algorithm Steps
+
+1. Initialize a binary feature matrix $Z$ with a small, finite number of features for all observations, often by sampling from the IBP prior.
+2. For each observation $n$ and each existing feature $k$: temporarily remove $Z_{nk}$ from the matrix, calculate the probability of $Z_{nk}=1$ given all other features and observations using the IBP prior and the likelihood of the data, then sample a new value for $Z_{nk}$.
+3. For each observation $n$: propose adding new features based on the Poisson($\alpha/N$) rate, and for each proposed new feature, calculate its probability of being active for observation $n$ and sample accordingly.
+4. Remove any features (columns of $Z$) that are no longer active for any observation after the sampling steps.
+5. Update the parameters of the likelihood model (e.g., feature weights, noise variance) given the current feature assignments $Z$ and the observed data.
+6. Repeat steps 2-5 for a sufficient number of Markov Chain Monte Carlo (MCMC) iterations to converge to the posterior distribution of $Z$ and model parameters.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | alpha > 0 | The concentration parameter that controls the expected number of features per observation and the rate at which new features are introduced. Higher values lead to more features. |
+| `beta` | `float` | `1.0` | beta > 0 | For the two-parameter IBP (IBP($\alpha, \beta$)), this parameter controls the sparsity of features across observations. Lower values encourage features to be shared by fewer observations. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It automatically infers the number of latent features from the data, removing the need for manual specification.
+- The model naturally encourages sparsity, meaning each observation is typically explained by a small subset of features.
+- It provides a principled Bayesian framework for uncertainty quantification over feature assignments and model parameters.
+- The IBP can discover hierarchical or compositional structures in data when extended appropriately.
+- It is well-suited for problems where the underlying generative factors are unknown and potentially infinite.
+
+## Weaknesses
+
+- Inference, typically performed using Markov Chain Monte Carlo (MCMC) methods, can be computationally intensive and slow to converge for large datasets.
+- The interpretation of discovered latent features can be challenging, especially in complex models where features may not correspond to easily identifiable concepts.
+- The choice of the concentration parameter $\alpha$ can significantly impact the number and sparsity of discovered features, requiring careful tuning or hierarchical priors.
+- The IBP primarily models binary feature assignments, which may not be suitable for all types of latent structures without further extensions to real-valued or categorical features.
+
+## Use Cases
+
+### Recommender Systems
+
+Discovering latent user preferences and item attributes for collaborative filtering, where the number of underlying factors is unknown.
+
+### Bioinformatics
+
+Identifying shared genetic pathways or protein interactions from gene expression data, where the number of active pathways is not fixed.
+
+### Computer Vision
+
+Learning compositional object representations or shared visual features in image collections without prior knowledge of feature counts.
+
+### Topic Modeling
+
+Inferring latent topics in text documents, similar to [Latent Dirichlet Allocation](/algorithms/unsupervised/topic-modeling/latent-dirichlet-allocation) but with an unknown and adaptively determined number of topics.
+
+### Signal Processing
+
+Decomposing complex signals into a sparse set of underlying components, where the number of components is not predefined.
+
+### Factor Analysis
+
+Providing a non-parametric Bayesian alternative to traditional [Factor Analysis](/algorithms/unsupervised/dimensionality-reduction/factor-analysis) for discovering latent factors in multivariate data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Indian Buffet Process from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import IndianBuffetProcess
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = IndianBuffetProcess()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Indian Buffet Process Lab" />
+
+## References
+
+- Griffiths & Ghahramani (2005). Griffiths & Ghahramani.
+- [scikit-learn: IndianBuffetProcess](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.IndianBuffetProcess.html)

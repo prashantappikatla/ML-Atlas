@@ -1,0 +1,161 @@
+---
+title: "GloVe"
+slug: "glove"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2014
+author: "Pennington et al."
+paper: "Pennington et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "matrix-factorization", "natural-language-processing", "representation-learning", "self-supervised-learning", "text-mining", "unsupervised-learning", "word-embeddings"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "doc2vec"
+  - "fasttext"
+  - "latent-semantic-analysis"
+  - "stochastic-gradient-descent"
+  - "word2vec"
+---
+
+## Overview
+
+GloVe (Global Vectors for Word Representation) is an unsupervised learning algorithm for obtaining vector representations of words. It achieves this by leveraging global word-word co-occurrence statistics from a corpus, combining aspects of global matrix factorization methods and local context window methods. The algorithm trains on the ratios of word co-occurrence probabilities, aiming to capture meaningful semantic relationships in a compact vector space. This approach allows it to learn word embeddings that exhibit linear relationships corresponding to semantic and syntactic regularities.
+
+## History
+
+**2013** — [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec), developed by Mikolov et al. at Google, introduced efficient methods for learning distributed word representations using neural network architectures, popularizing the concept of word embeddings and their ability to capture semantic relationships.
+
+**2014** — Jeffrey Pennington, Richard Socher, and Christopher D. Manning from Stanford University introduced GloVe, proposing an alternative approach that explicitly models global co-occurrence statistics, bridging the gap between count-based and predictive models.
+
+## Mathematical Intuition
+
+### Co-occurrence Matrix Construction
+
+The foundation of GloVe is the word-word co-occurrence matrix $X$, where each entry $X_{ij}$ represents the number of times word $j$ appears in the context of word $i$. A context window of a specified size is used to define "context," and often, a decay function is applied such that words closer to the target word contribute more to the count. This matrix captures the global statistical relationships between words in the corpus.
+
+$$
+X_{ij} = \sum_{k \in \text{corpus}} \mathbb{I}(w_k = i, w_{k+d} = j \text{ or } w_{k-d} = j \text{ for } |d| \le \text{window_size})
+$$
+
+### Weighted Least Squares Objective
+
+GloVe's objective function minimizes the difference between the dot product of two word vectors and the logarithm of their co-occurrence count. It is a weighted least squares regression model, designed to learn word vectors $w_i$ and context word vectors $\tilde{w}_j$ along with bias terms $b_i$ and $\tilde{b}_j$. The weighting function $f(X_{ij})$ gives less weight to rare co-occurrences and prevents common co-occurrences from dominating the objective, ensuring that both frequent and infrequent words contribute meaningfully to the learning process.
+
+$$
+J = \sum_{i=1}^V \sum_{j=1}^V f(X_{ij}) (w_i^T \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij})^2
+$$
+
+$$
+f(x) = \begin{cases} (x/x_{max})^\alpha & \text{if } x < x_{max} \\ 1 & \text{if } x \ge x_{max} \end{cases}
+$$
+
+### Vector Learning through Optimization
+
+The objective function $J$ is minimized using an optimization algorithm, typically [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD) or Adam. The gradients are computed with respect to the word vectors $w_i, \tilde{w}_j$ and bias terms $b_i, \tilde{b}_j$. After training, the final word vector for word $i$ is often taken as the sum of its two learned vectors, $w_i + \tilde{w}_i$, or simply $w_i$. The learned vectors capture semantic and syntactic relationships, where similar words are close in the vector space, reflecting the distributional hypothesis.
+
+## Algorithm Steps
+
+1. Scan the entire corpus to build a word-word co-occurrence matrix $X$, where $X_{ij}$ represents how many times word $j$ appears in the context window of word $i$.
+2. Define the GloVe objective function $J = \sum_{i=1}^V \sum_{j=1}^V f(X_{ij}) (w_i^T \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij})^2$, where $f(X_{ij})$ is a weighting function.
+3. Initialize word vectors $w_i, \tilde{w}_j$ and bias terms $b_i, \tilde{b}_j$ randomly for all words in the vocabulary.
+4. Iteratively update the word vectors and bias terms by minimizing the objective function $J$ using an optimization algorithm like AdaGrad or Adam.
+5. Repeat the optimization for a predefined number of epochs until convergence or a satisfactory performance is achieved.
+6. Combine the two learned vector sets, $w_i$ and $\tilde{w}_i$, typically by summing them ($w_i + \tilde{w}_i$) to obtain the final word embedding for each word $i$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `vector_size` | `integer` | `100` | positive integer | The dimensionality of the word vectors, determining the size of the embedding space. |
+| `window_size` | `integer` | `10` | positive integer | The maximum distance between co-occurring words, defining the context window for building the co-occurrence matrix. |
+| `min_count` | `integer` | `5` | non-negative integer | Words with a total frequency lower than this threshold will be ignored during training, helping to filter out rare words. |
+| `learning_rate` | `float` | `0.05` | positive float | The initial learning rate for the optimization algorithm (e.g., AdaGrad), controlling the step size of parameter updates. |
+| `epochs` | `integer` | `10` | positive integer | The number of training iterations over the entire corpus, determining how many times the model sees the data. |
+| `max_iter` | `integer` | `50` | positive integer | The maximum number of iterations for the optimization algorithm to converge for each word pair, often used in conjunction with epochs. |
+| `alpha` | `float` | `0.75` | positive float (typically 0.5 to 1.0) | The exponent for the weighting function $f(x) = (x/x_{max})^\alpha$, which scales the contribution of co-occurrence counts to the objective. |
+| `x_max` | `integer` | `100` | positive integer | The maximum value for $x$ in the weighting function $f(x)$, above which $f(x)$ is 1, preventing very frequent co-occurrences from dominating. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- GloVe effectively captures global corpus statistics, leading to robust and semantically rich word representations.
+- The training process is relatively efficient and scalable, especially compared to some neural network-based methods that require more complex architectures.
+- The resulting word embeddings often exhibit linear relationships that correspond to semantic meanings, such as "king - man + woman = queen."
+- It provides a strong baseline for many downstream NLP tasks due to its ability to capture nuanced word relationships.
+- The model is interpretable in its objective, directly optimizing for relationships between co-occurrence probabilities.
+- GloVe can be trained on very large corpora, allowing it to learn comprehensive and high-quality word representations.
+
+## Weaknesses
+
+- GloVe produces static word embeddings, meaning each word has a single representation regardless of its context, which limits its ability to handle polysemy.
+- It does not inherently handle out-of-vocabulary (OOV) words and requires specific strategies (e.g., assigning random vectors, using subword information) to deal with them.
+- The quality of embeddings is highly dependent on the size and quality of the training corpus, requiring large datasets for optimal performance.
+- The model's performance can be sensitive to the choice of hyperparameters, such as the context window size and the weighting function parameters.
+- While efficient, building the full co-occurrence matrix for extremely large vocabularies can still be memory-intensive.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used as a feature extraction layer for tasks like named entity recognition, part-of-speech tagging, and dependency parsing, providing rich semantic context for words.
+
+### Information Retrieval
+
+Enhances search relevance by understanding semantic similarity between query terms and document content, leading to more accurate search results.
+
+### Sentiment Analysis
+
+Provides rich word representations that capture emotional connotations, improving the accuracy of sentiment classification models by understanding the affective meaning of words.
+
+### Machine Translation
+
+Serves as an input embedding layer for words in sequence-to-sequence models, aiding in understanding source language semantics and generating more coherent translations.
+
+### Text Classification
+
+Transforms words into dense vectors, which can then be fed into various classifiers (e.g., SVM, neural networks) for categorizing documents based on their semantic content.
+
+### Question Answering
+
+Helps in understanding the semantic content of questions and matching them to relevant answers or passages by representing both questions and answers in a shared vector space.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GloVe from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GloVe does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GloVe Lab" />
+
+## References
+
+- Pennington et al. (2014). Pennington et al..

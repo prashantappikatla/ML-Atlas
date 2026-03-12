@@ -1,0 +1,199 @@
+---
+title: "LambdaMART"
+slug: "lambdamart"
+category: "supervised"
+subcategory: "ranking"
+year: 2010
+author: "Burges"
+paper: "Burges"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["decision-trees", "ensemble", "gradient-boosting", "information-retrieval", "learning-to-rank", "pairwise-ranking", "ranking", "supervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "catboost"
+  - "lightgbm"
+  - "ranknet"
+  - "xgboost"
+---
+
+## Overview
+
+LambdaMART is a powerful learning-to-rank algorithm that combines the gradient boosting framework (Multiple Additive Regression Trees, MART) with the "lambda" gradients derived from LambdaRank. It directly optimizes non-differentiable ranking metrics like Normalized Discounted Cumulative Gain (NDCG) or Mean Average Precision (MAP) by transforming them into effective gradients. This approach allows it to achieve high performance in complex ranking tasks by iteratively building an ensemble of decision trees.
+
+## History
+
+**2007** — Chris Burges et al. introduce [RankNet](/algorithms/supervised/ranking/ranknet), a neural network approach for learning to rank, laying groundwork for pairwise ranking.
+
+**2007** — Chris Burges et al. introduce LambdaRank, an extension of [RankNet](/algorithms/supervised/ranking/ranknet) that uses "lambda gradients" to directly optimize ranking metrics like NDCG or MAP, avoiding the need for a differentiable loss function.
+
+**2010** — Chris Burges introduces LambdaMART, combining the lambda gradients from LambdaRank with the Multiple Additive Regression Trees (MART) framework, integrating effective gradient computation with gradient-boosted decision trees.
+
+**2014** — Tianqi Chen introduces [XGBoost](/algorithms/supervised/regression/xgboost), a highly optimized gradient boosting library that can efficiently implement LambdaMART and other ranking algorithms.
+
+**2016** — Microsoft introduces [LightGBM](/algorithms/supervised/regression/lightgbm), another highly optimized gradient boosting framework, which also supports LambdaMART and is known for its speed and efficiency.
+
+## Mathematical Intuition
+
+### Gradient Boosting Decision Trees (MART) Foundation
+
+Multiple Additive Regression Trees (MART), also known as Gradient Boosting Decision Trees (GBDT), constructs an ensemble of weak prediction models, typically decision trees. It iteratively trains new trees to predict the negative gradient of a differentiable loss function with respect to the current ensemble's predictions. For a differentiable loss $L(y, F(x))$, the algorithm seeks to find a function $h_m(x)$ at each step $m$ that best approximates the negative gradient:
+$$g_i = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}$$
+The model is updated as $F_m(x) = F_{m-1}(x) + \nu h_m(x)$, where $\nu$ is the learning rate.
+
+$$
+g_i = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}
+$$
+
+$$
+F_m(x) = F_{m-1}(x) + \nu h_m(x)
+$$
+
+### LambdaRank's "Lambda" Gradients
+
+Traditional ranking metrics like NDCG are non-differentiable, making direct gradient-based optimization challenging. LambdaRank addresses this by defining "lambda gradients" for each document $i$ with respect to a query. Instead of computing $\frac{\partial L}{\partial F(x_i)}$, LambdaRank computes a "pseudo-gradient" $\lambda_i$ that represents the change in the ranking metric (e.g., NDCG) if the score of document $i$ were perturbed. Specifically, for a pair of documents $(i, j)$ where $i$ is ranked above $j$, the lambda gradient for document $i$ is defined as:
+$$\lambda_i = \sum_{j: \text{rel}_j < \text{rel}_i} \frac{\partial C(i,j)}{\partial s_i} \cdot |\Delta \text{NDCG}(i,j)|$$
+Here, $C(i,j)$ is a pairwise loss function (e.g., cross-entropy) and $|\Delta \text{NDCG}(i,j)|$ is the absolute change in NDCG if documents $i$ and $j$ were swapped. The term $|\Delta \text{NDCG}(i,j)|$ acts as a weighting factor, emphasizing swaps that lead to larger changes in the overall ranking metric.
+
+$$
+\frac{\partial L}{\partial F(x_i)}
+$$
+
+$$
+\lambda_i = \sum_{j: \text{rel}_j < \text{rel}_i} \frac{\partial C(i,j)}{\partial s_i} \cdot |\Delta \text{NDCG}(i,j)|
+$$
+
+### Combining LambdaRank and MART
+
+LambdaMART integrates the lambda gradients from LambdaRank into the MART framework. Instead of fitting trees to the negative gradients of a differentiable loss function, LambdaMART fits regression trees to the "lambda gradients" computed for each document. For each query, the algorithm calculates the $\lambda_i$ values for all documents based on the current model's scores and the true relevance labels. These $\lambda_i$ values serve as the "targets" for the next regression tree. The algorithm also computes a "Hessian" term, $\gamma_i$, which represents the second derivative or a proxy for it, used in the leaf node optimization of the regression trees:
+$$\gamma_i = \sum_{j: \text{rel}_j < \text{rel}_i} \frac{\partial^2 C(i,j)}{\partial s_i^2} \cdot |\Delta \text{NDCG}(i,j)|$$
+The leaf values of the trees are then optimized to minimize a weighted sum of the lambda gradients and the Hessian terms, effectively performing a Newton-like step in the functional space.
+
+$$
+\lambda_i
+$$
+
+$$
+\gamma_i
+$$
+
+$$
+\gamma_i = \sum_{j: \text{rel}_j < \text{rel}_i} \frac{\partial^2 C(i,j)}{\partial s_i^2} \cdot |\Delta \text{NDCG}(i,j)|
+$$
+
+## Algorithm Steps
+
+1. Initialize the ensemble model $F_0(x)$ with a constant value (e.g., 0).
+2. For each iteration $m = 1, \dots, M$:
+3. For each query $q$ and its associated documents, compute the current scores $s_i = F_{m-1}(x_i)$ for each document $i$.
+4. Calculate the "lambda gradients" $\lambda_i$ for each document $i$ based on its current score, true relevance label, and the scores of other documents for the same query, considering all document pairs $(i, j)$ and their potential impact on the chosen ranking metric.
+5. Calculate the "Hessian" terms $\gamma_i$ for each document $i$, which represent second-order information or a proxy for it, often derived from the pairwise loss.
+6. Fit a new regression tree $h_m(x)$ to predict the $\lambda_i$ values, using the $\gamma_i$ values as weights for the samples in the tree splitting and leaf value calculation.
+7. Update the ensemble model: $F_m(x) = F_{m-1}(x) + \nu h_m(x)$, where $\nu$ is the learning rate.
+8. The final ranking model is $F_M(x)$; to rank documents for a new query, compute $F_M(x)$ for each document and sort them by their scores.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages (trees) to perform. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinks the contribution of each tree by 'learning_rate'. |
+| `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators (trees). |
+| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. |
+| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | The fraction of samples to be used for fitting the individual base learners. |
+| `random_state` | `int` | `None` | integer or None | Controls the random seed given to each Tree estimator at each boosting iteration for reproducibility. |
+| `max_features` | `int, float, str or None` | `None` | integer, float in (0.0, 1.0], 'auto', 'sqrt', 'log2', None | The number of features to consider when looking for the best split. |
+| `validation_fraction` | `float` | `0.1` | 0.0 < float < 1.0 | The proportion of training data to set aside as validation set for early stopping. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- LambdaMART directly optimizes non-differentiable ranking metrics, leading to superior performance in information retrieval tasks.
+- It leverages the strong predictive power of gradient-boosted decision trees, capturing complex non-linear relationships in the data.
+- The algorithm is highly effective in producing high-quality rankings, often outperforming simpler ranking models.
+- It can handle a large number of features and is robust to irrelevant features due to its tree-based nature.
+- Widely adopted in industry for its accuracy and scalability when implemented in optimized frameworks like XGBoost or LightGBM.
+- The "lambda" gradients provide an intuitive way to prioritize document pairs whose rank swaps would significantly impact the overall metric.
+
+## Weaknesses
+
+- LambdaMART is computationally intensive and can be slow to train on very large datasets compared to simpler models.
+- It requires careful tuning of numerous hyperparameters, which can be time-consuming and complex.
+- The model can be prone to overfitting if hyperparameters are not properly managed, especially with deep trees or too many estimators.
+- Interpretability is low due to the ensemble nature of many decision trees, making it difficult to understand individual ranking decisions.
+- Requires query-document pairs with relevance labels, which can be expensive and time-consuming to obtain.
+
+## Use Cases
+
+### Search Engines
+
+Ranking web pages, documents, or products in response to user queries to maximize relevance and user satisfaction.
+
+### Recommender Systems
+
+Ordering recommended items such as movies, products, or articles for a user based on their preferences and context.
+
+### Advertising
+
+Ranking advertisements to display to users, optimizing for metrics like click-through rates or conversion rates.
+
+### E-commerce
+
+Sorting product listings on online retail platforms to improve sales and enhance the user shopping experience.
+
+### Question Answering
+
+Ranking candidate answers or passages by their relevance to a given question to provide the most accurate response.
+
+### Personalized Content Feeds
+
+Ordering news articles, social media posts, or other content in a user's feed to maximize engagement and relevance.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement LambdaMART from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Lambdamart
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Lambdamart()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="LambdaMART Lab" />
+
+## References
+
+- Burges (2010). Burges.
+- [scikit-learn: Lambdamart](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lambdamart.html)

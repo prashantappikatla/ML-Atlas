@@ -1,0 +1,183 @@
+---
+title: "Linear Discriminant Analysis"
+slug: "linear-discriminant-analysis"
+category: "supervised"
+subcategory: "classification"
+year: 1936
+author: "Fisher"
+paper: "Fisher"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "dimensionality-reduction", "feature-extraction", "linear-model", "multiclass-classification", "projection", "statistical-method", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "logistic-regression"
+  - "quadratic-discriminant-analysis"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Linear Discriminant Analysis (LDA) is a supervised dimensionality reduction and classification technique that seeks to find a linear combination of features that best separates two or more classes of objects or events. It achieves this by maximizing the ratio of between-class variance to within-class variance, thereby projecting the data onto a lower-dimensional space where classes are maximally separable. This method assumes that the data for each class is normally distributed and that the class covariances are equal.
+
+## History
+
+**1936** — Ronald Fisher introduced discriminant analysis in his paper "The Use of Multiple Measurements in Taxonomic Problems," laying the foundation for classifying species of iris flowers.
+
+**1948** — C. R. Rao extended Fisher's work to multiple classes, generalizing the concept of discriminant functions and their statistical properties.
+
+**1960** — Further theoretical developments and applications of discriminant analysis emerged across various scientific fields, particularly in biometrics and social sciences.
+
+**1990** — LDA was integrated into modern machine learning frameworks as a classical algorithm for both classification and dimensionality reduction, gaining widespread use.
+
+## Mathematical Intuition
+
+### Maximize Class Separability
+
+LDA aims to find a projection vector $w$ such that the ratio of the variance between classes to the variance within classes is maximized. This ensures that projected class means are far apart, while the spread of data points within each class is minimized, leading to optimal class separation in the projected space.
+
+### Within-Class Scatter Matrix
+
+The within-class scatter matrix, $S_W$, measures the scatter of samples around their respective class means. For $C$ classes, it is defined as the sum of individual class scatter matrices $S_i$:$$ S_W = \sum_{i=1}^{C} S_i $$where $S_i = \sum_{x \in D_i} (x - \mu_i)(x - \mu_i)^T$, with $D_i$ being the set of samples in class $i$ and $\mu_i$ its mean vector. This matrix quantifies the compactness of each class.
+
+$$
+S_W = \sum_{i=1}^{C} S_i
+$$
+
+$$
+S_i = \sum_{x \in D_i} (x - \mu_i)(x - \mu_i)^T
+$$
+
+### Between-Class Scatter Matrix
+
+The between-class scatter matrix, $S_B$, measures the scatter of the class means around the overall mean. For $C$ classes, it is defined as:$$ S_B = \sum_{i=1}^{C} N_i (\mu_i - \mu)(\mu_i - \mu)^T $$where $N_i$ is the number of samples in class $i$, $\mu_i$ is the mean of class $i$, and $\mu$ is the overall mean of all samples. This matrix quantifies the separation between class means.
+
+$$
+S_B = \sum_{i=1}^{C} N_i (\mu_i - \mu)(\mu_i - \mu)^T
+$$
+
+### Fisher's Discriminant Criterion
+
+Fisher's criterion seeks to find a projection vector $w$ that maximizes the ratio of between-class scatter to within-class scatter:$$ J(w) = \frac{w^T S_B w}{w^T S_W w} $$The solution to this optimization problem is given by the generalized eigenvalue problem:$$ S_B w = \lambda S_W w $$The optimal projection vectors are the eigenvectors corresponding to the largest eigenvalues, which form the basis of the new, lower-dimensional space.
+
+$$
+J(w) = \frac{w^T S_B w}{w^T S_W w}
+$$
+
+$$
+S_B w = \lambda S_W w
+$$
+
+## Algorithm Steps
+
+1. For each class $i$, calculate the mean vector $\mu_i$ of its samples.
+2. Calculate the overall mean vector $\mu$ of all samples across all classes.
+3. Compute the within-class scatter matrix $S_W = \sum_{i=1}^{C} \sum_{x \in D_i} (x - \mu_i)(x - \mu_i)^T$.
+4. Compute the between-class scatter matrix $S_B = \sum_{i=1}^{C} N_i (\mu_i - \mu)(\mu_i - \mu)^T$.
+5. Solve the generalized eigenvalue problem $S_B w = \lambda S_W w$ to find the eigenvectors $w$ and corresponding eigenvalues $\lambda$.
+6. Sort the eigenvectors by their corresponding eigenvalues in descending order and select the top $k$ eigenvectors to form the projection matrix $W = [w_1, w_2, ..., w_k]$.
+7. Project the original data points $x$ onto the new subspace using the transformation $y = W^T x$ to obtain the lower-dimensional representation.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `solver` | `str` | `'svd'` | ['svd', 'lsqr', 'eigen'] | Solver to use for the LDA algorithm. 'svd' does not compute the covariance matrix, which is recommended for data with a large number of features. 'lsqr' and 'eigen' solvers are used for classification and can be combined with shrinkage. |
+| `shrinkage` | `str or float` | `None` | None, 'auto', or float in [0, 1] | Specifies the shrinkage parameter. Can be 'auto' for automatic shrinkage estimation (Ledoit-Wolf lemma) or a float between 0 and 1. Only applicable with 'lsqr' or 'eigen' solvers. |
+| `priors` | `array-like of shape (n_classes,)` | `None` | None or array of floats summing to 1 | The class prior probabilities. If None, the class proportions are inferred from the training data. If specified, the sum must be 1. |
+| `n_components` | `int` | `None` | None or integer from 1 to n_classes - 1 | Number of components to keep after dimensionality reduction. This must be less than or equal to the number of classes minus 1. If None, all components are kept. |
+| `store_covariance` | `bool` | `False` | True, False | If True, the class covariance matrices are explicitly computed and stored. This is only available with the 'lsqr' and 'eigen' solvers. |
+| `tol` | `float` | `1e-4` | float > 0 | Absolute threshold for a singular value to be considered non-zero. Used only with the 'svd' solver. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- LDA provides optimal class separation when its underlying assumptions (Gaussian distribution, equal covariances) are met.
+- It can be used for both dimensionality reduction and classification, offering a clear interpretation of the separating hyperplanes.
+- The algorithm is computationally efficient, especially for datasets with a large number of samples relative to features.
+- LDA is less prone to overfitting than more complex models when the number of features is small.
+- It can handle multi-class classification problems naturally by projecting data onto a $(C-1)$-dimensional space, where $C$ is the number of classes.
+
+## Weaknesses
+
+- LDA assumes that the data for each class is normally distributed, which is often not true in real-world datasets.
+- It assumes that all classes share the same covariance matrix, which can be a strong and often violated assumption.
+- LDA can perform poorly if the class means are very close or if the within-class variance is high.
+- It is sensitive to outliers, as they can significantly influence the calculation of means and scatter matrices.
+- LDA is a linear model, meaning it cannot capture complex non-linear relationships between features.
+
+## Use Cases
+
+### Biometrics
+
+Used for facial recognition and voice recognition systems to distinguish between individuals based on their unique feature vectors.
+
+### Medical Diagnosis
+
+Applied in classifying diseases or conditions based on patient data, such as gene expression profiles or clinical measurements, to aid in diagnosis.
+
+### Customer Segmentation
+
+Employed in marketing to categorize customers into distinct groups based on their purchasing behavior or demographic information for targeted strategies.
+
+### Image Processing
+
+Utilized for feature extraction and classification tasks, such as object recognition or scene classification, after initial feature engineering steps.
+
+### Financial Risk Assessment
+
+Used to classify loan applicants into risk categories (e.g., low, medium, high risk) based on financial indicators and credit history.
+
+### Speech Recognition
+
+Applied to distinguish between different phonemes or words by projecting acoustic features into a more separable space for improved recognition accuracy.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Linear Discriminant Analysis from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = LinearDiscriminantAnalysis()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Linear Discriminant Analysis Lab" />
+
+## References
+
+- Fisher (1936). Fisher.
+- [scikit-learn: LinearDiscriminantAnalysis](https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html)

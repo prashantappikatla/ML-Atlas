@@ -1,0 +1,221 @@
+---
+title: "Holt-Winters"
+slug: "holt-winters"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1960
+author: "Holt / Winters"
+paper: "Holt / Winters"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["classical-ml", "exponential-smoothing", "forecasting", "seasonal", "time-series", "trend", "univariate"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "exponential-smoothing"
+  - "prophet"
+  - "sarima"
+---
+
+## Overview
+
+Holt-Winters is a classical time series forecasting method that extends simple [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) to explicitly account for both trend and seasonality in data. It achieves this by maintaining three distinct smoothing components: level, trend, and seasonal, each updated iteratively based on past observations. This method is particularly effective for time series exhibiting clear patterns of growth/decline and recurring seasonal fluctuations.
+
+## History
+
+**1957** — Charles C. Holt published 'Forecasting Trends and Seasonals by Exponentially Weighted Moving Averages,' introducing linear [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) to handle both level and trend components.
+
+**1960** — Peter R. Winters extended Holt's method to incorporate a seasonal component, resulting in the full Holt-Winters [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) model, capable of handling level, trend, and seasonality.
+
+**1978** — Gardner and McKenzie introduced damped trend models, which allow the trend to flatten out over longer forecast horizons, improving accuracy for many real-world series.
+
+**2002** — Hyndman et al. formalized a taxonomy of [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) models using state space representations, including Holt-Winters, which facilitated automatic model selection and improved statistical properties.
+
+## Mathematical Intuition
+
+### Level Component Update
+
+The level component, $L_t$, represents the smoothed average of the series at time $t$. It is updated by combining the current observation (adjusted for seasonality) with the previous smoothed level and trend. The smoothing parameter $\alpha$ (alpha) controls the influence of the most recent observation.
+
+For an additive seasonal model:
+$$L_t = \alpha (Y_t - S_{t-m}) + (1-\alpha)(L_{t-1} + T_{t-1})$$
+For a multiplicative seasonal model:
+$$L_t = \alpha \frac{Y_t}{S_{t-m}} + (1-\alpha)(L_{t-1} + T_{t-1})$$
+where $Y_t$ is the observation at time $t$, $S_{t-m}$ is the seasonal component from $m$ periods ago, $L_{t-1}$ is the previous level, $T_{t-1}$ is the previous trend, and $m$ is the number of periods in a seasonal cycle.
+
+$$
+L_t = \alpha (Y_t - S_{t-m}) + (1-\alpha)(L_{t-1} + T_{t-1})
+$$
+
+$$
+L_t = \alpha \frac{Y_t}{S_{t-m}} + (1-\alpha)(L_{t-1} + T_{t-1})
+$$
+
+### Trend Component Update
+
+The trend component, $T_t$, captures the rate of increase or decrease in the series. It is updated based on the difference between the current and previous level components, smoothed by the parameter $\beta$ (beta). A damped trend variant includes a damping parameter $\phi$ (phi) to reduce the trend's impact over longer forecast horizons.
+
+For an additive trend:
+$$T_t = \beta (L_t - L_{t-1}) + (1-\beta)T_{t-1}$$
+For a damped additive trend:
+$$T_t = \beta (L_t - L_{t-1}) + (1-\beta)\phi T_{t-1}$$
+For a multiplicative trend:
+$$T_t = \beta \left(\frac{L_t}{L_{t-1}}\right) + (1-\beta)T_{t-1}$$
+
+$$
+T_t = \beta (L_t - L_{t-1}) + (1-\beta)T_{t-1}
+$$
+
+$$
+T_t = \beta (L_t - L_{t-1}) + (1-\beta)\phi T_{t-1}
+$$
+
+$$
+T_t = \beta \left(\frac{L_t}{L_{t-1}}\right) + (1-\beta)T_{t-1}
+$$
+
+### Seasonal Component Update
+
+The seasonal component, $S_t$, accounts for recurring patterns within a fixed period $m$. It is updated using the current observation (adjusted for the level) and the seasonal component from the previous cycle, smoothed by the parameter $\gamma$ (gamma).
+
+For an additive seasonal model:
+$$S_t = \gamma (Y_t - L_t) + (1-\gamma)S_{t-m}$$
+For a multiplicative seasonal model:
+$$S_t = \gamma \frac{Y_t}{L_t} + (1-\gamma)S_{t-m}$$
+
+$$
+S_t = \gamma (Y_t - L_t) + (1-\gamma)S_{t-m}
+$$
+
+$$
+S_t = \gamma \frac{Y_t}{L_t} + (1-\gamma)S_{t-m}
+$$
+
+### Forecasting Equation
+
+To forecast $h$ steps into the future, the latest estimates of the level, trend, and seasonal components are combined. The specific combination depends on whether the trend and seasonal components are additive or multiplicative.
+
+For an additive trend and additive seasonal model:
+$$\hat{Y}_{t+h} = L_t + h T_t + S_{t-m+h}$$
+For an additive trend and multiplicative seasonal model:
+$$\hat{Y}_{t+h} = (L_t + h T_t) S_{t-m+h}$$
+For a damped additive trend and additive seasonal model:
+$$\hat{Y}_{t+h} = L_t + \sum_{i=1}^{h} \phi^i T_t + S_{t-m+h}$$
+where $\hat{Y}_{t+h}$ is the forecast for $h$ periods ahead, $L_t$ is the current level, $T_t$ is the current trend, and $S_{t-m+h}$ is the appropriate seasonal component from the last full cycle.
+
+$$
+\hat{Y}_{t+h} = L_t + h T_t + S_{t-m+h}
+$$
+
+$$
+\hat{Y}_{t+h} = (L_t + h T_t) S_{t-m+h}
+$$
+
+$$
+\hat{Y}_{t+h} = L_t + \sum_{i=1}^{h} \phi^i T_t + S_{t-m+h}
+$$
+
+## Algorithm Steps
+
+1. Initialize the level component $L_0$, trend component $T_0$, and seasonal components $S_{-m+1}, ..., S_0$ using appropriate methods, often based on the first few periods of the time series.
+2. For each new observation $Y_t$ at time $t$, update the level component $L_t$ using the previous level $L_{t-1}$, trend $T_{t-1}$, and the seasonal component $S_{t-m}$ from $m$ periods ago, weighted by the smoothing parameter $\alpha$.
+3. Update the trend component $T_t$ based on the difference between the current and previous level components ($L_t - L_{t-1}$) and the previous trend $T_{t-1}$, weighted by the smoothing parameter $\beta$.
+4. Update the seasonal component $S_t$ using the current observation $Y_t$ (adjusted for the current level $L_t$) and the seasonal component $S_{t-m}$ from $m$ periods ago, weighted by the smoothing parameter $\gamma$.
+5. Repeat steps 2-4 for all available observations in the time series.
+6. To generate a forecast $\hat{Y}_{t+h}$ for $h$ steps into the future, combine the latest updated level $L_t$, trend $T_t$, and the appropriate seasonal component $S_{t-m+h}$ (from the last full cycle) according to the chosen model type (additive or multiplicative).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `smoothing_level` | `float` | `None` | [0, 1] | The smoothing parameter for the level component, $\alpha$. Values closer to 1 give more weight to recent observations. |
+| `smoothing_trend` | `float` | `None` | [0, 1] | The smoothing parameter for the trend component, $\beta$. Values closer to 1 give more weight to recent changes in the level. |
+| `smoothing_seasonal` | `float` | `None` | [0, 1] | The smoothing parameter for the seasonal component, $\gamma$. Values closer to 1 give more weight to recent seasonal observations. |
+| `seasonal_periods` | `int` | `None` | integer > 1 | The number of periods in a seasonal cycle (e.g., 12 for monthly data with annual seasonality, 7 for daily data with weekly seasonality). |
+| `trend` | `str` | `None` | 'add', 'mul', 'add_damped', 'mul_damped', None | Type of trend component. Options include 'add' (additive), 'mul' (multiplicative), 'add_damped' (additive with damping), or None (no trend). |
+| `seasonal` | `str` | `None` | 'add', 'mul', None | Type of seasonal component. Options include 'add' (additive), 'mul' (multiplicative), or None (no seasonality). |
+| `damped_trend` | `bool` | `False` | True, False | Whether to use a damped trend component. If True, a damping parameter $\phi$ is estimated or set. |
+| `initialization_method` | `str` | `estimated` | 'estimated', 'heuristic', 'legacy-heuristic', 'known' | Method for initializing the components. 'estimated' uses optimization, 'heuristic' uses simple averages, 'legacy-heuristic' for older methods, or 'known' for user-provided initial values. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Holt-Winters effectively captures and forecasts time series data exhibiting both trend and seasonality, making it suitable for a wide range of real-world applications.
+- The model is relatively simple to understand and implement compared to more complex statistical or machine learning models.
+- Its parameters (alpha, beta, gamma) are interpretable, directly controlling the smoothing of the level, trend, and seasonal components, respectively.
+- Holt-Winters is computationally efficient, allowing for quick forecasting even on large datasets.
+- It can handle both additive and multiplicative forms of trend and seasonality, offering flexibility to model different data patterns.
+- The method provides reasonably accurate short-term forecasts for stable time series with consistent patterns.
+
+## Weaknesses
+
+- Holt-Winters assumes that the underlying trend and seasonal patterns are constant or change slowly over time, struggling with sudden shifts or irregular patterns.
+- It is sensitive to the choice of smoothing parameters, which often require careful tuning or optimization to achieve good performance.
+- The model does not inherently handle missing values or outliers well, often requiring preprocessing of the data.
+- Holt-Winters does not provide prediction intervals directly, requiring additional statistical methods like bootstrapping or state-space models for uncertainty quantification.
+- It can produce poor long-term forecasts if the trend component is not damped, leading to unrealistic extrapolations.
+
+## Use Cases
+
+### Retail and Sales
+
+Forecasting product demand, sales volumes, and inventory levels, especially for items with seasonal sales cycles like holiday shopping or seasonal fashion.
+
+### Finance and Economics
+
+Predicting stock prices, commodity prices, and economic indicators like GDP or inflation, which often exhibit trends and seasonal fluctuations.
+
+### Energy and Utilities
+
+Forecasting electricity consumption, gas demand, and renewable energy generation, which are heavily influenced by daily, weekly, and annual seasonal patterns.
+
+### Manufacturing and Supply Chain
+
+Planning production schedules, optimizing raw material procurement, and managing logistics based on anticipated demand and operational cycles.
+
+### Healthcare
+
+Predicting patient admissions, disease outbreaks (e.g., flu season), and resource allocation based on historical trends and seasonal variations in health data.
+
+### Tourism and Hospitality
+
+Forecasting hotel occupancy rates, flight bookings, and tourist arrivals, which are strongly driven by seasonal travel patterns and holiday periods.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Holt-Winters from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Holt-Winters does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Holt-Winters Lab" />
+
+## References
+
+- Holt / Winters (1960). Holt / Winters.

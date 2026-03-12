@@ -1,0 +1,197 @@
+---
+title: "Truncated SVD"
+slug: "truncated-svd"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1936
+author: "Eckart�Young"
+paper: "Eckart�Young"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["data-compression", "dimensionality-reduction", "feature-extraction", "latent-semantic-analysis", "matrix-factorization", "noise-reduction", "sparse-data", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "latent-semantic-analysis"
+  - "linear-discriminant-analysis"
+  - "non-negative-matrix-factorization"
+---
+
+## Overview
+
+Truncated Singular Value Decomposition (Truncated SVD) is an unsupervised dimensionality reduction technique that approximates a given matrix by a lower-rank matrix. Unlike standard Singular Value Decomposition, Truncated SVD computes only the $k$ largest singular values and their corresponding singular vectors, making it particularly efficient for high-dimensional and sparse datasets. It aims to capture the most significant variance in the data while discarding less important components, effectively reducing noise and computational complexity.
+
+## History
+
+**1907** — Erhard Schmidt formally introduced the Singular Value Decomposition (SVD) for integral equations, laying the mathematical foundation.
+
+**1936** — Carl Eckart and Gale Young published their seminal paper, proving that the truncated SVD provides the best low-rank approximation to a given matrix in terms of the Frobenius norm and 2-norm.
+
+**1965** — Gene Golub and William Kahan developed a stable algorithm for computing the SVD, making it practical for numerical computation.
+
+**1990** — Truncated SVD gained prominence in [Latent Semantic Analysis](/algorithms/unsupervised/topic-modeling/latent-semantic-analysis) (LSA) for text processing, driven by advancements in information retrieval.
+
+## Mathematical Intuition
+
+### Full Singular Value Decomposition
+
+Any real $m \times n$ matrix $A$ can be decomposed into three matrices: $A = U \Sigma V^T$. Here, $U$ is an $m \times m$ orthogonal matrix whose columns are the left singular vectors, $V$ is an $n \times n$ orthogonal matrix whose columns are the right singular vectors, and $\Sigma$ is an $m \times n$ diagonal matrix containing the singular values $\sigma_i$ in non-increasing order on its diagonal. The singular values $\sigma_i$ are the square roots of the eigenvalues of $A^T A$ (or $A A^T$).
+
+$$
+A = U \Sigma V^T
+$$
+
+$$
+U^T U = I_m
+$$
+
+$$
+V^T V = I_n
+$$
+
+$$
+\Sigma = \text{diag}(\sigma_1, \sigma_2, \dots, \sigma_p)
+$$
+
+$$
+p = \min(m, n)
+$$
+
+$$
+\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_p \ge 0
+$$
+
+### Low-Rank Matrix Approximation
+
+The goal of Truncated SVD is to approximate the original matrix $A$ with a lower-rank matrix $A_k$. This approximation is achieved by retaining only the $k$ largest singular values and their corresponding singular vectors. If we select the top $k$ singular values, we form a truncated diagonal matrix $\Sigma_k$ of size $k \times k$, and corresponding truncated matrices $U_k$ (size $m \times k$) and $V_k$ (size $n \times k$). The approximation $A_k$ is then given by:
+
+$$
+A_k = U_k \Sigma_k V_k^T
+$$
+
+### Eckart-Young Theorem
+
+The Eckart-Young theorem states that the best rank-$k$ approximation to a matrix $A$ (in terms of the Frobenius norm or the 2-norm) is obtained by setting all but the $k$ largest singular values to zero in its SVD. Specifically, if $A = U \Sigma V^T$, then the matrix $A_k = U_k \Sigma_k V_k^T$ minimizes $||A - B||_F$ (or $||A - B||_2$) over all matrices $B$ of rank at most $k$. This theorem provides the theoretical justification for Truncated SVD's optimality in low-rank approximation.
+
+$$
+A_k = \sum_{i=1}^k \sigma_i u_i v_i^T
+$$
+
+### The Truncation Process
+
+Given an $m \times n$ data matrix $X$, Truncated SVD first computes the full SVD. Then, a hyperparameter $k$ (the desired number of components) is chosen, where $k < \min(m, n)$. The algorithm retains only the first $k$ columns of $U$ (denoted $U_k$), the first $k$ singular values from $\Sigma$ (forming $\Sigma_k$), and the first $k$ columns of $V$ (denoted $V_k$). The original data $X$ can then be projected onto the $k$-dimensional subspace by computing $X_{projected} = U_k \Sigma_k$. Alternatively, the original data can be approximated as $X_k = U_k \Sigma_k V_k^T$. The columns of $U_k \Sigma_k$ represent the transformed data in the lower-dimensional space.
+
+$$
+X_{projected} = U_k \Sigma_k
+$$
+
+$$
+X_k = U_k \Sigma_k V_k^T
+$$
+
+## Algorithm Steps
+
+1. Given an $m \times n$ data matrix $X$, optionally center the data by subtracting the mean of each column.
+2. Compute the full Singular Value Decomposition of $X$, such that $X = U \Sigma V^T$.
+3. Choose the desired number of components, $k$, where $k < \min(m, n)$.
+4. Truncate the singular value matrix $\Sigma$ to $\Sigma_k$ by keeping only the top $k$ singular values.
+5. Truncate the left singular vector matrix $U$ to $U_k$ by keeping only the first $k$ columns.
+6. Truncate the right singular vector matrix $V$ to $V_k$ by keeping only the first $k$ columns.
+7. The transformed data in the $k$-dimensional space is obtained by projecting $X$ onto the new basis, typically $X_{transformed} = X V_k$.
+8. The low-rank approximation of the original matrix is $X_k = U_k \Sigma_k V_k^T$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | $1 \le k < \text{n_features}$ | Desired dimensionality of output data. Must be strictly less than the number of features. |
+| `algorithm` | `str` | `randomized` | "arpack", "randomized" | SVD solver to use. 'arpack' for the ARPACK wrapper in SciPy, or 'randomized' for the randomized algorithm by Halko et al. |
+| `n_iter` | `int` | `5` | $1 \le \text{n_iter}$ | Number of iterations for randomized SVD solver. Not used by ARPACK. |
+| `random_state` | `int or RandomState instance or None` | `None` |  | Used when 'algorithm' is 'randomized' for reproducibility. |
+| `tol` | `float` | `0.0` | $0.0 \le \text{tol}$ | Tolerance for singular values computed by ARPACK. Not used by randomized SVD. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It is highly effective for dimensionality reduction, especially for high-dimensional and sparse datasets.
+- The Eckart-Young theorem guarantees that it provides the optimal low-rank approximation in terms of Frobenius norm.
+- It can effectively denoise data by discarding components associated with smaller singular values.
+- The algorithm is well-suited for sparse matrices, which are common in text processing and recommender systems.
+- It can be more computationally efficient than full SVD for large matrices when only a few components are needed.
+- The resulting components can sometimes offer interpretable latent features, particularly in text analysis.
+
+## Weaknesses
+
+- The choice of the number of components $k$ is crucial and often requires empirical tuning or domain knowledge.
+- Unlike PCA, the components generated by Truncated SVD on raw data are not necessarily orthogonal in the original feature space.
+- The interpretation of the latent components can be challenging and may not always correspond to clear physical meanings.
+- It is sensitive to the scaling of features, and proper preprocessing like standardization is often required.
+- The computational cost can still be high for extremely large matrices if $k$ is chosen to be large.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used in [Latent Semantic Analysis](/algorithms/unsupervised/topic-modeling/latent-semantic-analysis) (LSA) to discover semantic relationships between words and documents by reducing the dimensionality of term-document matrices.
+
+### Recommender Systems
+
+Applied to user-item interaction matrices to uncover latent factors that explain user preferences and item characteristics, enabling personalized recommendations.
+
+### Image Processing
+
+Utilized for image compression and denoising by approximating image matrices with lower-rank representations, preserving essential visual information.
+
+### Feature Extraction
+
+Employed to reduce the number of features in high-dimensional datasets, improving the performance and reducing the training time of subsequent machine learning models.
+
+### Anomaly Detection
+
+Can be used to identify outliers by reconstructing data from a low-rank approximation and measuring the reconstruction error, where large errors indicate anomalies.
+
+### Bioinformatics
+
+Applied to gene expression data or other biological matrices to identify underlying patterns or reduce noise for further analysis.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Truncated SVD from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.decomposition import TruncatedSVD
+
+model = TruncatedSVD()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Truncated SVD Lab" />
+
+## References
+
+- Eckart�Young (1936). Eckart�Young.
+- [scikit-learn: TruncatedSVD](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html)

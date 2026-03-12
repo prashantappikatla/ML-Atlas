@@ -1,0 +1,182 @@
+---
+title: "Neural Gas"
+slug: "neural-gas"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1991
+author: "Martinetz & Schulten"
+paper: "Martinetz & Schulten"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["clustering", "competitive-learning", "manifold-learning", "neural-networks", "topology-preservation", "unsupervised-learning", "vector-quantization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "fuzzy-c-means"
+  - "gaussian-mixture-model"
+  - "growing-neural-gas"
+  - "k-means"
+  - "self-organizing-map"
+---
+
+## Overview
+
+Neural Gas is an unsupervised learning algorithm for vector quantization and clustering that adapts a set of prototype vectors to approximate the distribution of input data. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), it considers the 'neighborhood rank' of prototypes to an input vector, allowing all prototypes to move towards the input, with closer prototypes moving more significantly. This adaptive update rule helps preserve the topological relationships of the input data manifold. The algorithm is named for the analogy of prototypes as gas particles moving in the data space.
+
+## History
+
+**1991** — Thomas Martinetz and Klaus Schulten introduce the Neural Gas algorithm in their paper 'Neural-Gas Network for Vector Quantization and its Application to Time-Series Prediction', establishing its core principles.
+
+**1993** — Martinetz, Berkovich, and Schulten further explore the algorithm's properties and applications, highlighting its ability to find optimal data representations and its robust convergence.
+
+**1997** — Bernd Fritzke introduces [Growing Neural Gas](/algorithms/unsupervised/clustering/growing-neural-gas) (GNG), an extension that allows the network size (number of prototypes) to adapt dynamically, addressing a limitation of the original Neural Gas.
+
+**2000** — Neural Gas is recognized for achieving lower quantization errors and better topology preservation compared to [K-Means](/algorithms/unsupervised/clustering/k-means) and some [Self-Organizing Map](/algorithms/unsupervised/clustering/self-organizing-map) variants, leading to broader adoption in research.
+
+**2010** — Continued research and application of Neural Gas and its variants in diverse fields such as data compression, pattern recognition, and robotics solidify its position as a robust clustering and vector quantization method.
+
+## Mathematical Intuition
+
+### Competitive Learning Foundation
+
+Neural Gas builds upon competitive learning principles, where prototype vectors $w_i$ compete to represent an input vector $x$. For each input $x$, the prototype $w_c$ closest to $x$ (the 'winner') is typically identified. The distance metric is commonly Euclidean: $d(x, w_i) = ||x - w_i||$. In standard competitive learning, only the winner $w_c$ is updated, moving it closer to $x$. Neural Gas extends this by updating all prototypes based on their rank.
+
+$$
+c = \arg\min_i ||x - w_i||
+$$
+
+### The Neural Gas Analogy
+
+Instead of a strict winner-take-all approach, Neural Gas updates all prototype vectors for each input $x$, but with varying degrees based on their proximity rank. The algorithm is named for the analogy of prototypes as 'gas particles' that are attracted to the input data points. When an input $x$ is presented, the prototypes are ranked according to their distance to $x$. Let $k_i(x)$ be the rank of prototype $w_i$ when sorted by distance to $x$, where $k_i(x)=0$ for the closest prototype, $k_i(x)=1$ for the second closest, and so on.
+
+### Adaptive Weight Update Rule
+
+The update rule for each prototype $w_i$ is given by:$$ \Delta w_i = \epsilon \cdot h_{\lambda}(k_i(x)) \cdot (x - w_i) $$Here, $\epsilon$ is the learning rate, and $h_{\lambda}(k_i(x))$ is a neighborhood function that depends on the rank $k_i(x)$ and a decay parameter $\lambda$. A common choice for $h_{\lambda}$ is an exponential decay function:$$ h_{\lambda}(k_i(x)) = \exp\left(-\frac{k_i(x)}{\lambda}\right) $$This function ensures that prototypes closer to $x$ (lower rank $k_i(x)$) are updated more significantly, while those further away (higher rank $k_i(x)$) are updated less. The parameter $\lambda$ controls the 'width' of this neighborhood, determining how many prototypes are significantly affected by each input.
+
+$$
+\Delta w_i = \epsilon \cdot h_{\lambda}(k_i(x)) \cdot (x - w_i)
+$$
+
+$$
+h_{\lambda}(k_i(x)) = \exp\left(-\frac{k_i(x)}{\lambda}\right)
+$$
+
+### Convergence and Topology Preservation
+
+The continuous adaptation of all prototypes based on their rank, rather than just the winner, allows Neural Gas to achieve a lower quantization error and better preserve the topological structure of the input data manifold compared to algorithms like [K-Means](/algorithms/unsupervised/clustering/k-means). To ensure convergence, the learning rate $\epsilon$ and the neighborhood decay $\lambda$ typically decrease over time, often exponentially:$$ \epsilon(t) = \epsilon_0 \left(\frac{\epsilon_f}{\epsilon_0}\right)^{t/T_{max}} $$$$ \lambda(t) = \lambda_0 \left(\frac{\lambda_f}{\lambda_0}\right)^{t/T_{max}} $$where $t$ is the current iteration, $T_{max}$ is the total number of iterations, and $\epsilon_0, \lambda_0$ are initial values, and $\epsilon_f, \lambda_f$ are final values.
+
+$$
+\epsilon(t) = \epsilon_0 \left(\frac{\epsilon_f}{\epsilon_0}\right)^{t/T_{max}}
+$$
+
+$$
+\lambda(t) = \lambda_0 \left(\frac{\lambda_f}{\lambda_0}\right)^{t/T_{max}}
+$$
+
+## Algorithm Steps
+
+1. Initialize $N$ prototype vectors $w_1, \dots, w_N$ randomly from the input data space or a small region around the data's centroid.
+2. Initialize the learning rate $\epsilon_{start}$, $\epsilon_{end}$ and the neighborhood decay parameters $\lambda_{start}$, $\lambda_{end}$, along with the maximum number of iterations $T_{max}$.
+3. For $t$ from $1$ to $T_{max}$ (or until convergence):
+4. Randomly select an input data vector $x$ from the training set.
+5. Calculate the Euclidean distance $||x - w_i||$ between $x$ and all prototype vectors $w_i$.
+6. Sort the prototype vectors based on their distances to $x$ in ascending order. Assign a rank $k_i(x)$ to each prototype $w_i$, where $k_i(x)=0$ for the closest, $k_i(x)=1$ for the second closest, and so on.
+7. Update each prototype vector $w_i$ using the rule: $w_i \leftarrow w_i + \epsilon(t) \cdot \exp\left(-\frac{k_i(x)}{\lambda(t)}\right) \cdot (x - w_i)$, where $\epsilon(t)$ and $\lambda(t)$ are the current learning rate and decay parameter, typically decaying exponentially over time.
+8. After training, each prototype vector $w_i$ represents a cluster centroid, and new input data points can be assigned to the cluster of their closest prototype.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `10` | integer > 0 | The number of prototype vectors (neurons) to generate. |
+| `learning_rate_start` | `float` | `0.5` | 0.0 < float <= 1.0 | Initial learning rate for prototype updates. |
+| `learning_rate_end` | `float` | `0.005` | 0.0 < float <= 1.0 | Final learning rate for prototype updates. |
+| `lambda_start` | `float` | `10.0` | float > 0.0 | Initial value for the neighborhood decay parameter. |
+| `lambda_end` | `float` | `0.01` | float > 0.0 | Final value for the neighborhood decay parameter. |
+| `max_iter` | `int` | `1000` | integer > 0 | Maximum number of iterations (epochs) over the training data. |
+| `random_state` | `int or None` | `None` | integer or None | Determines random number generation for prototype initialization. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Neural Gas often achieves lower quantization error compared to K-Means, leading to a more accurate representation of the data distribution.
+- The algorithm is less sensitive to the initial placement of prototype vectors than K-Means due to its global update rule.
+- It naturally preserves the topological relationships of the input data manifold, making it suitable for visualizing high-dimensional data structures.
+- The continuous adaptation of all prototypes based on rank allows for smoother movement and better coverage of complex data distributions.
+- Neural Gas can effectively learn non-linear data structures and manifolds.
+- Its convergence properties are robust, often leading to stable prototype configurations.
+
+## Weaknesses
+
+- The computational cost per iteration is higher than K-Means because it requires sorting all prototypes by distance for each input vector.
+- The number of prototypes $N$ must be specified in advance, which can be a challenge if the intrinsic dimensionality or number of clusters is unknown.
+- The choice of learning rate $\epsilon$ and neighborhood decay $\lambda$ parameters, along with their decay schedules, significantly impacts performance and requires careful tuning.
+- Like many unsupervised algorithms, interpreting the resulting clusters can sometimes be challenging without domain expertise.
+- The algorithm can be slow for very large datasets due to the sorting step in each iteration.
+
+## Use Cases
+
+### Data Compression
+
+Used for vector quantization to reduce the dimensionality or size of data while preserving essential information, particularly in signal processing.
+
+### Pattern Recognition
+
+Applied in tasks such as speech recognition or image classification as a feature extraction or clustering step to identify distinct patterns.
+
+### Robotics
+
+Utilized for learning sensorimotor mappings, robot control, and navigation by creating a topological map of the environment or task space.
+
+### Anomaly Detection
+
+Can identify outliers by measuring the distance of new data points to the learned prototype vectors, flagging points far from any cluster.
+
+### Time-Series Prediction
+
+Employed to model and predict patterns in sequential data by learning a representation of the time-series states or dynamics.
+
+### Bioinformatics
+
+Applied to cluster gene expression data or protein sequences to identify functional groups or classify biological samples.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Neural Gas from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import NeuralGas
+
+model = NeuralGas()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Neural Gas Lab" />
+
+## References
+
+- Martinetz & Schulten (1991). Martinetz & Schulten.
+- [scikit-learn: NeuralGas](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.NeuralGas.html)

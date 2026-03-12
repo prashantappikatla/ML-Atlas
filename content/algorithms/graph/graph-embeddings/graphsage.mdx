@@ -1,0 +1,179 @@
+---
+title: "GraphSAGE"
+slug: "graphsage"
+category: "graph"
+subcategory: "graph-embeddings"
+year: 2017
+author: "Hamilton et al."
+paper: "Hamilton et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["deep-learning", "graph-neural-network", "graph-sampling", "inductive-learning", "node-embedding", "representation-learning", "scalable", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "deepwalk"
+  - "node2vec"
+---
+
+## Overview
+
+GraphSAGE (SAmple and aggreGatE) is an inductive framework for generating node embeddings in large graphs. It learns a function that aggregates feature information from a node's local neighborhood, rather than training individual embeddings for each node. This approach enables it to generalize to unseen nodes and entire graphs, making it particularly suitable for dynamic and evolving graph structures. By sampling neighbors, GraphSAGE efficiently scales to graphs with millions of nodes and edges.
+
+## History
+
+**2017** — William L. Hamilton, Rex Ying, and Jure Leskovec introduce GraphSAGE in their paper "Inductive Representation Learning on Large Graphs," presenting a novel framework for generating node embeddings that can generalize to unseen nodes.
+
+**2018** — GraphSAGE gains significant traction in the graph machine learning community, influencing the development of subsequent inductive graph neural networks and becoming a foundational model.
+
+**2019** — Implementations of GraphSAGE become widely available in popular graph deep learning libraries like PyTorch Geometric and DGL, facilitating its adoption and research by a broader community.
+
+**2020** — Research expands on GraphSAGE, exploring various aggregation functions and sampling strategies to improve performance and efficiency on diverse graph datasets and specific downstream tasks.
+
+## Mathematical Intuition
+
+### Node Embedding Objective Function
+
+GraphSAGE aims to learn a function $f$ that maps a node's features and its neighborhood's features to a low-dimensional vector representation. The objective is typically to ensure that nearby nodes in the graph have similar embeddings, often achieved through a neighborhood-based loss function. For example, a common unsupervised loss is based on random walks, maximizing the dot product between a node's embedding and its neighbors' embeddings, while minimizing it for negative samples.
+
+$$
+J_G(\mathbf{z}_u) = -\log(\sigma(\mathbf{z}_u^T \mathbf{z}_v)) - \sum_{n \sim P_n(u)} \log(\sigma(-\mathbf{z}_u^T \mathbf{z}_n))
+$$
+
+### Neighborhood Sampling Strategy
+
+To make the computation tractable for large graphs, GraphSAGE samples a fixed-size set of neighbors for each node at each aggregation step, rather than using all neighbors. This creates a computational graph for each node, where the depth corresponds to the number of aggregation layers. For a node $v$, its $k$-hop neighborhood is sampled to construct its representation, significantly reducing computational complexity.
+
+$$
+\mathcal{N}_k(v) = \{u \mid u \text{ is a neighbor of } v \text{ at hop } k\}
+$$
+
+### Flexible Aggregation Functions
+
+After sampling, the sampled neighbor features are aggregated to form a single vector representation for the neighborhood. GraphSAGE proposes several differentiable aggregation functions, including mean aggregator, LSTM aggregator, and pooling aggregator. The mean aggregator computes the element-wise mean of the neighbor vectors, providing a simple yet effective way to combine information.
+
+$$
+\mathbf{h}_{\mathcal{N}(v)}^k = \text{AGGREGATE}_k(\{\mathbf{h}_u^{k-1}, \forall u \in \mathcal{N}(v)\})
+$$
+
+$$
+\mathbf{h}_{\mathcal{N}(v)}^k = \text{MEAN}(\{\mathbf{h}_u^{k-1}, \forall u \in \mathcal{N}(v)\}) = \frac{1}{|\mathcal{N}(v)|} \sum_{u \in \mathcal{N}(v)} \mathbf{h}_u^{k-1}
+$$
+
+### Layer-wise Update and Inductive Learning
+
+The aggregated neighborhood vector is then concatenated with the node's own representation from the previous layer, passed through a fully connected layer, and normalized. This process is repeated for $K$ layers, where $K$ is the desired depth of the receptive field. The final output $\mathbf{z}_v$ is the embedding for node $v$. This layer-wise update allows the model to learn a generalizable function, making it inherently inductive.
+
+$$
+\mathbf{h}_v^k = \sigma(\mathbf{W}^k \cdot \text{CONCAT}(\mathbf{h}_v^{k-1}, \mathbf{h}_{\mathcal{N}(v)}^k) + \mathbf{b}^k)
+$$
+
+$$
+\mathbf{h}_v^k \leftarrow \mathbf{h}_v^k / ||\mathbf{h}_v^k||_2
+$$
+
+## Algorithm Steps
+
+1. Initialize node features $\mathbf{x}_v$ for all nodes $v$ in the graph, setting $\mathbf{h}_v^0 = \mathbf{x}_v$.
+2. For each aggregation layer $k$ from $1$ to $K$ (where $K$ is the total number of layers):
+3.   For each node $v$, sample a fixed-size set of neighbors $\mathcal{N}_s(v)$ from its immediate neighbors.
+4.   Aggregate the representations of the sampled neighbors $\{\mathbf{h}_u^{k-1} \mid u \in \mathcal{N}_s(v)\}$ into a single vector $\mathbf{h}_{\mathcal{N}(v)}^k$ using a chosen aggregation function (e.g., mean, LSTM, pooling).
+5.   Concatenate the node's own previous layer representation $\mathbf{h}_v^{k-1}$ with the aggregated neighborhood vector $\mathbf{h}_{\mathcal{N}(v)}^k$.
+6.   Apply a linear transformation and a non-linear activation function to the concatenated vector: $\mathbf{h}_v^k = \sigma(\mathbf{W}^k \cdot \text{CONCAT}(\mathbf{h}_v^{k-1}, \mathbf{h}_{\mathcal{N}(v)}^k) + \mathbf{b}^k)$.
+7.   Normalize the resulting vector: $\mathbf{h}_v^k \leftarrow \mathbf{h}_v^k / ||\mathbf{h}_v^k||_2$.
+8. The final node embedding for node $v$ is $\mathbf{z}_v = \mathbf{h}_v^K$, which can then be used for downstream tasks or fed into a loss function for training.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `int` | `2` | 1 to 10 | Number of aggregation layers (hops) to consider for each node's receptive field, determining how far information propagates. |
+| `hidden_dim` | `int` | `128` | 32 to 512 | Dimension of the hidden feature vectors at each layer before the final output layer. |
+| `aggregator_type` | `str` | `mean` | ['mean', 'lstm', 'gcn', 'pool'] | Type of aggregation function to use for combining neighbor representations (e.g., 'mean', 'lstm', 'gcn', 'pool'). |
+| `num_neighbors` | `list of int` | `[10, 10]` | list of positive integers | Number of neighbors to sample at each layer. The length of the list should match `num_layers`. |
+| `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | Dropout probability for regularization, applied to the output of each layer. |
+| `learning_rate` | `float` | `0.01` | positive float | Step size for the optimizer during training, controlling how much the model weights are updated. |
+| `batch_size` | `int` | `256` | positive integer | Number of nodes processed in each training batch, affecting memory usage and training stability. |
+| `output_dim` | `int` | `64` | positive integer | Dimension of the final node embeddings generated by the model. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- GraphSAGE is an inductive framework, capable of generating embeddings for unseen nodes or entirely new graphs without requiring retraining.
+- The neighborhood sampling strategy makes it highly scalable to large graphs, significantly reducing computational complexity compared to full-neighborhood aggregation.
+- It offers flexibility in choosing aggregation functions, allowing adaptation to different graph structures and feature types.
+- GraphSAGE can be trained in an unsupervised manner using a neighborhood-based loss, making it suitable for scenarios without labeled data.
+- The learned aggregation function captures both structural and feature information from the local neighborhood, leading to robust node representations.
+- Its modular design allows for easy integration with various deep learning architectures and task-specific loss functions.
+
+## Weaknesses
+
+- The performance can be sensitive to the choice of hyperparameters, such as the number of sampled neighbors and the specific aggregation function.
+- Neighborhood sampling can lead to information loss, potentially affecting the quality of embeddings, especially for nodes with sparse or highly diverse neighborhoods.
+- For very dense graphs, even with sampling, the computational cost can still be substantial due to the need to process features from multiple hops.
+- It may struggle with highly heterogeneous graphs where different node and edge types require specialized aggregation mechanisms not natively supported.
+- The quality of embeddings can degrade if the initial node features are sparse or uninformative.
+
+## Use Cases
+
+### Social Networks
+
+Predicting user interests, recommending friends, or identifying communities by learning embeddings of users and their connections within the social graph.
+
+### Recommendation Systems
+
+Generating embeddings for items and users based on their interaction graphs to improve personalized recommendations and discover latent relationships.
+
+### Fraud Detection
+
+Identifying anomalous patterns in transaction graphs or financial networks by learning representations of entities and their relationships to detect fraudulent activities.
+
+### Drug Discovery
+
+Predicting properties of molecules, protein-protein interactions, or drug-target interactions by modeling them as graphs and learning node embeddings for atoms or proteins.
+
+### Knowledge Graphs
+
+Enriching entities in knowledge graphs with contextual embeddings for tasks like link prediction, entity classification, or question answering by leveraging graph structure.
+
+### Cybersecurity
+
+Detecting malicious activities or intrusions in network traffic graphs by analyzing relationships between network entities and identifying unusual communication patterns.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GraphSAGE from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GraphSAGE does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GraphSAGE Lab" />
+
+## References
+
+- Hamilton et al. (2017). Hamilton et al..

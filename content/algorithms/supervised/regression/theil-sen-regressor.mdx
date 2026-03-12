@@ -1,0 +1,171 @@
+---
+title: "Theil�Sen Regressor"
+slug: "theil-sen-regressor"
+category: "supervised"
+subcategory: "regression"
+year: 1950
+author: "Theil / Sen"
+paper: "Theil / Sen"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["linear-model", "median-based", "non-parametric", "outlier-resistant", "robust-regression", "statistical-inference", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "linear-regression"
+---
+
+## Overview
+
+The Theil-Sen Regressor is a non-parametric [Linear Regression](/algorithms/supervised/regression/linear-regression) method highly resistant to outliers in the dependent variable. It estimates the regression line by calculating the median of the slopes of all possible pairs of data points, and then determining the intercept based on the median of the residuals. This approach makes it a robust alternative to Ordinary Least Squares (OLS) regression, particularly when data is contaminated with noise or extreme values.
+
+## History
+
+**1950** — Henri Theil introduced a non-parametric method for estimating a regression line based on the median of slopes derived from pairs of observations, providing a robust alternative to traditional least squares.
+
+**1968** — Pranab Kumar Sen independently published a similar method, extending its statistical properties and formalizing its use, leading to the joint 'Theil-Sen' designation.
+
+**1987** — Andrew F. Siegel proposed the Repeated Median Estimator, a related robust regression method that also relies on medians of slopes, further highlighting the importance of median-based approaches in robust statistics.
+
+**2009** — The Theil-Sen estimator was included in the scikit-learn library, making it widely accessible to machine learning practitioners and contributing to its broader adoption in applied settings.
+
+## Mathematical Intuition
+
+### Slope Calculation from Pairs
+
+The fundamental idea behind the Theil-Sen Regressor is to consider all possible pairs of distinct data points $(x_i, y_i)$ and $(x_j, y_j)$ from the dataset. For each such pair, a potential slope $m_{ij}$ is calculated using the standard formula for the slope between two points:$$m_{ij} = \frac{y_j - y_i}{x_j - x_i}$$This process generates a collection of $N(N-1)/2$ (for $N$ data points) candidate slopes, each representing a possible gradient for the underlying linear relationship.
+
+$$
+m_{ij} = \frac{y_j - y_i}{x_j - x_i}
+$$
+
+### Median Slope for Robustness
+
+Instead of averaging these candidate slopes, which would be sensitive to outliers, the Theil-Sen estimator takes the median of all calculated $m_{ij}$ values. The median is a robust statistic, meaning it is less affected by extreme values than the mean. This median slope, denoted as $\hat{\beta}_1$, becomes the estimated slope of the regression line:$$\hat{\beta}_1 = \text{median}(\{m_{ij} \mid i \neq j\})$$This choice ensures that a few outlying points do not disproportionately influence the final slope estimate.
+
+$$
+\hat{\beta}_1 = \text{median}(\{m_{ij} \mid i \neq j\})
+$$
+
+### Intercept Estimation
+
+Once the robust slope $\hat{\beta}_1$ is determined, the intercept $\hat{\beta}_0$ is estimated. For each data point $(x_k, y_k)$, a candidate intercept $b_k$ can be calculated using the estimated slope:$$b_k = y_k - \hat{\beta}_1 x_k$$Similar to the slope, the final intercept $\hat{\beta}_0$ is chosen as the median of all these individual intercept candidates $b_k$:$$\hat{\beta}_0 = \text{median}(\{y_k - \hat{\beta}_1 x_k \mid k=1, \dots, N\})$$This median-based approach for both slope and intercept provides a regression line that is highly resistant to outliers in both the independent and dependent variables.
+
+$$
+b_k = y_k - \hat{\beta}_1 x_k
+$$
+
+$$
+\hat{\beta}_0 = \text{median}(\{y_k - \hat{\beta}_1 x_k \mid k=1, \dots, N\})
+$$
+
+## Algorithm Steps
+
+1. Given a dataset of $N$ data points $(x_i, y_i)$ for $i=1, \dots, N$.
+2. For every unique pair of distinct data points $(x_i, y_i)$ and $(x_j, y_j)$ where $x_i \neq x_j$, calculate the slope $m_{ij} = \frac{y_j - y_i}{x_j - x_i}$.
+3. Collect all calculated slopes $m_{ij}$ into a set $S$.
+4. Determine the estimated regression slope $\hat{\beta}_1$ as the median of the slopes in $S$.
+5. For each data point $(x_k, y_k)$ in the dataset, calculate a candidate intercept $b_k = y_k - \hat{\beta}_1 x_k$.
+6. Determine the estimated regression intercept $\hat{\beta}_0$ as the median of all candidate intercepts $b_k$.
+7. The final robust regression line is given by $y = \hat{\beta}_1 x + \hat{\beta}_0$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations (i.e., data is assumed to be centered). |
+| `copy_X` | `bool` | `True` | True, False | If True, X will be copied; else, it may be overwritten. This parameter ensures the original input data remains unchanged. |
+| `max_subpopulation` | `int` | `10000` | integer > 0 | Maximum size of a subpopulation to be considered for the slope calculation. For larger datasets, a random subsample of this size is used to approximate the median slope, improving computational efficiency. |
+| `n_subsamples` | `int or None` | `None` | integer > 0 or None | Number of samples to calculate the median for. If None, it is set to $n\_samples$ for $n\_samples < max\_subpopulation$, else $max\_subpopulation$. This controls the size of the random subsets used for slope estimation. |
+| `max_iter` | `int` | `300` | integer > 0 | Maximum number of iterations for the RANSAC-like iterative approach used in the scikit-learn implementation to find the best subset of data points. |
+| `tol` | `float` | `1e-3` | float > 0 | Tolerance for stopping criterion. The algorithm stops if the change in the estimated parameters between iterations is less than this value. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, or None | Determines random number generation for subsampling. Pass an int for reproducible output across multiple function calls. |
+| `n_jobs` | `int or None` | `None` | integer or None | Number of CPUs to use for the computation. -1 means using all processors. None means 1 unless in a joblib.parallel_backend context. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- The Theil-Sen Regressor is highly robust to outliers in the dependent variable, making it suitable for noisy datasets.
+- It is a non-parametric method, meaning it does not assume a specific distribution for the errors.
+- The estimator has a high breakdown point, indicating it can tolerate a significant proportion of outliers without its estimate becoming arbitrarily bad.
+- It provides a more stable and reliable estimate of the linear relationship compared to OLS when data quality is compromised.
+- For smaller datasets, its computational cost is manageable, and it offers a good balance between robustness and efficiency.
+
+## Weaknesses
+
+- The computational complexity of $O(N^2)$ for calculating all pairwise slopes makes it impractical for very large datasets without approximation methods.
+- While robust to outliers in $y$, it can still be affected by high-leverage points (outliers in $x$) if not handled carefully.
+- The interpretation of the median slope and intercept can sometimes be less intuitive than the mean-based estimates of OLS.
+- It is primarily designed for simple linear regression and its extension to multiple regression can be more complex or less straightforward.
+- The estimator may not be as statistically efficient as OLS when the error distribution is truly Gaussian and there are no outliers.
+
+## Use Cases
+
+### Environmental Science
+
+Analyzing trends in environmental data (e.g., pollution levels, temperature changes) where sensor malfunctions or unusual events can introduce outliers.
+
+### Econometrics
+
+Estimating economic relationships or forecasting where financial crises, policy changes, or data collection errors can lead to extreme observations.
+
+### Medical Research
+
+Modeling dose-response curves or physiological measurements where individual patient variability or experimental errors might result in outliers.
+
+### Quality Control
+
+Monitoring manufacturing processes to detect deviations or trends that are not obscured by occasional measurement errors or anomalies.
+
+### Geospatial Analysis
+
+Analyzing spatial trends in geological or geographical data, which often contain localized anomalies or measurement inaccuracies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Theil�Sen Regressor from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import TheilSenRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = TheilSenRegressor()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Theil�Sen Regressor Lab" />
+
+## References
+
+- Theil / Sen (1950). Theil / Sen.
+- [scikit-learn: TheilSenRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html)

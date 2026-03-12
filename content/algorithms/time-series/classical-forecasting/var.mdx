@@ -1,0 +1,172 @@
+---
+title: "VAR"
+slug: "var"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1980
+author: "Sims"
+paper: "Sims"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["classical-statistics", "econometrics", "forecasting", "interdependencies", "linear-model", "macroeconomics", "multivariate", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "stacking"
+---
+
+## Overview
+
+Vector Autoregression (VAR) is a statistical model used for capturing the linear interdependencies among multiple time series. It generalizes the univariate autoregressive (AR) model to multiple parallel time series, where each variable is expressed as a linear function of its own past values and the past values of all other variables in the system. This framework is particularly useful for forecasting systems of interrelated time series and for analyzing the dynamic impact of shocks. VAR models do not impose strong theoretical restrictions on the relationships between variables, making them flexible for empirical analysis.
+
+## History
+
+**1980** — Christopher Sims introduced the Vector Autoregression (VAR) model in his seminal paper "Macroeconomics and Reality," advocating for its use in macroeconomics as an alternative to large-scale structural models.
+
+**1986** — Sims and Stock further elaborated on the properties of VAR models, particularly concerning cointegration and unit roots, which laid groundwork for Vector Error Correction Models (VECM).
+
+**1992** — Litterman introduced Bayesian Vector Autoregression (BVAR) models, which incorporate prior information to address the issue of over-parameterization in high-dimensional VAR models.
+
+**1994** — Structural VAR (SVAR) models gained prominence, allowing for the identification of structural shocks and their propagation through the system by imposing theoretical restrictions on the contemporaneous relationships between variables.
+
+**2000** — Advancements in computational power and statistical software made VAR models more accessible and led to their widespread application across various fields beyond economics, including finance and environmental science.
+
+## Mathematical Intuition
+
+### The VAR(p) Model Equation
+
+A Vector Autoregression model of order $p$, denoted VAR($p$), describes the evolution of a $K$-dimensional vector of time series variables $Y_t = (y_{1t}, \dots, y_{Kt})'$ as a linear function of its own past $p$ values. Each variable in the system is modeled as a linear combination of its own past values and the past values of all other variables in the system.
+$$Y_t = c + A_1 Y_{t-1} + A_2 Y_{t-2} + \dots + A_p Y_{t-p} + \epsilon_t$$
+Here, $c = (c_1, \dots, c_K)'$ is a $K \times 1$ vector of intercepts, $A_i$ are $K \times K$ coefficient matrices for $i=1, \dots, p$, and $\epsilon_t = (\epsilon_{1t}, \dots, \epsilon_{Kt})'$ is a $K \times 1$ vector of error terms, assumed to be white noise with $E[\epsilon_t] = 0$ and $E[\epsilon_t \epsilon_t'] = \Sigma_\epsilon$, where $\Sigma_\epsilon$ is a positive definite covariance matrix.
+
+$$
+Y_t = c + A_1 Y_{t-1} + A_2 Y_{t-2} + \dots + A_p Y_{t-p} + \epsilon_t
+$$
+
+### Stationarity and Stability
+
+For a VAR model to be stable and its forecasts to be meaningful, the underlying time series must be stationary, meaning their statistical properties like mean and variance do not change over time. If the series are non-stationary, they must be differenced until stationarity is achieved. The stability of the VAR system is determined by the roots of the characteristic equation:
+$$\det(I_K - A_1 z - A_2 z^2 - \dots - A_p z^p) = 0$$
+For the system to be stable, all roots $z$ must lie outside the unit circle. This ensures that the effects of shocks eventually die out.
+
+$$
+\det(I_K - A_1 z - A_2 z^2 - \dots - A_p z^p) = 0
+$$
+
+### Estimation via Ordinary Least Squares
+
+Each equation in a VAR model can be estimated separately using Ordinary Least Squares (OLS), provided that the error terms are uncorrelated with the regressors. For the $j$-th equation, $y_{jt}$ is regressed on a constant and the lagged values of all $K$ variables in the system. [Stacking](/algorithms/supervised/classification/stacking) the equations, the entire system can be estimated efficiently, as the OLS estimator for each equation is consistent and asymptotically efficient.
+
+### Lag Order Selection
+
+The choice of the lag order $p$ is crucial for VAR model specification, as it impacts both model complexity and fit. A common approach is to select $p$ that minimizes an information criterion, such as the Akaike Information Criterion (AIC) or the Bayesian Information Criterion (BIC). These criteria balance model fit with model complexity, penalizing models with more parameters.
+$$AIC = -2 \log(L) + 2k$$
+$$BIC = -2 \log(L) + k \log(N)$$
+where $L$ is the maximum likelihood value, $k$ is the number of parameters in the model, and $N$ is the number of observations. BIC typically selects a more parsimonious model than AIC.
+
+$$
+AIC = -2 \log(L) + 2k
+$$
+
+$$
+BIC = -2 \log(L) + k \log(N)
+$$
+
+## Algorithm Steps
+
+1. Prepare the multivariate time series data $Y_t$, ensuring it is appropriately formatted, free from missing values, and has a consistent frequency.
+2. Test each individual time series for stationarity using tests like the Augmented Dickey-Fuller (ADF) test; if non-stationary, apply differencing until stationarity is achieved.
+3. Determine the optimal lag order $p$ for the VAR model by fitting VAR models with various lag orders and selecting the one that minimizes an information criterion such as AIC or BIC.
+4. Estimate the VAR($p$) model parameters (coefficient matrices $A_i$ and intercept vector $c$) using Ordinary Least Squares (OLS) for each equation in the system.
+5. Perform diagnostic checks on the residuals $\epsilon_t$ to ensure they approximate white noise, checking for autocorrelation, heteroscedasticity, and normality.
+6. Use the estimated VAR model to generate multi-step ahead forecasts for all variables in the system by iteratively predicting future values based on past observed and predicted values.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `maxlags` | `integer` | `None` | integer >= 1 | Maximum number of lags to consider when automatically selecting the optimal lag order using an information criterion. If None, a default based on the number of observations is used. |
+| `ic` | `string` | `aic` | ['aic', 'bic', 'fpe', 'hqic'] | Information criterion to use for lag order selection. Common choices are 'aic' (Akaike Information Criterion) or 'bic' (Bayesian Information Criterion). |
+| `trend` | `string` | `c` | ['c', 't', 'ct', 'nc'] | Specifies whether to include a constant ('c'), a linear trend ('t'), both ('ct'), or no trend ('nc') in the VAR model. |
+| `exog` | `array-like or None` | `None` | array-like of shape (n_samples, n_exog) or None | Array of exogenous variables to include in the VAR model. These variables are treated as external inputs that influence the endogenous variables but are not influenced by them. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- VAR models effectively capture the dynamic interdependencies among multiple time series variables without requiring strong theoretical assumptions about their relationships.
+- They are relatively straightforward to implement and interpret, especially for short-term forecasting horizons.
+- The framework allows for impulse response analysis, which helps understand the impact of a shock to one variable on all other variables in the system over time.
+- VAR models can be used to test for Granger causality, identifying whether past values of one variable help predict another.
+- They provide a flexible framework that can be extended with exogenous variables (VARX) or structural restrictions (SVAR).
+
+## Weaknesses
+
+- The number of parameters to be estimated grows quadratically with the number of variables and linearly with the lag order, leading to over-parameterization and potential overfitting in high-dimensional systems.
+- VAR models assume linearity in the relationships between variables, which may not hold true for all real-world phenomena.
+- They require all time series to be stationary; non-stationary series must be differenced, which can sometimes lead to a loss of long-run information.
+- Forecasting accuracy tends to deteriorate rapidly as the forecast horizon increases, making them less suitable for long-term predictions.
+- The choice of lag order can significantly impact model performance and is often subjective or relies on heuristic information criteria.
+
+## Use Cases
+
+### Economics
+
+Forecasting macroeconomic indicators such as GDP, inflation, interest rates, and unemployment, and analyzing the impact of monetary policy shocks.
+
+### Finance
+
+Modeling the interrelationships between stock prices, exchange rates, and commodity prices to inform investment strategies and risk management.
+
+### Environmental Science
+
+Predicting air pollution levels, water quality parameters, or climate variables by considering their mutual influences and past values.
+
+### Neuroscience
+
+Analyzing functional magnetic resonance imaging (fMRI) data to understand the dynamic interactions and information flow between different brain regions.
+
+### Energy Management
+
+Forecasting electricity demand and supply across different regions, considering factors like temperature, economic activity, and past consumption patterns.
+
+### Supply Chain Management
+
+Predicting demand for various products across different stages of a supply chain, accounting for lead times, inventory levels, and inter-product dependencies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement VAR from scratch
+```
+
+### Using scikit-learn
+
+```python
+# VAR does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="VAR Lab" />
+
+## References
+
+- Sims (1980). Sims.

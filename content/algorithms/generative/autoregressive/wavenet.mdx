@@ -1,0 +1,170 @@
+---
+title: "WaveNet"
+slug: "wavenet"
+category: "generative"
+subcategory: "autoregressive"
+year: 2016
+author: "van den Oord et al."
+paper: "van den Oord et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["audio-generation", "autoregressive", "convolutional-neural-network", "deep-learning", "generative-model", "neural-network", "speech-synthesis", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "recurrent-neural-network"
+  - "stacking"
+  - "transformer"
+---
+
+## Overview
+
+WaveNet is a deep generative model for raw audio waveforms, distinguished by its use of dilated causal convolutions. It operates autoregressively, predicting the next audio sample based on all preceding samples, enabling it to model complex temporal dependencies in high-fidelity audio. This architecture allows for a very large receptive field while maintaining computational efficiency and strict causality, crucial for realistic audio synthesis.
+
+## History
+
+**2016** — DeepMind introduces WaveNet by van den Oord et al., demonstrating state-of-the-art performance in speech synthesis and raw audio generation.
+
+**2017** — DeepMind releases Parallel WaveNet, addressing the slow inference speed of the original model by distilling knowledge into a non-autoregressive student network.
+
+**2018** — Google integrates WaveNet into its Text-to-Speech (TTS) systems, significantly improving the naturalness and human-likeness of synthesized voices.
+
+**2019** — Further research explores WaveNet variants and applications beyond speech, including music generation and audio event detection, expanding its utility.
+
+## Mathematical Intuition
+
+### Dilated Causal Convolutions Explained
+
+WaveNet employs dilated causal convolutions to efficiently increase the receptive field without increasing the number of parameters or losing resolution. A causal convolution ensures that the prediction at time step $t$ only depends on samples from time steps $t-1$ and earlier. Dilated convolutions introduce gaps between filter taps, allowing the filter to cover a wider range of input samples. The output $y[t]$ of a dilated causal convolution with dilation $d$ and filter $w$ applied to input $x$ is given by:
+$$y[t] = \sum_{k=0}^{K-1} x[t - d \cdot k] \cdot w[k]$$
+where $K$ is the filter width. By [Stacking](/algorithms/supervised/classification/stacking) layers with exponentially increasing dilation rates (e.g., 1, 2, 4, 8, ...), the model can capture very long-range dependencies in the audio signal.
+
+$$
+y[t] = \sum_{k=0}^{K-1} x[t - d \cdot k] \cdot w[k]
+$$
+
+### Autoregressive Sample Generation
+
+WaveNet is an autoregressive model, meaning it predicts the probability distribution of the next audio sample given all previous samples. For a sequence of audio samples $x = \{x_1, x_2, ..., x_T\}$, the joint probability of the sequence is factorized as:
+$$P(x) = \prod_{t=1}^{T} P(x_t | x_1, ..., x_{t-1})$$
+During training, the model learns to predict $P(x_t | x_1, ..., x_{t-1})$ by taking $x_1, ..., x_{t-1}$ as input. During inference, each sample $x_t$ is sampled from the predicted distribution and then fed back into the network as input to predict $x_{t+1}$.
+
+$$
+P(x) = \prod_{t=1}^{T} P(x_t | x_1, ..., x_{t-1})
+$$
+
+### Gated Activation Units
+
+Each convolutional layer in WaveNet uses a gated activation unit, inspired by gated recurrent units (GRUs), to control the flow of information. This mechanism helps the network learn complex non-linear relationships and selectively pass relevant features. The output of a gated activation unit for a given layer $k$ is computed as:
+$$\mathbf{z} = \tanh(\mathbf{W}_{f,k} * \mathbf{x} + \mathbf{V}_{f,k} * \mathbf{h}) \odot \sigma(\mathbf{W}_{g,k} * \mathbf{x} + \mathbf{V}_{g,k} * \mathbf{h})$$
+Here, $\mathbf{x}$ is the input to the layer, $\mathbf{h}$ represents conditioning features (if any), $\mathbf{W}$ and $\mathbf{V}$ are learnable filter weights, $*$ denotes convolution, $\tanh$ is the hyperbolic tangent activation, $\sigma$ is the sigmoid activation, and $\odot$ is element-wise multiplication.
+
+$$
+\mathbf{z} = \tanh(\mathbf{W}_{f,k} * \mathbf{x} + \mathbf{V}_{f,k} * \mathbf{h}) \odot \sigma(\mathbf{W}_{g,k} * \mathbf{x} + \mathbf{V}_{g,k} * \mathbf{h})
+$$
+
+### Residual and Skip Connections
+
+To facilitate training of very deep networks and improve gradient flow, WaveNet incorporates residual and skip connections. Residual connections add the input of a block to its output, allowing the network to learn residual mappings rather than direct transformations, which helps mitigate the vanishing gradient problem. Skip connections sum the outputs of all intermediate convolutional layers and feed them into a final post-processing stack, which then predicts the output distribution, aggregating features from different receptive field sizes to capture both local and global dependencies.
+
+## Algorithm Steps
+
+1. Quantize the raw audio waveform into a discrete number of values (e.g., 256 for 8-bit $\mu$-law encoding) to treat audio generation as a multi-class classification problem.
+2. Feed the quantized audio sequence into the network, ensuring that each prediction for sample $x_t$ only uses information from $x_1, ..., x_{t-1}$ via causal convolutions.
+3. Process the input through multiple stacked layers of dilated causal convolutions, where each layer typically has an exponentially increasing dilation rate.
+4. Apply gated activation units after each dilated convolution, combining the outputs of $\tanh$ and $\sigma$ activations element-wise to control information flow.
+5. Add the input of each residual block to its output, forming a residual connection, and also route a separate skip connection output from each block.
+6. Sum all skip connection outputs from the various layers and pass this aggregated feature map through a series of 1x1 convolutions and ReLU activations.
+7. Apply a final 1x1 convolution followed by a softmax activation function to produce a probability distribution over the possible quantized audio values for the next sample.
+8. Calculate the cross-entropy loss between the predicted probability distribution and the true next audio sample, then update the model's weights using an optimization algorithm via backpropagation.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_residual_blocks` | `integer` | `30` | positive integer | Number of residual blocks in the network. Each block typically contains multiple dilated causal convolutional layers. |
+| `num_dilation_cycles` | `integer` | `3` | positive integer | Number of times the dilation rate sequence (e.g., 1, 2, 4, ..., 512) is repeated within the network. |
+| `filter_width` | `integer` | `2` | positive integer, typically 2 or 3 | Width of the 1D convolutional filters used in the dilated causal convolutions. |
+| `residual_channels` | `integer` | `32` | positive integer | Number of channels in the residual connections within each block. |
+| `dilation_channels` | `integer` | `32` | positive integer | Number of channels in the dilated causal convolutional layers. |
+| `skip_channels` | `integer` | `512` | positive integer | Number of channels in the skip connections that are summed up for the final output layer. |
+| `quantization_channels` | `integer` | `256` | positive integer, typically 256 or 65536 | Number of discrete values used to quantize the input audio waveform (e.g., 256 for 8-bit $\mu$-law encoding). |
+| `use_bias` | `boolean` | `true` | true, false | Whether to add a bias term to the convolutional layers. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Generates highly realistic and natural-sounding audio, including speech and music, by modeling raw waveforms directly.
+- Effectively captures long-range temporal dependencies in audio signals due to its dilated causal convolutional architecture.
+- Can be conditioned on various inputs, such as speaker identity, linguistic features, or musical notes, to control the generated audio.
+- The causal nature of the convolutions inherently ensures that future information is not used to predict current samples, which is crucial for sequential data generation.
+- Achieves state-of-the-art performance in tasks like text-to-speech synthesis, producing voices that are often indistinguishable from human speech.
+- Its modular architecture with residual and skip connections facilitates the training of very deep networks and improves gradient flow.
+
+## Weaknesses
+
+- Inference is inherently slow due to its autoregressive nature, as each sample must be generated sequentially, making real-time applications challenging without optimizations.
+- Training requires significant computational resources and time, especially for high-fidelity audio and large datasets.
+- The model's complexity and large number of parameters can make it prone to overfitting if not trained on sufficiently diverse and extensive datasets.
+- Requires careful design of the dilation rates and network depth to effectively capture the desired range of temporal dependencies.
+- The raw waveform generation approach can be sensitive to noise and artifacts in the training data, which may be replicated in the output.
+
+## Use Cases
+
+### Speech Synthesis
+
+Generating highly natural and human-like speech from text inputs, used in virtual assistants, screen readers, and voice interfaces.
+
+### Music Generation
+
+Creating novel musical compositions or generating continuations of existing melodies and harmonies, often conditioned on musical features.
+
+### Voice Conversion
+
+Transforming the voice characteristics of one speaker to another while preserving the linguistic content, useful for personalized voice assistants.
+
+### Audio Compression
+
+Learning efficient representations of audio signals for improved compression ratios, though not its primary use, it can reconstruct high-quality audio from low-bitrate signals.
+
+### Audio Event Detection
+
+Modeling complex audio patterns to identify specific events or sounds within a continuous audio stream, such as environmental sounds or animal calls.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement WaveNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# WaveNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="WaveNet Lab" />
+
+## References
+
+- van den Oord et al. (2016). van den Oord et al..

@@ -1,0 +1,175 @@
+---
+title: "Gaussian Process Classification"
+slug: "gaussian-process-classification"
+category: "probabilistic"
+subcategory: "bayesian-nonparametrics"
+year: 1998
+author: "Williams & Barber"
+paper: "Williams & Barber"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["approximate-inference", "bayesian", "classification", "gaussian-processes", "kernel-methods", "non-parametric", "probabilistic", "uncertainty-quantification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-logistic-regression"
+  - "gaussian-process-regression"
+  - "kernel-ridge-regression"
+  - "logistic-regression"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Gaussian Process Classification (GPC) is a non-parametric, probabilistic model that extends Gaussian processes to classification tasks. It places a Gaussian process prior over a latent function, which is then transformed into class probabilities via a non-linear link function, typically the logistic sigmoid. This approach provides a full predictive distribution over class labels, offering well-calibrated uncertainty estimates alongside point predictions.
+
+## History
+
+**1998** — Carl Edward Rasmussen and Christopher K. I. Williams published the seminal paper 'Bayesian Classification with Gaussian Processes', laying the theoretical foundation for GPC.
+
+**2000** — The development of approximate inference methods, such as the Laplace approximation and Expectation Propagation (EP), became crucial for making GPC practical due to the intractability of exact posterior inference.
+
+**2006** — The publication of 'Gaussian Processes for Machine Learning' by Rasmussen and Williams solidified GPC as a core application of Gaussian processes, detailing its theory and practical implementation.
+
+**2010** — Research focused on improving the scalability of GPC for larger datasets through sparse GP approximations and other computational enhancements.
+
+## Mathematical Intuition
+
+### Gaussian Process Prior
+
+A Gaussian Process (GP) is a collection of random variables, any finite number of which have a joint Gaussian distribution. In GPC, a GP is used as a prior over a latent function $f(\mathbf{x})$ that maps input features to a real value. This prior is fully specified by its mean function $m(\mathbf{x})$ and covariance (kernel) function $k(\mathbf{x}, \mathbf{x}')$. The choice of kernel function is critical as it encodes assumptions about the smoothness and structure of the underlying function.
+
+$$
+f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))
+$$
+
+### Link Function for Classification
+
+For classification, the latent function $f(\mathbf{x})$ cannot directly represent class probabilities as it can take any real value. A non-linear link function, such as the logistic sigmoid function, is applied to $f(\mathbf{x})$ to transform it into a probability $P(y=1|\mathbf{x}, f)$ that lies between 0 and 1. For binary classification, this probability represents the likelihood of belonging to the positive class.
+
+$$
+P(y=1|\mathbf{x}, f) = \sigma(f(\mathbf{x})) = \frac{1}{1 + e^{-f(\mathbf{x})}}
+$$
+
+### Posterior Inference Challenges
+
+Given a dataset $(\mathbf{X}, \mathbf{y})$, the goal is to infer the posterior distribution over the latent functions $P(\mathbf{f}|\mathbf{X}, \mathbf{y})$. However, due to the non-Gaussian nature of the likelihood function $P(\mathbf{y}|\mathbf{f})$ (introduced by the sigmoid link), the posterior distribution $P(\mathbf{f}|\mathbf{X}, \mathbf{y}) \propto P(\mathbf{y}|\mathbf{f}) P(\mathbf{f}|\mathbf{X})$ is no longer Gaussian and is analytically intractable. This necessitates the use of approximate inference methods.
+
+$$
+P(\mathbf{f}|\mathbf{X}, \mathbf{y}) = \frac{P(\mathbf{y}|\mathbf{f}) P(\mathbf{f}|\mathbf{X})}{P(\mathbf{y}|\mathbf{X})}
+$$
+
+$$
+P(\mathbf{y}|\mathbf{f}) = \prod_{i=1}^N \sigma(f_i)^{y_i} (1-\sigma(f_i))^{1-y_i}
+$$
+
+### Approximate Inference and Prediction
+
+Common approximation methods include the Laplace approximation, which approximates the posterior with a Gaussian centered at the mode, and Expectation Propagation (EP), which uses a product of Gaussian factors. Once an approximate posterior $Q(\mathbf{f}|\mathbf{X}, \mathbf{y})$ is obtained, predictions for a new test point $\mathbf{x}_*$ are made by integrating over the predictive distribution of the latent function $f_*$ and applying the link function. This integral is also typically approximated.
+
+$$
+P(y_*=1|\mathbf{x}_*, \mathbf{X}, \mathbf{y}) = \int \sigma(f_*) P(f_*|\mathbf{x}_*, \mathbf{X}, \mathbf{y}) df_*
+$$
+
+## Algorithm Steps
+
+1. Define a prior mean function $m(\mathbf{x})$ and a covariance (kernel) function $k(\mathbf{x}, \mathbf{x}')$ that captures the expected properties of the latent function.
+2. For a given training dataset $(\mathbf{X}, \mathbf{y})$, construct the Gram matrix $\mathbf{K}$ where $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$.
+3. Place a Gaussian process prior over the latent function values $\mathbf{f}$ at the training points: $P(\mathbf{f}|\mathbf{X}) = \mathcal{N}(\mathbf{m}, \mathbf{K})$, where $\mathbf{m}$ is the vector of mean function evaluations.
+4. Define the likelihood function $P(\mathbf{y}|\mathbf{f})$ using a non-linear link function, such as the logistic sigmoid, to map latent values to class probabilities.
+5. Infer an approximate posterior distribution $Q(\mathbf{f}|\mathbf{X}, \mathbf{y})$ over the latent function values, typically using methods like the Laplace approximation or Expectation Propagation, due to the intractability of the exact posterior.
+6. Optimize the kernel hyperparameters by maximizing the approximate marginal likelihood (evidence) of the training data.
+7. For a new test point $\mathbf{x}_*$, compute the predictive distribution of its latent function value $f_*$ given the training data and the approximate posterior.
+8. Transform the predictive distribution of $f_*$ into a class probability $P(y_*=1|\mathbf{x}_*, \mathbf{X}, \mathbf{y})$ by applying the link function and integrating over the predictive distribution of $f_*$, often approximated by sampling or numerical integration.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `Kernel object` | `1.0 * RBF(1.0)` | Any scikit-learn compatible kernel object | The kernel function to be used. It can be a custom kernel or a combination of standard kernels. |
+| `optimizer` | `string or callable` | `fmin_l_bfgs_b` | 'fmin_l_bfgs_b', 'None', or a callable | Method used to optimize the kernel's hyperparameters. Can be 'fmin_l_bfgs_b' or a custom callable. |
+| `n_restarts_optimizer` | `int` | `0` | Non-negative integer | The number of restarts of the optimizer for finding the kernel's hyperparameters. Multiple restarts can help avoid local optima. |
+| `max_iter_to_converge` | `int` | `50` | Positive integer | Maximum number of iterations for the Laplace approximation's Newton method to converge. |
+| `random_state` | `int, RandomState instance or None` | `None` | Any valid seed or None | Used to seed the random number generator for reproducibility. |
+| `warm_start` | `bool` | `false` | true, false | If true, reuse the solution of the previous call to fit as initialization for the next call. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Gaussian Process Classification provides well-calibrated probabilistic predictions and robust uncertainty estimates for its classifications.
+- Its non-parametric nature allows for flexible modeling of complex decision boundaries without assuming a fixed functional form.
+- The choice of kernel function enables the incorporation of prior knowledge about the data's structure and relationships.
+- GPC is less prone to overfitting on small datasets due to its Bayesian framework and regularization inherent in the GP prior.
+- It can handle multi-class classification by employing one-vs-rest or other multi-output GP extensions.
+- GPC can naturally handle noisy data and provide smooth decision boundaries.
+
+## Weaknesses
+
+- The computational complexity of GPC scales cubically with the number of training samples, making it challenging for large datasets.
+- Exact posterior inference is analytically intractable, requiring approximations that can introduce biases or reduce accuracy.
+- The performance of GPC is highly dependent on the choice of kernel function and its hyperparameters, which often require careful tuning.
+- Interpretability can be challenging as the model relies on a complex latent function rather than explicit feature weights.
+- Memory requirements can be substantial for large datasets due to the need to store and invert the kernel matrix.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Predicting the presence or absence of a disease based on patient symptoms and test results, providing uncertainty alongside the diagnosis.
+
+### Financial Modeling
+
+Classifying credit risk for loan applicants or predicting stock market trends, where quantifying the risk and uncertainty is critical.
+
+### Environmental Monitoring
+
+Classifying ecological states from sensor data or predicting the likelihood of environmental events like pollution spikes.
+
+### Robotics
+
+Classifying sensor readings for autonomous navigation or object recognition in scenarios requiring robust and uncertain predictions.
+
+### Drug Discovery
+
+Predicting the activity or toxicity of new chemical compounds based on their molecular structure, aiding in early-stage drug screening.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gaussian Process Classification from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import GaussianProcessClassification
+
+model = GaussianProcessClassification()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gaussian Process Classification Lab" />
+
+## References
+
+- Williams & Barber (1998). Williams & Barber.
+- [scikit-learn: GaussianProcessClassification](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianProcessClassification.html)

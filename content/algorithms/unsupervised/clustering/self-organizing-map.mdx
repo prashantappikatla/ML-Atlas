@@ -1,0 +1,187 @@
+---
+title: "Self-Organizing Map"
+slug: "self-organizing-map"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1982
+author: "Kohonen"
+paper: "Kohonen"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["clustering", "competitive-learning", "data-visualization", "dimensionality-reduction", "kohonen-network", "neural-networks", "unsupervised-learning", "vector-quantization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "isomap"
+  - "locally-linear-embedding"
+  - "neural-gas"
+---
+
+## Overview
+
+Self-Organizing Maps (SOMs), also known as Kohonen Maps, are a type of unsupervised artificial neural network used for dimensionality reduction and data visualization. They project high-dimensional data onto a low-dimensional (typically 2D) grid of neurons, preserving the topological relationships of the input space. This competitive learning algorithm organizes neurons such that similar input vectors activate neighboring neurons on the map, revealing inherent structures and clusters within the data.
+
+## History
+
+**1982** — Teuvo Kohonen introduces the Self-Organizing Map, laying the foundation for a new class of unsupervised neural networks.
+
+**1980** — Extensive research and application development for SOMs begin, particularly in data visualization, clustering, and pattern recognition across various fields.
+
+**1995** — Kohonen publishes "Self-Organizing Maps," a comprehensive book detailing the theory, algorithms, and applications, solidifying its status as a seminal work.
+
+**2000** — Development of various extensions and variants, such as the Generative Topographic Map (GTM) and [Neural Gas](/algorithms/unsupervised/clustering/neural-gas), addressing some limitations of the original SOM.
+
+## Mathematical Intuition
+
+### SOM Architecture and Initialization
+
+A Self-Organizing Map consists of a grid of neurons, typically arranged in a 2D lattice. Each neuron $j$ has an associated weight vector $w_j = [w_{j1}, w_{j2}, ..., w_{jD}]$, where $D$ is the dimensionality of the input data. Initially, these weight vectors are randomly initialized or sampled from the input data space. The map's topology (e.g., rectangular or hexagonal) defines the neighborhood relationships between neurons.
+
+### Best Matching Unit Selection
+
+For each input vector $x = [x_1, x_2, ..., x_D]$ presented to the SOM, the algorithm identifies the Best Matching Unit (BMU). The BMU is the neuron whose weight vector is closest to the input vector in the input space, typically measured using Euclidean distance. This competitive learning step ensures that the neuron most similar to the input data "wins" the competition.
+$$BMU = \arg\min_j ||x - w_j||$$
+
+$$
+BMU = \arg\min_j ||x - w_j||
+$$
+
+### Weight Vector Update Rule
+
+Once the BMU is identified, its weight vector and the weight vectors of its neighboring neurons are updated to become more similar to the input vector $x$. The update rule for a neuron $j$ at iteration $t$ is given by:
+$$w_j(t+1) = w_j(t) + \alpha(t) \cdot h_{BMU,j}(t) \cdot (x - w_j(t))$$
+Here, $\alpha(t)$ is the learning rate, which typically decreases over time, and $h_{BMU,j}(t)$ is the neighborhood function. The neighborhood function determines the influence of the BMU on its neighbors, decreasing with distance from the BMU on the map grid and over time. A common choice is a Gaussian function:
+$$h_{BMU,j}(t) = \exp\left(-\frac{||r_{BMU} - r_j||^2}{2\sigma^2(t)}\right)$$
+where $r_{BMU}$ and $r_j$ are the grid coordinates of the BMU and neuron $j$, respectively, and $\sigma(t)$ is the neighborhood radius, which also decreases over time.
+
+$$
+w_j(t+1) = w_j(t) + \alpha(t) \cdot h_{BMU,j}(t) \cdot (x - w_j(t))
+$$
+
+$$
+h_{BMU,j}(t) = \exp\left(-\frac{||r_{BMU} - r_j||^2}{2\sigma^2(t)}\right)
+$$
+
+### Learning Rate and Neighborhood Decay
+
+Both the learning rate $\alpha(t)$ and the neighborhood radius $\sigma(t)$ are crucial parameters that typically decrease monotonically with the number of iterations $t$. This decay schedule allows the map to first organize broadly (large $\alpha$, large $\sigma$) and then fine-tune its representation (small $\alpha$, small $\sigma$). Common decay functions are linear or exponential.
+$$\alpha(t) = \alpha_0 \left(1 - \frac{t}{T}\right)$$
+$$\sigma(t) = \sigma_0 \left(1 - \frac{t}{T}\right)$$
+where $\alpha_0$ and $\sigma_0$ are initial values, and $T$ is the total number of iterations.
+
+$$
+\alpha(t) = \alpha_0 \left(1 - \frac{t}{T}\right)
+$$
+
+$$
+\sigma(t) = \sigma_0 \left(1 - \frac{t}{T}\right)
+$$
+
+## Algorithm Steps
+
+1. Initialize the weight vectors of all neurons in the map grid to small random values or by sampling from the input data.
+2. Define the map topology (e.g., 2D grid, hexagonal) and initial learning rate $\alpha_0$ and neighborhood radius $\sigma_0$.
+3. For each training iteration, randomly select an input vector $x$ from the dataset.
+4. Find the Best Matching Unit (BMU) by calculating the Euclidean distance between $x$ and all neuron weight vectors $w_j$, selecting the neuron $j^*$ with the minimum distance.
+5. Update the weight vector of the BMU and its neighboring neurons using the learning rule: $w_j(t+1) = w_j(t) + \alpha(t) \cdot h_{BMU,j}(t) \cdot (x - w_j(t))$.
+6. Decrease the learning rate $\alpha(t)$ and the neighborhood radius $\sigma(t)$ according to a predefined decay schedule.
+7. Repeat steps 3-6 for a specified number of iterations or until the map converges.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `m` | `int` | `10` | >0 | The number of rows (or height) of the SOM grid. |
+| `n` | `int` | `10` | >0 | The number of columns (or width) of the SOM grid. |
+| `dim` | `int` | `None` | >0 | The dimensionality of the input data vectors. |
+| `sigma` | `float` | `1.0` | >0 | The initial neighborhood radius, which defines the spread of influence around the BMU. |
+| `learning_rate` | `float` | `0.5` | (0, 1] | The initial learning rate, controlling the magnitude of weight updates. |
+| `n_iterations` | `int` | `1000` | >0 | The total number of training iterations (epochs). |
+| `neighborhood_function` | `str` | `"gaussian"` | "gaussian", "mexican_hat", "bubble" | The function used to determine the influence of neighbors (e.g., "gaussian", "mexican_hat", "bubble"). |
+| `topology` | `str` | `"rectangular"` | "rectangular", "hexagonal" | The geometric arrangement of neurons on the map (e.g., "rectangular", "hexagonal"). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It provides a powerful method for visualizing high-dimensional data by projecting it onto a low-dimensional map while preserving topological relationships.
+- The algorithm naturally performs clustering by grouping similar input data points to activate the same or neighboring neurons on the map.
+- SOMs are robust to noise and missing values in the input data, as the competitive learning process averages out local variations.
+- The map's grid structure allows for intuitive interpretation of data patterns and relationships through visual inspection.
+- It can handle non-linear relationships in the data, making it suitable for complex datasets where linear methods might fail.
+- The training process is unsupervised, requiring no labeled data, which is advantageous for exploratory data analysis.
+
+## Weaknesses
+
+- The quality of the map is highly dependent on the initial choice of map dimensions and topology, which often requires trial and error.
+- SOMs are sensitive to the initial weight vectors, and different initializations can lead to different final maps.
+- The computational cost can be high for very large maps or datasets, especially during the BMU search step.
+- There is no objective function that is directly optimized, making it difficult to quantitatively assess convergence or map quality.
+- Interpreting the clusters formed on the map can sometimes be subjective and requires domain expertise.
+
+## Use Cases
+
+### Data Visualization
+
+Used to visualize complex, high-dimensional datasets by projecting them onto a 2D map, revealing clusters and relationships.
+
+### Clustering
+
+Applied for unsupervised clustering of data points, where each neuron represents a cluster prototype, useful in customer segmentation or anomaly detection.
+
+### Image Processing
+
+Employed for image segmentation, feature extraction, and compression by mapping image features to a lower-dimensional space.
+
+### Text Mining
+
+Utilized for organizing and visualizing document collections, identifying themes, and clustering similar texts based on word embeddings.
+
+### Financial Analysis
+
+Used for customer segmentation, fraud detection, and portfolio analysis by mapping financial data to identify patterns and outliers.
+
+### Process Control
+
+Applied in industrial settings for fault diagnosis and monitoring by visualizing sensor data and detecting anomalies in real-time.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Self-Organizing Map from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import SelfOrganizingMap
+
+model = SelfOrganizingMap()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Self-Organizing Map Lab" />
+
+## References
+
+- Kohonen (1982). Kohonen.
+- [scikit-learn: SelfOrganizingMap](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SelfOrganizingMap.html)

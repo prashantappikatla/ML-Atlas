@@ -1,0 +1,165 @@
+---
+title: "Radial Basis Function Network"
+slug: "radial-basis-function-network"
+category: "deep-learning"
+subcategory: "other-architectures"
+year: 1988
+author: "Broomhead & Lowe"
+paper: "Broomhead & Lowe"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["function-approximation", "kernel-method", "neural-network", "non-linear-model", "pattern-recognition", "shallow-learning", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "k-means"
+  - "kernel-ridge-regression"
+  - "linear-regression"
+  - "multilayer-perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Radial Basis Function Networks (RBFNs) are a type of artificial neural network that uses radial basis functions as activation functions in its hidden layer. They are particularly effective for function approximation, classification, and time series prediction due to their ability to model complex non-linear relationships. RBFNs are distinguished by their three-layer architecture: an input layer, a hidden layer of RBF units, and a linear output layer.
+
+## History
+
+**1988** — David Broomhead and David Lowe introduced Radial Basis Function Networks as a novel neural network architecture for pattern recognition and function approximation.
+
+**1989** — John Moody and Christian Darken further popularized RBFNs, demonstrating their effectiveness for function approximation and classification tasks, and proposing methods for training.
+
+**1990** — The theoretical foundation of RBFNs as universal approximators was established, proving their capability to approximate any continuous function with arbitrary accuracy.
+
+**1991** — Researchers began exploring various learning algorithms for RBFN parameters, including hybrid approaches combining unsupervised learning for centers and supervised learning for output weights.
+
+**1994** — The use of RBFNs expanded into control systems and signal processing, leveraging their fast training and generalization capabilities for real-time applications.
+
+## Mathematical Intuition
+
+### RBF Network Architecture
+
+An RBF Network consists of three layers: an input layer, a hidden layer of radial basis functions, and a linear output layer. The input layer simply distributes the input vector $\mathbf{x} \in \mathbb{R}^D$ to the hidden layer. Each hidden unit $j$ computes an activation $\phi_j(\mathbf{x})$ based on the distance between the input $\mathbf{x}$ and its center $\mathbf{c}_j$. The output layer then computes a linear combination of these hidden unit activations to produce the final output $y(\mathbf{x})$.
+
+### Radial Basis Function Definition
+
+A radial basis function $\phi(\mathbf{x}, \mathbf{c})$ is a real-valued function whose output depends only on the distance from some central point $\mathbf{c}$. The most common choice is the Gaussian function, defined as:$$ \phi_j(\mathbf{x}) = e^{-\frac{\|\mathbf{x} - \mathbf{c}_j\|^2}{2\sigma_j^2}} $$Here, $\mathbf{c}_j$ is the center vector for the $j$-th RBF unit, and $\sigma_j$ is its width (or spread) parameter. The parameter $\gamma_j = 1/(2\sigma_j^2)$ is often used, leading to $\phi_j(\mathbf{x}) = e^{-\gamma_j \|\mathbf{x} - \mathbf{c}_j\|^2}$.
+
+$$
+\phi_j(\mathbf{x}) = e^{-\frac{\|\mathbf{x} - \mathbf{c}_j\|^2}{2\sigma_j^2}}
+$$
+
+$$
+\gamma_j = 1/(2\sigma_j^2)
+$$
+
+### Output Layer Calculation
+
+The output of the RBF Network, $y(\mathbf{x})$, is a linear combination of the activations from the hidden layer units. For a network with $M$ hidden units and an output layer with $K$ neurons (for $K$ classes or $K$ regression outputs), the $k$-th output is given by:$$ y_k(\mathbf{x}) = \sum_{j=1}^{M} w_{kj} \phi_j(\mathbf{x}) + w_{k0} $$where $w_{kj}$ are the weights connecting the $j$-th hidden unit to the $k$-th output unit, and $w_{k0}$ is the bias term for the $k$-th output. For a single output, this simplifies to $y(\mathbf{x}) = \sum_{j=1}^{M} w_j \phi_j(\mathbf{x}) + w_0$.
+
+$$
+y_k(\mathbf{x}) = \sum_{j=1}^{M} w_{kj} \phi_j(\mathbf{x}) + w_{k0}
+$$
+
+### Training RBFN Parameters
+
+Training an RBFN involves determining the centers $\mathbf{c}_j$, widths $\sigma_j$ (or $\gamma_j$), and output layer weights $w_{kj}$. A common approach is a hybrid learning strategy: first, the centers and widths are determined using unsupervised methods (e.g., [K-Means](/algorithms/unsupervised/clustering/k-means) clustering for centers, and average distance to nearest neighbors for widths). Second, with the hidden layer parameters fixed, the output layer weights are trained using supervised learning, typically [Linear Regression](/algorithms/supervised/regression/linear-regression) (e.g., least squares) or pseudo-inverse methods, which is a fast and efficient process.
+
+## Algorithm Steps
+
+1. Determine the number of radial basis function (RBF) units, $M$, for the hidden layer.
+2. Initialize the centers $\mathbf{c}_j$ for each of the $M$ RBF units, often by randomly selecting $M$ data points from the training set or by using a clustering algorithm like K-Means.
+3. Initialize the widths $\sigma_j$ for each RBF unit, typically by calculating the average distance between centers or using a fraction of the maximum distance between centers.
+4. For each training input $\mathbf{x}_p$, compute the activation $\phi_j(\mathbf{x}_p)$ of each hidden RBF unit $j$ using its center $\mathbf{c}_j$ and width $\sigma_j$.
+5. Formulate a system of linear equations where the hidden layer activations serve as inputs and the target outputs are the desired values.
+6. Solve for the optimal output layer weights $w_{kj}$ using a linear regression method, such as the pseudo-inverse or least squares, to minimize the error between the network's output and the target output.
+7. For new, unseen input data, compute the hidden layer activations and then use the learned output layer weights to produce the final prediction.
+8. Optionally, refine the centers and widths using gradient descent or other optimization techniques to further improve performance.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `integer` | `heuristic or user-defined` | integer > 0 | The number of radial basis function units in the hidden layer. |
+| `gamma` | `float` | `1.0 / n_features` | float > 0 | Parameter controlling the width of the Gaussian RBF kernel, where a larger gamma implies a smaller variance and a narrower RBF. |
+| `kernel` | `string` | `'gaussian'` | 'gaussian', 'multiquadric', 'inverse_multiquadric', 'linear', 'cubic' | The type of radial basis function to use in the hidden layer. |
+| `center_selection_method` | `string` | `'kmeans'` | 'kmeans', 'random', 'fixed' | The strategy used to determine the centers of the radial basis functions. |
+| `width_determination_method` | `string` | `'p-nearest-neighbors'` | 'fixed', 'p-nearest-neighbors', 'global_average' | The strategy used to determine the widths (spreads) of the radial basis functions. |
+| `solver` | `string` | `'least_squares'` | 'least_squares', 'ridge', 'lasso' | The method used to solve for the optimal weights of the linear output layer. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- RBFNs are universal approximators, capable of modeling any continuous function with sufficient hidden units.
+- The training of the output layer weights is a linear problem, making it significantly faster than training multi-layer perceptrons with backpropagation.
+- RBFNs offer good interpretability in their hidden layer, as each RBF unit responds locally to a specific region of the input space.
+- They are well-suited for real-time applications due to their fast learning and prediction capabilities.
+- RBFNs can effectively handle non-linear mapping problems and are robust to noise in many scenarios.
+
+## Weaknesses
+
+- The performance of RBFNs is highly sensitive to the selection of RBF centers and widths, which can be challenging to optimize.
+- RBFNs suffer from the curse of dimensionality, as the number of RBF units required can grow exponentially with the input dimension.
+- They typically require a large number of hidden units for complex problems, leading to increased computational cost and memory usage.
+- RBFNs lack the hierarchical feature learning capabilities inherent in deep neural networks.
+- Their generalization ability can degrade if the training data does not adequately cover the input space, especially in high dimensions.
+
+## Use Cases
+
+### Function Approximation
+
+RBFNs are widely used to approximate complex non-linear functions in various engineering and scientific fields.
+
+### Time Series Prediction
+
+They are applied in financial forecasting, weather prediction, and signal processing for predicting future values based on historical data.
+
+### Control Systems
+
+RBFNs can be used for adaptive control, system identification, and robotics to learn and control dynamic systems.
+
+### Pattern Recognition
+
+They are employed in tasks such as handwritten digit recognition, speech recognition, and medical diagnosis for classifying patterns.
+
+### Medical Diagnosis
+
+RBFNs assist in classifying diseases or conditions based on patient data, leveraging their ability to learn complex decision boundaries.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Radial Basis Function Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Radial Basis Function Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Radial Basis Function Network Lab" />
+
+## References
+
+- Broomhead & Lowe (1988). Broomhead & Lowe.

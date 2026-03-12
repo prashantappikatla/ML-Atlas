@@ -1,0 +1,179 @@
+---
+title: "Denoising Autoencoder"
+slug: "denoising-autoencoder"
+category: "deep-learning"
+subcategory: "representation-learning"
+year: 2008
+author: "Vincent et al."
+paper: "Vincent et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["autoencoders", "deep-learning", "denoising", "dimensionality-reduction", "feature-learning", "neural-networks", "representation-learning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "contractive-autoencoder"
+  - "restricted-boltzmann-machine"
+  - "sparse-autoencoder"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Denoising Autoencoders (DAEs) are a type of unsupervised neural network designed to learn robust feature representations by reconstructing original input data from a corrupted version. By forcing the network to recover missing or noisy information, DAEs learn to extract more meaningful and less sensitive features, making them effective for dimensionality reduction and pre-training deep networks. This approach encourages the model to capture the underlying structure of the data rather than simply memorizing the input. The corruption process acts as a form of regularization, preventing the [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) from learning an identity function.
+
+## History
+
+**1980** — Early concepts of autoassociative neural networks, which form the basis of autoencoders, emerged as a way to learn compressed representations in neural networks.
+
+**2006** — Geoffrey Hinton and Ruslan Salakhutdinov demonstrated the effectiveness of deep autoencoders for unsupervised pre-training of deep neural networks, enabling the training of deeper architectures.
+
+**2008** — Pascal Vincent, Hugo Larochelle, Yoshua Bengio, and Pierre-Antoine Manzagol introduced the Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), proposing to train autoencoders by reconstructing a clean input from a stochastically corrupted version.
+
+**2010** — Vincent et al. further explored the connection between Denoising Autoencoders and Restricted Boltzmann Machines, showing that DAEs can be interpreted as performing gradient descent on a specific energy function.
+
+**2010** — Denoising Autoencoders became a popular component in deep learning architectures for unsupervised pre-training, feature learning, and dimensionality reduction, especially before the widespread adoption of large labeled datasets and advanced regularization techniques.
+
+## Mathematical Intuition
+
+### Autoencoder Core Idea
+
+An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $f_\theta$ and a decoder function $g_\phi$. The encoder maps an input $x$ to a latent representation $h = f_\theta(x)$, and the decoder reconstructs the input from this representation: $\hat{x} = g_\phi(h) = g_\phi(f_\theta(x))$. The goal is to minimize the reconstruction error between $x$ and $\hat{x}$. A common loss function for real-valued data is the mean squared error:
+
+$$
+$$ \mathcal{L}_{AE}(x, \hat{x}) = \|x - \hat{x}\|^2 $$
+$$
+
+### The Denoising Principle
+
+Denoising Autoencoders introduce a corruption process $C$ that transforms the original input $x$ into a corrupted version $\tilde{x} = C(x)$. The DAE is then trained to reconstruct the *original* input $x$ from the *corrupted* input $\tilde{x}$. This forces the model to learn robust features that can recover the true data manifold even when parts of the input are missing or noisy. The reconstruction is thus given by:
+
+$$
+$$ \hat{x} = g_\phi(f_\theta(\tilde{x})) $$
+$$
+
+### Common Corruption Processes
+
+Various corruption processes can be applied to the input $x$ to generate $\tilde{x}$. The choice of corruption process depends on the data type and the desired robustness properties. Common types include:
+1.  Additive Gaussian Noise: $\tilde{x} = x + \epsilon$, where $\epsilon \sim \mathcal{N}(0, \sigma^2 I)$. This is suitable for continuous data.
+2.  Masking Noise: A random subset of input features is set to zero (or a specific value). This simulates missing data.
+3.  Salt-and-pepper Noise: Randomly selected features are set to their minimum or maximum possible value, often used for image data.
+
+### DAE Objective Function
+
+The objective function for a Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) is to minimize the expected reconstruction error between the original input $x$ and its reconstruction $\hat{x}$ obtained from the corrupted input $\tilde{x}$. Given a corruption process $C$, the loss is:
+
+$$
+$$ \mathcal{L}_{DAE}(\theta, \phi) = \mathbb{E}_{x \sim \mathcal{D}} \left[ \mathbb{E}_{\tilde{x} \sim C(x)} \left[ \mathcal{L}(x, g_\phi(f_\theta(\tilde{x}))) \right] \right] $$
+$$
+
+$$
+where $\mathcal{D}$ is the data distribution, and $\mathcal{L}$ is a reconstruction loss function (e.g., mean squared error for real-valued data or binary cross-entropy for binary data). The expectation over $C(x)$ is typically approximated by sampling $\tilde{x}$ for each $x$ during training.
+$$
+
+## Algorithm Steps
+
+1. Define the neural network architecture, specifying the encoder $f_\theta$ and decoder $g_\phi$ components, including the number and size of hidden layers.
+2. Select a suitable corruption process $C$ (e.g., additive Gaussian noise, masking noise, salt-and-pepper noise) and its intensity (e.g., standard deviation for Gaussian noise, masking probability).
+3. For each training sample $x$ in a mini-batch, generate a corrupted version $\tilde{x} = C(x)$ by applying the chosen noise process.
+4. Feed the corrupted input $\tilde{x}$ through the encoder $f_\theta$ to obtain the latent representation $h = f_\theta(\tilde{x})$.
+5. Pass the latent representation $h$ through the decoder $g_\phi$ to produce the reconstructed output $\hat{x} = g_\phi(h)$.
+6. Calculate the reconstruction loss $\mathcal{L}(x, \hat{x})$ between the *original* uncorrupted input $x$ and the reconstructed output $\hat{x}$.
+7. Update the encoder and decoder parameters ($\theta$ and $\phi$) using an optimization algorithm (e.g., Adam, SGD) via backpropagation to minimize the calculated loss.
+8. Repeat steps 3-7 for a specified number of epochs or until convergence criteria are met.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple of integers` | `(128, 64, 128)` | tuple of positive integers | Sizes of the hidden layers in the encoder and decoder. For symmetric autoencoders, the decoder layers are typically the reverse of the encoder layers. |
+| `corruption_type` | `string` | `masking` | ['masking', 'gaussian', 'salt_and_pepper'] | The type of noise applied to the input data. Options include 'masking' (randomly setting features to zero), 'gaussian' (adding Gaussian noise), or 'salt_and_pepper' (randomly setting features to min/max values). |
+| `corruption_level` | `float` | `0.2` | [0.0, 1.0] | The intensity or probability of the corruption process. For masking, it's the probability of setting a feature to zero; for Gaussian, it's the standard deviation of the noise; for salt-and-pepper, it's the probability of flipping a feature. |
+| `activation` | `string` | `relu` | ['relu', 'sigmoid', 'tanh', 'linear'] | The activation function to use for the hidden layers in both the encoder and decoder. |
+| `loss` | `string` | `mse` | ['mse', 'binary_crossentropy'] | The loss function used to measure the reconstruction error between the original input and the reconstructed output. |
+| `optimizer` | `string` | `adam` | ['adam', 'sgd', 'rmsprop'] | The optimization algorithm used for training the network weights. |
+| `epochs` | `integer` | `100` | positive integer | The number of complete passes through the training dataset. |
+| `batch_size` | `integer` | `32` | positive integer | The number of samples per gradient update. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Denoising Autoencoders learn robust feature representations that are less sensitive to input noise and missing data.
+- They are effective for unsupervised pre-training of deep neural networks, providing a good initialization for subsequent supervised tasks.
+- DAEs can perform effective dimensionality reduction by learning compact and meaningful latent representations of the data.
+- The learned representations often capture the underlying manifold structure of the data, leading to better generalization.
+- They can be used for anomaly detection by identifying inputs that are poorly reconstructed from their corrupted versions.
+- The corruption process acts as a form of regularization, preventing the autoencoder from simply learning an identity function.
+
+## Weaknesses
+
+- The performance of a DAE is highly dependent on the choice and intensity of the corruption process, which often requires careful hyperparameter tuning.
+- If the noise level is too low or the model capacity is too high, DAEs can still overfit and learn to simply memorize the input, failing to extract robust features.
+- Training deep DAEs can be computationally intensive, especially for large datasets and complex architectures.
+- The reconstruction quality can be sensitive to the type of noise applied, and a mismatch between training noise and real-world noise can degrade performance.
+- Interpreting the learned latent representations can be challenging, as they are often abstract and non-linear.
+
+## Use Cases
+
+### Image Processing
+
+Applied for image denoising, where the DAE learns to remove various types of noise (e.g., Gaussian, salt-and-pepper) from images.
+
+### Anomaly Detection
+
+Used to detect anomalies in various datasets by training on normal data and identifying instances with high reconstruction error from their corrupted versions.
+
+### Dimensionality Reduction
+
+Employed to reduce the dimensionality of high-dimensional data, such as images or text features, into a lower-dimensional, more informative latent space.
+
+### Natural Language Processing
+
+Utilized for learning robust word or document embeddings by reconstructing text sequences from corrupted inputs, aiding in tasks like sentiment analysis or topic modeling.
+
+### Medical Imaging
+
+Applied to reduce noise in medical scans (e.g., MRI, CT) to improve image quality and aid in diagnosis.
+
+### Feature Learning
+
+Used as an unsupervised pre-training step to learn useful features from unlabeled data, which can then be fed into a supervised classifier.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Denoising Autoencoder from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Denoising Autoencoder does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Denoising Autoencoder Lab" />
+
+## References
+
+- Vincent et al. (2008). Vincent et al..

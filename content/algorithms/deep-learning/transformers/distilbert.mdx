@@ -1,0 +1,172 @@
+---
+title: "DistilBERT"
+slug: "distilbert"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2019
+author: "Sanh et al."
+paper: "Sanh et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "knowledge-distillation", "language-model", "model-compression", "natural-language-processing", "pre-trained-models", "text-embedding", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "albert"
+  - "bert"
+  - "roberta"
+  - "transformer"
+---
+
+## Overview
+
+DistilBERT is a smaller, faster, and lighter version of BERT, designed to reduce computational costs while retaining most of its language understanding capabilities. It achieves this through knowledge distillation, where a larger pre-trained BERT model acts as a teacher to guide the training of a smaller student model. This approach enables more efficient deployment of powerful [Transformer](/algorithms/deep-learning/transformers/transformer) models in resource-constrained environments.
+
+## History
+
+**2018** — Devlin et al. introduce BERT (Bidirectional Encoder Representations from Transformers), a groundbreaking pre-training method for natural language understanding, demonstrating state-of-the-art performance across various NLP tasks.
+
+**2019** — Sanh et al. introduce DistilBERT, a distilled version of BERT, significantly reducing its size and computational requirements while preserving a substantial portion of its performance, making large [Transformer](/algorithms/deep-learning/transformers/transformer) models more accessible.
+
+## Mathematical Intuition
+
+### Knowledge Distillation Objective
+
+Knowledge distillation aims to transfer knowledge from a large, complex teacher model to a smaller, simpler student model. The student model is trained to mimic the teacher's output distribution, often softened by a temperature parameter $T$. The primary distillation loss for classification tasks is typically a cross-entropy between the student's logits and the teacher's softened probabilities.
+$$L_{distill} = - \sum_{i} P_T(y_i | x; T) \log(P_S(y_i | x; T))$$
+where $P_T$ and $P_S$ are the softened probability distributions of the teacher and student models, respectively, and $P(y_i | x; T) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$. A higher $T$ produces a softer probability distribution, revealing more information about the teacher's decision boundaries.
+
+$$
+L_{distill} = - \sum_{i} P_T(y_i | x; T) \log(P_S(y_i | x; T))
+$$
+
+$$
+P(y_i | x; T) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}
+$$
+
+### DistilBERT's Combined Loss Function
+
+DistilBERT's training objective combines three main components: a distillation loss, a masked language modeling (MLM) loss, and a cosine embedding loss for hidden states. The overall loss function is a weighted sum:
+$$L_{total} = \alpha_{ce} L_{distill} + \alpha_{mlm} L_{mlm} + \alpha_{cos} L_{cos}$$
+The $L_{distill}$ term is the cross-entropy between the student's and teacher's softened output probabilities. The $L_{mlm}$ term is the standard masked language modeling loss, ensuring the student retains the ability to predict masked tokens. The $L_{cos}$ term encourages the hidden states of the student and teacher to be similar, using cosine similarity.
+
+$$
+L_{total} = \alpha_{ce} L_{distill} + \alpha_{mlm} L_{mlm} + \alpha_{cos} L_{cos}
+$$
+
+### Cosine Embedding Loss
+
+To further guide the student, DistilBERT introduces a cosine embedding loss that minimizes the cosine distance between the hidden states of the teacher and student models. This encourages the student to learn similar representations as the teacher at intermediate layers.
+$$L_{cos} = \frac{1}{N} \sum_{k=1}^{N} (1 - \text{cosine_similarity}(H_S^{(k)}, H_T^{(k)}))$$
+where $H_S^{(k)}$ and $H_T^{(k)}$ are the hidden states of the student and teacher at layer $k$, respectively, and $N$ is the number of layers. This loss helps align the internal representations, not just the final output.
+
+$$
+L_{cos} = \frac{1}{N} \sum_{k=1}^{N} (1 - \text{cosine_similarity}(H_S^{(k)}, H_T^{(k)}))
+$$
+
+## Algorithm Steps
+
+1. Pre-train a large teacher model, such as BERT, on a massive text corpus using objectives like Masked Language Modeling and Next Sentence Prediction.
+2. Initialize the student model (DistilBERT) with a reduced number of transformer layers, typically half the layers of the teacher, and share weights from the teacher where possible.
+3. Define the distillation loss, which includes a cross-entropy term between the student's and teacher's softened output probabilities for the masked language modeling task.
+4. Incorporate a standard masked language modeling (MLM) loss for the student model to ensure it learns to predict masked tokens independently.
+5. Add a cosine embedding loss to minimize the cosine distance between the hidden states of the student and teacher models at corresponding layers.
+6. Train the student model on the same pre-training data as the teacher, optimizing the combined loss function, which is a weighted sum of the distillation loss, MLM loss, and cosine embedding loss.
+7. Fine-tune the trained DistilBERT student model on specific downstream NLP tasks, such as text classification or question answering, using task-specific labeled data.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `integer` | `6` | typically 2-12 | Number of transformer encoder layers in the student model. |
+| `hidden_size` | `integer` | `768` | e.g., 128-1024 | Dimensionality of the embeddings and hidden states. |
+| `num_attention_heads` | `integer` | `12` | e.g., 2-16 | Number of attention heads for each transformer layer. |
+| `intermediate_size` | `integer` | `3072` | e.g., 512-4096 | Size of the "intermediate" (feed-forward) layer in the transformer block. |
+| `vocab_size` | `integer` | `30522` | positive integer | Size of the vocabulary used for tokenization. |
+| `max_position_embeddings` | `integer` | `512` | positive integer | Maximum sequence length that the model can handle. |
+| `temperature` | `float` | `2.0` | positive float | Softmax temperature used during distillation to soften teacher probabilities. |
+| `alpha_ce` | `float` | `0.5` | 0.0 to 1.0 | Weight for the cross-entropy distillation loss component. |
+| `alpha_mlm` | `float` | `1.0` | 0.0 to 1.0 | Weight for the masked language modeling loss component. |
+| `alpha_cos` | `float` | `0.5` | 0.0 to 1.0 | Weight for the cosine embedding loss component between teacher and student hidden states. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Significantly reduces model size and memory footprint compared to its teacher BERT model, making it more suitable for deployment.
+- Achieves substantial speedup in inference time, often 40-60% faster than BERT, which is crucial for real-time applications.
+- Retains a high percentage of the teacher model's performance, typically over 95% of BERT's performance on various NLP benchmarks.
+- Enables the deployment of powerful transformer-based models on resource-constrained devices or in scenarios with strict latency requirements.
+- Offers a strong baseline for transfer learning in NLP tasks, requiring less computational power for fine-tuning than larger models.
+- The pre-trained weights are publicly available, facilitating easy adoption and further fine-tuning for specific applications.
+
+## Weaknesses
+
+- Experiences a slight degradation in performance compared to the full BERT model, which might be critical for tasks requiring peak accuracy.
+- Requires a pre-trained teacher model, which itself is computationally expensive to train from scratch.
+- The distillation process, while yielding a smaller model, still demands significant computational resources and time for its own training.
+- May not perform as well as more recent, larger transformer models like RoBERTa or ELECTRA on certain complex NLP benchmarks.
+- The architecture is fixed to a specific reduction (e.g., half the layers), limiting flexibility in creating models with arbitrary sizes between BERT and DistilBERT.
+
+## Use Cases
+
+### Natural Language Understanding (NLU)
+
+Used for tasks like text classification, named entity recognition, and sentiment analysis in applications requiring efficient processing.
+
+### Question Answering Systems
+
+Deployed in conversational AI and search engines to quickly understand and answer user queries with reduced latency.
+
+### Text Summarization
+
+Applied in generating concise summaries of documents or articles, especially when real-time processing is desired.
+
+### Chatbots and Virtual Assistants
+
+Powers the language understanding component of chatbots, enabling faster and more responsive interactions.
+
+### Edge Device Deployment
+
+Suitable for running NLP models on mobile phones or other edge devices due to its smaller size and lower computational demands.
+
+### Information Retrieval
+
+Enhances search relevance by providing efficient contextual embeddings for documents and queries.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DistilBERT from scratch
+```
+
+### Using scikit-learn
+
+```python
+# DistilBERT does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="DistilBERT Lab" />
+
+## References
+
+- Sanh et al. (2019). Sanh et al..

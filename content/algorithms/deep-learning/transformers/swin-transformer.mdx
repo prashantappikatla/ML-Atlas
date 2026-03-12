@@ -1,0 +1,165 @@
+---
+title: "Swin Transformer"
+slug: "swin-transformer"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2021
+author: "Liu et al."
+paper: "Liu et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["attention-mechanism", "computer-vision", "deep-learning", "hierarchical-features", "image-classification", "object-detection", "semantic-segmentation", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "resnet"
+  - "transformer"
+  - "u-net"
+  - "vision-transformer"
+---
+
+## Overview
+
+Swin [Transformer](/algorithms/deep-learning/transformers/transformer) introduces a hierarchical [Transformer](/algorithms/deep-learning/transformers/transformer) architecture that computes self-attention within shifted windows, addressing the quadratic computational complexity of standard Transformers with respect to image size. By building hierarchical feature maps and enabling cross-window connections, it achieves state-of-the-art performance across a wide range of computer vision tasks, including image classification, object detection, and semantic segmentation.
+
+## History
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling with its self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism).
+
+**2020** — Dosovitskiy et al. introduced the [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT), demonstrating that a pure [Transformer](/algorithms/deep-learning/transformers/transformer) applied directly to sequences of image patches could achieve competitive results on image classification.
+
+**2021** — Liu et al. proposed the Swin [Transformer](/algorithms/deep-learning/transformers/transformer), which adapted the [Transformer](/algorithms/deep-learning/transformers/transformer) for dense prediction tasks by introducing hierarchical feature maps and shifted window-based self-attention, significantly improving efficiency and performance.
+
+## Mathematical Intuition
+
+### Window-based Self-Attention
+
+Standard multi-head self-attention computes relationships between all pairs of tokens, leading to a quadratic complexity $O(N^2)$ for $N$ tokens. Swin [Transformer](/algorithms/deep-learning/transformers/transformer) mitigates this by restricting self-attention computation to non-overlapping local windows. If an image has $H \times W$ patches and each window contains $M \times M$ patches, the total number of windows is $\frac{HW}{M^2}$. The complexity becomes $O(\frac{HW}{M^2} \cdot M^2 \cdot C) = O(HW \cdot C)$, where $C$ is the feature dimension, effectively linear with respect to image size.
+
+$$
+Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+$$
+O(N^2)
+$$
+
+$$
+O(HW \cdot C)
+$$
+
+### Shifted Window Mechanism
+
+While window-based attention is efficient, it limits the receptive field and prevents information flow between windows. To address this, Swin [Transformer](/algorithms/deep-learning/transformers/transformer) employs a shifted window partitioning approach. In successive Swin [Transformer](/algorithms/deep-learning/transformers/transformer) blocks, the window partition is shifted by half the window size. This shift creates new connections between previously isolated windows, allowing for cross-window information exchange without incurring the cost of global attention. A masking mechanism is applied to efficiently compute self-attention within the shifted windows, preventing attention from crossing artificial boundaries introduced by the shift.
+
+### Hierarchical Feature Maps
+
+Unlike ViT which maintains a single-resolution feature map, Swin [Transformer](/algorithms/deep-learning/transformers/transformer) constructs hierarchical feature maps similar to convolutional networks. This is achieved through "patch merging" layers between stages. A patch merging layer concatenates the features of $2 \times 2$ neighboring patches and then applies a linear layer to reduce the feature dimension by half while doubling the channel dimension. This process progressively downsamples the spatial resolution and increases the feature depth, making it suitable for dense prediction tasks that require multi-scale context.
+
+## Algorithm Steps
+
+1. An input image is first divided into non-overlapping patches of a fixed size, typically $4 \times 4$ pixels.
+2. A linear embedding layer projects the raw pixel values of each patch into a higher-dimensional feature space.
+3. These patch embeddings then pass through a series of Swin Transformer blocks, organized into multiple stages.
+4. Each Swin Transformer block consists of a Layer Normalization, a Multi-head Self-Attention (MSA) module, a residual connection, another Layer Normalization, a Multilayer Perceptron (MLP), and a final residual connection.
+5. The MSA module alternates between Window-based Multi-head Self-Attention (W-MSA) and Shifted Window-based Multi-head Self-Attention (SW-MSA) in successive blocks within each stage.
+6. W-MSA computes self-attention independently within non-overlapping local windows, significantly reducing computational cost.
+7. SW-MSA shifts the window partition by half the window size, enabling cross-window connections and expanding the receptive field.
+8. Between stages, a patch merging layer is applied to downsample the spatial resolution by a factor of 2 and increase the feature dimension, creating a hierarchical representation.
+9. The output features from the final stage can be fed into task-specific heads for various downstream computer vision applications.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `patch_size` | `int or tuple` | `4` | e.g., 4, (4, 4) | Size of the non-overlapping patches the input image is divided into. |
+| `embed_dim` | `int` | `96` | positive integer | Dimensionality of the patch embeddings after the initial linear projection. |
+| `depths` | `list of int` | `[2, 2, 6, 2]` | list of positive integers | Number of Swin Transformer blocks in each stage of the hierarchical architecture. |
+| `num_heads` | `list of int` | `[3, 6, 12, 24]` | list of positive integers | Number of attention heads in the Multi-head Self-Attention module for each stage. |
+| `window_size` | `int` | `7` | positive integer | Size of the local windows for attention computation within Swin Transformer blocks. |
+| `mlp_ratio` | `float` | `4.0` | positive float | Ratio of the hidden dimension in the Multilayer Perceptron (MLP) to the embedding dimension. |
+| `qkv_bias` | `boolean` | `True` | True or False | If True, a learnable bias is added to the query, key, and value projections. |
+| `drop_rate` | `float` | `0.0` | [0.0, 1.0) | Dropout rate applied to the linear layers within the Swin Transformer blocks. |
+| `attn_drop_rate` | `float` | `0.0` | [0.0, 1.0) | Dropout rate applied to the attention probabilities. |
+| `drop_path_rate` | `float` | `0.1` | [0.0, 1.0) | Stochastic depth rate, where each block is dropped with a certain probability during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Achieves state-of-the-art performance on various vision tasks, including image classification, object detection, and semantic segmentation.
+- Exhibits linear computational complexity with respect to image size, making it suitable for high-resolution images.
+- Generates hierarchical feature representations, which are beneficial for dense prediction tasks requiring multi-scale context.
+- The shifted window mechanism effectively introduces cross-window connections while maintaining computational efficiency.
+- Scalable to large models and datasets, demonstrating strong generalization capabilities across diverse visual tasks.
+
+## Weaknesses
+
+- Requires substantial computational resources and large datasets for pre-training to achieve optimal performance.
+- The windowing mechanism might sometimes limit the global receptive field compared to full self-attention, potentially missing very long-range dependencies.
+- Complexity of implementation is higher than simpler convolutional neural networks, requiring careful configuration.
+- Interpretation of attention patterns can be challenging due to the shifted window mechanism and hierarchical structure.
+
+## Use Cases
+
+### Image Classification
+
+Identifying the primary subject or category within an image, such as classifying objects or scenes.
+
+### Object Detection
+
+Locating and classifying multiple objects within an image by drawing bounding boxes around them.
+
+### Semantic Segmentation
+
+Assigning a class label to every pixel in an image, delineating different regions and objects.
+
+### Instance Segmentation
+
+Detecting and segmenting each distinct object instance in an image, providing pixel-level masks for individual objects.
+
+### Medical Imaging
+
+Analyzing medical scans for diagnosis, anomaly detection, and segmentation of organs or pathologies.
+
+### Remote Sensing
+
+Processing satellite and aerial imagery for land cover classification, change detection, and environmental monitoring.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Swin Transformer from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Swin Transformer does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Swin Transformer Lab" />
+
+## References
+
+- Liu et al. (2021). Liu et al..

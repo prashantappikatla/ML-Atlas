@@ -1,0 +1,172 @@
+---
+title: "HDBSCAN"
+slug: "hdbscan"
+category: "unsupervised"
+subcategory: "clustering"
+year: 2013
+author: "Campello et al."
+paper: "Campello et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["clustering", "density-based", "hierarchical-clustering", "noise-detection", "non-parametric", "outlier-detection", "unsupervised-learning", "variable-density"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "birch"
+  - "dbscan"
+  - "gaussian-mixture-model"
+  - "hierarchical-clustering"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
+---
+
+## Overview
+
+HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a density-based clustering algorithm that extends [DBSCAN](/algorithms/unsupervised/clustering/dbscan) and [OPTICS](/algorithms/unsupervised/clustering/optics). It identifies clusters of varying densities in noisy datasets without requiring the user to specify a global density threshold. By constructing a hierarchy of clusters and then extracting a flat partition based on cluster stability, HDBSCAN effectively handles complex data distributions and identifies outliers.
+
+## History
+
+**1996** — [DBSCAN](/algorithms/unsupervised/clustering/dbscan) (Density-Based Spatial Clustering of Applications with Noise) was introduced by Ester et al., pioneering density-based clustering methods.
+
+**1999** — [OPTICS](/algorithms/unsupervised/clustering/optics) (Ordering Points To Identify the Clustering Structure) was proposed by Ankerst et al., addressing [DBSCAN](/algorithms/unsupervised/clustering/dbscan)'s limitation with varying density clusters by producing a reachability plot.
+
+**2013** — HDBSCAN was introduced by Campello, Moulavi, and Sander, building upon [OPTICS](/algorithms/unsupervised/clustering/optics) to provide a robust, parameter-free (in terms of epsilon) density-based clustering method.
+
+## Mathematical Intuition
+
+### Core Distance Definition
+
+The core distance of a point $p$ with respect to a parameter $k$ (often `min_samples`) is defined as the distance to its $k$-th nearest neighbor. This metric quantifies the local density around point $p$, with smaller core distances indicating higher density.
+$$ \text{core-dist}_k(p) = d(p, N_k(p)) $$
+where $N_k(p)$ denotes the $k$-th nearest neighbor of point $p$, and $d(p, N_k(p))$ is the standard distance (e.g., Euclidean) between $p$ and its $k$-th nearest neighbor.
+
+$$
+\text{core-dist}_k(p) = d(p, N_k(p))
+$$
+
+### Mutual Reachability Distance
+
+The mutual reachability distance between two points $a$ and $b$ is a smoothed distance metric that accounts for the density around both points. It is defined as the maximum of the core distance of $a$, the core distance of $b$, and the standard distance between $a$ and $b$. This metric effectively increases the distance between points in low-density regions while preserving distances in high-density regions.
+$$ d_{\text{mreach-k}}(a, b) = \max(\text{core-dist}_k(a), \text{core-dist}_k(b), d(a, b)) $$
+where $d(a, b)$ is the standard distance between points $a$ and $b$.
+
+$$
+d_{\text{mreach-k}}(a, b) = \max(\text{core-dist}_k(a), \text{core-dist}_k(b), d(a, b))
+$$
+
+### Hierarchy Construction and Condensation
+
+A Minimum Spanning Tree (MST) is constructed using the mutual reachability distances as edge weights. This MST captures the density-based connectivity of the data. By sorting the edges of the MST by weight and iteratively merging components, a [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) structure (dendrogram) is formed. This hierarchy is then condensed by removing points that are not part of any significant cluster (noise) and merging small clusters into their parent clusters based on the `min_cluster_size` parameter, simplifying the structure for cluster extraction.
+
+### Cluster Selection by Stability
+
+From the condensed hierarchy, HDBSCAN extracts a flat partitioning of clusters based on their 'stability'. The stability of a cluster is typically measured by integrating the inverse of the density at which the cluster 'dies' (splits into sub-clusters) over the range of densities for which it exists. The algorithm selects the set of clusters that maximizes the overall stability, effectively identifying the most persistent and significant density-based groupings in the data, with remaining points classified as noise.
+
+## Algorithm Steps
+
+1. For each data point, compute its core distance, which is the distance to its $k$-th nearest neighbor, where $k$ is `min_samples`.
+2. Compute the mutual reachability distance between all pairs of points using their core distances and the standard distance metric.
+3. Construct a Minimum Spanning Tree (MST) from the data points, where edge weights are the mutual reachability distances.
+4. Build a hierarchical clustering by sorting the edges of the MST by weight and iteratively merging components, forming a dendrogram.
+5. Condense the hierarchy by removing singleton clusters and merging small clusters into their parent clusters until a minimum cluster size (`min_cluster_size`) is met.
+6. Compute a stability score for each cluster in the condensed hierarchy, typically based on the inverse of the density at which the cluster splits.
+7. Extract the most stable clusters from the condensed hierarchy, resulting in a flat partitioning of the data, with unclustered points labeled as noise.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_cluster_size` | `int` | `5` | integer >= 2 | The minimum number of samples in a cluster for it to be considered a valid cluster. Smaller values allow for more granular clusters. |
+| `min_samples` | `int` | `None` | integer >= 1 | The number of samples in a neighborhood for a point to be considered as a core point. This also controls the 'k' in core distance. If None, defaults to `min_cluster_size`. |
+| `metric` | `str or callable` | `euclidean` | string (e.g., 'euclidean', 'manhattan', 'cosine') or callable | The distance metric to use for computing distances between points. Can be any metric supported by `scipy.spatial.distance.pdist`. |
+| `alpha` | `float` | `1.0` | float >= 0.0 | A parameter to control the relative importance of core distance versus actual distance in the mutual reachability distance calculation. Higher values increase the influence of core distance. |
+| `cluster_selection_epsilon` | `float` | `0.0` | float >= 0.0 | A distance threshold for cluster selection. Clusters below this threshold are considered noise. A value of 0.0 means no thresholding is applied. |
+| `algorithm` | `str` | `best` | 'auto', 'ball_tree', 'kd_tree', 'brute', 'best' | The algorithm to use for computing the nearest neighbors and constructing the MST. Options include 'auto', 'ball_tree', 'kd_tree', 'brute'. |
+| `leaf_size` | `int` | `40` | integer >= 1 | Leaf size for BallTree or KDTree. Affects the speed and memory of the nearest neighbor search, especially for high-dimensional data. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- HDBSCAN can discover clusters of varying densities within a single dataset, a significant advantage over algorithms like DBSCAN.
+- It automatically identifies noise points, labeling them as outliers rather than forcing them into clusters.
+- The algorithm does not require the user to specify a global density threshold (epsilon), simplifying parameter tuning.
+- It can find arbitrarily shaped clusters, making it suitable for complex data distributions.
+- The hierarchical nature of the algorithm provides insights into the data structure at different levels of density.
+- The resulting clusters are often more robust to noise and less sensitive to parameter choices than those from fixed-density methods.
+
+## Weaknesses
+
+- HDBSCAN's computational complexity can be high, especially for very large datasets, making it slower than algorithms like K-Means.
+- The choice of `min_cluster_size` and `min_samples` can significantly impact the resulting clusters, requiring careful tuning.
+- It may struggle with very high-dimensional data due to the 'curse of dimensionality,' where distance metrics become less meaningful.
+- The algorithm's performance can be sensitive to the chosen distance metric, which must be appropriate for the data.
+- Interpreting the condensed hierarchy and stability scores can be less intuitive for beginners compared to simpler clustering methods.
+
+## Use Cases
+
+### Anomaly Detection
+
+Identifying unusual patterns or outliers in transactional data, network traffic, or sensor readings for fraud detection or system monitoring.
+
+### Customer Segmentation
+
+Grouping customers with similar purchasing behaviors or demographics for targeted marketing strategies and personalized recommendations.
+
+### Geospatial Data Analysis
+
+Discovering natural groupings of geographical points, such as crime hotspots, animal migration patterns, or urban development areas.
+
+### Bioinformatics
+
+Clustering gene expression data or protein sequences to identify functional groups, disease markers, or evolutionary relationships.
+
+### Document Clustering
+
+Organizing large collections of text documents into thematic groups after converting them into numerical embeddings for information retrieval or topic modeling.
+
+### Image Segmentation
+
+Grouping pixels or image regions with similar features after feature extraction to delineate objects or areas of interest in medical imaging or remote sensing.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement HDBSCAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Hdbscan
+
+model = Hdbscan()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="HDBSCAN Lab" />
+
+## References
+
+- Campello et al. (2013). Campello et al..
+- [scikit-learn: Hdbscan](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Hdbscan.html)

@@ -1,0 +1,205 @@
+---
+title: "Gamma Regression"
+slug: "gamma-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1970
+author: "Generalized Linear Models"
+paper: "Generalized Linear Models"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["generalized-linear-model", "glm", "heteroscedasticity", "maximum-likelihood", "positive-data", "regression", "skewed-data", "statistical-model"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "linear-regression"
+  - "logistic-regression"
+  - "poisson-regression"
+  - "tweedie-regression"
+---
+
+## Overview
+
+Gamma Regression is a type of Generalized Linear Model (GLM) specifically designed to model positive, continuous, and often right-skewed response variables. It assumes that the response variable follows a Gamma distribution and uses a link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when the variance of the response variable is proportional to the square of its mean, a common characteristic of many real-world positive-valued datasets.
+
+## History
+
+**1970** — John Nelder and Robert Wedderburn published "Generalized Linear Models," laying the theoretical foundation for a broad class of statistical models, including Gamma Regression.
+
+**1972** — P. McCullagh and J.A. Nelder further developed the theory and applications of GLMs in their influential book "Generalized Linear Models," solidifying the framework.
+
+**1980** — Increased computational power and advancements in statistical software made GLMs, including Gamma Regression, more accessible for practical applications in various fields.
+
+**2000** — Continued research and refinement of GLM theory and algorithms led to more robust and efficient implementations in modern statistical packages and machine learning libraries.
+
+## Mathematical Intuition
+
+### Generalized Linear Models Framework
+
+A GLM consists of three core components: a random component specifying the probability distribution of the response variable (e.g., Gamma), a systematic component (linear predictor) $ \eta = X\beta $, and a link function $ g(\mu) = \eta $ that connects the expected value of the response $ \mu = E[Y] $ to the linear predictor. This framework allows for modeling a wide range of response types beyond normal distributions.
+
+$$
+\eta = X\beta
+$$
+
+$$
+g(\mu) = \eta
+$$
+
+$$
+\mu = E[Y]
+$$
+
+### Gamma Distribution Properties
+
+The Gamma distribution is a two-parameter continuous probability distribution defined for positive real numbers, making it suitable for strictly positive response variables. Its probability density function (PDF) is given by:$$ f(y; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} y^{\alpha-1} e^{-\beta y} \quad \text{for } y > 0 $$where $ \alpha $ is the shape parameter and $ \beta $ is the rate parameter. In the context of GLMs, it is often re-parameterized by its mean $ \mu = \frac{\alpha}{\beta} $ and variance $ Var(Y) = \frac{\alpha}{\beta^2} = \frac{\mu^2}{\alpha} $. This re-parameterization highlights that the variance is proportional to the square of the mean, a key characteristic that Gamma Regression can model.
+
+$$
+f(y; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} y^{\alpha-1} e^{-\beta y}
+$$
+
+$$
+y > 0
+$$
+
+$$
+\mu = \frac{\alpha}{\beta}
+$$
+
+$$
+Var(Y) = \frac{\alpha}{\beta^2} = \frac{\mu^2}{\alpha}
+$$
+
+### Link Functions for Gamma
+
+The link function $ g(\mu) $ transforms the expected value of the response $ \mu $ to the linear predictor $ \eta $. For the Gamma distribution, the canonical link function is the inverse link, $ g(\mu) = 1/\mu $. However, the log link, $ g(\mu) = \log(\mu) $, is more commonly used in practice. The log link ensures that the predicted mean $ \mu = e^\eta $ is always positive, which is consistent with the domain of the Gamma distribution, and often provides more interpretable coefficients.
+
+$$
+g(\mu) = 1/\mu
+$$
+
+$$
+g(\mu) = \log(\mu)
+$$
+
+$$
+\mu = e^\eta
+$$
+
+### Parameter Estimation via MLE
+
+The model parameters $ \beta $ (regression coefficients) are typically estimated using Maximum Likelihood Estimation (MLE). This involves finding the values of $ \beta $ that maximize the likelihood function, which is the product of the Gamma probability density functions for all observed responses given the predictors. Since the likelihood equations are generally non-linear, an iterative optimization algorithm, such as Iteratively Reweighted Least Squares (IRLS), is commonly employed to find the optimal coefficients.
+
+## Algorithm Steps
+
+1. Specify the Gamma distribution as the random component for the response variable $ Y $, assuming $ Y > 0 $.
+2. Define the systematic component (linear predictor) as $ \eta = \beta_0 + \beta_1 x_1 + \dots + \beta_p x_p $.
+3. Choose a link function $ g(\mu) $ (e.g., log link $ g(\mu) = \log(\mu) $ or inverse link $ g(\mu) = 1/\mu $) to connect the expected value $ \mu = E[Y] $ to the linear predictor $ \eta $.
+4. Formulate the likelihood function based on the Gamma probability density function for all observations.
+5. Use an iterative optimization algorithm, such as Iteratively Reweighted Least Squares (IRLS), to find the regression coefficients $ \beta $ that maximize the likelihood function.
+6. Iterate until the change in coefficients or likelihood falls below a specified tolerance or a maximum number of iterations is reached.
+7. The final estimated coefficients $ \hat{\beta} $ define the Gamma Regression model, allowing for predictions of the mean response.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | float, non-negative | Constant that multiplies the L2 penalty term. The higher the alpha, the stronger the regularization. alpha must be a non-negative float. |
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations (i.e. data is expected to be centered). |
+| `max_iter` | `int` | `100` | integer > 0 | The maximum number of iterations for the solver to converge. |
+| `tol` | `float` | `1e-4` | float > 0 | The tolerance for the stopping criterion. The algorithm will stop when the change in coefficients or likelihood falls below this value. |
+| `warm_start` | `bool` | `False` | True, False | When set to True, reuse the solution of the previous call to fit as initialization for the next call. This can speed up convergence for sequences of fits. |
+| `verbose` | `int` | `0` | integer >= 0 | For the 'lbfgs' solver, verbose will output the progress of the optimization. Higher values increase verbosity. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It effectively models positive, continuous response variables that exhibit right-skewness and heteroscedasticity.
+- The model naturally handles situations where the variance of the response increases with its mean, specifically when variance is proportional to the squared mean.
+- Coefficients can be interpreted in terms of multiplicative effects on the mean response when using a log link function.
+- It provides a statistically sound framework for data where traditional Ordinary Least Squares (OLS) assumptions are violated.
+- The model's predictions are guaranteed to be positive, which is appropriate for many real-world quantities.
+- It is robust to the exact shape of the Gamma distribution, as long as the mean-variance relationship holds.
+
+## Weaknesses
+
+- The assumption that the response variable follows a Gamma distribution might not hold for all datasets, leading to poor model fit.
+- It can be sensitive to outliers, especially those with very small values, which can disproportionately influence parameter estimates.
+- Convergence issues can arise during the iterative parameter estimation process, particularly with poorly scaled data or highly correlated predictors.
+- Interpreting coefficients with non-canonical link functions can be less straightforward than with a simple linear model.
+- The model requires the response variable to be strictly positive; zero values must be handled separately or transformed.
+
+## Use Cases
+
+### Insurance
+
+Modeling the total cost of claims or the amount of individual claims, which are typically positive, continuous, and right-skewed.
+
+### Finance
+
+Predicting credit loss amounts, duration of financial transactions, or asset returns, where values are positive and often have a heavy tail.
+
+### Environmental Science
+
+Analyzing pollutant concentrations, rainfall amounts, or species abundance, which are non-negative and often exhibit skewed distributions.
+
+### Healthcare
+
+Estimating hospital stay durations, medical expenditure, or drug dosage effects, where values are positive and can vary widely.
+
+### Economics
+
+Modeling income distribution, sales revenue, or economic growth rates, which are positive and often right-skewed.
+
+### Reliability Engineering
+
+Predicting the lifetime of components or systems, which are positive continuous variables often following a Gamma-like distribution.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gamma Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import GammaRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GammaRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gamma Regression Lab" />
+
+## References
+
+- Generalized Linear Models (1970). Generalized Linear Models.
+- [scikit-learn: GammaRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.GammaRegression.html)

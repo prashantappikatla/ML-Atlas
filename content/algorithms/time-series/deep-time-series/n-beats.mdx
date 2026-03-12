@@ -1,0 +1,168 @@
+---
+title: "N-BEATS"
+slug: "n-beats"
+category: "time-series"
+subcategory: "deep-time-series"
+year: 2019
+author: "Oreshkin et al."
+paper: "Oreshkin et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["basis-functions", "deep-learning", "interpretable-ml", "neural-networks", "residual-connections", "time-series-forecasting", "univariate-forecasting"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "deepar"
+  - "prophet"
+  - "recurrent-neural-network"
+  - "stacking"
+  - "temporal-fusion-transformer"
+  - "transformer"
+---
+
+## Overview
+
+N-BEATS (Neural Basis Expansion Analysis for interpretable Time Series forecasting) is a deep neural network architecture designed for univariate time series forecasting, achieving state-of-the-art performance on various benchmarks. It employs a novel block-[Stacking](/algorithms/supervised/classification/stacking) architecture with double residual connections and learnable basis functions, enabling both high accuracy and a degree of interpretability. The model decomposes the time series into trend and seasonality components, processing them through distinct pathways.
+
+## History
+
+**2019** — Boris N. Oreshkin, Dmitri Carpov, Nicolas Chapados, and Yoshua Bengio introduced N-BEATS in their paper 'N-BEATS: Neural Basis Expansion Analysis for Interpretable Time Series Forecasting,' demonstrating its superior performance on M3 and M4 forecasting competitions.
+
+**2020** — The N-BEATS architecture gained significant attention within the time series forecasting community, leading to its adoption and implementation in various open-source libraries, such as Darts and PyTorch Forecasting.
+
+**2021** — Extensions and variants of N-BEATS, such as N-HiTS (Neural Hierarchical Interpolation for Time Series Forecasting), were proposed, further improving its efficiency and performance for long-horizon forecasting by introducing hierarchical interpolation and multi-rate sampling.
+
+## Mathematical Intuition
+
+### Block-Stacking Architecture
+
+N-BEATS is built upon a deep stack of fully-connected layers organized into 'blocks.' Each block takes an input time series and produces two outputs: a 'backward' forecast (representing the historical input that the block attempts to explain) and a 'forward' forecast (the actual prediction for future time steps). The core idea is that each block learns to extract specific patterns (e.g., trend, seasonality) from the input, and the residual of this extraction is passed to the next block. This allows for a hierarchical decomposition of the time series signal. The overall forecast is the sum of the forward forecasts from all blocks.
+
+### Learnable Basis Functions
+
+Within each block, the output of the fully-connected layers is transformed into a forecast using a set of learnable basis functions. Specifically, a block's output is a set of coefficients $\theta_{b,k}$ for the $k$-th basis function in block $b$. These coefficients are then multiplied by the basis functions to reconstruct the backward and forward forecasts. For a block $b$, the backward forecast $x_{b,back}$ and forward forecast $x_{b,fore}$ are generated as: $$x_{b,back} = B_{back} \theta_b$$ $$x_{b,fore} = B_{fore} \theta_b$$ where $B_{back}$ and $B_{fore}$ are matrices representing the learnable basis functions for the backward and forward steps, respectively. This allows the network to learn flexible, data-driven representations of time series components.
+
+$$
+x_{b,back} = B_{back} \theta_b
+$$
+
+$$
+x_{b,fore} = B_{fore} \theta_b
+$$
+
+### Double Residual Connections
+
+N-BEATS employs two types of residual connections to enhance training stability and performance. First, within each block, a residual connection ensures that the input to the block is added back to its output before being passed to the next layer, preventing vanishing gradients. Second, and more critically, a global residual connection operates between blocks. The input to a block $b$ is the residual from the previous block $b-1$. If $x_{in}$ is the initial input series, and $x_{b,back}$ is the backward forecast from block $b$, then the input to block $b+1$ is $x_{in} - \sum_{i=1}^b x_{i,back}$. This mechanism forces each subsequent block to model the unexplained variance from previous blocks, leading to a robust decomposition of the time series. The final forecast is the sum of all forward forecasts: $F = \sum_{b=1}^L x_{b,fore}$.
+
+$$
+F = \sum_{b=1}^L x_{b,fore}
+$$
+
+## Algorithm Steps
+
+1. Initialize the N-BEATS model with a specified number of stacks, blocks per stack, layers per block, and hidden units.
+2. Prepare the time series data by creating input-output pairs $(X_t, Y_t)$, where $X_t$ is the lookback window and $Y_t$ is the forecast horizon.
+3. Feed the input $X_t$ into the first block of the first stack.
+4. Within each block, pass the input through a series of fully-connected layers, followed by activation functions.
+5. Transform the output of the fully-connected layers into coefficients $\theta$ for the learnable basis functions.
+6. Use the basis functions and coefficients to generate a backward forecast (explaining the input) and a forward forecast (predicting the future).
+7. Subtract the backward forecast from the block's input to compute a residual, which is then passed as input to the next block in the stack.
+8. Sum the forward forecasts from all blocks across all stacks to obtain the final prediction for $Y_t$.
+9. Calculate the loss (e.g., Mean Squared Error) between the predicted $Y_t$ and the actual $Y_t$, and update model weights using backpropagation and an optimizer.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_stacks` | `int` | `30` | integer > 0 | The number of stacks of blocks in the N-BEATS architecture. Each stack processes the residual from the previous one. |
+| `num_blocks_per_stack` | `int` | `1` | integer > 0 | The number of blocks within each stack. Each block contributes to the overall forecast. |
+| `num_layers_per_block` | `int` | `4` | integer > 0 | The number of fully-connected layers within each block. |
+| `hidden_layer_units` | `int` | `256` | integer > 0 | The number of units (neurons) in each hidden layer within a block. |
+| `lookback_window` | `int` | `24` | integer > 0 | The number of past time steps used as input for forecasting. |
+| `forecast_window` | `int` | `12` | integer > 0 | The number of future time steps to predict. |
+| `learning_rate` | `float` | `0.001` | float > 0 and < 1 | The step size used by the optimizer during training. |
+| `batch_size` | `int` | `32` | integer > 0 | The number of samples processed in each training iteration. |
+| `epochs` | `int` | `100` | integer > 0 | The total number of times the entire training dataset is passed forward and backward through the neural network. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- N-BEATS achieves state-of-the-art forecasting accuracy on various real-world time series datasets, often outperforming traditional statistical and other deep learning models.
+- The architecture's block-stacking and residual connections allow for a degree of interpretability by decomposing the forecast into trend and seasonality components.
+- It is a purely data-driven model that does not require manual feature engineering or prior assumptions about the time series patterns.
+- N-BEATS can effectively handle complex non-linear relationships and long-term dependencies within time series data.
+- The model is robust to different types of time series, including those with varying frequencies and scales, without significant architectural changes.
+- Its modular design allows for flexible scaling and adaptation to different forecasting horizons and lookback windows.
+
+## Weaknesses
+
+- Training N-BEATS models can be computationally intensive and time-consuming, especially for very long time series or large datasets, due to its deep architecture.
+- The model requires a substantial amount of historical data to learn effective basis functions and patterns, making it less suitable for very short or sparse time series.
+- Hyperparameter tuning for N-BEATS can be complex, involving parameters like the number of stacks, blocks, layers, and units, which significantly impact performance.
+- While offering some interpretability, the learned basis functions can still be abstract and challenging to fully understand compared to explicit statistical models.
+- N-BEATS is primarily designed for univariate time series; extending it to multivariate forecasting often requires more complex adaptations or separate models for each series.
+
+## Use Cases
+
+### Retail and E-commerce
+
+Forecasting product demand, sales volumes, and inventory levels to optimize supply chains and reduce stockouts or overstocking.
+
+### Finance
+
+Predicting stock prices, cryptocurrency movements, and market indices for algorithmic trading strategies and risk management.
+
+### Energy
+
+Forecasting electricity consumption, renewable energy generation, and utility demand to optimize grid operations and resource allocation.
+
+### Healthcare
+
+Predicting patient admissions, disease outbreaks, and medical resource demand to improve hospital management and public health planning.
+
+### Manufacturing
+
+Forecasting equipment failures, production output, and raw material needs to enable predictive maintenance and efficient production scheduling.
+
+### Transportation
+
+Predicting traffic flow, public transport ridership, and flight delays to optimize logistics, route planning, and service delivery.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement N-BEATS from scratch
+```
+
+### Using scikit-learn
+
+```python
+# N-BEATS does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="N-BEATS Lab" />
+
+## References
+
+- Oreshkin et al. (2019). Oreshkin et al..

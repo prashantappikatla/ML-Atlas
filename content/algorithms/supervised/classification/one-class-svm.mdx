@@ -1,0 +1,239 @@
+---
+title: "One-Class SVM"
+slug: "one-class-svm"
+category: "supervised"
+subcategory: "classification"
+year: 2001
+author: "Sch�lkopf et al."
+paper: "Sch�lkopf et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["anomaly-detection", "classification", "density-estimation", "kernel-methods", "novelty-detection", "outlier-detection", "support-vector-machine", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dbscan"
+  - "elliptic-envelope"
+  - "gaussian-mixture-model"
+  - "isolation-forest"
+  - "kernel-pca"
+  - "local-outlier-factor"
+  - "support-vector-machine"
+---
+
+## Overview
+
+One-Class [Support Vector Machine](/algorithms/supervised/classification/support-vector-machine) (OCSVM) is an unsupervised algorithm primarily used for novelty detection, identifying observations that deviate significantly from the majority of the training data. It works by learning a decision boundary that encapsulates the "normal" data points, effectively separating them from the origin in a high-dimensional feature space. This method is particularly useful when only examples of the normal class are available for training, making it suitable for anomaly detection tasks.
+
+## History
+
+**2001** — Bernhard Schölkopf, John C. Platt, Jason Shawe-Taylor, Alex J. Smola, and Robert C. Williamson introduced the One-Class SVM algorithm in their paper "Estimating the Support of a High-Dimensional Distribution," laying the theoretical foundation for its use in novelty detection.
+
+**2004** — The LIBSVM library, developed by Chih-Chung Chang and Chih-Jen Lin, was released, providing an efficient and widely adopted implementation of various SVM algorithms, including One-Class SVM, making it accessible to a broader research and development community.
+
+**2007** — The initial release of scikit-learn, a popular machine learning library in Python, included an implementation of One-Class SVM, significantly contributing to its widespread adoption and practical application in various domains.
+
+## Mathematical Intuition
+
+### Separating Data from Origin
+
+The fundamental concept of One-Class SVM is to find a hyperplane that separates all training data points from the origin with a maximal margin in a high-dimensional feature space. This hyperplane defines a region that encloses the 'normal' data, with points outside this region considered anomalies. The primal optimization problem aims to minimize the norm of the weight vector $w$ while ensuring all data points lie on one side of the hyperplane, allowing for some slack.
+
+$$
+$$ \min_{w, \xi, \rho} \frac{1}{2} \|w\|^2 + \frac{1}{\nu n} \sum_{i=1}^n \xi_i - \rho $$
+$$
+
+$$
+subject to
+$$
+
+$$
+$$ (w \cdot \phi(x_i)) \ge \rho - \xi_i \quad \forall i $$
+$$
+
+$$
+$$ \xi_i \ge 0 \quad \forall i $$
+$$
+
+$$
+Here, $w$ is the normal vector to the hyperplane, $\rho$ is the offset, $\phi(x_i)$ maps data point $x_i$ to the feature space, $\xi_i$ are slack variables allowing some points to be on the 'wrong' side of the hyperplane, $n$ is the number of training samples, and $\nu \in (0, 1]$ is a parameter controlling the trade-off between the number of support vectors and the number of training errors.
+$$
+
+### Lagrangian and Dual Problem
+
+To solve the primal optimization problem, Lagrange multipliers $\alpha_i \ge 0$ and $\beta_i \ge 0$ are introduced for the constraints. By forming the Lagrangian and setting its derivatives with respect to $w$, $\rho$, and $\xi_i$ to zero, we derive the conditions for optimality. Substituting these conditions back into the Lagrangian yields the dual optimization problem, which is typically easier to solve and allows for the application of the kernel trick.
+
+$$
+$$ L(w, \rho, \xi, \alpha, \beta) = \frac{1}{2} \|w\|^2 + \frac{1}{\nu n} \sum_{i=1}^n \xi_i - \rho - \sum_{i=1}^n \alpha_i ((w \cdot \phi(x_i)) - \rho + \xi_i) - \sum_{i=1}^n \beta_i \xi_i $$
+$$
+
+$$
+Setting derivatives to zero yields:
+$$
+
+$$
+$$ w = \sum_{i=1}^n \alpha_i \phi(x_i) $$
+$$
+
+$$
+$$ \sum_{i=1}^n \alpha_i = 1 $$
+$$
+
+$$
+$$ \alpha_i = \frac{1}{\nu n} - \beta_i $$
+$$
+
+$$
+The dual problem becomes:
+$$
+
+$$
+$$ \min_{\alpha} \frac{1}{2} \sum_{i=1}^n \sum_{j=1}^n \alpha_i \alpha_j K(x_i, x_j) $$
+$$
+
+$$
+subject to
+$$
+
+$$
+$$ 0 \le \alpha_i \le \frac{1}{\nu n} \quad \forall i $$
+$$
+
+$$
+$$ \sum_{i=1}^n \alpha_i = 1 $$
+$$
+
+$$
+where $K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)$ is the kernel function, enabling computations in the high-dimensional feature space without explicitly mapping the data.
+$$
+
+### Decision Function Formulation
+
+Once the dual problem is solved and the optimal Lagrange multipliers $\alpha_i$ are obtained, the decision function for classifying a new data point $x$ can be constructed. This function determines whether $x$ lies within the learned 'normal' region or outside it, classifying it as an anomaly. The threshold $\rho$ is crucial for defining the boundary.
+
+$$
+The decision function for a new data point $x$ is given by:
+$$
+
+$$
+$$ f(x) = \text{sgn}\left( \sum_{i=1}^n \alpha_i K(x_i, x) - \rho \right) $$
+$$
+
+$$
+The threshold $\rho$ can be determined by selecting any support vector $x_k$ for which $0 < \alpha_k < \frac{1}{\nu n}$, and setting $\rho = w \cdot \phi(x_k) = \sum_{i=1}^n \alpha_i K(x_i, x_k)$. A new data point $x$ is classified as normal if $f(x) \ge 0$ and as an outlier if $f(x) < 0$.
+$$
+
+## Algorithm Steps
+
+1. Prepare the training data, which consists solely of 'normal' examples, ensuring it is scaled appropriately.
+2. Choose a kernel function $K(x_i, x_j)$ (e.g., RBF, linear, polynomial) to implicitly map data into a higher-dimensional feature space.
+3. Select the hyperparameter $\nu \in (0, 1]$, which sets an upper bound on the fraction of training errors and a lower bound on the fraction of support vectors.
+4. Formulate the quadratic programming problem to find the optimal hyperplane that separates the data from the origin with the largest margin.
+5. Solve the dual optimization problem to find the Lagrange multipliers $\alpha_i$ for each training data point.
+6. Compute the offset $\rho$ using any support vector $x_k$ for which $0 < \alpha_k < \frac{1}{\nu n}$.
+7. Construct the decision function $f(x) = \sum_{i=1}^n \alpha_i K(x_i, x) - \rho$.
+8. For a new data point $x$, evaluate $f(x)$; if $f(x) \ge 0$, it is classified as normal, otherwise as an anomaly.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `string` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | Specifies the kernel type to be used in the algorithm's decision function. |
+| `nu` | `float` | `0.5` | (0, 1] | An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. It must be in the interval (0, 1]. |
+| `gamma` | `string or float` | `scale` | 'scale', 'auto', or positive float | Kernel coefficient for 'rbf', 'poly' and 'sigmoid' kernels. If 'scale', it uses $1 / (n_{features} \cdot X.var())$ as value. If 'auto', it uses $1 / n_{features}$. |
+| `coef0` | `float` | `0.0` | any float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion of the optimization solver. |
+| `shrinking` | `boolean` | `true` | true, false | Whether to use the shrinking heuristic during the optimization process. |
+| `cache_size` | `float` | `200.0` | positive float | Specify the size of the kernel cache (in MB) to store kernel computations. |
+| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within the solver, or -1 for no limit. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- One-Class SVM is effective in high-dimensional spaces, especially when utilizing non-linear kernels to capture complex data structures.
+- It can detect anomalies even when only examples of the normal class are available for training, which is common in many real-world anomaly detection scenarios.
+- The $\nu$ parameter provides a direct and interpretable control over the expected fraction of outliers in the training data.
+- The algorithm is robust to noise in the normal data due to the inclusion of slack variables, allowing some points to be misclassified.
+- The kernel trick allows it to capture complex, non-linear boundaries between normal and anomalous data without explicitly transforming the feature space.
+
+## Weaknesses
+
+- Performance can be highly sensitive to the choice of kernel and its hyperparameters, particularly $\nu$ and $\gamma$, requiring careful tuning.
+- Training time can be computationally expensive for very large datasets due to the quadratic programming nature of the optimization problem.
+- It assumes that anomalies are distinct from the normal data and lie outside the learned boundary, which may not always hold true in complex datasets.
+- The algorithm can struggle if the 'normal' class itself has multiple distinct modes or is not well-represented by the available training data.
+- Interpreting the decision boundary in the original feature space can be challenging, especially when non-linear kernels are employed.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying unusual financial transactions that deviate significantly from typical customer spending patterns, indicating potential fraudulent activity.
+
+### Network Intrusion Detection
+
+Detecting anomalous network traffic patterns or system calls that may indicate cyberattacks, malware, or unauthorized access attempts.
+
+### Manufacturing Quality Control
+
+Spotting defective products on an assembly line by identifying deviations from standard product specifications or expected sensor readings.
+
+### Medical Anomaly Detection
+
+Flagging unusual patient readings, medical images, or physiological signals that might indicate a rare disease, an adverse event, or an equipment malfunction.
+
+### System Health Monitoring
+
+Detecting abnormal behavior in server logs, sensor data from machinery, or application performance metrics to predict system failures or performance degradation.
+
+### Environmental Monitoring
+
+Identifying unusual environmental readings, such as pollution levels or climate data, that deviate from expected norms and could signal environmental issues.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement One-Class SVM from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.svm import OneClassSVM
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = OneClassSVM()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="One-Class SVM Lab" />
+
+## References
+
+- Sch�lkopf et al. (2001). Sch�lkopf et al..
+- [scikit-learn: OneClassSVM](https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html)

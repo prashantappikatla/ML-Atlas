@@ -1,0 +1,183 @@
+---
+title: "Decision Tree Classifier"
+slug: "decision-tree-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 1984
+author: "Breiman � CART"
+paper: "Breiman � CART"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "decision-tree", "feature-selection", "greedy-algorithm", "interpretability", "non-parametric", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "extra-trees-classifier"
+  - "gradient-boosting-classifier"
+  - "random-forest-classifier"
+---
+
+## Overview
+
+Decision Tree Classifier is a non-parametric supervised learning method used for classification tasks. It partitions the feature space into a set of rectangular regions, assigning a class label to each region based on the majority class of the training samples falling within it. The algorithm constructs a tree-like model of decisions, where each internal node represents a test on an attribute, each branch represents an outcome of the test, and each leaf node represents a class label. This structure makes decision trees highly interpretable and easy to visualize.
+
+## History
+
+**1963** — J.N. Morgan and J.A. Sonquist introduce AID (Automatic Interaction Detection), an early precursor to decision trees, laying foundational concepts for recursive partitioning.
+
+**1970** — Gordon V. Kass develops CHAID (Chi-squared Automatic Interaction Detector), which uses chi-squared tests to determine optimal splits, particularly useful for categorical predictors.
+
+**1979** — J. Ross Quinlan introduces ID3 (Iterative Dichotomiser 3), a decision tree algorithm that uses information gain to select splitting attributes, significantly advancing the field.
+
+**1984** — Leo Breiman, Jerome Friedman, Richard Olshen, and Charles Stone publish "Classification and Regression Trees (CART)", a seminal work introducing a comprehensive framework for decision tree construction, including pruning and handling both classification and regression tasks.
+
+**1993** — J. Ross Quinlan publishes C4.5, an extension of ID3 that handles both continuous and discrete attributes, missing values, and pruning, becoming a widely adopted standard.
+
+**2001** — Leo Breiman introduces Random Forests, an ensemble method that combines multiple decision trees to improve accuracy and reduce overfitting, building upon the foundational decision tree concept.
+
+## Mathematical Intuition
+
+### Recursive Partitioning Principle
+
+Decision Tree Classifiers operate by recursively partitioning the input feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively selects the "best" feature and split point to divide the data into two or more subsets. This process continues until a stopping criterion is met, such as reaching a maximum depth or having a sufficiently pure node. Each split aims to maximize the homogeneity of the target variable within the resulting child nodes.
+
+### Measuring Node Impurity
+
+To determine the "best" split, decision trees quantify the impurity or heterogeneity of a node. Two common measures for classification are Gini impurity and entropy. Gini impurity for a node $m$ with $C$ classes is defined as:$$I_G(m) = 1 - \sum_{i=1}^{C} (p_{i,m})^2$$where $p_{i,m}$ is the proportion of samples belonging to class $i$ at node $m$. A Gini impurity of 0 indicates a perfectly pure node (all samples belong to one class). Entropy for a node $m$ is defined as:$$H(m) = - \sum_{i=1}^{C} p_{i,m} \log_2(p_{i,m})$$where $p_{i,m}$ is the proportion of samples belonging to class $i$ at node $m$. An entropy of 0 indicates a perfectly pure node.
+
+$$
+I_G(m) = 1 - \sum_{i=1}^{C} (p_{i,m})^2
+$$
+
+$$
+H(m) = - \sum_{i=1}^{C} p_{i,m} \log_2(p_{i,m})
+$$
+
+### Splitting Criterion: Information Gain
+
+The algorithm selects the feature and split point that results in the greatest reduction in impurity, often referred to as Information Gain (when using entropy) or Gini Gain (when using Gini impurity). Information Gain for a split on feature $A$ is calculated as:$$IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)$$where $S$ is the parent node's dataset, $S_v$ is the subset for value $v$ of feature $A$, $|S|$ and $|S_v|$ are the number of samples in $S$ and $S_v$ respectively, and $H$ is the entropy. The split that maximizes this gain is chosen.
+
+$$
+IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)
+$$
+
+### Stopping Conditions for Growth
+
+The recursive partitioning process continues until certain stopping conditions are met to prevent overfitting and ensure practical tree size. Common conditions include reaching a maximum tree depth ($max\_depth$), having a minimum number of samples required to split an internal node ($min\_samples\_split$), or having a minimum number of samples required to be at a leaf node ($min\_samples\_leaf$). If a node becomes perfectly pure (all samples belong to the same class), further splitting is unnecessary.
+
+## Algorithm Steps
+
+1. Start with the entire training dataset at the root node of the tree.
+2. For each feature, evaluate all possible split points to determine the best split that maximizes the reduction in impurity (e.g., Gini gain or information gain).
+3. Select the feature and split point that yields the highest impurity reduction.
+4. Create child nodes based on the chosen split, partitioning the dataset according to the split criterion.
+5. Recursively repeat steps 2-4 for each new child node, using only the data subset assigned to that node.
+6. Continue the recursive partitioning until a stopping condition is met, such as reaching a maximum tree depth, a minimum number of samples per node, or when a node becomes perfectly pure.
+7. Assign a class label to each leaf node based on the majority class of the training samples within that node.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `criterion` | `str` | `gini` | {"gini", "entropy"} | The function to measure the quality of a split. Supported criteria are "gini" for Gini impurity and "entropy" for information gain. |
+| `splitter` | `str` | `best` | {"best", "random"} | The strategy used to choose the split at each node. "best" chooses the best split, while "random" chooses the best random split. |
+| `max_depth` | `int or None` | `None` | integer >= 1 or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `int or float` | `2` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. If int, then consider min_samples_split as the minimum number. If float, then min_samples_split is a fraction and ceil(min_samples_split * n_samples) are the minimum number of samples for each split. |
+| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least min_samples_leaf training samples in each of the left and right branches. |
+| `min_weight_fraction_leaf` | `float` | `0.0` | float in [0.0, 0.5] | The minimum weighted fraction of the sum total of weights (all the input samples) required to be at a leaf node. Samples have equal weight when sample_weight is not provided. |
+| `max_features` | `int, float, str or None` | `None` | integer >= 1, float in (0.0, 1.0], {"auto", "sqrt", "log2", None} | The number of features to consider when looking for the best split. If int, consider max_features features at each split. If float, max_features is a fraction and int(max_features * n_features) features are considered. If "auto", "sqrt", or "log2", specific calculations are used. If None, all features are considered. |
+| `random_state` | `int or RandomState instance or None` | `None` | integer >= 0 or None | Controls the randomness of the estimator. The features are always randomly permuted at each split when splitter is "random". When max_features < n_features, the algorithm will randomly sample max_features at each split. |
+| `max_leaf_nodes` | `int or None` | `None` | integer >= 2 or None | Grow a tree with max_leaf_nodes in a best-first fashion. Best nodes are defined as relative reduction in impurity. If None then unlimited number of leaf nodes. |
+| `class_weight` | `dict, list of dicts, "balanced" or None` | `None` | dict, list of dicts, "balanced", or None | Weights associated with classes in the form {class_label: weight}. If None, all classes are supposed to have weight one. The "balanced" mode uses the values of y to automatically adjust weights inversely proportional to class frequencies. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Decision trees are highly interpretable and easy to understand, making their decision-making process transparent.
+- They can handle both numerical and categorical data without extensive preprocessing like feature scaling.
+- The model can capture non-linear relationships between features and the target variable.
+- Decision trees implicitly perform feature selection by prioritizing features that are most effective for splitting.
+- The training and prediction phases are relatively fast, especially for well-pruned trees.
+- They can handle multi-output problems, predicting multiple target variables simultaneously.
+
+## Weaknesses
+
+- Decision trees are prone to overfitting, especially when they are deep and complex, leading to poor generalization on unseen data.
+- They can be unstable; small variations in the training data can lead to a completely different tree structure.
+- The greedy nature of the splitting process does not guarantee a globally optimal tree, as it makes locally optimal decisions at each step.
+- Decision trees can be biased towards features with more levels or categories, as these features offer more potential split points.
+- They can struggle with imbalanced datasets, potentially creating biased trees if class weights are not handled.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Classifying diseases based on patient symptoms, test results, and medical history to aid in diagnostic processes.
+
+### Credit Risk Assessment
+
+Determining the creditworthiness of loan applicants based on financial history, income, and personal attributes to mitigate lending risks.
+
+### Customer Churn Prediction
+
+Identifying customers likely to discontinue a service based on usage patterns, demographic data, and interaction history to enable proactive retention strategies.
+
+### Fraud Detection
+
+Flagging suspicious transactions or activities in financial or insurance industries by analyzing patterns indicative of fraudulent behavior.
+
+### Marketing Campaign Optimization
+
+Segmenting customers to target specific groups with tailored marketing messages, improving campaign effectiveness and return on investment.
+
+### Quality Control
+
+Classifying manufactured products as defective or non-defective based on various production parameters to ensure product quality and reduce waste.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Decision Tree Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = DecisionTreeClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Decision Tree Classifier Lab" />
+
+## References
+
+- Breiman � CART (1984). Breiman � CART.
+- [scikit-learn: DecisionTreeClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)

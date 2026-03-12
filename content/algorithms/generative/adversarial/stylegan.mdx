@@ -1,0 +1,171 @@
+---
+title: "StyleGAN"
+slug: "stylegan"
+category: "generative"
+subcategory: "adversarial"
+year: 2018
+author: "Karras et al."
+paper: "Karras et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "deep-learning", "disentanglement", "generative-adversarial-network", "high-resolution", "image-synthesis", "style-transfer", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "conditional-gan"
+  - "perceptron"
+---
+
+## Overview
+
+StyleGAN is a generative adversarial network architecture that achieves state-of-the-art results in synthesizing highly realistic images, particularly human faces. It introduces a style-based generator that disentangles high-level attributes from stochastic variations, offering intuitive control over the generated image's features at different scales. This architecture significantly improves the quality and controllability of generated imagery compared to previous GAN models.
+
+## History
+
+**2014** — Generative Adversarial Networks (GANs) were introduced by Ian Goodfellow et al., establishing the adversarial training framework for generative models.
+
+**2017** — Progressive Growing of GANs (ProGAN) by Karras et al. demonstrated training high-resolution image generators by progressively increasing resolution during training, leading to stable training and high-quality outputs.
+
+**2018** — StyleGAN (StyleGAN1) by Karras et al. introduced a novel style-based generator architecture, building upon ProGAN, to achieve unprecedented image realism and disentangled control over latent factors.
+
+**2019** — StyleGAN2 by Karras et al. improved upon StyleGAN1 by redesigning the generator and discriminator, removing characteristic artifacts, and enhancing perceptual quality.
+
+**2020** — StyleGAN3 by Karras et al. addressed aliasing artifacts inherent in previous StyleGAN versions by proposing an alias-free architecture, further improving image quality and enabling better animation.
+
+## Mathematical Intuition
+
+### Mapping Network for Disentanglement
+
+A key innovation is the mapping network $f: \mathcal{Z} \to \mathcal{W}$, which transforms an initial latent code $z \in \mathcal{Z}$ (typically sampled from a normal distribution) into an intermediate latent code $w \in \mathcal{W}$. This mapping network, often a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron), aims to disentangle the latent space, making $w$ less entangled than $z$ and thus more suitable for controlling styles.
+
+$$
+w = f(z)
+$$
+
+### Adaptive Instance Normalization (AdaIN)
+
+The intermediate latent code $w$ controls the "style" of the generated image at different resolutions through Adaptive Instance Normalization (AdaIN) layers. For a feature map $x_i$ at layer $i$, AdaIN normalizes its mean and variance per channel, then scales and shifts it using learned affine transformations derived from $w$. This allows $w$ to control the stylistic features like pose, identity, and color.
+
+$$
+\text{AdaIN}(x_i, y) = y_{s,i} \frac{x_i - \mu(x_i)}{\sigma(x_i)} + y_{b,i}
+$$
+
+### Per-Pixel Noise Injection
+
+StyleGAN injects per-pixel Gaussian noise directly into the synthesis network at multiple resolutions. This noise is added after each convolution and before the AdaIN operation. The purpose of noise injection is to provide stochastic variation, such as fine details like hair strands, freckles, or water droplets, without affecting the high-level attributes controlled by the style vector $w$.
+
+$$
+x'_{i} = x_i + \text{noise}_i \cdot A_i
+$$
+
+### Progressive Growing Strategy
+
+Inherited from ProGAN, StyleGAN trains its generator and discriminator progressively, starting with low-resolution images (e.g., $4 \times 4$) and gradually adding new layers to increase the resolution (e.g., $8 \times 8, 16 \times 16, \dots, 1024 \times 1024$). This technique stabilizes training and allows the network to learn coarse features before fine details, leading to high-quality, high-resolution outputs.
+
+## Algorithm Steps
+
+1. Initialize a mapping network $f$ and a synthesis network $g$, along with a discriminator $D$.
+2. Start training at the lowest resolution (e.g., $4 \times 4$) for both the generator and discriminator.
+3. Sample a latent vector $z$ from a normal distribution.
+4. Pass $z$ through the mapping network $f$ to obtain the intermediate latent vector $w = f(z)$.
+5. Generate an image by passing a constant learned tensor through the synthesis network $g$, where $w$ controls the style at each layer via AdaIN, and per-pixel noise is injected at multiple resolutions.
+6. Train the discriminator $D$ to distinguish between generated images and real images from the dataset.
+7. Train the generator $G$ (composed of $f$ and $g$) to produce images that fool the discriminator $D$.
+8. Periodically, smoothly fade in new layers to increase the resolution of both the generator and discriminator, continuing the adversarial training process.
+9. Apply regularization techniques, such as R1 regularization for the discriminator, to stabilize training and improve output quality.
+10. Repeat steps 3-9 until the desired maximum resolution and training convergence are achieved.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `latent_dim` | `integer` | `512` | positive integer | Dimensionality of the input latent vector $z$ sampled from a normal distribution. |
+| `w_dim` | `integer` | `512` | positive integer | Dimensionality of the intermediate disentangled latent vector $w$ produced by the mapping network. |
+| `mapping_layers` | `integer` | `8` | positive integer, typically 8-14 | Number of fully connected layers in the mapping network $f$ that transforms $z$ to $w$. |
+| `resolution` | `integer` | `1024` | power of 2, e.g., 256, 512, 1024 | Target output resolution of the generated images (e.g., 1024 for $1024 \times 1024$ images). |
+| `learning_rate_g` | `float` | `0.002` | positive float | Learning rate for the generator's optimizer (e.g., Adam). |
+| `learning_rate_d` | `float` | `0.002` | positive float | Learning rate for the discriminator's optimizer (e.g., Adam). |
+| `batch_size` | `integer` | `16` | positive integer, typically 4-32 depending on GPU memory | Number of samples processed in each training iteration. |
+| `r1_gamma` | `float` | `10.0` | non-negative float | Weight for the R1 regularization term applied to the discriminator's output gradient. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Generates exceptionally high-quality and realistic images, often indistinguishable from real photographs.
+- Provides disentangled control over various stylistic attributes, allowing intuitive manipulation of generated content.
+- Enables high-resolution image synthesis through its progressive growing architecture.
+- The intermediate latent space $W$ is more linear and disentangled than the input latent space $Z$, facilitating easier interpolation and manipulation.
+- Noise injection allows for the generation of fine, stochastic details without affecting high-level features.
+- The architecture is robust and has served as a foundation for numerous subsequent generative models.
+
+## Weaknesses
+
+- Training StyleGAN models is computationally very expensive, requiring significant GPU resources and time.
+- Can still exhibit mode collapse or generate artifacts, especially in early versions or with insufficient data.
+- Requires large, diverse datasets for optimal performance, which can be challenging to acquire.
+- The architecture is complex, making it harder to understand, implement, and fine-tune compared to simpler GANs.
+- Generated images may sometimes contain subtle, characteristic artifacts that distinguish them from real images, particularly in StyleGAN1.
+
+## Use Cases
+
+### Artistic Creation
+
+Artists use StyleGAN to generate novel portraits, landscapes, and abstract art, exploring new aesthetic possibilities.
+
+### Data Augmentation
+
+Synthesizing realistic images to expand training datasets for tasks like object detection or facial recognition, especially when real data is scarce.
+
+### Image Editing
+
+Manipulating specific attributes of existing images by projecting them into StyleGAN's latent space and adjusting style vectors.
+
+### Virtual Photography
+
+Creating photorealistic images of non-existent people, products, or scenes for marketing, media, or virtual environments.
+
+### Anomaly Detection
+
+Learning the distribution of normal data and identifying outliers by their inability to be accurately reconstructed or generated by the model.
+
+### Fashion Design
+
+Generating new clothing designs, textures, or models for virtual try-on applications.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement StyleGAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# StyleGAN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="StyleGAN Lab" />
+
+## References
+
+- Karras et al. (2018). Karras et al..

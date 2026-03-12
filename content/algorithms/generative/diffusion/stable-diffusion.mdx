@@ -1,0 +1,186 @@
+---
+title: "Stable Diffusion"
+slug: "stable-diffusion"
+category: "generative"
+subcategory: "diffusion"
+year: 2022
+author: "CompVis"
+paper: "CompVis"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "deep-learning", "diffusion-model", "generative-ai", "image-synthesis", "latent-space", "neural-networks", "text-to-image"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "latent-diffusion"
+  - "transformer"
+  - "u-net"
+---
+
+## Overview
+
+Stable Diffusion is a powerful text-to-image generative model capable of producing high-quality images from natural language prompts. It operates by iteratively denoising a randomly sampled latent representation, guided by a text embedding, making it significantly more computationally efficient than pixel-space diffusion models. This architecture allows for rapid image generation on consumer-grade GPUs, democratizing access to advanced generative AI capabilities.
+
+## History
+
+**2015** — Sohl-Dickstein et al. introduced Denoising Diffusion Probabilistic Models (DDPMs), laying the theoretical groundwork for diffusion models by defining a forward diffusion process and a reverse denoising process.
+
+**2020** — Ho et al. significantly improved DDPMs, demonstrating their ability to generate high-quality images and establishing the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture as a standard for the noise prediction network.
+
+**2021** — Rombach et al. (CompVis) introduced [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) Models (LDMs), which perform the diffusion process in a compressed latent space rather than pixel space, drastically reducing computational cost and memory requirements.
+
+**2022** — CompVis, in collaboration with Stability AI and LAION, released Stable Diffusion, an open-source implementation of [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) Models, making high-quality text-to-image generation widely accessible.
+
+## Mathematical Intuition
+
+### Forward Diffusion Process
+
+The forward diffusion process gradually adds Gaussian noise to an image $\mathbf{x}_0$ over $T$ timesteps, creating a sequence of noisy samples $\mathbf{x}_1, \dots, \mathbf{x}_T$. This process is a fixed Markov chain, where each step adds a small amount of noise according to a variance schedule $\beta_t$. The key property is that $\mathbf{x}_t$ can be directly sampled from $\mathbf{x}_0$ at any timestep $t$ using the reparameterization trick:
+$$q(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I})$$
+where $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$. This allows for efficient training by predicting the noise added at any step.
+
+$$
+q(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I})
+$$
+
+$$
+\alpha_t = 1 - \beta_t
+$$
+
+$$
+\bar{\alpha}_t = \prod_{s=1}^t \alpha_s
+$$
+
+### Reverse Denoising Process
+
+The goal of the model is to learn the reverse diffusion process, which transforms a noisy image $\mathbf{x}_T$ (pure Gaussian noise) back into a clean image $\mathbf{x}_0$. This is also a Markov chain, but its transitions are learned by a neural network, typically a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net). The network $\epsilon_\theta(\mathbf{x}_t, t)$ is trained to predict the noise $\epsilon$ added at timestep $t$ to $\mathbf{x}_0$ to get $\mathbf{x}_t$. With this predicted noise, we can estimate $\mathbf{x}_{t-1}$ from $\mathbf{x}_t$:
+$$\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \epsilon_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z}$$
+where $\mathbf{z} \sim \mathcal{N}(0, \mathbf{I})$ and $\sigma_t$ is a learned or fixed variance.
+
+$$
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \epsilon_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z}
+$$
+
+$$
+\epsilon_\theta(\mathbf{x}_t, t)
+$$
+
+### Latent Space Diffusion
+
+Stable Diffusion operates in a lower-dimensional latent space rather than directly on high-resolution pixel data. This is achieved by using a pre-trained [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), consisting of an encoder $\mathcal{E}$ and a decoder $\mathcal{D}$. The encoder maps an image $\mathbf{x}$ to a latent representation $\mathbf{z} = \mathcal{E}(\mathbf{x})$, and the decoder reconstructs the image from the latent space $\mathbf{x} = \mathcal{D}(\mathbf{z})$. The diffusion process (forward and reverse) then occurs entirely within this latent space, significantly reducing computational complexity while preserving perceptual quality. The [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) model learns to denoise latent representations $\mathbf{z}_t$ instead of pixel images $\mathbf{x}_t$.
+
+$$
+\mathbf{z} = \mathcal{E}(\mathbf{x})
+$$
+
+$$
+\mathbf{x} = \mathcal{D}(\mathbf{z})
+$$
+
+### Conditional Generation with Cross-Attention
+
+To enable text-to-image generation, Stable Diffusion incorporates a conditioning mechanism. A text encoder (e.g., CLIP's text [Transformer](/algorithms/deep-learning/transformers/transformer)) transforms the input text prompt into a rich embedding $\tau$. This text embedding is then injected into the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture via cross-attention layers. Specifically, the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net)'s attention blocks compute attention over the text embeddings, allowing the denoising process to be guided by the semantic information from the prompt. This conditional denoising network is denoted as $\epsilon_\theta(\mathbf{z}_t, t, \tau)$, where $\tau$ is the text condition.
+
+$$
+\epsilon_\theta(\mathbf{z}_t, t, \tau)
+$$
+
+## Algorithm Steps
+
+1. The input text prompt is first tokenized and then encoded into a rich contextual embedding $\tau$ using a pre-trained text encoder (e.g., CLIP's text transformer).
+2. A tensor of pure Gaussian noise is randomly sampled in the latent space, serving as the initial noisy latent image $\mathbf{z}_T$.
+3. The denoising process iterates for a specified number of steps (e.g., 20-50), starting from $\mathbf{z}_T$ down to $\mathbf{z}_0$.
+4. At each timestep $t$, the U-Net model $\epsilon_\theta$ predicts the noise component from the current noisy latent $\mathbf{z}_t$, conditioned on the text embedding $\tau$ and the current timestep $t$.
+5. The predicted noise is then used to iteratively refine $\mathbf{z}_t$ into a less noisy latent representation $\mathbf{z}_{t-1}$ using a chosen sampler (e.g., DDIM, PLMS, Euler).
+6. After the final denoising step, the resulting clean latent representation $\mathbf{z}_0$ is passed through the pre-trained variational autoencoder's decoder $\mathcal{D}$.
+7. The decoder transforms the latent representation $\mathbf{z}_0$ back into a high-resolution pixel image $\mathbf{x}_0$, which is the final generated output.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `prompt` | `str` | `None` | Any string | The text prompt used to guide the image generation process. |
+| `negative_prompt` | `str` | `None` | Any string | A prompt specifying elements to avoid or exclude from the generated image. |
+| `guidance_scale` | `float` | `7.5` | Typically 1.0 to 20.0 | Controls how strongly the image generation is influenced by the text prompt. Higher values increase adherence to the prompt but can reduce diversity. |
+| `num_inference_steps` | `int` | `50` | Typically 10 to 100 | The number of denoising steps to perform. More steps generally lead to higher quality but take longer. |
+| `seed` | `int` | `None` | Any integer | A random seed for reproducibility. Setting a fixed seed ensures the same initial noise and thus the same output for identical parameters. |
+| `height` | `int` | `512` | Typically multiples of 8 or 64 (e.g., 512, 768, 1024) | The height of the generated image in pixels. |
+| `width` | `int` | `512` | Typically multiples of 8 or 64 (e.g., 512, 768, 1024) | The width of the generated image in pixels. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Stable Diffusion can generate highly realistic and diverse images from text prompts, demonstrating impressive creative capabilities.
+- Operating in a compressed latent space makes it significantly more computationally efficient for inference compared to pixel-space diffusion models, enabling use on consumer hardware.
+- Its open-source nature has fostered a large community, leading to rapid development of new features, fine-tuned models, and applications.
+- The model is highly versatile, supporting various tasks beyond text-to-image, such as inpainting, outpainting, image-to-image translation, and stylization.
+- It allows for fine-grained control over image generation through detailed prompting and various conditioning techniques.
+
+## Weaknesses
+
+- The model can sometimes generate anatomically incorrect or distorted features, especially for complex subjects or multiple entities.
+- Training a Stable Diffusion model from scratch requires substantial computational resources and large datasets, making it inaccessible for most individuals.
+- Generated images may reflect biases present in the training data, potentially leading to stereotypical or harmful outputs.
+- Achieving desired results often requires careful prompt engineering and iterative refinement, which can be time-consuming.
+- The model may struggle with understanding complex spatial relationships or precise object counts specified in prompts.
+
+## Use Cases
+
+### Digital Art and Illustration
+
+Artists use Stable Diffusion to generate concept art, explore visual styles, and create unique illustrations from textual descriptions, accelerating their creative workflow.
+
+### Content Creation and Marketing
+
+Marketers and content creators leverage the model to quickly produce custom images for social media, advertisements, and blog posts, reducing reliance on stock photography.
+
+### Product Design and Prototyping
+
+Designers utilize Stable Diffusion to visualize product concepts, generate variations of designs, and create mockups based on textual specifications.
+
+### Architectural Visualization
+
+Architects and urban planners employ the model to rapidly generate different design iterations, visualize building exteriors or interiors, and explore material choices.
+
+### Gaming and Virtual Worlds
+
+Game developers use Stable Diffusion for generating textures, character concepts, environmental assets, and background imagery, speeding up asset creation.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Stable Diffusion from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Stable Diffusion does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Stable Diffusion Lab" />
+
+## References
+
+- CompVis (2022). CompVis.

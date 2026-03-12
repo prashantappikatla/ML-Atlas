@@ -1,0 +1,171 @@
+---
+title: "Isotonic Regression"
+slug: "isotonic-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1959
+author: "Ayer et al."
+paper: "Ayer et al."
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["calibration", "least-squares", "monotonic", "non-parametric", "order-restricted", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "logistic-regression"
+---
+
+## Overview
+
+Isotonic Regression is a non-parametric regression technique that estimates a monotonically non-decreasing or non-increasing function given a set of observed data points. It finds the best fit in a least-squares sense, subject to the constraint that the fitted function must adhere to a specified monotonic trend. This method is particularly useful for calibrating probability estimates or modeling relationships where a specific monotonic behavior is expected.
+
+## History
+
+**1959** — Ayer, Brunk, Ewing, Reid, and Silverman introduced the Pool Adjacent Violators Algorithm (PAVA) as a method for estimating ordered parameters, which forms the computational basis of isotonic regression.
+
+**1972** — Barlow, Bartholomew, Bremner, and Brunk published "Statistical Inference under Order Restrictions: The Theory and Application of Isotonic Regression," a foundational text that consolidated the theoretical framework and applications of the method.
+
+**2000** — Isotonic regression began to gain increasing traction in machine learning for tasks such as probability calibration and monotonic feature transformation, leveraging its ability to enforce order constraints.
+
+**2010** — The integration of isotonic regression into popular machine learning libraries like scikit-learn made it widely accessible to practitioners, facilitating its application in various data science workflows.
+
+## Mathematical Intuition
+
+### The Isotonicity Constraint
+
+Isotonic Regression seeks to estimate a function $g(x)$ that is monotonically non-decreasing (or non-increasing) with respect to its input $x$. For a set of ordered observations $(x_i, y_i)$, where $x_1 \le x_2 \le \dots \le x_n$, the isotonic constraint requires that the estimated values $g_i = g(x_i)$ satisfy $g_1 \le g_2 \le \dots \le g_n$ for a non-decreasing function. If a non-increasing function is desired, the constraint becomes $g_1 \ge g_2 \ge \dots \ge g_n$.
+
+$$
+g_1 \le g_2 \le \dots \le g_n
+$$
+
+### Least Squares Optimization
+
+The goal of Isotonic Regression is to find the sequence of values $g_1, \dots, g_n$ that minimizes a weighted least-squares objective function, subject to the isotonicity constraint. Given observed data points $(x_i, y_i)$ with corresponding non-negative weights $w_i$, the problem is formulated as:
+
+$$
+\min_{g_1, \dots, g_n} \sum_{i=1}^n w_i (y_i - g_i)^2
+$$
+
+$$
+\text{subject to } g_1 \le g_2 \le \dots \le g_n
+$$
+
+### Pool Adjacent Violators Algorithm (PAVA)
+
+The Pool Adjacent Violators Algorithm (PAVA) is the standard method for solving the isotonic regression problem. It operates by iteratively identifying and resolving violations of the monotonicity constraint. Initially, each $g_i$ is set to its corresponding $y_i$. The algorithm then scans the sequence of $g_i$ values. If a violation $g_i > g_{i+1}$ (for non-decreasing) is found, the violating adjacent blocks are "pooled" by replacing their values with a weighted average of the $y_j$ values within the pooled block. This process continues until no violations remain, guaranteeing a globally optimal isotonic sequence.
+
+$$
+g_k = \frac{\sum_{j \in \text{block}} w_j y_j}{\sum_{j \in \text{block}} w_j}
+$$
+
+## Algorithm Steps
+
+1. Initialize the estimates $g_i$ for each data point $x_i$ to its observed value $y_i$.
+2. Iterate through the estimates from left to right (or right to left), checking for violations of the isotonic constraint.
+3. If a violation $g_i > g_{i+1}$ (for a non-decreasing function) is found, identify the block of indices that includes $i$ and $i+1$ and any previously pooled adjacent blocks.
+4. Pool the adjacent blocks by replacing all estimates $g_k$ within the newly formed block with their weighted average: $g_k = \frac{\sum_{j \in \text{block}} w_j y_j}{\sum_{j \in \text{block}} w_j}$.
+5. Continue scanning and pooling until no violations exist across the entire sequence of estimates.
+6. The final $g_i$ values represent the isotonic regression estimates, forming a monotonic sequence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `y_min` | `float or None` | `None` | any float or None | The minimum value of the isotonic fit. If None, no lower bound is enforced. |
+| `y_max` | `float or None` | `None` | any float or None | The maximum value of the isotonic fit. If None, no upper bound is enforced. |
+| `increasing` | `bool or 'auto'` | `'auto'` | True, False, 'auto' | Determines whether the isotonic fit should be non-decreasing (True), non-increasing (False), or automatically inferred ('auto'). |
+| `out_of_bounds` | `str` | `'nan'` | 'nan', 'clip', 'raise' | Controls how values outside the training data range are handled during prediction. 'nan' returns NaN, 'clip' clips to the min/max of the training data, 'raise' raises an error. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It provides a non-parametric, flexible fit that inherently respects a monotonic relationship in the data.
+- The resulting function is guaranteed to be monotonic, which is crucial for applications like probability calibration where order is essential.
+- It is robust to outliers compared to parametric monotonic models, as it does not assume a specific functional form.
+- The Pool Adjacent Violators Algorithm (PAVA) guarantees convergence to the global optimum for the least-squares objective.
+- It can be applied to both increasing and decreasing monotonic relationships by simply adjusting the constraint.
+- The model is simple to interpret, as its output directly reflects the observed monotonic trend without complex coefficients.
+
+## Weaknesses
+
+- Isotonic regression can overfit noisy data if the true underlying relationship is not strictly monotonic, leading to a piecewise constant function that might be too rigid.
+- It does not extrapolate well beyond the range of the observed training data, as its predictions are based solely on the input data points.
+- The computational complexity can increase with the number of data points, although PAVA is efficient for many practical scenarios.
+- It is primarily designed for one-dimensional input features; extending it to multiple dimensions is non-trivial and often involves more complex methods.
+- The piecewise constant nature of the output can sometimes lack the smoothness desired in certain applications, appearing step-like.
+
+## Use Cases
+
+### Probability Calibration
+
+Used to calibrate predicted probabilities from classification models to ensure they reflect true event likelihoods, particularly in medical diagnostics or fraud detection, where monotonic reliability is critical.
+
+### Medical Research
+
+Applied to model dose-response curves or disease progression where a monotonic relationship between treatment dosage and outcome, or time and disease severity, is expected.
+
+### Financial Modeling
+
+Employed for estimating credit risk scores or predicting asset prices where certain factors are known to have a monotonic impact on the outcome, such as income level and loan default probability.
+
+### Sensor Data Analysis
+
+Used to smooth noisy sensor readings while preserving an underlying monotonic trend, such as temperature changes over time or pressure readings in a controlled experiment.
+
+### Quality Control
+
+Applied to monitor manufacturing processes where a quality metric is expected to monotonically improve or degrade over time or with a specific process parameter.
+
+### Psychometrics
+
+Utilized in item response theory to model the probability of a correct answer as a monotonic function of a latent trait, such as a student's ability level.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Isotonic Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import IsotonicRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = IsotonicRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Isotonic Regression Lab" />
+
+## References
+
+- Ayer et al. (1959). Ayer et al..
+- [scikit-learn: IsotonicRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.IsotonicRegression.html)

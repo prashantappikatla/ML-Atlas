@@ -1,0 +1,190 @@
+---
+title: "Attention Mechanism"
+slug: "attention-mechanism"
+category: "deep-learning"
+subcategory: "sequence-models"
+year: 2014
+author: "Bahdanau et al."
+paper: "Bahdanau et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["computer-vision", "deep-learning", "interpretability", "natural-language-processing", "neural-networks", "representation-learning", "sequence-modeling", "transformers"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "gpt"
+  - "recurrent-neural-network"
+  - "transformer"
+  - "vision-transformer"
+---
+
+## Overview
+
+The Attention Mechanism is a technique that allows neural networks to dynamically weigh the importance of different parts of an input sequence when processing information or generating an output. It addresses the limitations of fixed-size context vectors in traditional encoder-decoder architectures by creating a direct, weighted connection between the decoder's current state and all encoder hidden states. This mechanism enables models to focus on relevant information, significantly improving performance on tasks requiring long-range dependencies and enhancing model interpretability.
+
+## History
+
+**2014** — Bahdanau, Cho, and Bengio introduced an 'additive' attention mechanism in their paper 'Neural Machine Translation by Jointly Learning to Align and Translate,' allowing decoders to look at the entire source sentence for improved machine translation.
+
+**2015** — Luong, Pham, and Manning proposed 'multiplicative' attention variants, including global and local attention, simplifying the attention score calculation and offering more efficient alternatives.
+
+**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture in 'Attention Is All You Need,' which entirely relies on self-attention and multi-head attention, revolutionizing sequence modeling and enabling unprecedented parallelization.
+
+**2018** — Models like BERT (Devlin et al.) and GPT (Radford et al.) demonstrated the power of pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer) models, further solidifying attention's role as a foundational component in state-of-the-art NLP.
+
+**2020** — The [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT) by Dosovitskiy et al. showed that attention mechanisms could effectively process image data by treating image patches as sequences, extending attention's applicability beyond text.
+
+## Mathematical Intuition
+
+### Core Idea: Query, Key, Value
+
+Attention mechanisms compute a weighted sum of 'value' vectors, where the weights are determined by the similarity between a 'query' vector and a set of 'key' vectors. This can be conceptualized as retrieving information: the query seeks relevant keys, and the associated values are returned, weighted by relevance. The general form is a weighted sum of values, where weights are derived from a scoring function.
+
+$$
+Attention(Q, K, V) = \sum_i \alpha_i V_i
+$$
+
+$$
+\alpha_i = \text{score}(Q, K_i)
+$$
+
+### Additive Attention (Bahdanau Style)
+
+Additive attention, also known as concat attention, computes attention scores by concatenating the query and key vectors and passing them through a feed-forward neural network with a tanh activation. This approach is often used in encoder-decoder models where the query is the decoder's hidden state and keys are encoder hidden states, allowing for a more complex interaction between them.
+
+$$
+e_{ij} = v_a^T \tanh(W_q s_{i-1} + W_k h_j)
+$$
+
+$$
+\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k=1}^{T_x} \exp(e_{ik})}
+$$
+
+$$
+c_i = \sum_{j=1}^{T_x} \alpha_{ij} h_j
+$$
+
+### Dot-Product Attention (Transformer Style)
+
+Dot-product attention calculates similarity by taking the dot product of the query and key vectors. Scaled Dot-Product Attention, as used in Transformers, further scales the dot product by the square root of the key vector's dimension, $d_k$, to prevent large values from pushing the softmax function into regions with tiny gradients, ensuring more stable training.
+
+$$
+Attention(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$
+
+### Multi-Head Self-Attention
+
+Multi-Head Attention allows the model to jointly attend to information from different representation subspaces at different positions. It does this by linearly projecting the queries, keys, and values $h$ times with different, learned linear projections. Each projected version then undergoes scaled dot-product attention in parallel, and their outputs are concatenated and again linearly projected to produce the final result. Self-attention is a special case where $Q=K=V$, meaning the input sequence attends to itself.
+
+$$
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h)W^O
+$$
+
+$$
+head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+## Algorithm Steps
+
+1. Generate query ($Q$), key ($K$), and value ($V$) vectors by applying distinct linear transformations to the input embeddings or hidden states.
+2. Compute raw attention scores by calculating the similarity between the query vector and each key vector, typically using a dot product or an additive scoring function.
+3. Normalize the raw attention scores using a softmax function to obtain attention weights, which represent a probability distribution over the input elements.
+4. Compute the context vector by taking a weighted sum of the value vectors, where the weights are the normalized attention scores.
+5. Combine the context vector with the original query or input representation (e.g., by concatenation or addition) to produce the output of the attention mechanism.
+6. For Multi-Head Attention, repeat steps 1-5 for multiple independent 'heads' in parallel, each with its own set of linear projections.
+7. Concatenate the outputs from all attention heads and apply a final linear projection to produce the ultimate output of the Multi-Head Attention layer.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `embed_dim` | `integer` | `512` | positive integer | The dimension of the input and output embeddings for the attention mechanism, often representing the model's internal dimensionality. |
+| `num_heads` | `integer` | `8` | positive integer, typically a divisor of embed_dim | The number of parallel attention heads to use in Multi-Head Attention, allowing the model to attend to different aspects of the input simultaneously. |
+| `dropout` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability applied to the attention weights or outputs to prevent overfitting during training. |
+| `qkv_bias` | `boolean` | `true` | true, false | If true, adds bias terms to the linear projections for queries, keys, and values, providing additional modeling capacity. |
+| `attn_output_bias` | `boolean` | `true` | true, false | If true, adds a bias term to the final linear projection of the concatenated attention outputs from all heads. |
+| `kdim` | `integer` | `None` | positive integer or None | The dimension of the key (K) vectors. If None, it defaults to embed_dim, implying keys have the same dimension as queries. |
+| `vdim` | `integer` | `None` | positive integer or None | The dimension of the value (V) vectors. If None, it defaults to embed_dim, implying values have the same dimension as queries. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Effectively captures long-range dependencies in sequences, overcoming the vanishing gradient problem prevalent in traditional recurrent neural networks.
+- Provides a degree of interpretability by allowing visualization of which input parts the model focuses on for a given output.
+- Enables parallelization of computations, especially in self-attention, significantly speeding up training compared to sequential recurrent architectures.
+- Can integrate information from diverse sources by attending to different sets of keys and values, enhancing model flexibility.
+- Highly flexible and can be adapted to various data types when combined with appropriate embedding layers for different modalities.
+- Allows for dynamic weighting of input elements, making models robust to varying input lengths and structures.
+
+## Weaknesses
+
+- Computational complexity scales quadratically with sequence length ($O(N^2)$), making it expensive for very long sequences.
+- Requires substantial computational resources and large datasets for effective training, especially for large Transformer models.
+- Can be sensitive to the choice of hyperparameters, such as the number of attention heads and embedding dimensions, requiring careful tuning.
+- The 'black box' nature of deep learning still applies, as attention weights only indicate focus, not necessarily the underlying reasoning.
+- May struggle with tasks requiring strict positional or hierarchical information without explicit positional encodings or architectural modifications.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used extensively in machine translation, text summarization, question answering, and sentiment analysis to understand contextual relationships between words.
+
+### Computer Vision
+
+Applied in Vision Transformers for image classification, object detection, and image generation by treating image patches as sequences.
+
+### Speech Recognition
+
+Enables end-to-end speech recognition systems to align audio features with phonetic units or words, improving accuracy.
+
+### Time Series Analysis
+
+Utilized for forecasting, anomaly detection, and sequence classification in financial data, sensor readings, and other temporal datasets.
+
+### Drug Discovery
+
+Employed in predicting protein-ligand interactions and molecular properties by modeling molecular graphs and their constituent atoms.
+
+### Recommendation Systems
+
+Captures complex user-item interactions and sequential patterns in user behavior to provide more personalized and relevant recommendations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Attention Mechanism from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Attention Mechanism does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Attention Mechanism Lab" />
+
+## References
+
+- Bahdanau et al. (2014). Bahdanau et al..

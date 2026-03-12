@@ -1,0 +1,168 @@
+---
+title: "RuleFit"
+slug: "rulefit"
+category: "supervised"
+subcategory: "classification"
+year: 2008
+author: "Friedman & Popescu"
+paper: "Friedman & Popescu"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "decision-trees", "ensemble-learning", "feature-engineering", "interpretable-ml", "linear-models", "model-explanation", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "lasso-regression"
+  - "mars-multivariate-adaptive-regression-splines"
+---
+
+## Overview
+
+RuleFit combines decision rules extracted from an ensemble of decision trees with original linear features to build an interpretable and accurate predictive model. It addresses the trade-off between model accuracy and interpretability by leveraging the power of tree ensembles to capture complex interactions while maintaining a transparent, additive model structure. The algorithm generates a set of "if-then" rules from a tree ensemble and then fits a sparse linear model on these rules, along with original linear features, to make predictions.
+
+## History
+
+**2008** — Jerome Friedman and Bogdan Popescu introduce RuleFit in their paper "Predictive Learning via Rule Ensembles," proposing a method to combine the predictive power of tree ensembles with the interpretability of linear models.
+
+## Mathematical Intuition
+
+### Rule Generation from Trees
+
+RuleFit begins by training an ensemble of decision trees, typically a gradient boosting machine or a random forest. Each path from the root to a leaf node in a decision tree can be interpreted as a conjunctive rule. For example, if $X_1 > 5$ and $X_2 \le 10$, then predict $Y$. These rules capture interactions between features.
+
+$$
+R_j(x) = I(x \in \text{leaf}_j)
+$$
+
+### Feature Transformation via Rules
+
+Each extracted rule $R_j(x)$ is transformed into a binary feature. For a given input $x$, the value of this feature is 1 if $x$ satisfies the conditions of the rule, and 0 otherwise. The original numerical features $x_k$ are also included, often after standardization.
+
+$$
+f_j(x) = I(\text{conditions of rule } j \text{ are met})
+$$
+
+### Sparse Linear Model Fitting
+
+A sparse linear model, typically LASSO (Least Absolute Shrinkage and Selection Operator) regression, is then fitted on the combined set of rule features and original linear features. LASSO encourages sparsity by penalizing the absolute size of the regression coefficients, effectively selecting the most important rules and linear features.
+
+$$
+\min_{\beta_0, \beta} \left( \sum_{i=1}^N (y_i - (\beta_0 + \sum_{j=1}^M \beta_j f_j(x_i) + \sum_{k=1}^P \gamma_k x_{ik}))^2 + \lambda \sum_{j=1}^M |\beta_j| + \lambda \sum_{k=1}^P |\gamma_k| \right)
+$$
+
+### Final Additive Model Structure
+
+The final RuleFit model is an additive model, combining a bias term, weighted original linear features, and weighted rule features. The coefficients $\beta_j$ and $\gamma_k$ indicate the importance and direction of each rule and linear feature, respectively, contributing to the model's interpretability.
+
+$$
+\hat{y}(x) = \beta_0 + \sum_{j=1}^M \beta_j R_j(x) + \sum_{k=1}^P \gamma_k x_k
+$$
+
+## Algorithm Steps
+
+1. Train an ensemble of decision trees (e.g., Gradient Boosting Machine or Random Forest) on the training data.
+2. Extract all unique paths from the root to each leaf node in every tree of the ensemble; each path represents a conjunctive rule.
+3. For each extracted rule $R_j$, create a binary feature $f_j(x)$ that is 1 if input $x$ satisfies the rule's conditions, and 0 otherwise.
+4. Optionally, standardize the original numerical features $x_k$.
+5. Combine the generated rule features $f_j(x)$ with the original (possibly standardized) linear features $x_k$ to form an expanded feature set.
+6. Fit a sparse linear model (e.g., LASSO) on this expanded feature set to predict the target variable, selecting and weighting the most relevant rules and linear features.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | > 0 | The number of boosting stages to perform, which corresponds to the number of trees in the ensemble. |
+| `max_depth` | `int` | `3` | > 0 | The maximum depth limits the number of nodes in each individual decision tree used for rule generation. |
+| `tree_generator` | `estimator` | `GradientBoostingRegressor(n_estimators=500, max_depth=5, learning_rate=0.01)` | scikit-learn compatible estimator | An estimator object that implements the fit method, used to generate the rules. Typically a Gradient Boosting Machine. |
+| `alpha` | `float` | `1.0` | > 0 | The regularization strength for the LASSO model. Higher values enforce stronger sparsity by penalizing larger coefficients. |
+| `l1_ratio` | `float` | `1.0` | [0.0, 1.0] | The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. A ratio of L1 regularization to L2 regularization. l1_ratio=1 is pure LASSO, l1_ratio=0 is Ridge. |
+| `max_rules` | `int` | `2000` | > 0 | Limits the total number of rules considered for the final linear model, helping to manage model complexity. |
+| `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance or None | Controls the randomness of the estimator, ensuring reproducibility of the tree ensemble generation. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Provides high interpretability by representing complex relationships as a set of "if-then" rules with associated weights.
+- Captures non-linear relationships and high-order feature interactions through the decision rules derived from tree ensembles.
+- Achieves competitive predictive accuracy, often comparable to complex ensemble methods, while offering greater transparency.
+- Can handle mixed data types (numerical and categorical) naturally, as decision trees are robust to such data.
+- The sparse linear model component helps in feature selection, identifying the most important rules and original features.
+- Robust to outliers and irrelevant features due to the tree-based rule generation and LASSO regularization.
+
+## Weaknesses
+
+- Can be computationally expensive, especially when generating a large number of rules from extensive tree ensembles.
+- The number of generated rules can be very large, potentially making the final model difficult to inspect manually without further pruning or aggregation.
+- Requires careful tuning of hyperparameters for both the underlying tree ensemble and the sparse linear model.
+- The interpretability of individual rules can be challenging if they involve many conditions or highly correlated features.
+- The final model's interpretability is still dependent on the user's ability to understand a linear combination of rules.
+
+## Use Cases
+
+### Healthcare
+
+Predicting disease risk or treatment response, where understanding the contributing factors (rules) is crucial for clinical decisions.
+
+### Finance
+
+Credit scoring or fraud detection, enabling explanations for loan approvals/denials or suspicious transactions to regulators and customers.
+
+### Marketing
+
+Customer churn prediction or targeted advertising, by identifying specific customer segments and their behavioral patterns that lead to certain outcomes.
+
+### Manufacturing
+
+Quality control or predictive maintenance, where rules can pinpoint conditions leading to defects or equipment failure.
+
+### Environmental Science
+
+Modeling ecological processes or pollution sources, providing interpretable insights into complex environmental interactions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement RuleFit from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Rulefit
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Rulefit()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="RuleFit Lab" />
+
+## References
+
+- Friedman & Popescu (2008). Friedman & Popescu.
+- [scikit-learn: Rulefit](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Rulefit.html)

@@ -1,0 +1,182 @@
+---
+title: "Passive Aggressive Classifier"
+slug: "passive-aggressive-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 2006
+author: "Crammer et al."
+paper: "Crammer et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["binary-classification", "classification", "large-scale", "linear-model", "multiclass-classification", "online-learning", "sparse-data", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "logistic-regression"
+  - "perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+The Passive Aggressive Classifier is an online learning algorithm designed for large-scale classification tasks, particularly effective with sparse data. It updates its model parameters only when a misclassification occurs or when the prediction is correct but within a predefined margin, hence its 'passive' and 'aggressive' nature. This approach allows it to adapt quickly to new data points and handle data streams efficiently.
+
+## History
+
+**2006** — Crammer et al. introduced the family of Passive-Aggressive online learning algorithms, laying the theoretical foundation for their use in classification and regression tasks.
+
+**2008** — Further research and empirical studies demonstrated the effectiveness of Passive-Aggressive algorithms in various real-world applications, especially in natural language processing and spam detection.
+
+**2010** — The algorithm was integrated into popular machine learning libraries, making it more accessible to practitioners for online and large-scale learning problems.
+
+## Mathematical Intuition
+
+### Online Learning and Margin
+
+Passive Aggressive algorithms operate in an online learning setting, processing one training example $(\mathbf{x}_t, y_t)$ at a time. For a linear classifier, the prediction is given by $p_t = \mathbf{w}_t \cdot \mathbf{x}_t + b_t$. The algorithm aims to satisfy a margin constraint, $y_t p_t \ge 1$, where $y_t \in \{-1, 1\}$ is the true label. If this constraint is violated, an update is triggered. The 'aggressiveness' of the update is controlled by how much the current prediction violates this margin.
+
+$$
+p_t = \mathbf{w}_t \cdot \mathbf{x}_t + b_t
+$$
+
+$$
+y_t p_t \ge 1
+$$
+
+### Loss Function and Update Rule
+
+The core idea is to find a new weight vector $\mathbf{w}_{t+1}$ that satisfies the margin constraint for the current example $(\mathbf{x}_t, y_t)$ while being as close as possible to the previous weight vector $\mathbf{w}_t$. This is formulated as a constrained optimization problem:
+$$ \min_{\mathbf{w}_{t+1}} \frac{1}{2} \|\mathbf{w}_{t+1} - \mathbf{w}_t\|^2 \quad \text{s.t.} \quad y_t (\mathbf{w}_{t+1} \cdot \mathbf{x}_t + b_{t+1}) \ge 1 - \xi_t $$
+where $\xi_t$ is a slack variable for the hinge loss. The update for $\mathbf{w}$ and $b$ takes the form:
+$$ \mathbf{w}_{t+1} = \mathbf{w}_t + \tau_t y_t \mathbf{x}_t \quad \text{and} \quad b_{t+1} = b_t + \tau_t y_t $$
+The update magnitude $\tau_t$ is calculated based on the current prediction error and the chosen variant (PA-I or PA-II). For PA-I, $\tau_t = \frac{\max(0, 1 - y_t(\mathbf{w}_t \cdot \mathbf{x}_t + b_t))}{\|\mathbf{x}_t\|^2}$. For PA-II, it incorporates a regularization parameter $C$: $\tau_t = \frac{\max(0, 1 - y_t(\mathbf{w}_t \cdot \mathbf{x}_t + b_t))}{\|\mathbf{x}_t\|^2 + 1/(2C)}$.
+
+$$
+\min_{\mathbf{w}_{t+1}} \frac{1}{2} \|\mathbf{w}_{t+1} - \mathbf{w}_t\|^2 \quad \text{s.t.} \quad y_t (\mathbf{w}_{t+1} \cdot \mathbf{x}_t + b_{t+1}) \ge 1 - \xi_t
+$$
+
+$$
+\mathbf{w}_{t+1} = \mathbf{w}_t + \tau_t y_t \mathbf{x}_t
+$$
+
+$$
+b_{t+1} = b_t + \tau_t y_t
+$$
+
+$$
+\tau_t = \frac{\max(0, 1 - y_t(\mathbf{w}_t \cdot \mathbf{x}_t + b_t))}{\|\mathbf{x}_t\|^2}
+$$
+
+$$
+\tau_t = \frac{\max(0, 1 - y_t(\mathbf{w}_t \cdot \mathbf{x}_t + b_t))}{\|\mathbf{x}_t\|^2 + 1/(2C)}
+$$
+
+## Algorithm Steps
+
+1. Initialize the weight vector $\mathbf{w}$ and bias $b$ to zeros.
+2. For each training example $(\mathbf{x}_t, y_t)$ in the data stream:
+3. Calculate the current prediction score: $p_t = \mathbf{w}_t \cdot \mathbf{x}_t + b_t$.
+4. Calculate the hinge loss for the current example: $l_t = \max(0, 1 - y_t p_t)$.
+5. If $l_t > 0$ (meaning the example is misclassified or within the margin):
+6. Calculate the update magnitude $\tau_t$ using the chosen Passive Aggressive variant (e.g., PA-I or PA-II) and the aggressiveness parameter $C$.
+7. Update the weight vector: $\mathbf{w}_{t+1} = \mathbf{w}_t + \tau_t y_t \mathbf{x}_t$.
+8. Update the bias: $b_{t+1} = b_t + \tau_t y_t$.
+9. If $l_t = 0$ (meaning the example is correctly classified and outside the margin), no update is performed: $\mathbf{w}_{t+1} = \mathbf{w}_t$ and $b_{t+1} = b_t$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `C` | `float` | `1.0` | positive float | The aggressiveness parameter. A smaller C leads to more passive updates, while a larger C leads to more aggressive updates, penalizing misclassifications more strongly. |
+| `fit_intercept` | `bool` | `True` |  | Whether to calculate an intercept (bias) for the decision function. |
+| `max_iter` | `int` | `1000` | positive integer | The maximum number of passes over the training data (epochs). |
+| `tol` | `float or None` | `1e-3` | positive float or None | The stopping criterion. Training will stop when the loss is not improving by at least tol for n_iter_no_change consecutive epochs. |
+| `shuffle` | `bool` | `True` |  | Whether to shuffle the training data after each epoch. Shuffling can help prevent cycles and improve convergence. |
+| `loss` | `str` | `'hinge'` | 'hinge' | The loss function to be used. Currently, only 'hinge' is supported for classification. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- The algorithm is highly efficient for large-scale datasets due to its online learning nature, processing data incrementally.
+- It performs exceptionally well on sparse feature spaces, which are common in text classification and other high-dimensional data.
+- Passive Aggressive classifiers adapt quickly to concept drift, making them suitable for dynamic data streams where underlying patterns change over time.
+- It has a low memory footprint as it does not need to store the entire dataset in memory.
+- The model often achieves good performance with minimal hyperparameter tuning, especially for the aggressiveness parameter $C$.
+
+## Weaknesses
+
+- Performance can be sensitive to the order of training examples, potentially leading to different models for the same dataset.
+- The algorithm does not inherently provide probability estimates for class membership, only hard classifications.
+- Its iterative updates can make the final model less interpretable compared to some other linear models.
+- It can be sensitive to noisy data points or outliers, as each misclassification triggers an update.
+- Feature scaling can be important if features have vastly different magnitudes, as the update rule depends on feature norms.
+
+## Use Cases
+
+### Spam Detection
+
+Classifying incoming emails as spam or legitimate in real-time, leveraging its efficiency and ability to handle sparse text features.
+
+### Sentiment Analysis
+
+Determining the sentiment (positive, negative, neutral) of social media posts or product reviews as they are generated.
+
+### Online Advertising
+
+Predicting click-through rates for advertisements in a streaming fashion, adapting to changing user preferences and ad effectiveness.
+
+### Fraud Detection
+
+Identifying fraudulent transactions or activities as they occur in financial systems, benefiting from its rapid adaptation to new patterns.
+
+### Network Intrusion Detection
+
+Classifying network traffic as malicious or benign in real-time to detect and prevent cyber threats.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Passive Aggressive Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = PassiveAggressiveClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Passive Aggressive Classifier Lab" />
+
+## References
+
+- Crammer et al. (2006). Crammer et al..
+- [scikit-learn: PassiveAggressiveClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveClassifier.html)

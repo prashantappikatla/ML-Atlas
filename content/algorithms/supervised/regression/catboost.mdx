@@ -1,0 +1,173 @@
+---
+title: "CatBoost"
+slug: "catboost"
+category: "supervised"
+subcategory: "regression"
+year: 2018
+author: "Yandex"
+paper: "Yandex"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bias-reduction", "categorical-features", "classification", "decision-trees", "ensemble", "gradient-boosting", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adaboost"
+  - "decision-tree-classifier"
+  - "lightgbm"
+  - "xgboost"
+---
+
+## Overview
+
+CatBoost is a gradient boosting algorithm that excels at handling categorical features without extensive preprocessing. It introduces novel techniques like Ordered Boosting to mitigate prediction shift and gradient bias, leading to more robust models and reduced overfitting. The algorithm constructs symmetric decision trees and employs a permutation-driven approach for target encoding of categorical variables, ensuring unbiased gradient estimation.
+
+## History
+
+**2017** — Yandex researchers, including Anna Prokhorenkova, Liudmila Gorshkova, et al., publish "CatBoost: unbiased boosting with categorical features," introducing the core concepts of ordered boosting and permutation-driven categorical feature handling.
+
+**2018** — Yandex open-sources the CatBoost library, making the algorithm widely available to the machine learning community.
+
+## Mathematical Intuition
+
+### Gradient Boosting Foundation
+
+CatBoost builds upon the gradient boosting framework, where an ensemble of weak learners (typically decision trees) is sequentially trained to correct the errors of previous learners. Each new tree is fit to the negative gradient of the loss function with respect to the model's predictions, aiming to minimize the overall loss.
+$$F_m(x) = F_{m-1}(x) - \gamma_m \nabla_{F_{m-1}} L(y, F_{m-1}(x))$$
+where $F_m(x)$ is the model at iteration $m$, $L$ is the loss function, and $\gamma_m$ is the step size.
+
+$$
+F_m(x) = F_{m-1}(x) - \gamma_m \nabla_{F_{m-1}} L(y, F_{m-1}(x))
+$$
+
+### Ordered Boosting for Bias Reduction
+
+Traditional gradient boosting suffers from prediction shift and gradient bias, where gradients estimated on the full dataset are biased by the current model's predictions. CatBoost addresses this with Ordered Boosting, where for each example $x_i$, the gradient is estimated using a model trained only on examples $x_j$ with $j < i$ (based on a random permutation). This ensures that the gradient for $x_i$ is unbiased by $x_i$ itself.
+$$g_i = \frac{\partial L(y_i, F_{m-1}^{i-1}(x_i))}{\partial F_{m-1}^{i-1}(x_i)}$$
+where $F_{m-1}^{i-1}$ is the model trained on a subset of data preceding $x_i$ in a random permutation.
+
+$$
+g_i = \frac{\partial L(y_i, F_{m-1}^{i-1}(x_i))}{\partial F_{m-1}^{i-1}(x_i)}
+$$
+
+### Permutation-Driven Categorical Feature Encoding
+
+CatBoost handles categorical features by converting them into numerical statistics. To avoid target leakage and prediction shift, it uses a permutation-driven approach similar to ordered boosting. For each categorical feature, a random permutation of the dataset is generated. For each example, the categorical feature value is replaced by the average target value of examples preceding it in the permutation that share the same categorical value.
+$$Stat_{j,k} = \frac{\sum_{i=1}^{j-1} [x_{i,cat} = k] \cdot Y_i + prior \cdot count}{ \sum_{i=1}^{j-1} [x_{i,cat} = k] + count}$$
+where $x_{i,cat}$ is the categorical feature value for example $i$, $k$ is a specific category, $Y_i$ is the target, and $prior, count$ are regularization terms.
+
+$$
+Stat_{j,k} = \frac{\sum_{i=1}^{j-1} [x_{i,cat} = k] \cdot Y_i + prior \cdot count}{ \sum_{i=1}^{j-1} [x_{i,cat} = k] + count}
+$$
+
+### Symmetric Tree Structure
+
+CatBoost uses oblivious decision trees, also known as symmetric trees. In these trees, the same splitting criterion is applied to all nodes at the same level. This structure simplifies parallelization, reduces overfitting, and leads to faster prediction times.
+
+## Algorithm Steps
+
+1. Initialize the ensemble with a constant prediction, typically the average target value.
+2. For each boosting iteration:
+3. Generate a random permutation of the training data.
+4. For each training example $x_i$ in the permuted order:
+5. Compute the "ordered" gradient $g_i$ using a model $F_{m-1}^{i-1}$ trained on examples preceding $x_i$ in the current permutation.
+6. For each categorical feature, compute its numerical statistic for $x_i$ based on target values of preceding examples in the permutation.
+7. Train a new symmetric decision tree (weak learner) on the current "ordered" gradients and the transformed features (including encoded categorical features).
+8. Add the new tree's predictions to the ensemble, scaled by a learning rate.
+9. Repeat until the maximum number of iterations is reached or an early stopping criterion is met.
+10. The final prediction for a new instance is the sum of predictions from all trees in the ensemble.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `iterations` | `integer` | `1000` | integer > 0 | The maximum number of boosting iterations (trees) to perform. |
+| `learning_rate` | `float` | `0.03` | float in (0, 1] | The learning rate (step size) that shrinks the contribution of each tree. |
+| `depth` | `integer` | `6` | integer in [1, 16] | The maximum depth of the individual decision trees (oblivious trees). |
+| `l2_leaf_reg` | `float` | `3.0` | float >= 0 | The L2 regularization coefficient applied to leaf values. |
+| `loss_function` | `string` | `RMSE (for regression), Logloss (for binary classification)` | e.g., 'RMSE', 'Logloss', 'MultiClass' | The loss function to be optimized during training. |
+| `eval_metric` | `string` | `RMSE (for regression), Logloss (for binary classification)` | e.g., 'RMSE', 'Logloss', 'AUC' | The metric used for evaluating the model's performance and for early stopping. |
+| `random_seed` | `integer` | `None` | integer >= 0 | The random seed used for reproducibility of results. |
+| `cat_features` | `list of integers or boolean mask` | `None` | list of integers or boolean array | A list of indices or a boolean mask indicating which features are categorical. |
+| `early_stopping_rounds` | `integer` | `None` | integer > 0 | Activates early stopping if the validation metric does not improve for a specified number of consecutive rounds. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- CatBoost automatically handles categorical features without requiring explicit one-hot encoding or other manual preprocessing, reducing feature engineering effort.
+- The Ordered Boosting scheme effectively mitigates prediction shift and gradient bias, leading to more robust models and reduced overfitting.
+- It often achieves competitive or superior performance compared to other gradient boosting algorithms, especially on datasets with many categorical features.
+- The use of symmetric trees and efficient C++ implementation results in fast inference times for trained models.
+- CatBoost is relatively robust to hyperparameter choices, often performing well with default settings.
+- It provides built-in tools for model interpretation, such as feature importance.
+
+## Weaknesses
+
+- Training can be slower than other gradient boosting implementations like LightGBM or XGBoost, particularly due to the permutation-driven ordered boosting and categorical feature encoding.
+- The memory consumption can be higher, especially for datasets with a large number of unique categorical feature values or very wide datasets.
+- While providing feature importance, the ensemble of many decision trees makes the overall model less interpretable than simpler linear models or single decision trees.
+- The default symmetric tree structure might not always be optimal for all datasets compared to more flexible tree structures.
+
+## Use Cases
+
+### Fraud Detection
+
+Identifying fraudulent transactions in financial datasets by leveraging various categorical features like transaction type, merchant ID, and user behavior.
+
+### Recommendation Systems
+
+Predicting user preferences for products, movies, or content based on historical interactions and categorical user/item attributes.
+
+### Ad Click Prediction
+
+Estimating the probability of a user clicking on an advertisement, utilizing features such as ad category, user demographics, and website context.
+
+### Customer Churn Prediction
+
+Forecasting which customers are likely to discontinue a service, using customer demographics, service usage patterns, and contract details.
+
+### Medical Diagnosis
+
+Assisting in the diagnosis of diseases by analyzing patient data, including symptoms, medical history, and categorical test results.
+
+### Credit Scoring
+
+Assessing the creditworthiness of loan applicants based on financial history, demographic information, and other categorical factors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement CatBoost from scratch
+```
+
+### Using scikit-learn
+
+```python
+# CatBoost does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="CatBoost Lab" />
+
+## References
+
+- Yandex (2018). Yandex.

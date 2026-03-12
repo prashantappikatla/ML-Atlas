@@ -1,0 +1,167 @@
+---
+title: "PageRank"
+slug: "pagerank"
+category: "graph"
+subcategory: "graph-algorithms"
+year: 1998
+author: "Page & Brin"
+paper: "Page & Brin"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["centrality-measure", "eigenvector-centrality", "graph-algorithm", "iterative", "link-analysis", "network-analysis", "unsupervised", "web-ranking"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+PageRank is an algorithm designed to measure the relative importance or influence of nodes within a graph, most famously applied to rank web pages in search engine results. It operates on the principle that a node's importance is derived from the importance of the nodes that link to it. The algorithm models a 'random surfer' who navigates the graph by following links or occasionally 'teleporting' to a random node, ultimately computing the stationary probability distribution of this random walk.
+
+## History
+
+**1998** — Larry Page and Sergey Brin introduce PageRank in their seminal paper, "The Anatomy of a Large-Scale Hypertextual Web Search Engine," laying the mathematical and conceptual foundation for Google's search engine.
+
+**1999** — Google Inc. is officially founded, with PageRank serving as a core component of its search engine, contributing significantly to its early success and market dominance.
+
+**2000** — The PageRank patent is granted to Stanford University, with Google receiving exclusive licensing rights in exchange for equity.
+
+**2000** — Jon Kleinberg's HITS algorithm (Hyperlink-Induced Topic Search) gains recognition as a related but distinct approach to link analysis, offering an alternative perspective on node importance based on 'hubs' and 'authorities'.
+
+**2010** — While still foundational, the direct influence of PageRank on modern search engine rankings begins to diminish as more sophisticated, personalized, and content-aware ranking factors are integrated into search algorithms.
+
+## Mathematical Intuition
+
+### Random Surfer Model and Stationary Distribution
+
+PageRank models the behavior of a hypothetical 'random surfer' who, at any given page, either follows a random outgoing link with probability $d$ (the damping factor) or 'teleports' to a completely random page in the graph with probability $1-d$. The PageRank score of a page is defined as the stationary probability that this random surfer will be on that page after a very long time. This stationary distribution $\mathbf{p}$ is the solution to the equation:
+$$ \mathbf{p} = d \mathbf{M}^T \mathbf{p} + (1-d) \frac{1}{N} \mathbf{1} $$
+Here, $\mathbf{p}$ is the PageRank vector, $\mathbf{M}$ is the transition matrix of the graph, $N$ is the total number of nodes, and $\mathbf{1}$ is a vector of ones.
+
+$$
+\mathbf{p} = d \mathbf{M}^T \mathbf{p} + (1-d) \frac{1}{N} \mathbf{1}
+$$
+
+### Graph Transition Matrix Construction
+
+The transition matrix $\mathbf{M}$ is constructed from the graph's adjacency information. For a graph with $N$ nodes, if node $j$ has $L_j$ outgoing links, then for each link from $j$ to $i$, the entry $M_{ij}$ is $1/L_j$. If a node has no outgoing links (a dangling node), it is typically handled by assuming it links to all other pages, or by distributing its current PageRank equally among all nodes. The matrix $\mathbf{M}$ is column-stochastic, meaning its columns sum to 1.
+$$ M_{ij} = \begin{cases} 1/L_j & \text{if there is a link from } j \text{ to } i \\ 0 & \text{otherwise} \end{cases} $$
+
+$$
+M_{ij} = \begin{cases} 1/L_j & \text{if there is a link from } j \text{ to } i \\ 0 & \text{otherwise} \end{cases}
+$$
+
+### Damping Factor and Teleportation
+
+The damping factor $d$ (typically set to 0.85) represents the probability that the random surfer will continue following links. With probability $1-d$, the surfer 'teleports' to a random page. This teleportation mechanism is crucial for two reasons: it ensures that the graph is effectively strongly connected, preventing 'rank sinks' where importance flows into a subset of pages and never leaves, and it guarantees the existence of a unique stationary distribution for the Markov chain, regardless of the graph's original connectivity.
+
+### Power Iteration for Convergence
+
+The PageRank vector $\mathbf{p}$ is the principal eigenvector of a modified transition matrix. It can be efficiently computed using the power iteration method. Starting with an initial PageRank vector $\mathbf{p}_0$ (e.g., all entries equal to $1/N$), the algorithm iteratively updates the vector:
+$$ \mathbf{p}_{k+1} = d \mathbf{M}^T \mathbf{p}_k + (1-d) \frac{1}{N} \mathbf{1} $$
+This process continues until the difference between $\mathbf{p}_{k+1}$ and $\mathbf{p}_k$ (e.g., measured by the L1 norm) falls below a predefined tolerance $\epsilon$, indicating convergence to the stationary distribution.
+
+$$
+\mathbf{p}_{k+1} = d \mathbf{M}^T \mathbf{p}_k + (1-d) \frac{1}{N} \mathbf{1}
+$$
+
+## Algorithm Steps
+
+1. Initialize the PageRank score for each node $i$ as $PR(i) = 1/N$, where $N$ is the total number of nodes in the graph.
+2. Construct the transition matrix $\mathbf{M}$ where $M_{ij} = 1/L_j$ if there is a link from node $j$ to node $i$, and $0$ otherwise, with $L_j$ being the number of outgoing links from node $j$.
+3. Handle dangling nodes (nodes with no outgoing links) by assuming they link to all other nodes, effectively distributing their current PageRank equally among all nodes.
+4. Iteratively update the PageRank score for each node $i$ using the formula: $PR_{new}(i) = (1-d)/N + d \sum_{j \in B_i} PR(j)/L_j$, where $d$ is the damping factor, $B_i$ is the set of nodes linking to node $i$, and $L_j$ is the number of outgoing links from node $j$.
+5. Repeat the iteration until the PageRank scores converge, meaning the change in scores between successive iterations is below a specified tolerance $\epsilon$.
+6. Normalize the final PageRank scores such that their sum equals 1.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `damping_factor` | `float` | `0.85` | 0.0 to 1.0 | The probability that the random surfer will continue following links rather than teleporting to a random page. |
+| `max_iter` | `int` | `100` | positive integer | Maximum number of iterations for the power iteration method to converge. |
+| `tol` | `float` | `1e-6` | positive float | Tolerance for convergence; the algorithm stops when the L1 norm of the change in the PageRank vector between successive iterations is below this value. |
+| `personalization_vector` | `array-like` | `None` | array-like of shape (n_nodes,) or None | A vector specifying a probability distribution over nodes for the random teleportation, used for Personalized PageRank to bias importance towards certain nodes. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- PageRank provides a global measure of importance for nodes within a graph, reflecting the overall network structure rather than just local connectivity.
+- The algorithm is relatively robust to simple spamming techniques compared to basic link-counting methods due to its recursive nature.
+- It is computationally efficient for large graphs, especially when implemented using iterative methods like power iteration.
+- The damping factor effectively handles disconnected components and ensures convergence to a unique, stable solution.
+- PageRank is an unsupervised algorithm, requiring no labeled data for training, making it broadly applicable to various graph structures.
+- The underlying random surfer model offers an intuitive and easily understandable explanation of its mechanism.
+
+## Weaknesses
+
+- PageRank does not inherently consider the semantic content or topic of the nodes, relying solely on the link structure.
+- It can be slow to converge for extremely large graphs or graphs with specific topological properties, requiring many iterations.
+- The algorithm can still be susceptible to sophisticated 'link farms' or 'spam farms' if not properly mitigated by other ranking factors.
+- The damping factor is a hyperparameter that needs to be chosen, and its optimal value can depend on the specific graph and application.
+- It treats all links as equally important, regardless of their context, quality, or the strength of the relationship they represent.
+
+## Use Cases
+
+### Web Search Ranking
+
+Originally developed to rank web pages by their perceived importance, directly influencing the order of results returned by search engines.
+
+### Social Network Analysis
+
+Identifying influential users, key opinion leaders, or central figures within social networks based on their connection patterns and the importance of their followers.
+
+### Citation Networks
+
+Ranking the importance of academic papers, journals, or authors based on citation counts and the prestige of the citing publications.
+
+### Recommendation Systems
+
+Suggesting items (e.g., products, movies, articles) by modeling user-item interactions as a graph and identifying important or relevant items based on their PageRank scores.
+
+### Bioinformatics
+
+Analyzing protein-protein interaction networks to identify key proteins or pathways that are central to biological processes.
+
+### Fraud Detection
+
+Identifying suspicious entities or transactions in financial or telecommunication networks by detecting unusual link patterns or highly central nodes in fraudulent subnetworks.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PageRank from scratch
+```
+
+### Using scikit-learn
+
+```python
+# PageRank does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="PageRank Lab" />
+
+## References
+
+- Page & Brin (1998). Page & Brin.

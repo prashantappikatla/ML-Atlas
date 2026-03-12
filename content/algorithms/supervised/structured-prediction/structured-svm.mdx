@@ -1,0 +1,209 @@
+---
+title: "Structured SVM"
+slug: "structured-svm"
+category: "supervised"
+subcategory: "structured-prediction"
+year: 2004
+author: "Tsochantaridis et al."
+paper: "Tsochantaridis et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["convex-optimization", "image-segmentation", "max-margin", "nlp", "sequence-labeling", "structured-prediction", "supervised-learning", "support-vector-machines"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "hidden-markov-model"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Structured Support Vector Machines (Structured SVMs) extend the principles of Support Vector Machines to predict complex, structured outputs rather than simple scalar or categorical labels. It achieves this by learning a discriminant function that maps an input to a structured output, maximizing a margin that depends on a task-specific loss function. The core idea involves defining a joint feature map that combines input and output representations, allowing the model to capture intricate dependencies within the output structure. This framework is particularly powerful for tasks where the output space is large and exhibits internal relationships.
+
+## History
+
+**2004** — Ioannis Tsochantaridis, Thorsten Joachims, Thomas Hofmann, and Yasemin Altun published 'Support Vector Machines for Structured Outputs', introducing the foundational framework for Structured SVMs.
+
+**2005** — Ben Taskar, Carlos Guestrin, and Daphne Koller further developed max-margin structured prediction, exploring connections to conditional random fields and efficient inference algorithms.
+
+**2007** — Thorsten Joachims, Thomas Hofmann, and Yisong Yue presented the cutting-plane algorithm for training large-scale Structured SVMs, significantly improving their practical applicability by efficiently handling the exponential number of constraints.
+
+**2010** — Research continued to focus on extending Structured SVMs to handle non-linearities through kernel methods and developing more efficient optimization techniques for various complex structured prediction tasks.
+
+## Mathematical Intuition
+
+### Structured Output Space and Scoring
+
+Unlike traditional classification, Structured SVMs operate in a structured output space $\mathcal{Y}$, where outputs $y$ can be sequences, trees, or graphs. For an input $x \in \mathcal{X}$, the model learns a scoring function $F(x, y; w)$ that assigns a score to each possible output structure $y$. The prediction is then given by $\hat{y} = \arg\max_{y \in \mathcal{Y}} F(x, y; w)$. This scoring function is typically linear in a joint feature map, $F(x, y; w) = w^T \Psi(x, y)$, where $w$ is the weight vector and $\Psi(x, y)$ is a high-dimensional feature representation of the input-output pair.
+
+$$
+\mathcal{X}
+$$
+
+$$
+\mathcal{Y}
+$$
+
+$$
+\hat{y} = \arg\max_{y \in \mathcal{Y}} F(x, y; w)
+$$
+
+$$
+F(x, y; w) = w^T \Psi(x, y)
+$$
+
+### Joint Feature Map Definition
+
+The joint feature map $\Psi(x, y)$ is central to Structured SVMs. It combines features derived from the input $x$ and the structured output $y$, capturing their interdependencies. For example, in sequence labeling, $\Psi(x, y)$ might aggregate features from individual input-output pairs $(x_i, y_i)$ and transition features between adjacent output labels $(y_i, y_{i+1})$. The design of $\Psi(x, y)$ is task-specific and allows the model to encode rich structural information and relationships.
+
+$$
+\Psi(x, y)
+$$
+
+$$
+(x_i, y_i)
+$$
+
+$$
+(y_i, y_{i+1})
+$$
+
+### Margin and Loss Function
+
+The objective of Structured SVMs is to learn a weight vector $w$ such that the true output $y_n$ for an input $x_n$ is scored significantly higher than any other incorrect output $y \neq y_n$. This 'significantly higher' is quantified by a task-specific loss function $\Delta(y_n, y)$, which measures the cost of predicting $y$ instead of $y_n$. The margin constraint ensures that $w^T \Psi(x_n, y_n) \ge w^T \Psi(x_n, y) + \Delta(y_n, y)$ for all $y \in \mathcal{Y}$. This formulation directly optimizes for a margin that is proportional to the prediction error.
+
+$$
+\Delta(y_n, y)
+$$
+
+$$
+w^T \Psi(x_n, y_n) \ge w^T \Psi(x_n, y) + \Delta(y_n, y)
+$$
+
+### Primal Optimization Problem
+
+The training of a Structured SVM involves solving a convex optimization problem to find the optimal weight vector $w$. The primal formulation minimizes a regularized empirical risk, incorporating slack variables $\xi_n$ to allow for margin violations. The objective is: $$ \min_{w, \xi \ge 0} \frac{1}{2} \|w\|^2 + C \sum_{n=1}^N \xi_n $$ subject to the constraints: $w^T \Psi(x_n, y_n) - w^T \Psi(x_n, y) \ge \Delta(y_n, y) - \xi_n$ for all training examples $(x_n, y_n)$ and for all possible incorrect outputs $y \in \mathcal{Y} \setminus \{y_n\}$. The constant $C > 0$ balances the trade-off between maximizing the margin and minimizing the training error. Due to the potentially exponential number of constraints, specialized algorithms like the cutting-plane method are used for optimization.
+
+$$
+\min_{w, \xi \ge 0} \frac{1}{2} \|w\|^2 + C \sum_{n=1}^N \xi_n
+$$
+
+$$
+w^T \Psi(x_n, y_n) - w^T \Psi(x_n, y) \ge \Delta(y_n, y) - \xi_n
+$$
+
+$$
+C > 0
+$$
+
+## Algorithm Steps
+
+1. Initialize the weight vector $w$ and an empty set of active constraints.
+2. Iterate until convergence: For each training example $(x_n, y_n)$, find the 'most violated constraint' by solving the loss-augmented inference problem: $\hat{y}_n = \arg\max_{y \in \mathcal{Y}} (w^T \Psi(x_n, y) + \Delta(y_n, y))$.
+3. Check if the current constraint is sufficiently violated: if $w^T \Psi(x_n, y_n) - w^T \Psi(x_n, \hat{y}_n) < \Delta(y_n, \hat{y}_n) - \epsilon$ (for a small tolerance $\epsilon$), add the constraint corresponding to $\hat{y}_n$ to the active set.
+4. If new constraints were added, solve the quadratic program (QP) defined by the current active set of constraints to update $w$ and the slack variables $\xi_n$. This QP is a standard SVM-like problem.
+5. If no new constraints were added for any training example, or the change in $w$ is below a threshold, the algorithm has converged.
+6. For prediction on a new input $x_{new}$, perform inference to find the highest-scoring output structure: $\hat{y}_{new} = \arg\max_{y \in \mathcal{Y}} w^T \Psi(x_{new}, y)$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `C` | `float` | `1.0` | C > 0 | Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive, controlling the trade-off between maximizing the margin and minimizing training error. |
+| `loss` | `string` | `'hinge'` | e.g., 'hinge', 'hamming', 'edit_distance' | Specifies the type of loss function to be used. While 'hinge' is standard, task-specific structured losses (e.g., Hamming loss, edit distance) are often employed. |
+| `max_iter` | `int` | `1000` | max_iter > 0 | Maximum number of iterations (e.g., cutting-plane iterations) to perform during the optimization process. A higher value allows for more thorough convergence. |
+| `tol` | `float` | `1e-3` | tol > 0 | Tolerance for the stopping criterion. Training will terminate when the duality gap or the change in the objective function falls below this value. |
+| `inference_method` | `string` | `'exact'` | 'exact', 'approximate' | Specifies the method used for solving the loss-augmented inference problem. Can be 'exact' if an efficient algorithm exists, or 'approximate' using heuristics or sampling for intractable cases. |
+| `feature_map` | `callable` | `None` |  | A user-defined function that computes the joint feature map $\Psi(x, y)$ for a given input $x$ and output structure $y$. This is highly task-specific and crucial for defining the model. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Structured SVMs can model complex dependencies within the output structure, leading to more coherent and accurate predictions for tasks with structured outputs.
+- The framework allows for direct optimization of a task-specific loss function, aligning the learning objective with the desired evaluation metric.
+- It provides strong theoretical guarantees, including generalization bounds, similar to traditional Support Vector Machines.
+- The approach is highly flexible, allowing custom joint feature maps and loss functions to be defined for a wide range of structured prediction problems.
+- Structured SVMs are robust to noise and outliers due to their max-margin formulation, which focuses on the most challenging examples.
+- The cutting-plane optimization strategy can efficiently handle problems with an exponential number of potential output structures, provided the inference step is tractable.
+
+## Weaknesses
+
+- The 'loss-augmented inference' step, which finds the most violated constraint, must be efficiently solvable for the specific task, often requiring specialized algorithms.
+- Training can be computationally expensive, especially for large datasets or highly complex output spaces, due to the iterative nature of solving the quadratic program.
+- Requires careful and often expert design of the joint feature map $\Psi(x, y)$ and the loss function $\Delta(y_n, y)$, which can be non-trivial for novel problems.
+- The model's performance heavily depends on the quality of the chosen features and the tractability of the inference problem.
+- Interpretation of the learned weight vector $w$ can be challenging due to the high-dimensional and abstract nature of the joint feature space.
+
+## Use Cases
+
+### Natural Language Processing
+
+Applied to tasks such as named entity recognition, part-of-speech tagging, and dependency parsing, where the output is a sequence of labels with intricate grammatical or semantic dependencies.
+
+### Computer Vision
+
+Utilized for semantic image segmentation, object detection, and human pose estimation, predicting structured outputs like pixel-wise labels, bounding boxes, or skeletal joint positions.
+
+### Bioinformatics
+
+Employed in protein structure prediction, gene sequence alignment, and RNA secondary structure prediction, where the output is a complex biological structure or alignment.
+
+### Activity Recognition
+
+Used to recognize sequences of activities from sensor data (e.g., accelerometers), predicting a structured sequence of actions or events over time.
+
+### Information Extraction
+
+Applied to extract structured information from unstructured text, such as filling database templates or identifying complex relationships between entities in documents.
+
+### Graph Prediction
+
+Can be adapted for tasks like link prediction, node classification with structural dependencies, or predicting entire graph structures based on input features.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Structured SVM from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import StructuredSvm
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = StructuredSvm()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Structured SVM Lab" />
+
+## References
+
+- Tsochantaridis et al. (2004). Tsochantaridis et al..
+- [scikit-learn: StructuredSvm](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.StructuredSvm.html)

@@ -1,0 +1,169 @@
+---
+title: "GRU"
+slug: "gru"
+category: "deep-learning"
+subcategory: "sequence-models"
+year: 2014
+author: "Cho et al."
+paper: "Cho et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "gated-recurrent-unit", "natural-language-processing", "neural-network", "recurrent-neural-network", "sequence-model", "time-series", "vanishing-gradient"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "recurrent-neural-network"
+  - "transformer"
+---
+
+## Overview
+
+Gated Recurrent Units (GRUs) are a type of [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) designed to capture dependencies in sequential data, addressing the vanishing gradient problem prevalent in traditional RNNs. They achieve this by employing gating mechanisms that regulate the flow of information, allowing the network to selectively remember or forget past information. GRUs offer a simpler architecture compared to Long Short-Term Memory (LSTM) networks, utilizing only two gates—an update gate and a reset gate—which often results in comparable performance with fewer parameters and faster computation.
+
+## History
+
+**2014** — The Gated Recurrent Unit (GRU) was introduced by Kyunghyun Cho et al. in their seminal paper "Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation," proposing a novel architecture for sequence modeling.
+
+**2014** — The GRU quickly gained recognition as an effective and computationally efficient alternative to Long Short-Term Memory (LSTM) networks, particularly in tasks like machine translation.
+
+**2015** — Following its introduction, GRUs were rapidly integrated into major deep learning frameworks and became a standard component in various sequence-to-sequence models and [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) architectures.
+
+**2015** — Research began to explore the comparative performance of GRUs and LSTMs across different tasks, often finding them to be competitive, with GRUs sometimes offering advantages in terms of training speed due to fewer parameters.
+
+## Mathematical Intuition
+
+### Update Gate Mechanism
+
+The update gate, denoted as $z_t$, determines how much of the previous hidden state $h_{t-1}$ should be carried over to the current hidden state $h_t$. A high value for $z_t$ indicates that more of the previous information is retained, while a low value suggests more new information from the candidate hidden state $	ilde{h}_t$ is incorporated. It is computed using a sigmoid activation function, ensuring its output is between 0 and 1.
+
+$$
+z_t = \sigma(W_z x_t + U_z h_{t-1} + b_z)
+$$
+
+### Reset Gate Mechanism
+
+The reset gate, $r_t$, controls how much of the previous hidden state $h_{t-1}$ should be 'forgotten' or ignored when computing the new candidate hidden state $	ilde{h}_t$. A value close to 0 for $r_t$ effectively makes the network forget the previous hidden state, allowing it to focus solely on the current input. Like the update gate, it uses a sigmoid activation.
+
+$$
+r_t = \sigma(W_r x_t + U_r h_{t-1} + b_r)
+$$
+
+### Candidate Hidden State
+
+The candidate hidden state, $	ilde{h}_t$, represents a potential new hidden state. It is computed based on the current input $x_t$ and a 'reset' version of the previous hidden state $(r_t \odot h_{t-1})$. The element-wise product $r_t \odot h_{t-1}$ allows the reset gate to selectively diminish the influence of parts of the previous hidden state. A hyperbolic tangent (tanh) activation is typically applied to this combination.
+
+$$
+\tilde{h}_t = \tanh(W_h x_t + U_h (r_t \odot h_{t-1}) + b_h)
+$$
+
+### Final Hidden State Computation
+
+The final hidden state $h_t$ at time step $t$ is a linear interpolation between the previous hidden state $h_{t-1}$ and the candidate hidden state $	ilde{h}_t$, controlled by the update gate $z_t$. If $z_t$ is close to 1, $h_t$ largely retains $h_{t-1}$. If $z_t$ is close to 0, $h_t$ is primarily determined by $	ilde{h}_t$. This mechanism allows the GRU to adaptively control the flow of information and memory.
+
+$$
+h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+$$
+
+## Algorithm Steps
+
+1. Initialize the hidden state $h_0$ to a vector of zeros at the beginning of the sequence.
+2. For each time step $t$ in the input sequence, compute the update gate $z_t$ using the current input $x_t$ and the previous hidden state $h_{t-1}$ with a sigmoid activation.
+3. Compute the reset gate $r_t$ using the current input $x_t$ and the previous hidden state $h_{t-1}$ with a sigmoid activation.
+4. Calculate the candidate hidden state $	ilde{h}_t$ by applying a hyperbolic tangent activation to a linear combination of $x_t$ and the element-wise product of $r_t$ and $h_{t-1}$.
+5. Determine the final hidden state $h_t$ by combining $h_{t-1}$ and $	ilde{h}_t$ using the update gate $z_t$, specifically $h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$.
+6. Pass the current hidden state $h_t$ to the next time step $t+1$ as the new previous hidden state.
+7. Repeat steps 2-6 for all time steps in the sequence, generating a sequence of hidden states.
+8. Train the network using backpropagation through time (BPTT) to optimize the weights and biases by minimizing a chosen loss function, typically after applying a final output layer to the sequence of hidden states or the last hidden state.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `units` | `int` | `128` | integer > 0 | Dimensionality of the output space, which corresponds to the number of hidden units in the GRU cell. |
+| `activation` | `string` | `tanh` | ['tanh', 'relu', 'sigmoid', 'linear'] | Activation function to use for the candidate hidden state ($\tilde{h}_t$). Common choices include 'tanh' or 'relu'. |
+| `recurrent_activation` | `string` | `sigmoid` | ['sigmoid', 'hard_sigmoid'] | Activation function to use for the recurrent step (the gates $z_t$ and $r_t$). Typically 'sigmoid' to produce values between 0 and 1. |
+| `use_bias` | `boolean` | `true` | true/false | Whether the layer should use a bias vector in its linear transformations. |
+| `dropout` | `float` | `0.0` | [0.0, 1.0) | Fraction of the units to randomly drop for the linear transformation of the inputs, helping to prevent overfitting. |
+| `recurrent_dropout` | `float` | `0.0` | [0.0, 1.0) | Fraction of the units to randomly drop for the linear transformation of the recurrent state, applied to the gates and candidate hidden state. |
+| `return_sequences` | `boolean` | `false` | true/false | Whether to return the full sequence of outputs for each time step, or only the last output in the output sequence. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Effectively captures long-range dependencies in sequential data, mitigating the vanishing gradient problem common in vanilla RNNs.
+- Requires fewer parameters than Long Short-Term Memory (LSTM) networks, leading to potentially faster training and inference times.
+- Its simpler architecture, involving only two gates, makes it easier to understand and implement compared to more complex gated RNN variants.
+- Demonstrates strong performance across various sequence modeling tasks, often achieving results comparable to LSTMs.
+- The gating mechanisms allow for adaptive memory retention and forgetting, improving the network's ability to learn relevant patterns over time.
+
+## Weaknesses
+
+- Can still struggle with extremely long sequences where dependencies span thousands of time steps, although less so than vanilla RNNs.
+- Performance can be sensitive to hyperparameter tuning, particularly the learning rate, hidden state size, and dropout rates.
+- While simpler than LSTMs, GRUs are still more computationally intensive than traditional feedforward networks or vanilla Recurrent Neural Networks.
+- The interpretability of the learned gate values can be challenging, making it difficult to precisely understand how the network makes memory decisions.
+
+## Use Cases
+
+### Natural Language Processing
+
+Applied in tasks such as machine translation, sentiment analysis, and text generation, where the sequential nature of language is critical for understanding context.
+
+### Speech Recognition
+
+Used to process temporal sequences of audio features to convert spoken language into text, capturing the dynamics of speech signals.
+
+### Time Series Forecasting
+
+Employed for predicting future values in various time-dependent data, including financial markets, weather patterns, and sensor readings.
+
+### Anomaly Detection
+
+Utilized to identify unusual patterns or outliers in sequential data streams, such as network traffic, system logs, or industrial sensor data.
+
+### Music Generation
+
+Leveraged to generate novel musical sequences by learning the temporal structures and patterns from existing compositions.
+
+### Video Analysis
+
+Processes sequences of video frames for tasks like action recognition, activity prediction, or video captioning, modeling temporal relationships between frames.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GRU from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GRU does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GRU Lab" />
+
+## References
+
+- Cho et al. (2014). Cho et al..

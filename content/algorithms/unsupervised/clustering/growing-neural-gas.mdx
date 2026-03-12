@@ -1,0 +1,188 @@
+---
+title: "Growing Neural Gas"
+slug: "growing-neural-gas"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1995
+author: "Fritzke"
+paper: "Fritzke"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["adaptive-network", "clustering", "manifold-learning", "neural-networks", "self-organizing-map", "topology-learning", "unsupervised-learning", "vector-quantization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dbscan"
+  - "k-means"
+  - "neural-gas"
+  - "self-organizing-map"
+---
+
+## Overview
+
+Growing [Neural Gas](/algorithms/unsupervised/clustering/neural-gas) (GNG) is an unsupervised learning algorithm that dynamically learns a topological map of input data by incrementally adding and removing nodes and edges. It constructs a network of neurons that adapt to the data distribution while simultaneously learning the underlying manifold structure. Unlike fixed-topology models, GNG automatically determines the optimal network size and connectivity based on the input data's complexity. This adaptive nature allows it to effectively model complex, non-linear data distributions.
+
+## History
+
+**1991** — Thomas Martinetz and Klaus Schulten introduce the [Neural Gas](/algorithms/unsupervised/clustering/neural-gas) (NG) algorithm, a precursor to GNG, which uses a competitive Hebbian learning rule to adapt neurons to input data.
+
+**1995** — Bernd Fritzke introduces the Growing [Neural Gas](/algorithms/unsupervised/clustering/neural-gas) algorithm in his seminal paper, building upon [Neural Gas](/algorithms/unsupervised/clustering/neural-gas) by adding mechanisms for dynamic network growth and pruning, allowing the network to adapt its structure to the data.
+
+**1997** — Fritzke further refines the GNG algorithm and explores its applications in data analysis and visualization, demonstrating its ability to learn complex data manifolds and its advantages over fixed-size networks.
+
+**2000** — GNG gains recognition for its ability to learn optimal network topologies without requiring prior specification of the number of nodes, leading to its application in various fields like robotics, pattern recognition, and data mining.
+
+## Mathematical Intuition
+
+### Competitive Hebbian Learning
+
+GNG employs a competitive Hebbian learning rule where neurons adapt their weights towards input signals. For each input vector $x$, the two closest neurons (best-matching unit $s_1$ and second best-matching unit $s_2$) are identified. The weights of $s_1$ and its direct topological neighbors are updated to move closer to $x$. This adaptation is governed by learning rates $\epsilon_b$ for the BMU and $\epsilon_n$ for its neighbors.
+$$w_{s_1}(t+1) = w_{s_1}(t) + \epsilon_b (x - w_{s_1}(t))$$
+$$w_{s_j}(t+1) = w_{s_j}(t) + \epsilon_n (x - w_{s_j}(t))$$
+where $s_j$ is a neighbor of $s_1$.
+
+$$
+w_{s_1}(t+1) = w_{s_1}(t) + \epsilon_b (x - w_{s_1}(t))
+$$
+
+$$
+w_{s_j}(t+1) = w_{s_j}(t) + \epsilon_n (x - w_{s_j}(t))
+$$
+
+### Edge Management and Age
+
+Connections (edges) between neurons represent their topological proximity. When an input $x$ is presented, an edge between the best-matching unit $s_1$ and the second best-matching unit $s_2$ is created or reinforced. All edges connected to $s_1$ are incremented in age. If an edge's age exceeds a predefined maximum age, it is removed. If a neuron becomes isolated (has no more connections), it is also removed. This mechanism ensures that only relevant connections are maintained and obsolete neurons are pruned, allowing the network to adapt its topology dynamically.
+
+### Error Accumulation and Insertion
+
+Each neuron accumulates a local error measure, which quantifies how well it represents the input data in its vicinity. When an input $x$ is presented, the squared Euclidean distance between $x$ and the best-matching unit $s_1$ is added to $s_1$'s error counter. Periodically, a new neuron is inserted into the network. This new neuron is placed between the neuron with the largest accumulated error and its neighbor with the largest error, effectively growing the network in regions where the data representation is poor.
+$$E_{s_1} \leftarrow E_{s_1} + ||x - w_{s_1}||^2$$
+
+$$
+E_{s_1} \leftarrow E_{s_1} + ||x - w_{s_1}||^2
+$$
+
+### Global Error Reduction
+
+To prevent unbounded error growth and to ensure that older errors do not disproportionately influence node insertion, all neurons' error counters are reduced by a fraction $\beta$ at each iteration. Additionally, the error of the best-matching unit $s_1$ is reduced by a larger fraction $\alpha$. This ensures that the network continuously adapts to the most recent data distribution and that neurons that have recently been good matches have their errors reduced more significantly.
+$$E_{s_1} \leftarrow E_{s_1} - \alpha E_{s_1}$$
+$$E_k \leftarrow E_k - \beta E_k \quad \text{for all neurons } k$$
+
+$$
+E_{s_1} \leftarrow E_{s_1} - \alpha E_{s_1}
+$$
+
+$$
+E_k \leftarrow E_k - \beta E_k \quad \text{for all neurons } k
+$$
+
+## Algorithm Steps
+
+1. Initialize the network with two randomly chosen neurons and a single edge connecting them.
+2. For each training iteration, generate a new input vector $x$ from the data distribution.
+3. Find the best-matching unit $s_1$ and the second best-matching unit $s_2$ based on Euclidean distance to $x$.
+4. Increment the age of all edges emanating from $s_1$.
+5. Add the squared Euclidean distance between $x$ and $w_{s_1}$ to $s_1$'s local error variable: $E_{s_1} \leftarrow E_{s_1} + ||x - w_{s_1}||^2$.
+6. Move $s_1$ and its direct topological neighbors towards $x$ by fractions $\epsilon_b$ and $\epsilon_n$ respectively: $w_{s_1} \leftarrow w_{s_1} + \epsilon_b (x - w_{s_1})$ and $w_{s_j} \leftarrow w_{s_j} + \epsilon_n (x - w_{s_j})$ for neighbors $s_j$.
+7. If an edge between $s_1$ and $s_2$ does not exist, create one with age 0; otherwise, reset the age of the existing edge to 0.
+8. Remove all edges whose age exceeds `max_age`; if a neuron becomes isolated after edge removal, remove it as well.
+9. If the current iteration count is a multiple of $\lambda$ (node insertion frequency), insert a new neuron $r$ halfway between the neuron $q$ with the largest accumulated error and its neighbor $f$ with the largest error, creating new edges and removing the old one between $q$ and $f$, and adjusting their error variables.
+10. Decrease the error variables of all neurons by a fraction $\beta$: $E_k \leftarrow E_k - \beta E_k$ for all neurons $k$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_iterations` | `integer` | `10000` | integer > 0 | The total number of training iterations or input signals to process. |
+| `max_nodes` | `integer` | `250` | integer > 1 | The maximum number of neurons allowed in the network. The algorithm stops growing if this limit is reached. |
+| `lambda_` | `integer` | `100` | integer > 0 | The frequency (in terms of iterations) at which a new neuron is inserted into the network. |
+| `epsilon_b` | `float` | `0.05` | 0.0 < float <= 1.0 | The learning rate for the best-matching unit, determining how much its weight vector moves towards the input signal. |
+| `epsilon_n` | `float` | `0.0006` | 0.0 < float <= 1.0 | The learning rate for the topological neighbors of the best-matching unit, determining their adaptation speed. |
+| `alpha` | `float` | `0.5` | 0.0 < float <= 1.0 | The factor by which the error variables of the two neurons involved in a new node insertion are decreased. |
+| `beta` | `float` | `0.0005` | 0.0 < float <= 1.0 | The factor by which all neurons' error variables are decreased at each iteration, preventing unbounded error growth. |
+| `max_age` | `integer` | `50` | integer > 0 | The maximum age an edge can reach before it is removed, pruning old or irrelevant connections. |
+| `random_state` | `integer or None` | `None` | integer or None | Seed for the random number generator to ensure reproducibility of results. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It automatically determines the optimal number of neurons and the network topology, eliminating the need for manual specification.
+- GNG can effectively learn complex, non-linear data manifolds and adapt to varying data densities.
+- The algorithm is robust to noise and outliers due to its continuous adaptation and pruning mechanisms.
+- It provides a topological map that preserves the neighborhood relationships of the input data, useful for visualization and understanding data structure.
+- GNG can be used for online learning, adapting its structure incrementally as new data arrives without requiring retraining from scratch.
+
+## Weaknesses
+
+- The algorithm can be sensitive to the choice of its numerous hyperparameters, which may require careful tuning for optimal performance.
+- Computational complexity can be high for very large datasets due to the need to search for best-matching units and update network connections.
+- The resulting topology might be influenced by the initial random neuron placement, potentially leading to local optima.
+- Interpreting the learned topology can be challenging for high-dimensional data, despite its topological preservation properties.
+- The algorithm may struggle with highly sparse data or data with very distinct, disconnected clusters.
+
+## Use Cases
+
+### Data Compression
+
+Used for vector quantization and reducing the dimensionality of high-dimensional datasets while preserving topological information, enabling more efficient storage and processing.
+
+### Anomaly Detection
+
+Identifying outliers or novel patterns in data by detecting regions where input vectors are poorly represented by the network, indicating deviations from learned normal behavior.
+
+### Robotics
+
+Employed for robot navigation, mapping unknown environments, and learning motor control policies by building adaptive representations of sensory input.
+
+### Image Processing
+
+Applied in tasks such as image segmentation, feature extraction, and clustering of visual patterns, where it can identify meaningful regions or structures within images.
+
+### Speech Recognition
+
+Used for clustering speech features and building phonetic maps, aiding in the robust recognition of spoken language under varying conditions.
+
+### Bioinformatics
+
+Applied to analyze gene expression data and identify clusters of similar biological samples or genes, revealing underlying biological processes or disease subtypes.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Growing Neural Gas from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import GrowingNeuralGas
+
+model = GrowingNeuralGas()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Growing Neural Gas Lab" />
+
+## References
+
+- Fritzke (1995). Fritzke.
+- [scikit-learn: GrowingNeuralGas](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.GrowingNeuralGas.html)

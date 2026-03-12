@@ -1,0 +1,156 @@
+---
+title: "Calibrated Classifier"
+slug: "calibrated-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 2005
+author: "Platt / isotonic calibration"
+paper: "Platt / isotonic calibration"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["calibration", "classification", "model-agnostic", "post-processing", "probability", "reliability", "supervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "isotonic-regression"
+  - "logistic-regression"
+---
+
+## Overview
+
+Calibrated Classifier is a meta-algorithm designed to improve the reliability of probability predictions from a base classifier. Many machine learning models produce decision scores or uncalibrated probabilities that do not accurately reflect the true likelihood of an event. This method post-processes these raw outputs to align them more closely with actual probabilities, ensuring that a predicted probability of, for example, 0.8 truly corresponds to an 80% chance of the positive class.
+
+## History
+
+**1999** — John Platt introduced Platt Scaling, a method to convert the output of Support Vector Machines into well-calibrated probability estimates using a sigmoid function.
+
+**2005** — Alexandru Niculescu-Mizil and Rich Caruana published 'Predicting Good Probabilities with Supervised Learning', a seminal paper that systematically compared various calibration techniques, including Platt Scaling and [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression), establishing the field of classifier calibration.
+
+**2010** — The concept of Calibrated Classifiers, incorporating both Platt Scaling and [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression), began to be widely adopted and integrated into popular machine learning libraries, making these techniques accessible for general use.
+
+## Mathematical Intuition
+
+### Need for Probability Calibration
+
+Many classifiers, such as Support Vector Machines or tree ensembles, are optimized for classification accuracy rather than for producing well-calibrated probability estimates. A classifier is well-calibrated if, for any probability value $p$, a set of samples predicted with probability $p$ for the positive class actually contains the positive class in approximately $p$ proportion. Miscalibration can lead to overconfidence or underconfidence in predictions, which is problematic in risk-sensitive applications.
+
+### Platt Scaling Method
+
+Platt Scaling is a parametric method that fits a sigmoid function to the raw decision scores (or uncalibrated probabilities) of a classifier. Given a raw score $f(x)$ from the base classifier, the calibrated probability $P(y=1|x)$ is given by: $$P(y=1|x) = \frac{1}{1 + \exp(A \cdot f(x) + B)}$$ The parameters $A$ and $B$ are learned by minimizing the negative log-likelihood on a separate calibration dataset, effectively transforming the raw scores into a more accurate probability scale. This method assumes a monotonic relationship between the raw scores and true probabilities.
+
+$$
+P(y=1|x) = \frac{1}{1 + \exp(A \cdot f(x) + B)}
+$$
+
+### Isotonic Regression Method
+
+[Isotonic Regression](/algorithms/supervised/regression/isotonic-regression) is a non-parametric method that learns a piecewise constant, non-decreasing function to map the raw decision scores to calibrated probabilities. It minimizes the squared error between the true labels $y_i$ and the predicted probabilities $g(f(x_i))$ subject to the constraint that $g$ is non-decreasing: $$\min_{g} \sum_{i=1}^{N} (y_i - g(f(x_i)))^2 \quad \text{subject to } g(s_1) \le g(s_2) \text{ if } s_1 \le s_2$$ Here, $f(x_i)$ are the raw scores and $s_i$ are sorted raw scores. The Pool Adjacent Violators Algorithm (PAVA) is commonly used to solve this optimization problem. [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression) is more flexible than Platt Scaling as it does not assume a specific functional form, but it requires more calibration data to avoid overfitting.
+
+$$
+\min_{g} \sum_{i=1}^{N} (y_i - g(f(x_i)))^2 \quad \text{subject to } g(s_1) \le g(s_2) \text{ if } s_1 \le s_2
+$$
+
+## Algorithm Steps
+
+1. Train a base classifier (e.g., SVM, Random Forest) on the primary training dataset to learn the mapping from features to raw decision scores or uncalibrated probabilities.
+2. Generate uncalibrated probability estimates or decision scores for a separate calibration dataset, which was not used during the base classifier's training phase.
+3. Fit a calibration model (either Platt Scaling or Isotonic Regression) using these uncalibrated scores as input and the true labels of the calibration dataset as targets.
+4. For new, unseen data, first obtain the raw probability estimates or decision scores from the trained base classifier.
+5. Apply the fitted calibration model to these raw scores to transform them into well-calibrated probability estimates, which can then be used for decision-making.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `base_estimator` | `object` | `None` | Any scikit-learn compatible classifier with predict_proba or decision_function. | The classifier whose predictions are to be calibrated. If None, a LogisticRegression classifier is used as the base estimator. |
+| `method` | `str` | `'sigmoid'` | {'sigmoid', 'isotonic'} | The method to use for calibration. 'sigmoid' corresponds to Platt's method, and 'isotonic' corresponds to isotonic regression. |
+| `cv` | `int or cross-validation generator` | `None` | integer >= 2, or a CV splitter object | Determines the cross-validation splitting strategy. If an integer, it specifies the number of folds. If None, 5-fold cross-validation is used. |
+| `n_jobs` | `int` | `None` | integer or None | The number of jobs to run in parallel for 'fit'. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+| `ensemble` | `bool` | `True` | {True, False} | If True, the calibrated probabilities are the average of the calibrated probabilities of the $cv$ folds. If False, the calibrated probabilities are the probabilities of the $cv$ fold that trained on the test sample. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It significantly improves the reliability and trustworthiness of probability predictions, which is crucial for risk assessment and decision-making.
+- The method is model-agnostic, meaning it can be applied as a post-processing step to almost any base classifier that outputs scores or probabilities.
+- Isotonic Regression, being non-parametric, can correct for complex, non-sigmoid miscalibration patterns.
+- Platt Scaling is computationally efficient and requires relatively little calibration data compared to isotonic regression.
+- It can be integrated with cross-validation strategies to make efficient use of available data for calibration.
+
+## Weaknesses
+
+- Requires a separate calibration dataset or a cross-validation scheme, which can reduce the amount of data available for training the base classifier.
+- If the calibration dataset is too small, the calibration model itself can overfit, leading to poor generalization of the calibrated probabilities.
+- Isotonic Regression can be sensitive to noise and sparse data, potentially producing erratic calibration curves with insufficient data.
+- Platt Scaling assumes a sigmoid shape for the miscalibration, which may not always hold true for all base classifiers or datasets.
+- The calibration process adds an additional step and computational overhead to the prediction pipeline.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Calibrated probabilities are essential for communicating the likelihood of a disease to patients and clinicians, enabling more informed treatment decisions and risk management.
+
+### Financial Risk Assessment
+
+In credit scoring or fraud detection, calibrated probabilities provide a more accurate measure of default risk or fraudulent activity, leading to better financial decisions and regulatory compliance.
+
+### Weather Forecasting
+
+Predicting the probability of rain or extreme weather events requires well-calibrated forecasts to ensure public safety and effective resource allocation.
+
+### Ad Click-Through Rate Prediction
+
+For online advertising, accurately calibrated probabilities of a user clicking an ad are critical for optimizing bidding strategies and maximizing return on investment.
+
+### Legal and Compliance
+
+In legal applications, such as predicting the likelihood of a case outcome, calibrated probabilities offer a more defensible and transparent basis for decision-making.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Calibrated Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import CalibratedClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = CalibratedClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Calibrated Classifier Lab" />
+
+## References
+
+- Platt / isotonic calibration (2005). Platt / isotonic calibration.
+- [scikit-learn: CalibratedClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.CalibratedClassifier.html)

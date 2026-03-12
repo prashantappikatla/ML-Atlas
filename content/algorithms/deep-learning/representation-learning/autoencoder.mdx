@@ -1,0 +1,187 @@
+---
+title: "Autoencoder"
+slug: "autoencoder"
+category: "deep-learning"
+subcategory: "representation-learning"
+year: 1986
+author: "Rumelhart / Hinton era"
+paper: "Rumelhart / Hinton era"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["anomaly-detection", "data-compression", "deep-learning", "dimensionality-reduction", "feature-extraction", "neural-networks", "representation-learning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "contractive-autoencoder"
+  - "denoising-autoencoder"
+  - "restricted-boltzmann-machine"
+  - "self-organizing-map"
+  - "sparse-autoencoder"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Autoencoders are a type of artificial neural network trained to learn an efficient, compressed representation of input data in an unsupervised manner. They achieve this by attempting to reconstruct their own input, forcing the network to capture the most salient features of the data within a lower-dimensional latent space. This process involves an encoder function that maps the input to the latent space and a decoder function that maps the latent representation back to the original input space.
+
+## History
+
+**1986** — David Rumelhart, Geoffrey Hinton, and Ronald Williams introduced the backpropagation algorithm, which enabled the training of multi-layer neural networks, laying the groundwork for autoencoders.
+
+**2006** — Geoffrey Hinton and Ruslan Salakhutdinov demonstrated that deep autoencoders could be effectively pre-trained layer-wise using Restricted Boltzmann Machines, significantly improving performance on dimensionality reduction and feature learning tasks.
+
+**2008** — Pascal Vincent, Hugo Larochelle, Yoshua Bengio, and Pierre-Antoine Manzagol introduced Denoising Autoencoders, which learn robust representations by reconstructing a clean input from a corrupted version.
+
+**2011** — Samy Bengio, Pascal Vincent, and Yoshua Bengio introduced Contractive Autoencoders, which penalize the sensitivity of the learned representation to small changes in the input, encouraging robust feature extraction.
+
+**2013** — Diederik P. Kingma and Max Welling introduced Variational Autoencoders (VAEs), a generative model that learns a probabilistic mapping from input to a continuous latent space, enabling sampling of new data.
+
+## Mathematical Intuition
+
+### Encoding and Decoding Functions
+
+An autoencoder consists of two main parts: an encoder and a decoder. The encoder, denoted by $f$, maps an input vector $x \in \mathbb{R}^D$ to a lower-dimensional latent representation $z \in \mathbb{R}^d$, where $d < D$. This can be expressed as $z = f(x)$. The decoder, denoted by $g$, then attempts to reconstruct the original input from this latent representation, producing an output $\hat{x} \in \mathbb{R}^D$, such that $\hat{x} = g(z)$. The goal is for $\hat{x}$ to be as close as possible to $x$.
+$$z = f(x)$$
+$$\hat{x} = g(z)$$
+
+$$
+z = f(x)
+$$
+
+$$
+\hat{x} = g(z)
+$$
+
+### Reconstruction Loss Minimization
+
+The training objective of an autoencoder is to minimize the reconstruction error between the input $x$ and its reconstruction $\hat{x}$. For continuous input data, the Mean Squared Error (MSE) is commonly used as the loss function $L$:
+$$L(x, \hat{x}) = ||x - \hat{x}||^2 = \sum_{i=1}^D (x_i - \hat{x}_i)^2$$
+For binary or categorical data, cross-entropy loss is often preferred. The network parameters (weights and biases of both encoder and decoder) are optimized using gradient descent to minimize this loss function.
+$$L(x, \hat{x}) = -\sum_{i=1}^D [x_i \log(\hat{x}_i) + (1 - x_i) \log(1 - \hat{x}_i)]$$
+
+$$
+L(x, \hat{x}) = ||x - \hat{x}||^2 = \sum_{i=1}^D (x_i - \hat{x}_i)^2
+$$
+
+$$
+L(x, \hat{x}) = -\sum_{i=1}^D [x_i \log(\hat{x}_i) + (1 - x_i) \log(1 - \hat{x}_i)]
+$$
+
+### Regularization for Robust Representations
+
+To prevent autoencoders from simply learning an identity function and to encourage them to extract meaningful features, various regularization techniques are employed. For instance, Denoising Autoencoders (DAE) introduce noise to the input $x$ to create a corrupted version $\tilde{x}$. The DAE is then trained to reconstruct the original, uncorrupted input $x$ from $\tilde{x}$. This forces the encoder to learn robust features that can recover missing or corrupted information.
+$$\hat{x} = g(f(\tilde{x}))$$
+$$L(x, \hat{x})$$
+
+$$
+\hat{x} = g(f(\tilde{x}))
+$$
+
+$$
+L(x, \hat{x})
+$$
+
+## Algorithm Steps
+
+1. Initialize the weights and biases of the encoder and decoder neural networks randomly.
+2. Select a mini-batch of input data $x$ from the training dataset.
+3. Optionally, apply a corruption process to the input data to create $\tilde{x}$ (e.g., adding Gaussian noise or masking).
+4. Pass the (possibly corrupted) input $\tilde{x}$ through the encoder network to obtain the latent representation $z = f(\tilde{x})$.
+5. Pass the latent representation $z$ through the decoder network to reconstruct the output $\hat{x} = g(z)$.
+6. Calculate the reconstruction loss $L(x, \hat{x})$ between the original input $x$ and the reconstructed output $\hat{x}$.
+7. Compute the gradients of the loss function with respect to the network parameters using backpropagation.
+8. Update the network parameters using an optimization algorithm (e.g., Adam, SGD) to minimize the loss.
+9. Repeat steps 2-8 for a specified number of epochs or until convergence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers, e.g., (64, 32, 64) | The $i$-th element represents the number of neurons in the $i$-th hidden layer of the encoder. The decoder layers are typically symmetric. |
+| `activation` | `string` | `relu` | identity, logistic, tanh, relu | Activation function for the hidden layers. |
+| `solver` | `string` | `adam` | lbfgs, sgd, adam | The solver for weight optimization. |
+| `learning_rate_init` | `float` | `0.001` | positive float | The initial learning rate used for updating weights. |
+| `max_iter` | `integer` | `200` | positive integer | Maximum number of iterations (epochs) for the solver to run. |
+| `batch_size` | `integer` | `200` | positive integer | Size of minibatches for stochastic optimizers. |
+| `alpha` | `float` | `0.0001` | non-negative float | L2 penalty (regularization term) parameter. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Autoencoders are highly effective for unsupervised dimensionality reduction, learning compact representations of high-dimensional data.
+- They can learn robust feature representations that are useful for downstream tasks such as classification or clustering.
+- Various architectural modifications allow autoencoders to perform tasks like data denoising, anomaly detection, and data generation.
+- The architecture is highly flexible, allowing for deep, convolutional, or recurrent layers to suit different data types.
+- Autoencoders can be trained with large amounts of unlabeled data, making them valuable in scenarios where labeled data is scarce.
+
+## Weaknesses
+
+- Without proper regularization, autoencoders can learn an identity function, failing to extract meaningful features or reduce dimensionality effectively.
+- The latent space learned by a basic autoencoder does not inherently guarantee disentangled or semantically meaningful features.
+- The performance of an autoencoder is highly sensitive to its architecture, hyperparameters, and the choice of loss function.
+- Reconstruction quality does not always correlate with the utility of the learned latent representation for other tasks.
+- Training deep autoencoders can be computationally intensive and prone to issues like vanishing gradients.
+
+## Use Cases
+
+### Image Processing
+
+Used for image denoising, compression, and feature extraction in computer vision applications.
+
+### Anomaly Detection
+
+Applied to identify unusual patterns or outliers in datasets by measuring high reconstruction errors.
+
+### Dimensionality Reduction
+
+Employed as a non-linear alternative to PCA for reducing the number of features in a dataset.
+
+### Recommendation Systems
+
+Utilized to learn latent representations of users and items, improving the accuracy of personalized recommendations.
+
+### Drug Discovery
+
+Applied to learn representations of molecular structures, aiding in the design and screening of new compounds.
+
+### Predictive Maintenance
+
+Used to detect abnormal behavior in sensor data from machinery, predicting potential failures.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Autoencoder from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Autoencoder does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Autoencoder Lab" />
+
+## References
+
+- Rumelhart / Hinton era (1986). Rumelhart / Hinton era.

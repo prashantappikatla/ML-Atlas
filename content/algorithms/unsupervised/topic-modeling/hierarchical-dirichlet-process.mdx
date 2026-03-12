@@ -1,0 +1,185 @@
+---
+title: "Hierarchical Dirichlet Process"
+slug: "hierarchical-dirichlet-process"
+category: "unsupervised"
+subcategory: "topic-modeling"
+year: 2006
+author: "Teh et al."
+paper: "Teh et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["bayesian-inference", "generative-model", "gibbs-sampling", "non-parametric", "probabilistic-model", "text-analysis", "topic-modeling", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dirichlet-process-mixture-model"
+  - "indian-buffet-process"
+  - "latent-dirichlet-allocation"
+---
+
+## Overview
+
+Hierarchical Dirichlet Process (HDP) is a non-parametric Bayesian model for topic modeling that automatically infers the number of topics present in a corpus. It extends the Dirichlet Process by allowing groups of data (e.g., documents) to share an infinite number of components (topics) while each group draws its own distribution over these shared components. This hierarchical structure enables robust discovery of latent themes without requiring prior specification of the topic count.
+
+## History
+
+**1973** — Thomas S. Ferguson formally introduced the Dirichlet Process (DP) as a prior distribution on probability measures.
+
+**2002** — David Blei, Andrew Ng, and Michael Jordan introduced [Latent Dirichlet Allocation](/algorithms/unsupervised/topic-modeling/latent-dirichlet-allocation) (LDA), a foundational parametric topic model.
+
+**2006** — Yee Whye Teh, Michael Jordan, Matthew Beal, and David Blei introduced the Hierarchical Dirichlet Process (HDP) as a non-parametric Bayesian model for topic modeling, allowing an infinite number of topics.
+
+**2007** — Teh, Jordan, and Blei published their seminal paper 'Hierarchical Dirichlet Processes' in the Journal of the American Statistical Association, detailing the model and its inference mechanisms.
+
+**2010** — Further research focused on developing more efficient inference algorithms for HDP, including collapsed Gibbs sampling and variational inference methods, to handle larger datasets.
+
+## Mathematical Intuition
+
+### Dirichlet Process Fundamentals
+
+The Dirichlet Process, denoted $DP(\alpha, H)$, is a distribution over probability distributions. A draw $G \sim DP(\alpha, H)$ is almost surely a discrete distribution, even if the base distribution $H$ is continuous. Here, $\alpha > 0$ is the concentration parameter, and $H$ is the base distribution. The stick-breaking construction provides a constructive definition for $G$: 
+$$G = \sum_{k=1}^{\infty} \pi_k \delta_{\phi_k}$$
+where $\phi_k \sim H$ are the atoms and $\pi_k$ are the weights defined by:
+$$\beta_k \sim Beta(1, \alpha)$$
+$$\pi_k = \beta_k \prod_{j=1}^{k-1} (1 - \beta_j)$$
+This construction ensures that $\sum \pi_k = 1$.
+
+$$
+G \sim DP(\alpha, H)
+$$
+
+$$
+G = \sum_{k=1}^{\infty} \pi_k \delta_{\phi_k}
+$$
+
+$$
+\beta_k \sim Beta(1, \alpha)
+$$
+
+$$
+\pi_k = \beta_k \prod_{j=1}^{k-1} (1 - \beta_j)
+$$
+
+### Hierarchical Structure of HDP
+
+HDP extends the Dirichlet Process to a hierarchical setting, allowing multiple DPs to share a common base distribution. For a collection of groups (e.g., documents), each group $j$ has a distribution $G_j$ over topics, where $G_j \sim DP(\alpha_0, G_0)$. The global distribution $G_0$ over an infinite set of topics is itself drawn from a base DP: $G_0 \sim DP(\alpha_1, H)$. In topic modeling, $H$ is typically a symmetric Dirichlet distribution over words, representing the prior for topic-word distributions. This hierarchical arrangement allows topics (atoms of $G_0$) to be shared across documents, while each document can have a unique distribution over these shared topics.
+
+$$
+G_j \sim DP(\alpha_0, G_0)
+$$
+
+$$
+G_0 \sim DP(\alpha_1, H)
+$$
+
+### Chinese Restaurant Franchise Analogy
+
+The Hierarchical Dirichlet Process can be intuitively understood through the Chinese Restaurant Franchise (CRF) analogy. Imagine a franchise of restaurants (documents), each with its own set of tables (topics). Customers (words) in each restaurant sit at tables, and each table serves a dish (topic distribution). When a new customer arrives, they can sit at an existing table or a new one. Crucially, all restaurants in the franchise share a global menu of dishes (global topics). When a new table is opened in a restaurant, it can either serve an existing dish from the global menu or request a new dish to be added to the global menu. This analogy illustrates how topics are shared and discovered across groups, and how the number of topics is determined dynamically.
+
+## Algorithm Steps
+
+1. Initialize topic assignments for all words in all documents randomly.
+2. For each word $w_{dn}$ in document $d$ at position $n$, remove it from its current topic assignment and update the associated counts.
+3. Sample a new topic $z_{dn}$ for $w_{dn}$ from its posterior predictive distribution, conditioned on all other word assignments. This involves considering existing topics within document $d$, existing global topics not yet in document $d$, and potentially a new global topic.
+4. The probability of assigning $w_{dn}$ to a topic $k$ depends on the number of times word $w_{dn}$ has been observed in topic $k$ (word-topic likelihood) and the number of words assigned to topic $k$ in document $d$ (document-topic prior), modulated by the concentration parameters.
+5. Update the counts for the chosen topic $z_{dn}$ in both the document-topic and topic-word count matrices.
+6. Repeat steps 2-5 for a fixed number of Gibbs sampling iterations, discarding initial 'burn-in' samples to ensure convergence.
+7. After burn-in, collect samples of topic assignments to approximate the posterior distribution of topics and topic-word distributions.
+8. Estimate the final topic-word distributions $\phi_k$ and document-topic distributions $\theta_d$ from the collected samples, often by averaging or taking the last sample.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | $\alpha > 0$ | The concentration parameter for the document-level Dirichlet Process, controlling the number of topics per document. A smaller value encourages fewer topics per document. |
+| `gamma` | `float` | `1.0` | $\gamma > 0$ | The concentration parameter for the corpus-level Dirichlet Process, controlling the total number of topics across the entire corpus. A smaller value encourages fewer global topics. |
+| `eta` | `float` | `0.01` | $\eta > 0$ | The concentration parameter for the symmetric Dirichlet prior over topic-word distributions (similar to the 'alpha' parameter for word distributions in LDA). |
+| `n_iter` | `int` | `2000` | integer $> 0$ | Number of Gibbs sampling iterations to run for inference. |
+| `burn_in` | `int` | `1000` | integer $\ge 0$ | Number of initial Gibbs sampling iterations to discard before collecting samples for posterior estimation. |
+| `random_state` | `int or RandomState instance` | `None` | integer or None | Seed for the random number generator to ensure reproducibility of results. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- HDP automatically determines the number of topics from the data, removing the need for manual tuning or prior specification.
+- It allows for sharing of topics across different groups of data, leading to more coherent and robust topic discovery.
+- The non-parametric nature of HDP provides a flexible framework for modeling complex data structures without strong assumptions on the number of components.
+- HDP can discover rare or highly specific topics that might be missed by parametric models with a fixed, predefined number of topics.
+- The hierarchical structure naturally supports modeling data where documents or groups have varying topic compositions and lengths.
+- It provides a principled Bayesian approach to topic modeling, yielding uncertainty estimates for topic assignments and distributions.
+
+## Weaknesses
+
+- Inference for HDP is computationally intensive and can be significantly slower than for parametric models like LDA, especially for large datasets.
+- The complexity of the model and its inference algorithms can make it challenging to implement, debug, and optimize.
+- Interpreting the concentration parameters (e.g., $\alpha_0$, $\alpha_1$) and their effect on the resulting topic structure can be less intuitive than for simpler models.
+- Convergence diagnostics for non-parametric Bayesian models can be more difficult and less straightforward than for their parametric counterparts.
+- The 'infinite' nature of topics means that the model might discover a very large number of topics, some of which could be very sparse or difficult to interpret.
+- The memory footprint can be substantial as the model needs to track a potentially large number of active topics and their associated statistics.
+
+## Use Cases
+
+### Document Analysis
+
+Discovering latent themes and topics within large collections of text documents, such as news articles, scientific papers, or legal documents, without pre-specifying the number of topics.
+
+### Bioinformatics
+
+Identifying shared genetic pathways, protein functions, or disease signatures across different biological experiments, patient cohorts, or species.
+
+### Customer Feedback Analysis
+
+Extracting common themes, issues, and sentiment from unstructured customer reviews, surveys, or social media posts to inform product development or service improvements.
+
+### Image Feature Grouping
+
+Grouping visual features or objects in image collections into shared categories or concepts, where the number of categories is not known beforehand.
+
+### Music Information Retrieval
+
+Identifying recurring musical motifs, structural elements, or genre-specific patterns across a corpus of songs or musical compositions.
+
+### Epidemiology
+
+Discovering shared disease patterns, risk factors, or public health concerns across different patient cohorts, geographical regions, or time periods.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Hierarchical Dirichlet Process from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import HierarchicalDirichletProcess
+
+model = HierarchicalDirichletProcess()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Hierarchical Dirichlet Process Lab" />
+
+## References
+
+- Teh et al. (2006). Teh et al..
+- [scikit-learn: HierarchicalDirichletProcess](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HierarchicalDirichletProcess.html)

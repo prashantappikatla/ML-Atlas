@@ -1,0 +1,181 @@
+---
+title: "Extra Trees Classifier"
+slug: "extra-trees-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 2006
+author: "Geurts et al."
+paper: "Geurts et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "decision-trees", "ensemble-learning", "high-performance", "randomized-trees", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bagging-classifier"
+  - "decision-tree-classifier"
+  - "gradient-boosting-classifier"
+  - "random-forest-classifier"
+---
+
+## Overview
+
+Extra Trees Classifier, short for Extremely Randomized Trees Classifier, is an ensemble learning method that builds multiple decision trees and merges their predictions to produce a more accurate and robust classification. It distinguishes itself from other tree-based ensembles like Random Forests by introducing an additional layer of randomness in the tree construction process, specifically in how splits are determined at each node. Instead of searching for the optimal split point for each feature, Extra Trees randomly selects both the features and the split points, leading to a reduction in variance and computational cost.
+
+## History
+
+**2006** — The algorithm was formally introduced by Pierre Geurts, Damien Ernst, and Louis Wehenkel in their paper "Extremely randomized trees" as a novel ensemble method for classification and regression.
+
+**2010** — The scikit-learn library, a popular machine learning toolkit in Python, included an implementation of Extra Trees, making the algorithm widely accessible to practitioners.
+
+**2011** — Further research and empirical studies continued to explore the properties and performance of Extra Trees, often comparing it to Random Forests and other ensemble methods across various datasets.
+
+**2014** — The algorithm's robustness and efficiency led to its adoption in various real-world applications, particularly in domains requiring fast and accurate predictions on high-dimensional data.
+
+## Mathematical Intuition
+
+### Ensemble of Decision Trees
+
+Extra Trees Classifier operates on the principle of ensemble learning, specifically by aggregating the predictions of multiple unpruned decision trees. Each tree in the ensemble is trained on the entire training dataset (or a bootstrap sample if `bootstrap=True`), and their individual predictions are combined to form a final, more robust prediction. For classification, this typically involves a majority vote among the trees' predictions. The core idea is that by combining many 'weak' learners, a 'strong' learner can be created that generalizes better than any single tree.
+
+### Extremely Randomized Node Splitting
+
+The defining characteristic of Extra Trees is its highly randomized approach to node splitting. At each node of a tree, instead of exhaustively searching for the optimal split point for every feature, the algorithm proceeds as follows:
+1.  A random subset of $K$ features is selected from the total $M$ available features. The number of features $K$ is typically controlled by the `max_features` parameter.
+2.  For each of the $K$ selected features, a random split point is generated. This split point is chosen uniformly at random between the minimum and maximum values of the feature in the current node's data subset.
+3.  The split that yields the best score according to a splitting criterion (e.g., Gini impurity or entropy) among these $K$ random splits is chosen to partition the node.
+This extreme randomization reduces the variance of the model by decorrelating the trees even further than standard Random Forests, which only randomize feature selection but still search for optimal split points. The splitting criterion for a binary split on a feature $j$ at a threshold $t$ is often Gini impurity, defined as:
+$$G = 1 - \sum_{i=1}^{C} p_i^2$$
+where $C$ is the number of classes and $p_i$ is the proportion of samples belonging to class $i$ in the node. The algorithm aims to minimize the weighted average Gini impurity of the child nodes.
+
+$$
+G = 1 - \sum_{i=1}^{C} p_i^2
+$$
+
+### Prediction Aggregation
+
+Once all individual trees in the ensemble are constructed, the final classification for a new input instance $x$ is determined by aggregating the predictions of each tree. For classification tasks, this is typically achieved through majority voting. If $T$ is the total number of trees in the ensemble, and $h_t(x)$ is the class prediction of the $t$-th tree for input $x$, the final prediction $H(x)$ is given by:
+$$H(x) = \text{argmax}_c \sum_{t=1}^{T} \mathbb{I}(h_t(x) = c)$$
+where $c$ represents a class label and $\mathbb{I}(\cdot)$ is the indicator function, which is 1 if the condition is true and 0 otherwise. This aggregation helps to smooth out individual tree errors and improve generalization.
+
+$$
+H(x) = \text{argmax}_c \sum_{t=1}^{T} \mathbb{I}(h_t(x) = c)
+$$
+
+## Algorithm Steps
+
+1. Initialize an empty ensemble of decision trees.
+2. For each tree to be grown in the ensemble (up to `n_estimators`):
+3.   Train the tree on the entire training dataset (or a bootstrap sample if `bootstrap=True`).
+4.   At each node of the tree, while the node is not pure and stopping criteria are not met:
+5.     Randomly select `max_features` features from the available features.
+6.     For each of these selected features, generate a random split point uniformly between the feature's minimum and maximum values in the current node's data.
+7.     Evaluate all generated random splits using a specified criterion (e.g., Gini impurity or entropy) and select the split that yields the best score.
+8.     Split the node into two child nodes based on the chosen random split.
+9. Once all trees are constructed, for a new input, obtain a class prediction from each individual tree.
+10. Aggregate the predictions from all trees using majority voting to determine the final classification output.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | integer > 0 | The number of trees in the forest. |
+| `criterion` | `str` | `gini` | {"gini", "entropy", "log_loss"} | The function to measure the quality of a split. |
+| `max_depth` | `int or None` | `None` | integer > 0 or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `int or float` | `2` | integer > 1 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. |
+| `min_samples_leaf` | `int or float` | `1` | integer > 0 or float in (0.0, 0.5] | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least min_samples_leaf training samples in each of the left and right branches. |
+| `max_features` | `int, float, str or None` | `1.0` | integer > 0, float in (0.0, 1.0], {"sqrt", "log2", None} | The number of features to consider when looking for the best split. For Extra Trees, this parameter is crucial as it controls the randomness in feature selection at each split. |
+| `bootstrap` | `bool` | `False` | {True, False} | Whether bootstrap samples are used when building trees. If False, the whole dataset is used to build each tree. |
+| `random_state` | `int or None` | `None` | integer >= 0 or None | Controls the randomness of the bootstrapping of the samples and the features to consider when looking for the best split for each tree. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Extra Trees often achieve lower variance than Random Forests due to the increased randomness in split point selection, leading to more robust models.
+- The algorithm is computationally efficient during training, especially when `max_features` is small, because it avoids the exhaustive search for optimal split points.
+- It is less prone to overfitting compared to individual decision trees, benefiting from the ensemble averaging effect.
+- Extra Trees can handle high-dimensional data effectively and are relatively robust to noisy features.
+- The model can implicitly perform feature selection, as features that are consistently chosen for splits are deemed more important.
+- It can handle both numerical and categorical features (if categorical features are appropriately encoded).
+
+## Weaknesses
+
+- The increased randomness in split selection might sometimes lead to a slight increase in bias compared to Random Forests, potentially requiring more trees to compensate.
+- Interpretability is reduced compared to a single decision tree due to the ensemble nature, making it harder to understand individual decision paths.
+- The model can be memory-intensive for very large datasets or a very large number of trees, as all trees need to be stored.
+- Performance can degrade if the `max_features` parameter is set too low, preventing the algorithm from finding good splits.
+- Like other tree-based methods, Extra Trees may struggle with extrapolation beyond the range of the training data.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Classifying patient conditions based on various clinical measurements and symptoms to aid in disease diagnosis.
+
+### Fraud Detection
+
+Identifying fraudulent transactions in financial datasets by analyzing patterns in transaction attributes.
+
+### Customer Churn Prediction
+
+Predicting which customers are likely to discontinue a service based on their usage patterns and demographic information.
+
+### Bioinformatics
+
+Classifying gene expression data or protein structures to understand biological processes or predict disease susceptibility.
+
+### Image Classification (with feature extraction)
+
+Classifying images after extracting relevant features (e.g., HOG, SIFT descriptors) from the raw pixel data.
+
+### Sentiment Analysis
+
+Categorizing text documents or social media posts into positive, negative, or neutral sentiments after converting text into numerical features.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Extra Trees Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ExtraTreesClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Extra Trees Classifier Lab" />
+
+## References
+
+- Geurts et al. (2006). Geurts et al..
+- [scikit-learn: ExtraTreesClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html)

@@ -1,0 +1,174 @@
+---
+title: "FastText"
+slug: "fasttext"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2016
+author: "Bojanowski et al."
+paper: "Bojanowski et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "efficient-algorithms", "natural-language-processing", "representation-learning", "self-supervised-learning", "subword-embeddings", "text-classification", "word-embeddings"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "doc2vec"
+  - "glove"
+  - "word2vec"
+---
+
+## Overview
+
+FastText is an efficient library for learning word embeddings and performing text classification, developed by Facebook AI Research. It extends the [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec) Skip-gram model by representing words as sums of their constituent character n-grams, allowing it to generate robust embeddings for out-of-vocabulary words and morphologically rich languages. This subword information enables FastText to capture semantic and syntactic regularities more effectively than models relying solely on full word tokens.
+
+## History
+
+**2016** — Bojanowski et al. introduce FastText in their paper 'Enriching Word Vectors with Subword Information', proposing a novel method for learning word representations that incorporates character n-grams.
+
+**2017** — Joulin et al. publish 'Bag of Tricks for Efficient Text Classification', demonstrating FastText's effectiveness and efficiency for text classification tasks, further popularizing its use beyond just word embeddings.
+
+**2018** — FastText becomes a widely adopted tool in natural language processing, particularly for tasks requiring fast training and inference, and for languages with complex morphology or limited data, due to its ability to handle OOV words and rare terms.
+
+## Mathematical Intuition
+
+### Word Representation with N-grams
+
+FastText represents each word $w$ as a bag of character n-grams, including the word itself. For instance, the word 'apple' with $n=3$ might be represented by '<ap', 'app', 'ppl', 'ple>', and 'apple'. Each character n-gram $g$ is associated with a vector $v_g$. The vector for a word $w$ is then the sum of the vectors of its constituent n-grams: $v_w = \sum_{g \in G_w} v_g$, where $G_w$ is the set of n-grams for word $w$. This approach allows the model to handle out-of-vocabulary (OOV) words by composing their vectors from known n-grams and to capture morphological similarities.
+
+$$
+v_w = \sum_{g \in G_w} v_g
+$$
+
+### Skip-gram Model Foundation
+
+FastText builds upon the Skip-gram model, which aims to predict context words given a target word. The objective is to maximize the probability of observing context words $w_c$ given a target word $w_t$. The probability $P(w_c | w_t)$ is typically modeled using the softmax function:$$ P(w_c | w_t) = \frac{\exp(v_{w_c}' \cdot v_{w_t})}{\sum_{w \in V} \exp(v_w' \cdot v_{w_t})} $$Here, $v_{w_t}$ is the input vector for the target word and $v_{w_c}'$ is the output vector for a context word.
+
+$$
+P(w_c | w_t) = \frac{\exp(v_{w_c}' \cdot v_{w_t})}{\sum_{w \in V} \exp(v_w' \cdot v_{w_t})}
+$$
+
+### Efficient Training with Negative Sampling
+
+To make training efficient, FastText commonly employs Negative Sampling. Instead of predicting all context words, it samples a small number of 'negative' (non-context) words for each target word. The objective becomes a binary classification task: distinguish between actual context words and randomly sampled negative words. The loss function for a single word-context pair $(w_t, w_c)$ and $k$ negative samples $w_n$ is:$$ L = -\log \sigma(v_{w_c}' \cdot v_{w_t}) - \sum_{i=1}^k \log \sigma(-v_{w_{n_i}}' \cdot v_{w_t}) $$where $\sigma(x) = 1 / (1 + \exp(-x))$ is the sigmoid function.
+
+$$
+L = -\log \sigma(v_{w_c}' \cdot v_{w_t}) - \sum_{i=1}^k \log \sigma(-v_{w_{n_i}}' \cdot v_{w_t})
+$$
+
+$$
+\sigma(x) = 1 / (1 + \exp(-x))
+$$
+
+### Text Classification Objective
+
+For text classification, FastText treats the entire document as a 'bag of words' (and n-grams). It averages the word vectors (and n-gram vectors) in a document to form a document representation. This document representation is then fed into a linear classifier (e.g., a softmax layer) to predict the class label. The objective is to minimize the cross-entropy loss between predicted and true labels:$$ L_{class} = -\sum_{i=1}^N y_i \log(\hat{y}_i) $$where $y_i$ is the true label and $\hat{y}_i$ is the predicted probability for class $i$.
+
+$$
+L_{class} = -\sum_{i=1}^N y_i \log(\hat{y}_i)
+$$
+
+## Algorithm Steps
+
+1. For each word in the training corpus, generate its set of character n-grams, typically ranging from 3 to 6 characters, along with the full word itself.
+2. Initialize a random vector for each unique character n-gram and for each unique word in the vocabulary.
+3. Iterate through the training corpus, processing each word $w_t$ and its surrounding context words $w_c$ within a defined window.
+4. For each target word $w_t$, compute its vector representation $v_{w_t}$ by summing the vectors of its constituent character n-grams.
+5. Using either Hierarchical Softmax or Negative Sampling, update the n-gram vectors based on the prediction task (predicting context words from target word).
+6. For text classification, average the n-gram vectors of all words in a document to form a document vector.
+7. Pass the document vector through a linear layer and a softmax function to predict the document's class label.
+8. Update the n-gram vectors and the classification layer weights using stochastic gradient descent to minimize the cross-entropy loss for classification.
+9. Repeat steps 3-8 for a specified number of epochs until convergence or a stopping criterion is met.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `vector_size` | `int` | `100` | positive integer | Dimensionality of the word vectors. |
+| `window` | `int` | `5` | positive integer | Maximum distance between the current and predicted word within a sentence. |
+| `min_count` | `int` | `5` | non-negative integer | Ignores all words with total frequency lower than this. |
+| `min_n` | `int` | `3` | positive integer | Minimum length of character n-grams to be used. |
+| `max_n` | `int` | `6` | positive integer | Maximum length of character n-grams to be used. |
+| `epochs` | `int` | `5` | positive integer | Number of training epochs over the corpus. |
+| `lr` | `float` | `0.05` | positive float | Initial learning rate. |
+| `loss` | `str` | `ns` | 'hs', 'ns' | Training loss function: 'hs' for hierarchical softmax, 'ns' for negative sampling. |
+| `negative` | `int` | `5` | non-negative integer | Number of 'negative' words to sample for negative sampling. |
+| `sg` | `int` | `1` | 0 or 1 | Training algorithm: 1 for skip-gram, 0 for CBOW. FastText typically uses skip-gram for word embeddings. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Effectively handles out-of-vocabulary (OOV) words by composing their vectors from known subword units.
+- Captures morphological information and semantic similarities between words with shared roots or suffixes.
+- Achieves competitive performance on text classification and word embedding tasks with significantly faster training and inference times compared to more complex deep learning models.
+- Requires less training data to learn robust representations for rare words due to subword sharing.
+- The simple linear architecture makes it easy to understand, implement, and deploy.
+- Can be trained on very large corpora efficiently, making it suitable for industrial-scale applications.
+
+## Weaknesses
+
+- The bag-of-n-grams approach ignores word order within a document, which can be crucial for understanding complex semantic relationships.
+- May not capture long-range dependencies or complex contextual nuances as effectively as transformer-based models.
+- Performance can be sensitive to the choice of hyperparameters, such as n-gram range and learning rate.
+- The fixed window size for context prediction might limit its ability to capture very broad contextual information.
+- While efficient, the memory footprint can be substantial for very large vocabularies and n-gram dictionaries.
+
+## Use Cases
+
+### Sentiment Analysis
+
+Classifying text as positive, negative, or neutral, leveraging its ability to capture nuances from subword information, especially for informal or social media text.
+
+### Spam Detection
+
+Identifying unwanted emails or messages by learning robust representations of common spam phrases and their subword components, even with variations.
+
+### Language Identification
+
+Determining the language of a given text, as subword features are highly indicative of linguistic patterns and can distinguish between similar languages.
+
+### Information Retrieval
+
+Improving search relevance by generating robust query and document embeddings, especially for queries with rare words, misspellings, or morphological variations.
+
+### Content Moderation
+
+Automatically flagging inappropriate or harmful content in online platforms based on learned text classifications, benefiting from its speed and OOV handling.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement FastText from scratch
+```
+
+### Using scikit-learn
+
+```python
+# FastText does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="FastText Lab" />
+
+## References
+
+- Bojanowski et al. (2016). Bojanowski et al..

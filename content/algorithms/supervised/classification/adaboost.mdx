@@ -1,0 +1,194 @@
+---
+title: "AdaBoost"
+slug: "adaboost"
+category: "supervised"
+subcategory: "classification"
+year: 1995
+author: "Freund & Schapire"
+paper: "Freund & Schapire"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["boosting", "classification", "decision-stumps", "ensemble-learning", "iterative", "supervised-learning", "weak-learners", "weighted-samples"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bagging-classifier"
+  - "catboost"
+  - "decision-tree-classifier"
+  - "lightgbm"
+  - "xgboost"
+---
+
+## Overview
+
+AdaBoost (Adaptive Boosting) is an ensemble learning method that combines multiple "weak" learners to create a single "strong" learner. It iteratively trains weak classifiers on re-weighted versions of the training data, where samples misclassified by previous learners receive increased weight. This sequential process focuses subsequent learners on difficult examples, ultimately producing a highly accurate predictor by combining the weighted predictions of all weak learners. AdaBoost is particularly effective at improving the performance of simple base models, such as decision stumps.
+
+## History
+
+**1995** — Yoav Freund and Robert Schapire introduce the AdaBoost algorithm, marking a significant advancement in boosting techniques.
+
+**1996** — Freund and Schapire publish their seminal paper, "A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting," formally detailing the AdaBoost algorithm and its theoretical underpinnings.
+
+**1999** — Schapire and Singer extend AdaBoost to handle multi-class classification problems and provide a more robust theoretical analysis, including bounds on generalization error.
+
+**2001** — Paul Viola and Michael Jones utilize AdaBoost with Haar-like features to develop a real-time object detection framework, most famously for face detection, demonstrating its practical power in computer vision.
+
+## Mathematical Intuition
+
+### Initial Sample Weighting
+
+Initially, all training samples are assigned equal weights. For a dataset with $m$ samples, each sample $i$ is given an initial weight $D_1(i) = 1/m$. These weights are crucial as they determine the focus of subsequent weak learners.
+
+$$
+D_1(i) = \frac{1}{m}
+$$
+
+### Weak Learner Training and Error
+
+In each iteration $t$, a weak learner $h_t(x)$ is trained on the dataset, specifically designed to minimize the error with respect to the current sample weights $D_t$. The error rate $\epsilon_t$ of this weak learner is calculated as the sum of weights of the misclassified samples.
+
+$$
+\epsilon_t = \sum_{i: h_t(x_i) \neq y_i} D_t(i)
+$$
+
+### Weak Learner Weight Calculation
+
+Based on its error rate $\epsilon_t$, each weak learner $h_t(x)$ is assigned a weight $\alpha_t$. Learners with lower error rates receive higher weights, indicating their greater contribution to the final strong classifier. This weight is derived from the logarithm of the ratio of correctly classified to misclassified sample weights.
+
+$$
+\alpha_t = \frac{1}{2} \ln \left( \frac{1 - \epsilon_t}{\epsilon_t} \right)
+$$
+
+### Sample Weight Update
+
+After training a weak learner, the sample weights are updated for the next iteration. Samples that were misclassified by $h_t(x)$ have their weights increased, while correctly classified samples have their weights decreased. This ensures that subsequent weak learners focus more on the previously difficult examples. The weights are then normalized to sum to 1.
+
+$$
+D_{t+1}(i) = D_t(i) \exp(-\alpha_t y_i h_t(x_i))
+$$
+
+$$
+D_{t+1}(i) = \frac{D_{t+1}(i)}{\sum_{j=1}^m D_{t+1}(j)}
+$$
+
+### Final Strong Classifier
+
+The final strong classifier $H(x)$ is a weighted majority vote of all the weak learners $h_t(x)$ trained across all iterations. Each weak learner's contribution is scaled by its corresponding weight $\alpha_t$, reflecting its individual accuracy.
+
+$$
+H(x) = \text{sign} \left( \sum_{t=1}^T \alpha_t h_t(x) \right)
+$$
+
+## Algorithm Steps
+
+1. Initialize the weights for all $m$ training samples $D_1(i) = 1/m$ for $i=1, \dots, m$.
+2. For $t = 1, \dots, T$ (where $T$ is the total number of weak learners):
+3. Train a weak learner $h_t(x)$ on the training data, minimizing the error with respect to the current sample weights $D_t$.
+4. Calculate the error rate $\epsilon_t = \sum_{i: h_t(x_i) \neq y_i} D_t(i)$ of the weak learner $h_t(x)$.
+5. If $\epsilon_t > 0.5$ or $\epsilon_t = 0$, discard $h_t(x)$ and terminate or re-sample, as it performs worse than random or perfectly.
+6. Calculate the weight $\alpha_t = \frac{1}{2} \ln \left( \frac{1 - \epsilon_t}{\epsilon_t} \right)$ for the weak learner $h_t(x)$.
+7. Update the sample weights for the next iteration: $D_{t+1}(i) = D_t(i) \exp(-\alpha_t y_i h_t(x_i))$, where $y_i$ is the true label and $h_t(x_i)$ is the prediction.
+8. Normalize the updated weights $D_{t+1}$ so that $\sum_{i=1}^m D_{t+1}(i) = 1$.
+9. Construct the final strong classifier $H(x) = \text{sign} \left( \sum_{t=1}^T \alpha_t h_t(x) \right)$ by combining all weighted weak learners.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `base_estimator` | `object` | `None` | Any scikit-learn compatible estimator | The base estimator from which the ensemble is built. If None, then the base estimator is a DecisionTreeClassifier initialized with max_depth=1. |
+| `n_estimators` | `int` | `50` | integer > 0 | The maximum number of estimators at which boosting is terminated. In case of perfect fit, the learning procedure is stopped early. |
+| `learning_rate` | `float` | `1.0` | float > 0 | Weight applied to each classifier at each boosting iteration. A higher learning rate increases the contribution of each classifier. |
+| `algorithm` | `str` | `'SAMME.R'` | 'SAMME', 'SAMME.R' | If 'SAMME', then use the SAMME algorithm. 'SAMME.R' uses a real-valued confidence score to update the weights, which typically performs better. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance or None | Controls the random seed given to each base estimator at each boosting iteration. Used for reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- AdaBoost is relatively simple to implement and understand, making it accessible for various applications.
+- It can achieve high accuracy and is less prone to overfitting than some other algorithms, especially when using simple weak learners like decision stumps.
+- The algorithm is flexible and can be used with various types of weak learners, allowing for adaptation to different problem domains.
+- AdaBoost naturally identifies and focuses on difficult-to-classify samples by increasing their weights, leading to improved performance on challenging instances.
+- It provides a measure of feature importance based on the performance of weak learners, which can be useful for feature selection.
+- AdaBoost has strong theoretical guarantees regarding its ability to reduce training error and generalize well.
+
+## Weaknesses
+
+- AdaBoost is sensitive to noisy data and outliers, as it attempts to fit every point, potentially leading to overfitting on such data.
+- The sequential nature of training makes it difficult to parallelize, which can result in longer training times for very large datasets.
+- Its performance heavily depends on the quality and complexity of the chosen weak learners; if weak learners are too complex, it can overfit.
+- The algorithm can be computationally intensive if a large number of weak learners or complex base estimators are used.
+- Interpreting the final strong classifier can be challenging due to the combination of many weak learners with varying weights.
+
+## Use Cases
+
+### Computer Vision
+
+Widely used for object detection, most notably in the Viola-Jones face detection framework, where it efficiently combines simple features to identify objects in real-time.
+
+### Bioinformatics
+
+Applied in tasks such as classifying gene expression data, predicting protein structures, and identifying disease markers based on complex biological datasets.
+
+### Fraud Detection
+
+Utilized to identify fraudulent transactions in financial datasets by combining multiple weak rules to detect subtle patterns indicative of fraud.
+
+### Customer Churn Prediction
+
+Employed by businesses to predict which customers are likely to discontinue service, allowing for targeted retention strategies.
+
+### Medical Diagnosis
+
+Assists in the classification of diseases or medical conditions based on patient data, combining insights from various diagnostic features.
+
+### Text Classification
+
+Used for categorizing documents or emails into predefined classes, often after converting text into numerical features.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement AdaBoost from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Adaboost
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Adaboost()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="AdaBoost Lab" />
+
+## References
+
+- Freund & Schapire (1995). Freund & Schapire.
+- [scikit-learn: Adaboost](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Adaboost.html)

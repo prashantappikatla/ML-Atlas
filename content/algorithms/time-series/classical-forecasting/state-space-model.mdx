@@ -1,0 +1,176 @@
+---
+title: "State Space Model"
+slug: "state-space-model"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1960
+author: "Kalman / Durbin & Koopman"
+paper: "Kalman / Durbin & Koopman"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["control-theory", "dynamic-systems", "forecasting", "kalman-filter", "latent-variables", "state-estimation", "statistical-modeling", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "exponential-smoothing"
+  - "extended-kalman-filter"
+  - "hidden-markov-model"
+  - "kalman-filter"
+  - "unscented-kalman-filter"
+---
+
+## Overview
+
+State Space Models provide a powerful and flexible framework for modeling dynamic systems, particularly in time series analysis. They represent the system's underlying unobserved state, which evolves over time according to a state equation, and relate this state to observed measurements through a measurement equation. This approach allows for robust handling of missing data, estimation of latent variables, and forecasting with associated uncertainty.
+
+## History
+
+**1960** — Rudolf E. Kalman published "A New Approach to Linear Filtering and Prediction Problems," introducing the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), which is a cornerstone for state estimation in linear Gaussian state space models.
+
+**1961** — Kalman and R. S. Bucy extended the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) theory to continuous-time systems, further solidifying its mathematical foundations and applicability.
+
+**1988** — Andrew Harvey's book "Forecasting, Structural Time Series Models and the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)" popularized the use of state space models and the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) in econometrics and time series analysis.
+
+**2001** — S. J. Koopman and J. Durbin published "Time Series Analysis by State Space Methods," providing a comprehensive and unified treatment of state space models for a wide range of time series applications, including non-Gaussian and non-linear cases.
+
+## Mathematical Intuition
+
+### Core State Space Representation
+
+A State Space Model describes a system using two primary equations: a state equation and a measurement equation. The state equation describes the evolution of the unobserved state vector $x_t$ over time, while the measurement equation relates the observed data $y_t$ to the current state. For a linear Gaussian system, these are typically given by:
+$$x_t = F_t x_{t-1} + B_t u_t + w_t$$
+$$y_t = H_t x_t + v_t$$
+Here, $x_t$ is the $k$-dimensional state vector at time $t$, $y_t$ is the $m$-dimensional observation vector, and $u_t$ is an optional $l$-dimensional control input vector. The matrices $F_t$, $B_t$, and $H_t$ are the state transition, control input, and observation matrices, respectively. The terms $w_t$ and $v_t$ represent process noise and measurement noise.
+
+$$
+x_t = F_t x_{t-1} + B_t u_t + w_t
+$$
+
+$$
+y_t = H_t x_t + v_t
+$$
+
+### State Transition Dynamics
+
+The state transition equation, $x_t = F_t x_{t-1} + B_t u_t + w_t$, models how the system's internal state evolves from one time step to the next. The matrix $F_t$ (also known as the system matrix) dictates the deterministic part of the state evolution. If $u_t$ is present, $B_t$ maps the control inputs to the state. The process noise $w_t$ accounts for unmodeled dynamics or random disturbances affecting the state, typically assumed to be a zero-mean Gaussian white noise with covariance $Q_t$, i.e., $w_t \sim N(0, Q_t)$.
+
+$$
+x_t = F_t x_{t-1} + B_t u_t + w_t
+$$
+
+$$
+w_t \sim N(0, Q_t)
+$$
+
+### Observation Mapping and Noise
+
+The measurement equation, $y_t = H_t x_t + v_t$, describes how the unobserved state $x_t$ is transformed into the observed measurement $y_t$. The observation matrix $H_t$ maps the state vector to the observation space. The measurement noise $v_t$ accounts for inaccuracies in the sensors or observation process, and is typically assumed to be a zero-mean Gaussian white noise with covariance $R_t$, i.e., $v_t \sim N(0, R_t)$. It is also usually assumed that $w_t$ and $v_t$ are uncorrelated.
+
+$$
+y_t = H_t x_t + v_t
+$$
+
+$$
+v_t \sim N(0, R_t)
+$$
+
+## Algorithm Steps
+
+1. Define the unobserved state vector $x_t$ and the observed measurement vector $y_t$ based on the problem domain.
+2. Formulate the state transition equation $x_t = F_t x_{t-1} + B_t u_t + w_t$, specifying the state transition matrix $F_t$ and control input matrix $B_t$ (if applicable).
+3. Formulate the measurement equation $y_t = H_t x_t + v_t$, specifying the observation matrix $H_t$.
+4. Specify the initial state mean $x_0$ and its covariance matrix $P_0$.
+5. Specify the covariance matrices for the process noise $Q_t$ and measurement noise $R_t$.
+6. Estimate the unknown parameters of the model (e.g., elements of $F_t, H_t, Q_t, R_t$) using methods such as Maximum Likelihood Estimation (MLE), often implemented via the Kalman filter and smoother algorithms.
+7. Utilize the estimated model for state estimation (filtering or smoothing) or for forecasting future observations and states.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `k_states` | `int` | `None` | integer > 0 | The number of unobserved state variables in the model. |
+| `transition_matrix` | `numpy.ndarray` | `None` | 2D array of shape (k_states, k_states) | The state transition matrix $F_t$ that governs the evolution of the state vector. |
+| `observation_matrix` | `numpy.ndarray` | `None` | 2D array of shape (n_observations, k_states) | The observation matrix $H_t$ that maps the state vector to the observation space. |
+| `process_noise_covariance` | `numpy.ndarray` | `None` | 2D array of shape (k_states, k_states), positive semi-definite | The covariance matrix $Q_t$ of the process noise $w_t$. |
+| `observation_noise_covariance` | `numpy.ndarray` | `None` | 2D array of shape (n_observations, n_observations), positive definite | The covariance matrix $R_t$ of the measurement noise $v_t$. |
+| `initial_state_mean` | `numpy.ndarray` | `None` | 1D array of shape (k_states,) | The mean of the initial state vector $x_0$. |
+| `initial_state_covariance` | `numpy.ndarray` | `None` | 2D array of shape (k_states, k_states), positive semi-definite | The covariance matrix of the initial state vector $P_0$. |
+| `selection_matrix` | `numpy.ndarray` | `None` | 2D array of shape (k_states, n_inputs) | The control input matrix $B_t$ that maps exogenous inputs to the state vector. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- State Space Models provide a flexible framework for modeling a wide range of dynamic systems and time series, including those with complex structures.
+- They can naturally handle missing observations in the time series data without requiring imputation.
+- The framework allows for the estimation of unobserved (latent) states, which can provide deeper insights into the system's underlying dynamics.
+- State Space Models provide probabilistic forecasts and state estimates, including associated uncertainty measures.
+- They can integrate multiple data sources and exogenous variables into a unified model.
+- The Kalman filter, a key component, is computationally efficient for linear Gaussian systems.
+
+## Weaknesses
+
+- Model specification can be challenging, requiring expert knowledge to define the state vector and the system matrices.
+- The computational cost can be high for large state vectors or for non-linear and non-Gaussian systems, often requiring approximations or simulation methods.
+- Performance can be sensitive to the initial conditions and the accurate specification of noise covariance matrices.
+- Assumptions of linearity and Gaussian noise, while simplifying estimation, may not hold true for all real-world systems, necessitating more complex extensions.
+
+## Use Cases
+
+### Control Systems
+
+Used for state estimation and prediction in dynamic systems like aircraft navigation, robotics, and industrial process control to maintain desired system behavior.
+
+### Econometrics and Finance
+
+Applied for modeling economic indicators, financial asset prices, and interest rates, enabling forecasting and policy analysis.
+
+### Signal Processing
+
+Utilized for noise reduction, signal tracking, and system identification in applications such as audio processing and telecommunications.
+
+### Robotics
+
+Employed for robot localization, mapping (SLAM), and tracking of moving objects by integrating sensor data with motion models.
+
+### Environmental Monitoring
+
+Used to model and forecast environmental variables like air quality, water levels, and climate patterns, often with noisy sensor data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement State Space Model from scratch
+```
+
+### Using scikit-learn
+
+```python
+# State Space Model does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="State Space Model Lab" />
+
+## References
+
+- Kalman / Durbin & Koopman (1960). Kalman / Durbin & Koopman.

@@ -1,0 +1,212 @@
+---
+title: "Multinomial Naive Bayes"
+slug: "multinomial-naive-bayes"
+category: "supervised"
+subcategory: "classification"
+year: 1998
+author: "Text classification literature"
+paper: "Text classification literature"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["bag-of-words", "classification", "fast", "generative-model", "probabilistic", "simple", "supervised-learning", "text-classification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bernoulli-naive-bayes"
+  - "complement-naive-bayes"
+  - "decision-tree-classifier"
+  - "gaussian-naive-bayes"
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "naive-bayes"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm particularly well-suited for discrete features, such as word counts in text classification. It operates on Bayes' theorem with a strong "naive" assumption of conditional independence between features given the class. This simplicity allows for efficient training and prediction, making it a popular choice for high-dimensional datasets like those found in natural language processing. Its generative approach models the distribution of features for each class.
+
+## History
+
+**1950** — The foundational concept of [Naive Bayes](/algorithms/supervised/classification/naive-bayes), based on Bayes' theorem and the assumption of feature independence, began to emerge in early pattern recognition and statistical classification literature.
+
+**1960** — Early applications of probabilistic classifiers, including those implicitly using [Naive Bayes](/algorithms/supervised/classification/naive-bayes) principles, appeared in fields like medical diagnosis and document retrieval.
+
+**1990** — With the rise of the internet and large text corpora, [Naive Bayes](/algorithms/supervised/classification/naive-bayes), particularly its multinomial variant, gained significant prominence in text classification tasks such as spam filtering and document categorization.
+
+**1998** — Andrew McCallum and Kamal Nigam published "A Comparison of Event Models for [Naive Bayes](/algorithms/supervised/classification/naive-bayes) Text Classification," which rigorously compared different event models, including the multinomial model, solidifying its theoretical and practical understanding in NLP.
+
+**2000** — Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes) was widely adopted and implemented in various machine learning libraries and tools due to its simplicity, efficiency, and competitive performance on many text-related problems.
+
+## Mathematical Intuition
+
+### Bayes' Theorem Foundation
+
+The core of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is Bayes' Theorem, which allows us to calculate the posterior probability of a class $C_k$ given a feature vector $x = (x_1, x_2, \dots, x_n)$.
+$$P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}$$
+For classification, we are interested in finding the class $C_k$ that maximizes this posterior probability. Since $P(x)$ is constant for all classes, we can simplify the decision rule to:
+$$C_{predict} = \arg\max_{C_k} P(x | C_k) P(C_k)$$
+
+$$
+P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}
+$$
+
+$$
+C_{predict} = \arg\max_{C_k} P(x | C_k) P(C_k)
+$$
+
+### The Naive Independence Assumption
+
+The "naive" part comes from assuming that all features $x_i$ are conditionally independent of each other given the class $C_k$. This simplifies the likelihood $P(x | C_k)$ significantly:
+$$P(x | C_k) = P(x_1, x_2, \dots, x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$$
+Substituting this into the classification rule yields the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier:
+$$C_{predict} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$$
+To avoid numerical underflow with many small probabilities, the product is often computed in the log-domain:
+$$C_{predict} = \arg\max_{C_k} \left[ \log P(C_k) + \sum_{i=1}^{n} \log P(x_i | C_k) \right]$$
+
+$$
+P(x | C_k) = P(x_1, x_2, \dots, x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+$$
+C_{predict} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+$$
+C_{predict} = \arg\max_{C_k} \left[ \log P(C_k) + \sum_{i=1}^{n} \log P(x_i | C_k) \right]
+$$
+
+### Multinomial Feature Model
+
+For Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes), features $x_i$ typically represent counts (e.g., word occurrences in a document). The likelihood $P(x_i | C_k)$ is modeled using a multinomial distribution. Specifically, for a document $d$ and a class $C_k$, the probability of observing a word $w_j$ is estimated as:
+$$P(w_j | C_k) = \frac{\text{count}(w_j, C_k) + \alpha}{\sum_{w \in V} (\text{count}(w, C_k) + \alpha)}$$
+where $\text{count}(w_j, C_k)$ is the number of times word $w_j$ appears in all documents of class $C_k$, $V$ is the vocabulary, and $\alpha$ is the Laplace smoothing parameter (typically $\alpha=1$). The likelihood of a document $x$ (represented as a bag of words) given a class $C_k$ is then:
+$$P(x | C_k) = P(\text{document } d | C_k) = \frac{(\sum_{i=1}^{n} x_i)!}{\prod_{i=1}^{n} x_i!} \prod_{i=1}^{n} P(w_i | C_k)^{x_i}$$
+However, in practice, the multinomial coefficient $\frac{(\sum_{i=1}^{n} x_i)!}{\prod_{i=1}^{n} x_i!}$ is often ignored as it is constant for all classes, and the classification rule simplifies to using only the product of individual word probabilities raised to their counts:
+$$P(x | C_k) \propto \prod_{i=1}^{n} P(w_i | C_k)^{x_i}$$
+
+$$
+P(w_j | C_k) = \frac{\text{count}(w_j, C_k) + \alpha}{\sum_{w \in V} (\text{count}(w, C_k) + \alpha)}
+$$
+
+$$
+P(x | C_k) = P(\text{document } d | C_k) = \frac{(\sum_{i=1}^{n} x_i)!}{\prod_{i=1}^{n} x_i!} \prod_{i=1}^{n} P(w_i | C_k)^{x_i}
+$$
+
+$$
+P(x | C_k) \propto \prod_{i=1}^{n} P(w_i | C_k)^{x_i}
+$$
+
+### Parameter Estimation with Smoothing
+
+The prior probability of a class $C_k$ is estimated from the training data as the proportion of documents belonging to that class:
+$$P(C_k) = \frac{\text{Number of documents in class } C_k}{\text{Total number of documents}}$$
+The conditional probabilities $P(w_j | C_k)$ are estimated using maximum likelihood estimation with Laplace smoothing to prevent zero probabilities for unseen words. The smoothing parameter $\alpha$ (often called `alpha` in implementations) adds $\alpha$ to each word count and $\alpha \times |V|$ to the total count for a given class, where $|V|$ is the size of the vocabulary. This ensures that even words not seen in a particular class during training still have a non-zero probability.
+
+$$
+P(C_k) = \frac{\text{Number of documents in class } C_k}{\text{Total number of documents}}
+$$
+
+## Algorithm Steps
+
+1. Prepare the training data by converting documents into feature vectors, typically using a bag-of-words representation where each feature $x_i$ is the count of a specific word in the document.
+2. For each class $C_k$, calculate the prior probability $P(C_k)$ by dividing the number of training documents in class $C_k$ by the total number of training documents.
+3. For each word $w_j$ in the vocabulary and each class $C_k$, calculate the conditional probability $P(w_j | C_k)$ using Laplace smoothing: $P(w_j | C_k) = \frac{\text{count}(w_j, C_k) + \alpha}{\sum_{w \in V} (\text{count}(w, C_k) + \alpha)}$.
+4. For a new, unseen document $x$ to be classified, extract its feature vector (word counts).
+5. For each class $C_k$, compute the log-posterior probability (or a value proportional to it) using the Naive Bayes formula: $\log P(C_k) + \sum_{i=1}^{n} x_i \log P(w_i | C_k)$.
+6. Assign the document $x$ to the class $C_k$ that yields the highest computed log-posterior probability.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | [0.0, infinity) | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied, which can lead to zero probabilities for unseen features. |
+| `fit_prior` | `boolean` | `True` | True, False | Whether to learn class prior probabilities or not. If false, a uniform prior is used for all classes. |
+| `class_prior` | `array-like` | `None` | None or array of shape (n_classes,) | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data and `fit_prior` is ignored. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is computationally efficient and scales well to large datasets and high-dimensional feature spaces.
+- Multinomial Naive Bayes often performs surprisingly well in text classification tasks, even with its strong independence assumption.
+- It is simple to implement and interpret, making it a good baseline model for many classification problems.
+- The model requires a relatively small amount of training data to estimate the necessary parameters.
+- It handles multiple classes naturally without requiring one-vs-rest or one-vs-one strategies.
+- The algorithm is robust to irrelevant features, as their probabilities tend to be uniformly distributed across classes.
+
+## Weaknesses
+
+- The core "naive" assumption of conditional independence between features given the class is rarely true in real-world data, which can lead to suboptimal probability estimates.
+- While it often performs well in classification, the probability outputs from Multinomial Naive Bayes are not always reliable or well-calibrated.
+- It cannot capture interactions between features, as each feature contributes independently to the final decision.
+- The model can be sensitive to the distribution of features, performing best when features are truly counts or frequencies.
+
+## Use Cases
+
+### Spam Detection
+
+Classifying emails as spam or legitimate based on the frequency of words in their content.
+
+### Sentiment Analysis
+
+Determining the emotional tone (positive, negative, neutral) of text reviews, social media posts, or customer feedback.
+
+### Document Categorization
+
+Automatically assigning documents to predefined categories, such as news articles into sports, politics, or technology.
+
+### Author Identification
+
+Identifying the author of a text based on their unique writing style and word usage patterns.
+
+### Language Identification
+
+Determining the language of a given text snippet by analyzing word frequencies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Multinomial Naive Bayes from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = MultinomialNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Multinomial Naive Bayes Lab" />
+
+## References
+
+- Text classification literature (1998). Text classification literature.
+- [scikit-learn: MultinomialNB](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MultinomialNB.html)

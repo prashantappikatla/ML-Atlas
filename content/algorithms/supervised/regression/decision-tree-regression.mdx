@@ -1,0 +1,169 @@
+---
+title: "Decision Tree Regression"
+slug: "decision-tree-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1984
+author: "Breiman � CART"
+paper: "Breiman � CART"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["cart", "decision-tree", "greedy-algorithm", "interpretable", "non-parametric", "regression", "supervised-learning", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-classifier"
+---
+
+## Overview
+
+Decision Tree Regression models the relationship between input features and a continuous target variable by partitioning the feature space into a set of rectangular regions. For any given input, the prediction is the average target value of the training samples within the corresponding region. This non-parametric method constructs a tree-like structure of decisions, making it highly interpretable for understanding feature interactions and their impact on the outcome.
+
+## History
+
+**1984** — Leo Breiman, Jerome Friedman, Richard Olshen, and Charles Stone introduce Classification and Regression Trees (CART), a seminal work that formalized the use of decision trees for both classification and regression tasks.
+
+**1993** — Quinlan's M5 algorithm is developed, specifically designed for regression tasks, improving upon CART's approach to handling continuous target variables by fitting linear models at the leaves.
+
+**2001** — Leo Breiman introduces Random Forests, an ensemble method that combines multiple decision trees to reduce variance and improve predictive accuracy, building directly on the principles of individual decision trees.
+
+## Mathematical Intuition
+
+### Recursive Binary Splitting
+
+The core idea of Decision Tree Regression is to recursively partition the feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively searches for the best feature and split point (threshold) to divide the data into two child nodes. This process continues until a stopping criterion is met, resulting in a tree structure where each leaf node represents a final region in the feature space.
+
+### Impurity Measure: Mean Squared Error
+
+For regression tasks, the impurity of a node is typically measured using the Mean Squared Error (MSE). For a given node $m$ representing a region $R_m$ with $N_m$ training samples, the predicted value $\hat{y}_m$ is the average of the target values of the samples in that region. The MSE for this node is then calculated as:$$MSE_m = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \hat{y}_m)^2$$The goal of splitting is to minimize the weighted average MSE of the resulting child nodes.
+
+$$
+\hat{y}_m = \frac{1}{N_m} \sum_{i \in R_m} y_i
+$$
+
+$$
+MSE_m = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \hat{y}_m)^2
+$$
+
+### Optimal Split Selection
+
+At each node, the algorithm evaluates all possible features and all possible split points (thresholds) for each feature. For a candidate split that divides the data into two child nodes, $R_L$ (left) and $R_R$ (right), with $N_L$ and $N_R$ samples respectively, the reduction in impurity is calculated. The split that maximizes this reduction is chosen. The reduction in impurity can be expressed as:$$ \Delta MSE = MSE_{parent} - \left( \frac{N_L}{N_m} MSE_L + \frac{N_R}{N_m} MSE_R \right) $$where $MSE_{parent}$ is the impurity of the current node, and $MSE_L$ and $MSE_R$ are the impurities of the left and right child nodes, respectively.
+
+$$
+\Delta MSE = MSE_{parent} - \left( \frac{N_L}{N_m} MSE_L + \frac{N_R}{N_m} MSE_R \right)
+$$
+
+### Stopping Criteria and Pruning
+
+The recursive splitting process continues until certain stopping criteria are met to prevent overfitting. Common criteria include reaching a maximum tree depth ($max\_depth$), having fewer than a minimum number of samples required to split a node ($min\_samples\_split$), or having fewer than a minimum number of samples in a leaf node ($min\_samples\_leaf$). Post-pruning techniques, such as cost-complexity pruning (CCP), can also be applied to simplify an overly complex tree by removing branches that provide little predictive power, using a parameter like $ccp\_alpha$.
+
+## Algorithm Steps
+
+1. 1. Start with all training data in the root node of the tree.
+2. 2. For each node, iterate through all available features and all possible split points (thresholds) for each feature.
+3. 3. For each candidate split, calculate the Mean Squared Error (MSE) for the potential left and right child nodes that would result from the split.
+4. 4. Select the feature and split point that yields the greatest reduction in impurity (e.g., maximum decrease in weighted MSE) compared to the parent node.
+5. 5. Split the current node into two child nodes based on the chosen feature and threshold, assigning samples to the left or right child accordingly.
+6. 6. Repeat steps 2-5 recursively for each new child node until a predefined stopping criterion is met (e.g., maximum depth, minimum samples per leaf, or minimum impurity decrease).
+7. 7. For each terminal (leaf) node, the prediction for any new input falling into that region is the average of the target values of all training samples within that leaf node.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `criterion` | `str` | `squared_error` | 'squared_error', 'friedman_mse', 'absolute_error', 'poisson' | The function to measure the quality of a split. 'squared_error' (for MSE) is the default and generally recommended. |
+| `splitter` | `str` | `best` | 'best', 'random' | The strategy used to choose the split at each node. 'best' chooses the best split, 'random' chooses the best random split. |
+| `max_depth` | `int or None` | `None` | integer >= 1 or None | The maximum depth of the tree. If None, nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples. |
+| `min_samples_split` | `int or float` | `2` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. If int, then consider min_samples_split as the minimum number. If float, then min_samples_split is a fraction and ceil(min_samples_split * n_samples) are the minimum number of samples for each split. |
+| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least min_samples_leaf training samples in each of the left and right branches. |
+| `max_features` | `int, float, str or None` | `None` | integer >= 1, float in (0.0, 1.0], 'sqrt', 'log2', None | The number of features to consider when looking for the best split. If int, then consider max_features features at each split. If float, then max_features is a fraction and int(max_features * n_features) features are considered. If 'sqrt', then max_features=sqrt(n_features). If 'log2', then max_features=log2(n_features). If None, then max_features=n_features. |
+| `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance, or None | Controls the randomness of the estimator. Used when splitter is 'random' or max_features is not None. |
+| `ccp_alpha` | `float` | `0.0` | float >= 0.0 | Complexity parameter used for Minimal Cost-Complexity Pruning. The subtree with the largest cost complexity that is smaller than ccp_alpha will be chosen. Larger values of ccp_alpha increase the number of nodes pruned. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Decision trees are highly interpretable, especially for shallow trees, allowing for easy visualization and understanding of the decision-making process.
+- They can handle both numerical and categorical features without extensive preprocessing like scaling or normalization.
+- The algorithm implicitly performs feature selection, as more important features are typically used closer to the root of the tree.
+- Decision trees can capture complex non-linear relationships between features and the target variable.
+- They are relatively fast to train and make predictions once the tree is constructed.
+
+## Weaknesses
+
+- Individual decision trees are prone to overfitting, especially when they are deep, leading to poor generalization on unseen data.
+- They are highly sensitive to small variations in the training data, which can result in a completely different tree structure (high variance).
+- Decision trees can be unstable; a small change in the data can lead to a large change in the optimal split point and tree structure.
+- The greedy nature of the splitting algorithm does not guarantee finding the globally optimal tree, as it makes locally optimal decisions at each step.
+- They struggle with extrapolation, as predictions are limited to the range of target values observed in the training data within each leaf node.
+
+## Use Cases
+
+### Finance
+
+Predicting housing prices based on features like location, size, and amenities, or estimating credit risk scores for loan applicants.
+
+### Healthcare
+
+Predicting patient recovery times or the likelihood of disease progression based on clinical data and patient demographics.
+
+### Marketing
+
+Forecasting customer lifetime value or predicting the probability of a customer making a purchase based on their browsing history and demographics.
+
+### Manufacturing
+
+Predicting product quality metrics or estimating the remaining useful life of machinery based on sensor data and operational parameters.
+
+### Environmental Science
+
+Modeling air pollution levels or predicting crop yields based on weather patterns, soil conditions, and agricultural practices.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Decision Tree Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import DecisionTreeRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = DecisionTreeRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Decision Tree Regression Lab" />
+
+## References
+
+- Breiman � CART (1984). Breiman � CART.
+- [scikit-learn: DecisionTreeRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.DecisionTreeRegression.html)

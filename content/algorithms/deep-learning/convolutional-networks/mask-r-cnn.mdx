@@ -1,0 +1,172 @@
+---
+title: "Mask R-CNN"
+slug: "mask-r-cnn"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2017
+author: "He et al."
+paper: "He et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-networks", "deep-learning", "image-analysis", "instance-segmentation", "object-detection", "region-based", "semantic-segmentation"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "lenet"
+  - "u-net"
+---
+
+## Overview
+
+Mask R-CNN is a deep learning model designed for instance segmentation, a task that combines object detection with semantic segmentation. It extends the Faster R-CNN architecture by adding a third branch dedicated to predicting an object mask in parallel with the existing branches for classification and bounding box regression. This allows it to generate high-quality, pixel-level segmentation masks for each detected object instance in an image, distinguishing between individual objects of the same class. A key innovation is the ROIAlign layer, which precisely aligns extracted features to avoid quantization errors, crucial for accurate mask prediction.
+
+## History
+
+**1998** — LeCun et al. introduce [LeNet](/algorithms/deep-learning/convolutional-networks/lenet)-5, a pioneering convolutional neural network for document recognition, laying foundational work for CNNs.
+
+**2012** — Krizhevsky et al. publish [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), demonstrating the power of deep CNNs for image classification on ImageNet, sparking the deep learning revolution in computer vision.
+
+**2014** — Girshick et al. introduce R-CNN, combining region proposals with CNNs for object detection, significantly improving performance over previous methods.
+
+**2015** — Ren et al. propose Faster R-CNN, integrating the Region Proposal Network (RPN) directly into the CNN, making object detection end-to-end trainable and much faster.
+
+**2015** — Long et al. introduce Fully Convolutional Networks (FCNs) for semantic segmentation, demonstrating pixel-level prediction using only convolutional layers.
+
+**2017** — He et al. publish Mask R-CNN, extending Faster R-CNN with a parallel mask prediction branch and introducing ROIAlign for more precise feature extraction, achieving state-of-the-art instance segmentation.
+
+## Mathematical Intuition
+
+### Region Proposal Network (RPN)
+
+The Region Proposal Network (RPN) takes feature maps from the backbone CNN and slides a small network over them. At each sliding-window location, it predicts $k$ region proposals, each associated with a class-agnostic objectness score and $4$ bounding box coordinates. These predictions are based on a set of $k$ anchor boxes of varying scales and aspect ratios. The RPN loss function combines a binary classification loss for objectness and a regression loss for bounding box refinement.
+
+$$
+L_{RPN}(p_i, t_i) = L_{cls}(p_i, p_i^*) + \lambda L_{reg}(t_i, t_i^*)
+$$
+
+### ROIAlign for Feature Extraction
+
+ROIAlign is a crucial improvement over ROIPooling, designed to preserve exact spatial locations and avoid quantization errors. For each Region of Interest (ROI), ROIAlign precisely maps the floating-point coordinates of the ROI to the feature map. It then uses bilinear interpolation to compute feature values at four regularly sampled locations within each bin of the fixed-size output grid, aggregating these values (e.g., by max or average pooling) to produce a fixed-size feature map for each ROI. This precise alignment is critical for accurate pixel-level mask prediction.
+
+### Multi-task Loss Function
+
+Mask R-CNN's training objective is a multi-task loss that combines three components: classification loss, bounding box regression loss, and mask prediction loss. For each Region of Interest (ROI), if it is classified as a foreground object, the classification and bounding box regression losses are computed as in Faster R-CNN. The mask loss is applied only to positive ROIs and is a binary cross-entropy loss computed pixel-wise for each class, allowing the network to predict a binary mask for each class independently without competition between classes.
+
+$$
+L = L_{cls} + L_{box} + L_{mask}
+$$
+
+$$
+L_{mask} = \text{BCE}(M, M^*)
+$$
+
+### Mask Prediction Branch
+
+The mask branch is a small Fully Convolutional Network (FCN) applied to each ROIAlign output. Unlike the classification and bounding box branches which produce a single vector, the mask branch outputs a $K \times m \times m$ feature map, where $K$ is the number of classes and $m \times m$ is the spatial resolution of the predicted mask (e.g., $28 \times 28$). Each $m \times m$ slice corresponds to a binary mask for one of the $K$ classes. This design allows the network to predict a mask for each class independently, avoiding competition among classes and simplifying the task.
+
+## Algorithm Steps
+
+1. An input image is fed into a backbone Convolutional Neural Network (CNN) (e.g., ResNet, ResNeXt) to extract a feature map.
+2. A Region Proposal Network (RPN) takes the feature map and generates a set of object proposals, each with an objectness score and bounding box coordinates.
+3. Non-Maximum Suppression (NMS) is applied to the RPN proposals to reduce redundancy, yielding a refined set of region proposals.
+4. For each refined region proposal, ROIAlign is used to extract a fixed-size feature map from the backbone's feature map, precisely aligning the features to the proposal.
+5. These ROIAlign features are then fed into three parallel output branches: a classification branch, a bounding box regression branch, and a mask prediction branch.
+6. The classification branch predicts the object class for each proposal, and the bounding box regression branch refines the bounding box coordinates.
+7. The mask prediction branch, a small Fully Convolutional Network (FCN), generates a binary mask for each class within the proposal's region.
+8. During training, a multi-task loss combining classification loss ($L_{cls}$), bounding box regression loss ($L_{box}$), and mask loss ($L_{mask}$) is minimized to update the network weights.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `backbone` | `string` | `resnet50_fpn` | e.g., 'resnet50_fpn', 'resnet101_fpn', 'resnext101_32x8d_fpn' | The convolutional neural network architecture used as the feature extractor (e.g., 'resnet50_fpn', 'resnet101_fpn'). |
+| `num_classes` | `integer` | `None` | integer > 0 | The total number of object classes to detect, including a background class if applicable. Must be set by the user. |
+| `rpn_anchor_scales` | `list of integers` | `[32, 64, 128, 256, 512]` | list of positive integers | A list of anchor box sizes (in pixels) used by the Region Proposal Network (RPN). |
+| `rpn_anchor_ratios` | `list of floats` | `[0.5, 1.0, 2.0]` | list of positive floats | A list of anchor box aspect ratios used by the Region Proposal Network (RPN). |
+| `rpn_post_nms_top_n` | `integer` | `2000` | integer > 0 | The number of top-scoring RPN proposals to keep after Non-Maximum Suppression during training. |
+| `roi_align_output_size` | `tuple of integers` | `(7, 7)` | tuple of positive integers (height, width) | The target spatial size of the feature maps extracted by ROIAlign for the classification and bounding box heads. |
+| `mask_roi_align_output_size` | `tuple of integers` | `(14, 14)` | tuple of positive integers (height, width) | The target spatial size of the feature maps extracted by ROIAlign for the mask prediction head. |
+| `mask_loss_weight` | `float` | `1.0` | float >= 0.0 | The weight applied to the mask prediction loss component in the total multi-task loss. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Mask R-CNN achieves state-of-the-art performance in instance segmentation, providing high-quality pixel-level masks for each detected object.
+- It simultaneously performs object detection, classification, and instance segmentation within a single, unified framework.
+- The ROIAlign layer significantly improves mask accuracy by avoiding quantization errors inherent in ROIPooling, leading to more precise feature alignment.
+- Its modular design allows for flexible integration with various backbone architectures, enabling adaptation to different performance and efficiency requirements.
+- The algorithm is highly versatile and can be fine-tuned for a wide range of computer vision tasks beyond general instance segmentation, such as keypoint detection.
+- The mask branch predicts a binary mask for each class independently, simplifying the task and avoiding competition among classes.
+
+## Weaknesses
+
+- Mask R-CNN is computationally intensive, requiring significant GPU resources and longer training and inference times compared to simpler object detection models.
+- It necessitates large, meticulously annotated datasets with pixel-level masks, which are expensive and time-consuming to create.
+- The complex multi-stage architecture can be challenging to debug and optimize, especially when encountering performance issues.
+- Performance can degrade on very small objects or in extremely crowded scenes where object instances heavily overlap.
+- The model's size and complexity make it less suitable for deployment on resource-constrained edge devices without significant optimization or distillation.
+
+## Use Cases
+
+### Autonomous Driving
+
+Used for precise detection and segmentation of vehicles, pedestrians, traffic signs, and road infrastructure to enable safe navigation and decision-making.
+
+### Medical Imaging
+
+Applied for segmenting organs, tumors, lesions, and other anatomical structures in X-rays, MRIs, and CT scans to assist in diagnosis and treatment planning.
+
+### Robotics
+
+Enables robots to accurately perceive and interact with objects in their environment, facilitating tasks like grasping, manipulation, and navigation.
+
+### Retail Analytics
+
+Utilized for monitoring product placement on shelves, identifying out-of-stock items, and analyzing customer behavior through object tracking.
+
+### Agriculture
+
+Employed for tasks such as counting fruits on trees, detecting plant diseases, and monitoring crop health through precise segmentation of individual plants or produce.
+
+### Satellite Imagery Analysis
+
+Used to identify and delineate objects like buildings, roads, and land cover types for urban planning, environmental monitoring, and disaster response.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Mask R-CNN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Mask R-CNN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Mask R-CNN Lab" />
+
+## References
+
+- He et al. (2017). He et al..

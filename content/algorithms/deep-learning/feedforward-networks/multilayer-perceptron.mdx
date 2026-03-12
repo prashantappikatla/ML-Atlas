@@ -1,0 +1,210 @@
+---
+title: "Multilayer Perceptron"
+slug: "multilayer-perceptron"
+category: "deep-learning"
+subcategory: "feedforward-networks"
+year: 1986
+author: "Rumelhart et al."
+paper: "Rumelhart et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["backpropagation", "classification", "deep-learning", "feedforward-network", "neural-network", "non-linear", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "logistic-regression"
+  - "perceptron"
+  - "radial-basis-function-network"
+  - "recurrent-neural-network"
+  - "support-vector-machine"
+---
+
+## Overview
+
+The Multilayer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) is a class of feedforward artificial neural networks that consists of at least three layers of nodes: an input layer, a hidden layer, and an output layer. It is capable of learning non-linear relationships between inputs and outputs, making it suitable for complex classification and regression tasks. MLPs utilize a supervised learning technique called backpropagation for training, which adjusts the network's weights and biases to minimize prediction error.
+
+## History
+
+**1943** — Warren McCulloch and Walter Pitts introduced a computational model for neural networks, laying the theoretical groundwork for artificial neurons.
+
+**1958** — Frank Rosenblatt developed the [Perceptron](/algorithms/supervised/classification/perceptron), a single-layer neural network capable of learning linear decision boundaries, but limited to linearly separable problems.
+
+**1969** — Marvin Minsky and Seymour Papert's book 'Perceptrons' highlighted the limitations of single-layer perceptrons, particularly their inability to solve non-linearly separable problems like XOR, which temporarily slowed neural network research.
+
+**1986** — David Rumelhart, Geoffrey Hinton, and Ronald Williams popularized the backpropagation algorithm for training multilayer neural networks in their seminal paper 'Learning representations by back-propagating errors', enabling MLPs to learn complex non-linear functions.
+
+**1989** — George Cybenko published a paper demonstrating that a feedforward network with a single hidden layer and a sufficient number of neurons can approximate any continuous function, establishing the Universal Approximation Theorem for MLPs.
+
+## Mathematical Intuition
+
+### The Perceptron Model
+
+At its core, an MLP is composed of interconnected perceptrons or artificial neurons. Each neuron receives a set of inputs $\mathbf{x} = [x_1, x_2, \dots, x_n]$, multiplies them by corresponding weights $\mathbf{w} = [w_1, w_2, \dots, w_n]$, sums these products, and adds a bias term $b$. This weighted sum, $z$, is then passed through an activation function $f$ to produce the neuron's output $y$. Mathematically, a single neuron's operation is described as:
+
+$$
+$$z = \sum_{i=1}^{n} w_i x_i + b = \mathbf{w}^T \mathbf{x} + b$$
+$$
+
+$$
+$$y = f(z)$$
+$$
+
+### Feedforward Propagation
+
+In an MLP, neurons are organized into layers. Input data propagates forward through the network, from the input layer, through one or more hidden layers, to the output layer. For a given layer $l$, the activations $\mathbf{a}^{(l)}$ are computed from the activations of the previous layer $\mathbf{a}^{(l-1)}$ by applying a linear transformation followed by an element-wise activation function $f^{(l)}$. The input layer's activations are simply the input features $\mathbf{x}$.
+
+$$
+$$\mathbf{z}^{(l)} = \mathbf{W}^{(l)} \mathbf{a}^{(l-1)} + \mathbf{b}^{(l)}$$
+$$
+
+$$
+$$\mathbf{a}^{(l)} = f^{(l)}(\mathbf{z}^{(l)})$$
+$$
+
+$$
+Where $\mathbf{W}^{(l)}$ is the weight matrix connecting layer $l-1$ to layer $l$, $\mathbf{b}^{(l)}$ is the bias vector for layer $l$, and $\mathbf{a}^{(0)} = \mathbf{x}$.
+$$
+
+### Activation Functions
+
+Activation functions introduce non-linearity into the network, enabling MLPs to learn complex, non-linear mappings. Without non-linear activation functions, an MLP would simply be a series of linear transformations, equivalent to a single linear transformation. Common choices include the Rectified Linear Unit (ReLU), sigmoid, and hyperbolic tangent (tanh). For the output layer, the choice of activation function depends on the task: sigmoid for binary classification, softmax for multi-class classification, and linear for regression.
+
+$$
+$$\text{Sigmoid}(z) = \frac{1}{1 + e^{-z}}$$
+$$
+
+$$
+$$\text{ReLU}(z) = \max(0, z)$$
+$$
+
+$$
+$$\text{Tanh}(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
+$$
+
+### Backpropagation Algorithm
+
+MLPs are trained using the backpropagation algorithm, which is a method for efficiently computing the gradient of the loss function with respect to the network's weights and biases. This gradient is then used to update the parameters via gradient descent. Backpropagation involves two main phases: a forward pass to compute predictions and the loss, and a backward pass to propagate the error gradients from the output layer back through the network, layer by layer, using the chain rule. For a given output layer error $\delta^{(L)}$ and hidden layer error $\delta^{(l)}$, the updates for weights and biases are derived from these gradients.
+
+$$
+$$\delta^{(L)} = \nabla_{\mathbf{a}^{(L)}} C \odot f'^{(L)}(\mathbf{z}^{(L)})$$
+$$
+
+$$
+$$\delta^{(l)} = ((\mathbf{W}^{(l+1)})^T \delta^{(l+1)}) \odot f'^{(l)}(\mathbf{z}^{(l)})$$
+$$
+
+$$
+$$\mathbf{W}^{(l)} \leftarrow \mathbf{W}^{(l)} - \eta \delta^{(l)} (\mathbf{a}^{(l-1)})^T$$
+$$
+
+$$
+$$\mathbf{b}^{(l)} \leftarrow \mathbf{b}^{(l)} - \eta \delta^{(l)}$$
+$$
+
+$$
+Where $C$ is the cost function, $\eta$ is the learning rate, and $\odot$ denotes the element-wise product.
+$$
+
+## Algorithm Steps
+
+1. Initialize all weights and biases in the network with small random values.
+2. Perform a forward pass: For each input sample $\mathbf{x}$, compute the activations of each neuron in each layer, from the input layer through the hidden layers to the output layer, using the current weights and biases.
+3. Calculate the loss: Compare the network's output $\hat{\mathbf{y}}$ with the true target $\mathbf{y}$ using a chosen loss function (e.g., mean squared error for regression, cross-entropy for classification).
+4. Perform a backward pass (backpropagation): Compute the gradient of the loss function with respect to the weights and biases by propagating the error backwards from the output layer to the input layer using the chain rule.
+5. Update weights and biases: Adjust the weights and biases in the direction that minimizes the loss, using an optimization algorithm like stochastic gradient descent (SGD) or its variants (e.g., Adam), with a specified learning rate $\eta$.
+6. Repeat steps 2-5 for a specified number of epochs or until a convergence criterion is met, processing data in batches if applicable.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers, e.g., (50, 20) for two hidden layers with 50 and 20 neurons respectively | The $i$-th element represents the number of neurons in the $i$-th hidden layer. |
+| `activation` | `str` | `'relu'` | 'identity', 'logistic', 'tanh', 'relu' | Activation function for the hidden layer(s). |
+| `solver` | `str` | `'adam'` | 'lbfgs', 'sgd', 'adam' | The algorithm for weight optimization. |
+| `alpha` | `float` | `0.0001` | float, typically between 0.0 and 1.0 | L2 penalty (regularization term) parameter. |
+| `batch_size` | `str or int` | `'auto'` | integer or 'auto' | Size of minibatches for stochastic optimizers. If 'auto', batch_size=min(200, n_samples). |
+| `learning_rate_init` | `float` | `0.001` | float, typically between 0.0001 and 0.1 | The initial learning rate used for 'sgd' or 'adam' solvers. |
+| `max_iter` | `int` | `200` | integer, greater than 0 | Maximum number of iterations (epochs) for the solver to run. |
+| `early_stopping` | `bool` | `false` | true or false | Whether to use early stopping to terminate training when validation score is not improving. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- MLPs are universal function approximators, capable of learning complex non-linear relationships between inputs and outputs.
+- They can be applied to a wide range of supervised learning tasks, including classification, regression, and pattern recognition.
+- MLPs can learn from raw data, provided it is properly vectorized, reducing the need for extensive feature engineering in some cases.
+- The modular structure allows for flexible network architectures, adapting to different problem complexities by varying the number of hidden layers and neurons.
+- With sufficient data and computational resources, MLPs can achieve high accuracy on challenging tasks.
+
+## Weaknesses
+
+- MLPs are prone to overfitting, especially with a large number of parameters and limited training data, requiring regularization techniques.
+- Training MLPs can be computationally expensive and time-consuming, particularly for deep networks and large datasets.
+- The 'black-box' nature of MLPs makes their decision-making process difficult to interpret, which can be a disadvantage in applications requiring transparency.
+- MLPs are sensitive to the initial random weights and biases, which can lead to different solutions and convergence issues.
+- They struggle with sequential data and spatial hierarchies in data like images, often requiring data flattening or specialized architectures like RNNs or CNNs for optimal performance.
+
+## Use Cases
+
+### Image Recognition
+
+MLPs can classify images after flattening pixel data into a vector, used for tasks like handwritten digit recognition (e.g., MNIST dataset).
+
+### Natural Language Processing
+
+Applied to text classification, sentiment analysis, and spam detection by processing vectorized text representations like bag-of-words or word embeddings.
+
+### Financial Forecasting
+
+Used for predicting stock prices, market trends, or credit risk by learning patterns from various financial indicators.
+
+### Medical Diagnosis
+
+Assisting in diagnosing diseases by analyzing patient data, symptoms, and medical test results to identify patterns indicative of conditions.
+
+### Speech Recognition
+
+Processing acoustic features extracted from audio signals to recognize spoken words or commands, often as part of hybrid systems.
+
+### Fraud Detection
+
+Identifying fraudulent transactions or activities by learning anomalous patterns in large datasets of financial or behavioral data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Multilayer Perceptron from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Multilayer Perceptron does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Multilayer Perceptron Lab" />
+
+## References
+
+- Rumelhart et al. (1986). Rumelhart et al..

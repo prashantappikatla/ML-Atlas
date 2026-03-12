@@ -1,0 +1,229 @@
+---
+title: "Normalizing Flow"
+slug: "normalizing-flow"
+category: "generative"
+subcategory: "flow-based"
+year: 2018
+author: "Rezende & Mohamed / Dinh et al."
+paper: "Rezende & Mohamed / Dinh et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: false
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "density-estimation", "exact-likelihood", "flow-based", "generative-model", "invertible-transformations", "unsupervised-learning", "variational-inference"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "stochastic-gradient-descent"
+---
+
+## Overview
+
+Normalizing Flows are a class of generative models that learn complex probability distributions by transforming a simple base distribution through a sequence of invertible and differentiable mappings. This approach allows for exact computation of the log-likelihood of data points and exact sampling from the learned distribution. They are particularly distinctive for their ability to model multi-modal distributions without issues like mode collapse, a common challenge in other generative architectures.
+
+## History
+
+**2014** — Dinh, Krueger, and Bengio introduced Non-linear Independent Components Estimation (NICE), one of the first deep learning models based on invertible transformations for density estimation.
+
+**2015** — Rezende and Mohamed proposed "Variational Inference with Normalizing Flows," demonstrating how flows could enhance the expressiveness of approximate posterior distributions in variational autoencoders.
+
+**2016** — Dinh, Sohl-Dickstein, and Bengio introduced Real NVP (Real-valued Non-Volume Preserving transformations), improving upon NICE with affine coupling layers that allow for more flexible and efficient transformations.
+
+**2018** — Kingma and Dhariwal presented Glow, a generative flow model that leveraged invertible 1x1 convolutions and multi-scale architectures to achieve state-of-the-art image generation.
+
+## Mathematical Intuition
+
+### Change of Variables Formula
+
+The core mathematical principle behind normalizing flows is the change of variables formula for probability densities. If $x$ is a random variable with density $p_X(x)$ and $y = f(x)$ is an invertible and differentiable transformation, then the density of $y$, $p_Y(y)$, can be expressed as:
+$$p_Y(y) = p_X(f^{-1}(y)) \left| \det \left( \frac{\partial f^{-1}(y)}{\partial y} \right) \right|$$
+Alternatively, if we transform a simple base distribution $p_Z(z)$ to a complex target distribution $p_X(x)$ via $x = f(z)$, then:
+$$p_X(x) = p_Z(f^{-1}(x)) \left| \det \left( \frac{\partial f^{-1}(x)}{\partial x} \right) \right|$$
+This formula allows us to compute the likelihood of $x$ by evaluating the likelihood of its pre-image $z$ under the base distribution and scaling by the determinant of the Jacobian of the inverse transformation.
+
+$$
+p_Y(y) = p_X(f^{-1}(y)) \left| \det \left( \frac{\partial f^{-1}(y)}{\partial y} \right) \right|
+$$
+
+$$
+p_X(x) = p_Z(f^{-1}(x)) \left| \det \left( \frac{\partial f^{-1}(x)}{\partial x} \right) \right|
+$$
+
+$$
+x = f(z)
+$$
+
+$$
+z = f^{-1}(x)
+$$
+
+$$
+p_Z(z)
+$$
+
+$$
+p_X(x)
+$$
+
+### Invertible Transformations Chain
+
+Normalizing flows construct a complex transformation $f$ by composing a sequence of simpler, invertible, and differentiable transformations $f_1, f_2, \dots, f_K$. If $z_0 \sim p_Z(z_0)$ is the base distribution, then $z_k = f_k(z_{k-1})$ for $k=1, \dots, K$, and the final transformed variable is $x = z_K$. The inverse transformation is $f^{-1}(x) = f_1^{-1}(f_2^{-1}(\dots f_K^{-1}(x)\dots))$. The log-likelihood of $x$ is then given by:
+$$\log p_X(x) = \log p_Z(z_0) + \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(z_{k-1})}{\partial z_{k-1}} \right) \right|$$
+Each $f_k$ is designed to have an easily computable inverse and Jacobian determinant, often achieved through architectures like coupling layers or autoregressive transformations.
+
+$$
+f_1, f_2, \dots, f_K
+$$
+
+$$
+z_0 \sim p_Z(z_0)
+$$
+
+$$
+z_k = f_k(z_{k-1})
+$$
+
+$$
+x = z_K
+$$
+
+$$
+f^{-1}(x) = f_1^{-1}(f_2^{-1}(\dots f_K^{-1}(x)\dots))
+$$
+
+$$
+\log p_X(x) = \log p_Z(z_0) + \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(z_{k-1})}{\partial z_{k-1}} \right) \right|
+$$
+
+### Jacobian Determinant Computation
+
+A critical challenge in implementing normalizing flows is efficiently computing the determinant of the Jacobian matrix for each transformation $f_k$. For a transformation $y = f(x)$, the Jacobian matrix is $J = \frac{\partial y}{\partial x}$. The determinant $\det(J)$ measures how the transformation changes volume. To make this tractable, flow architectures are designed such that $J$ is triangular (e.g., autoregressive flows) or block-triangular (e.g., coupling layers), allowing the determinant to be computed as the product of its diagonal elements. For example, in coupling layers, a subset of dimensions is transformed based on another subset, leading to a block-triangular Jacobian.
+
+$$
+y = f(x)
+$$
+
+$$
+J = \frac{\partial y}{\partial x}
+$$
+
+$$
+\det(J)
+$$
+
+### Log-Likelihood Optimization
+
+Normalizing flows are typically trained by maximizing the log-likelihood of the observed data. Given a dataset $D = \{x^{(i)}\}_{i=1}^N$, the objective is to maximize $\sum_{i=1}^N \log p_X(x^{(i)}; \theta)$, where $\theta$ represents the parameters of the flow transformations. This is achieved using gradient-based optimization methods, such as [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). The gradients are backpropagated through the sequence of invertible transformations, allowing the neural networks within each flow layer to learn the parameters that best map the base distribution to the data distribution.
+
+$$
+D = \{x^{(i)}\}_{i=1}^N
+$$
+
+$$
+\sum_{i=1}^N \log p_X(x^{(i)}; \theta)
+$$
+
+$$
+\theta
+$$
+
+## Algorithm Steps
+
+1. Define a simple, tractable base probability distribution $p_Z(z)$, typically a standard Gaussian distribution.
+2. Construct a sequence of $K$ invertible and differentiable transformations $f_1, f_2, \dots, f_K$, where each $f_k$ maps $z_{k-1}$ to $z_k$.
+3. For a given data point $x$, compute its corresponding latent variable $z_0$ by applying the inverse transformations in reverse order: $z_0 = f_1^{-1}(f_2^{-1}(\dots f_K^{-1}(x)\dots))$.
+4. Calculate the log-likelihood of $x$ using the change of variables formula: $\log p_X(x) = \log p_Z(z_0) + \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(z_{k-1})}{\partial z_{k-1}} \right) \right|$.
+5. Train the parameters of the transformations $f_k$ (typically neural networks) by maximizing the average log-likelihood of the training data using an optimization algorithm like Adam.
+6. To generate new samples, first sample $z_0$ from the base distribution $p_Z(z)$, then apply the forward transformations $x = f_K(f_{K-1}(\dots f_1(z_0)\dots))$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_flows` | `integer` | `8` | integer > 0 | The number of invertible transformations chained together to form the complete flow. More flows generally lead to higher expressiveness but also increased computational cost. |
+| `base_distribution` | `string` | `gaussian` | ['gaussian', 'uniform'] | The type of simple probability distribution from which the flow starts transforming. Common choices include standard normal or uniform distributions. |
+| `transformation_type` | `string` | `affine_coupling` | ['affine_coupling', 'autoregressive', 'residual'] | The specific architecture used for each invertible transformation layer. Examples include affine coupling layers (Real NVP, Glow), autoregressive layers (MAF, IAF), or residual blocks. |
+| `hidden_features` | `list of integers` | `[64, 64]` | list of integers > 0 | A list specifying the number of units in each hidden layer of the neural networks within the coupling or autoregressive transformations. |
+| `optimizer` | `string` | `adam` | ['adam', 'sgd', 'rmsprop'] | The optimization algorithm used to train the parameters of the flow. |
+| `learning_rate` | `float` | `0.001` | float > 0 | The step size used by the optimizer during training. |
+| `batch_norm` | `boolean` | `true` | true, false | Whether to apply batch normalization within the flow layers, which can help stabilize training and improve performance. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Normalizing flows allow for exact computation of the log-likelihood of data points, which is beneficial for density estimation and anomaly detection.
+- They enable exact and efficient sampling from the learned distribution, producing high-quality synthetic data.
+- The invertible nature of the transformations prevents mode collapse, a common issue in Generative Adversarial Networks.
+- Normalizing flows can model highly complex, multi-modal, and non-linear distributions due to their deep architecture.
+- They provide a direct mapping between data space and a simple latent space, facilitating tasks like latent space interpolation.
+- The architecture allows for efficient inference of latent representations for observed data.
+
+## Weaknesses
+
+- Designing invertible and differentiable transformations with easily computable Jacobian determinants is a significant architectural challenge.
+- The computational cost of calculating the Jacobian determinant can be high, especially for complex transformations or high-dimensional data.
+- Scaling normalizing flows to very high-dimensional data, such as high-resolution images, requires specialized architectures and can still be computationally intensive.
+- The performance of normalizing flows can be sensitive to the choice of base distribution and the specific flow architecture.
+- Training can sometimes be unstable or slow if the transformations are not carefully designed or initialized.
+
+## Use Cases
+
+### Density Estimation
+
+Accurately modeling the probability distribution of complex datasets, useful for understanding data structure.
+
+### Generative Modeling
+
+Creating realistic synthetic data, such as images, audio, or tabular data, for augmentation or simulation.
+
+### Variational Inference
+
+Improving the expressiveness of approximate posterior distributions in variational autoencoders and other probabilistic models.
+
+### Anomaly Detection
+
+Identifying outliers or anomalous data points by evaluating their low likelihood under the learned data distribution.
+
+### Data Compression
+
+Learning a compact, invertible representation of data that can be efficiently stored and reconstructed.
+
+### Molecular Modeling
+
+Generating novel molecular structures or conformations by learning the distribution of known molecules.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Normalizing Flow from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Normalizing Flow does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Normalizing Flow Lab" />
+
+## References
+
+- Rezende & Mohamed / Dinh et al. (2018). Rezende & Mohamed / Dinh et al..

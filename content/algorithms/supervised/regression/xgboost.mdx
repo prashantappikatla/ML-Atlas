@@ -1,0 +1,192 @@
+---
+title: "XGBoost"
+slug: "xgboost"
+category: "supervised"
+subcategory: "regression"
+year: 2016
+author: "Chen & Guestrin"
+paper: "Chen & Guestrin"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "decision-trees", "ensemble", "gradient-boosting", "regression", "regularization", "scalable", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adaboost"
+  - "catboost"
+  - "decision-tree-classifier"
+  - "lightgbm"
+---
+
+## Overview
+
+XGBoost, which stands for eXtreme Gradient Boosting, is an optimized distributed gradient boosting library designed for speed and performance. It implements machine learning algorithms under the Gradient Boosting framework, providing a parallel tree boosting algorithm that solves many data science problems efficiently and accurately. It is particularly distinguished by its advanced regularization techniques, handling of sparse data, and ability to scale to large datasets through parallel and distributed computing.
+
+## History
+
+**1999** — Jerome Friedman introduces the Gradient Boosting Machine (GBM) algorithm, laying the theoretical foundation for boosting with arbitrary differentiable loss functions.
+
+**2001** — Jerome Friedman publishes "Greedy Function Approximation: A Gradient Boosting Machine," formalizing the GBM algorithm and its application to various statistical learning problems.
+
+**2014** — Tianqi Chen begins developing XGBoost as a research project, focusing on system optimization and algorithmic enhancements for gradient boosting.
+
+**2016** — Tianqi Chen and Carlos Guestrin publish "XGBoost: A Scalable Tree Boosting System" at KDD, formally introducing the algorithm and its optimizations to the broader machine learning community.
+
+**2016** — XGBoost gains significant traction and becomes a dominant algorithm in Kaggle competitions and industry applications due to its superior performance and scalability.
+
+## Mathematical Intuition
+
+### Objective Function with Regularization
+
+XGBoost refines the traditional gradient boosting objective function by adding regularization terms and using a second-order Taylor expansion to approximate the loss function. This allows for a more precise optimization of the objective at each step. The objective function at iteration $t$ for a given tree $f_t(x)$ is defined as:
+$$ \mathcal{L}^{(t)} = \sum_{i=1}^n [L(y_i, \hat{y}_i^{(t-1)}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i)] + \Omega(f_t) $$
+where $g_i = \partial_{\hat{y}_i^{(t-1)}} L(y_i, \hat{y}_i^{(t-1)})$ and $h_i = \partial_{\hat{y}_i^{(t-1)}}^2 L(y_i, \hat{y}_i^{(t-1)})$ are the first and second order gradients of the loss function $L$ with respect to the current prediction $\hat{y}_i^{(t-1)}$. The regularization term $\Omega(f_t)$ penalizes the complexity of the tree $f_t$, defined as:
+$$ \Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2 $$
+Here, $T$ is the number of leaves in the tree, $w_j$ is the weight (prediction) of leaf $j$, $\gamma$ is the minimum loss reduction required to make a further partition on a leaf node, and $\lambda$ is the L2 regularization term on leaf weights.
+
+$$
+\mathcal{L}^{(t)} = \sum_{i=1}^n [L(y_i, \hat{y}_i^{(t-1)}) + g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i)] + \Omega(f_t)
+$$
+
+$$
+g_i = \partial_{\hat{y}_i^{(t-1)}} L(y_i, \hat{y}_i^{(t-1)})
+$$
+
+$$
+h_i = \partial_{\hat{y}_i^{(t-1)}}^2 L(y_i, \hat{y}_i^{(t-1)})
+$$
+
+$$
+\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2
+$$
+
+### Optimal Leaf Weights and Gain
+
+By fixing the tree structure, the optimal weight $w_j^*$ for each leaf $j$ can be derived by minimizing the objective function. For a given leaf $j$ containing instances $I_j$, the optimal weight is:
+$$ w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda} $$
+Substituting these optimal weights back into the objective function yields the minimized objective value for a given tree structure. This value is then used to calculate the 'gain' for a split. The gain for splitting a node into left ($I_L$) and right ($I_R$) children, from a parent node ($I$), is given by:
+$$ \text{Gain} = \frac{1}{2} \left[ \frac{(\sum_{i \in I_L} g_i)^2}{\sum_{i \in I_L} h_i + \lambda} + \frac{(\sum_{i \in I_R} g_i)^2}{\sum_{i \in I_R} h_i + \lambda} - \frac{(\sum_{i \in I} g_i)^2}{\sum_{i \in I} h_i + \lambda} \right] - \gamma $$
+This gain formula measures the improvement in the objective function after a split, considering both the reduction in loss and the regularization penalty.
+
+$$
+w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
+$$
+
+$$
+\text{Gain} = \frac{1}{2} \left[ \frac{(\sum_{i \in I_L} g_i)^2}{\sum_{i \in I_L} h_i + \lambda} + \frac{(\sum_{i \in I_R} g_i)^2}{\sum_{i \in I_R} h_i + \lambda} - \frac{(\sum_{i \in I} g_i)^2}{\sum_{i \in I} h_i + \lambda} \right] - \gamma
+$$
+
+### Shrinkage and Column Subsampling
+
+XGBoost employs several regularization techniques beyond the L1/L2 regularization on leaf weights. Shrinkage, controlled by the learning rate $\eta$ (eta), scales down the contribution of each tree after it is learned, effectively reducing the influence of individual trees and preventing overfitting. The update rule becomes $\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$. Column subsampling (feature subsampling) is another technique where only a fraction of features are considered when building each tree, similar to Random Forests. This helps prevent overfitting and makes the algorithm faster, especially for high-dimensional data. XGBoost supports subsampling columns both per tree and per level (or split) within a tree.
+
+$$
+\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)
+$$
+
+## Algorithm Steps
+
+1. Initialize the model with a constant prediction, typically 0, for all instances.
+2. For each boosting iteration $t = 1, \dots, M$:
+3. Calculate the first-order gradient $g_i$ and second-order gradient $h_i$ of the loss function with respect to the current predictions for each training instance $i$.
+4. Construct a new decision tree (weak learner) by iteratively splitting nodes: for each potential split, calculate the gain using the formula involving $g_i$ and $h_i$, and choose the split that maximizes this gain, subject to the $\gamma$ regularization.
+5. Assign an optimal weight $w_j^*$ to each leaf $j$ of the newly grown tree using the derived formula $w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}$.
+6. Update the overall prediction for each instance by adding the output of the new tree, scaled by a learning rate $\eta$: $\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$.
+7. Repeat steps 2-6 until the maximum number of iterations is reached or a convergence criterion is met.
+8. The final prediction is the sum of all scaled tree predictions from each iteration.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | positive integer | The number of boosting rounds or trees to build. |
+| `learning_rate` | `float` | `0.3` | 0.0 to 1.0 | Step size shrinkage used in update to prevent overfitting. After each boosting step, we can directly get the weights of new features, and eta shrinks the feature weights to make the boosting process more conservative. |
+| `max_depth` | `int` | `6` | positive integer | Maximum depth of a tree. Increasing this value will make the model more complex and more likely to overfit. |
+| `subsample` | `float` | `1.0` | 0.0 to 1.0 | Subsample ratio of the training instance. Setting it to 0.5 means that XGBoost would randomly sample half of the training data prior to growing trees. This prevents overfitting. |
+| `colsample_bytree` | `float` | `1.0` | 0.0 to 1.0 | Subsample ratio of columns when constructing each tree. This helps prevent overfitting. |
+| `gamma` | `float` | `0` | non-negative float | Minimum loss reduction required to make a further partition on a leaf node of the tree. The larger gamma is, the more conservative the algorithm will be. |
+| `reg_alpha` | `float` | `0` | non-negative float | L1 regularization term on weights. Increasing this value will make model more conservative. |
+| `reg_lambda` | `float` | `1` | non-negative float | L2 regularization term on weights. Increasing this value will make model more conservative. |
+| `objective` | `str` | `'reg:squarederror'` | string representing a valid objective function | Specify the learning task and the corresponding learning objective. For example, 'reg:squarederror' for regression with squared error, 'binary:logistic' for binary classification. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Achieves state-of-the-art performance on many tabular datasets due to its robust optimization and regularization strategies.
+- Incorporates L1 and L2 regularization (Lasso and Ridge) to prevent overfitting, enhancing generalization capabilities.
+- Handles sparse data effectively by automatically learning optimal default directions for missing values.
+- Supports parallel processing and distributed computing, allowing it to scale to large datasets efficiently.
+- Provides flexibility in objective functions and evaluation metrics, accommodating various problem types including classification, regression, and ranking.
+- Includes built-in cross-validation at each boosting iteration, simplifying hyperparameter tuning and model selection.
+
+## Weaknesses
+
+- Can be computationally intensive and memory-consuming for extremely large datasets with a high number of features, despite its optimizations.
+- Requires careful tuning of numerous hyperparameters to achieve optimal performance, which can be a time-consuming process.
+- The ensemble of many decision trees makes the model less interpretable compared to a single decision tree or linear model.
+- Prone to overfitting if regularization parameters are not properly configured, especially when dealing with noisy data.
+- Does not natively handle non-tabular data types like images or text without extensive feature engineering or embedding techniques.
+
+## Use Cases
+
+### Finance
+
+Used for fraud detection, credit scoring, and predicting stock price movements due to its ability to handle complex relationships and large datasets.
+
+### Healthcare
+
+Applied in disease diagnosis, patient outcome prediction, and drug discovery by analyzing patient data and identifying key predictive factors.
+
+### E-commerce
+
+Utilized for product recommendation systems, customer churn prediction, and sales forecasting to optimize business strategies.
+
+### Marketing
+
+Employed in customer segmentation, targeted advertising, and lead scoring to improve campaign effectiveness and customer engagement.
+
+### Manufacturing
+
+Used for predictive maintenance, quality control, and anomaly detection in industrial processes to minimize downtime and defects.
+
+### Sports Analytics
+
+Applied to predict player performance, game outcomes, and identify strategic insights from complex sports data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement XGBoost from scratch
+```
+
+### Using scikit-learn
+
+```python
+# XGBoost does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="XGBoost Lab" />
+
+## References
+
+- Chen & Guestrin (2016). Chen & Guestrin.

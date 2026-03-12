@@ -1,0 +1,166 @@
+---
+title: "CURE"
+slug: "cure"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1998
+author: "Guha et al."
+paper: "Guha et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["clustering", "data-mining", "hierarchical-clustering", "large-datasets", "non-spherical-clusters", "outlier-robust", "representative-points", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "birch"
+  - "dbscan"
+  - "hierarchical-clustering"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
+---
+
+## Overview
+
+CURE (Clustering Using REpresentatives) is a [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) algorithm designed to identify clusters of arbitrary shapes and varying sizes. Unlike traditional centroid-based or all-points-based methods, CURE represents each cluster by a fixed number of representative points, which are then shrunk towards the cluster's centroid by a specified factor. This approach allows CURE to effectively handle non-spherical clusters and reduce the impact of outliers. It is particularly well-suited for large databases where efficiency is crucial.
+
+## History
+
+**1998** — Sudipto Guha, Rajeev Rastogi, and Kyuseok Shim introduce CURE in their paper "CURE: An Efficient Clustering Algorithm for Large Databases" at SIGMOD. This marked a significant advancement in handling non-spherical and varying-sized clusters.
+
+**1999** — The CURE algorithm gains recognition for its ability to overcome limitations of earlier algorithms like [BIRCH](/algorithms/unsupervised/clustering/birch) and CLARANS, particularly in large databases, by offering better quality clusters for complex data distributions.
+
+**2001** — Further research and comparative studies highlight CURE's effectiveness in various data mining applications, including spatial data analysis and image segmentation tasks, due to its robustness to outliers and ability to find non-convex shapes.
+
+## Mathematical Intuition
+
+### Representative Points and Shrinking
+
+Each cluster $C$ is represented by a fixed number of $k$ representative points, $P = \{p_1, p_2, ..., p_k\}$. These points are initially chosen to be well-scattered across the cluster's extent. To mitigate the effect of outliers and allow clusters to 'stretch' towards each other, these representative points are shrunk towards the cluster's centroid $c$ by a factor $\alpha \in [0, 1]$. The shrunk representative points $p'_i$ are calculated using the formula:
+$$p'_i = p_i + \alpha(c - p_i)$$
+This shrinking process helps to preserve the cluster's shape while making it less susceptible to noise.
+
+$$
+p'_i = p_i + \alpha(c - p_i)
+$$
+
+### Cluster Distance Metric
+
+The distance between two clusters $C_i$ and $C_j$ is defined as the minimum distance between any pair of their shrunk representative points. Let $P_i = \{p_{i,1}, ..., p_{i,k}\}$ be the representative points for $C_i$ and $P_j = \{p_{j,1}, ..., p_{j,k}\}$ for $C_j$. The distance $D(C_i, C_j)$ is given by:
+$$D(C_i, C_j) = \min_{p \in P_i, q \in P_j} \text{dist}(p, q)$$
+This minimum distance criterion, applied to the shrunk representative points, enables CURE to merge clusters that are close at their boundaries, even if their centroids are far apart, which is crucial for identifying non-spherical shapes.
+
+$$
+D(C_i, C_j) = \min_{p \in P_i, q \in P_j} \text{dist}(p, q)
+$$
+
+### Hierarchical Merging Process
+
+CURE employs an agglomerative [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) approach. Initially, each data point is treated as a distinct cluster. In each iteration, the two closest clusters, as determined by the minimum distance between their representative points, are merged into a new cluster. After a merge, new representative points for the combined cluster are selected and subsequently shrunk. This iterative merging process continues until the desired number of clusters is achieved or a predefined stopping criterion is met. The use of a limited number of representative points, rather than all data points, significantly reduces the computational complexity compared to traditional [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods, especially for large datasets.
+
+## Algorithm Steps
+
+1. Randomly sample a subset of the data points if the dataset is very large, to improve computational efficiency.
+2. Partition the sampled data into $p$ partitions, and within each partition, initially cluster the points (e.g., using BIRCH or by treating each point as a cluster).
+3. For each initial cluster, select $k$ representative points that are well-scattered across the cluster's extent.
+4. Shrink these $k$ representative points towards the cluster's centroid $c$ by a factor $\alpha$, calculating $p'_i = p_i + \alpha(c - p_i)$.
+5. Place all initial clusters into a min-priority queue, ordered by the distance between their closest pair of representative points.
+6. Repeatedly extract the two closest clusters from the priority queue, merge them into a new cluster, and update its representative points by selecting $k$ new points from the merged cluster and shrinking them.
+7. Insert the newly formed cluster back into the priority queue, updating its distances to all other clusters.
+8. Continue this merging process until the desired number of clusters is achieved.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `integer` | `2` | integer > 0 | The desired number of clusters to form. |
+| `n_representatives` | `integer` | `10` | integer > 0 | The number of representative points to select for each cluster. |
+| `alpha` | `float` | `0.3` | [0.0, 1.0] | The shrink factor, $\alpha$, by which representative points are moved towards the cluster centroid. A value of 0 means no shrinking, 1 means points move to the centroid. |
+| `sampling_fraction` | `float` | `1.0` | (0.0, 1.0] | The fraction of the dataset to sample for initial clustering. Use 1.0 for no sampling, which means the entire dataset is used. |
+| `distance_metric` | `string` | `euclidean` | ['euclidean', 'manhattan', 'chebyshev'] | The metric used to calculate the distance between representative points. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- CURE can effectively identify clusters of arbitrary shapes, unlike algorithms limited to spherical clusters.
+- It is capable of discovering clusters with varying sizes, adapting to the natural distribution of data.
+- The use of representative points and the shrinking factor makes the algorithm more robust to outliers compared to centroid-based methods.
+- By sampling a subset of the data and using representative points, CURE can handle large datasets more efficiently than traditional agglomerative clustering.
+- The algorithm's ability to capture the "stretch" of a cluster allows it to correctly merge clusters that are close at their boundaries.
+- CURE provides a good balance between accuracy in finding complex cluster shapes and computational efficiency for large datasets.
+
+## Weaknesses
+
+- CURE's performance is highly sensitive to the choice of parameters, specifically the number of representative points $k$ and the shrink factor $\alpha$.
+- The computational complexity, while improved over basic agglomerative clustering, can still be high for extremely large datasets or high-dimensional data.
+- Determining the optimal number of clusters beforehand can be challenging and often requires external validation metrics.
+- The initial sampling step might lead to a loss of information if the sample is not sufficiently representative of the entire dataset.
+- The algorithm's reliance on Euclidean distance for representative points may not be suitable for all data types or distance metrics.
+
+## Use Cases
+
+### Customer Segmentation
+
+Identifying distinct groups of customers with complex purchasing behaviors or demographic profiles for targeted marketing campaigns.
+
+### Image Analysis
+
+Grouping similar regions or objects within images based on their spatial and feature characteristics, especially when shapes are irregular.
+
+### Bioinformatics
+
+Discovering patterns in gene expression data or protein structures where clusters may exhibit non-spherical or elongated shapes.
+
+### Geographic Information Systems (GIS)
+
+Clustering spatial data points, such as crime hotspots or disease outbreaks, which often form non-spherical and varying-density patterns.
+
+### Anomaly Detection
+
+Identifying unusual data points or small, isolated clusters that deviate significantly from larger, well-defined clusters in complex datasets.
+
+### Document Clustering
+
+Grouping documents with similar themes or topics, where the semantic relationships might form non-linear clusters in a high-dimensional space.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement CURE from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Cure
+
+model = Cure()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="CURE Lab" />
+
+## References
+
+- Guha et al. (1998). Guha et al..
+- [scikit-learn: Cure](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Cure.html)

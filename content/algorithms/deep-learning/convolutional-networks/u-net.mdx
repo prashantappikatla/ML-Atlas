@@ -1,0 +1,167 @@
+---
+title: "U-Net"
+slug: "u-net"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2015
+author: "Ronneberger et al."
+paper: "Ronneberger et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["biomedical-imaging", "computer-vision", "convolutional-neural-networks", "deep-learning", "dense-prediction", "encoder-decoder", "image-segmentation", "skip-connections"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "mask-r-cnn"
+---
+
+## Overview
+
+U-Net is a convolutional neural network architecture specifically designed for biomedical image segmentation, characterized by its U-shaped structure. It extends the fully convolutional network (FCN) by incorporating skip connections that combine high-resolution features from the contracting path with upsampled features from the expansive path. This unique design enables precise localization and segmentation, even with limited training data.
+
+## History
+
+**2015** — Olaf Ronneberger, Philipp Fischer, and Thomas Brox introduced the U-Net architecture in their paper 'U-Net: Convolutional Networks for Biomedical Image Segmentation', demonstrating its effectiveness for cell segmentation tasks.
+
+**2016** — U-Net quickly gained widespread adoption in the medical imaging community, becoming a de facto standard for various segmentation challenges due to its ability to achieve high accuracy with relatively small datasets.
+
+**2018** — The architecture began to see significant adaptations and applications beyond biomedical imaging, including satellite image analysis, autonomous driving, and industrial inspection, often with modifications to suit specific domain requirements.
+
+**2020** — Numerous variants and extensions of U-Net, such as Attention U-Net, 3D U-Net, and Residual U-Net, emerged, further enhancing its performance and applicability to complex segmentation tasks and volumetric data.
+
+## Mathematical Intuition
+
+### Encoder-Decoder Architecture
+
+The U-Net architecture consists of a contracting path (encoder) and an expansive path (decoder), forming a symmetric 'U' shape. The contracting path follows the typical architecture of a convolutional network, repeatedly applying two $3 \times 3$ convolutions, each followed by a Rectified Linear Unit (ReLU) and a $2 \times 2$ max pooling operation with stride 2 for downsampling. This path extracts context and learns hierarchical features. The expansive path consists of an upsampling of the feature map, followed by a $2 \times 2$ convolution (up-convolution) that halves the number of feature channels, and a concatenation with the correspondingly cropped feature map from the contracting path. This is followed by two $3 \times 3$ convolutions, each followed by a ReLU. This path reconstructs the spatial information, leading to a high-resolution segmentation map.
+
+$$
+\text{Contracting Path: } (\text{Conv}_{3 \times 3} \rightarrow \text{ReLU})^2 \rightarrow \text{Max Pooling}_{2 \times 2}
+$$
+
+$$
+\text{Expansive Path: } \text{Upsampling} \rightarrow \text{Conv}_{2 \times 2} \rightarrow \text{Concatenation} \rightarrow (\text{Conv}_{3 \times 3} \rightarrow \text{ReLU})^2
+$$
+
+### Skip Connections for Localization
+
+A crucial innovation in U-Net is the use of skip connections, which directly transfer feature maps from the contracting path to the expansive path. Specifically, after each downsampling step in the encoder, the feature map is copied and then concatenated with the upsampled feature map at the corresponding level in the decoder. These connections allow the network to propagate fine-grained spatial information, which is typically lost during downsampling, directly to the decoder. This enables the expansive path to recover precise localization details, leading to more accurate segmentation boundaries. Without these skip connections, the decoder would rely solely on the highly abstract features from the deepest layer, resulting in coarser segmentation.
+
+$$
+\text{Decoder Feature Map}_i = \text{Concatenate}(\text{Encoder Feature Map}_i, \text{Upsampled Decoder Feature Map}_{i+1})
+$$
+
+### Output Layer and Loss Function
+
+The final layer of the U-Net is a $1 \times 1$ convolution that maps the feature vector at each pixel to the desired number of classes. For a binary segmentation task (e.g., foreground/background), this would typically output two channels, which are then passed through a softmax activation function to produce class probabilities for each pixel. For multi-class segmentation, the number of output channels corresponds to the number of classes. The network is trained using a pixel-wise loss function, commonly the cross-entropy loss, which measures the dissimilarity between the predicted probability distribution and the true label distribution for each pixel. For imbalanced datasets or specific medical imaging tasks, the Dice loss or a combination of Dice and cross-entropy loss is often employed to improve segmentation quality.
+
+$$
+\mathcal{L}_{CE} = -\sum_{i=1}^{N} y_i \log(\hat{y}_i)
+$$
+
+$$
+\mathcal{L}_{Dice} = 1 - \frac{2 |X \cap Y|}{|X| + |Y|} = 1 - \frac{2 \sum_{i=1}^N p_i g_i}{\sum_{i=1}^N p_i^2 + \sum_{i=1}^N g_i^2}
+$$
+
+## Algorithm Steps
+
+1. Prepare a dataset of input images and corresponding pixel-wise ground truth segmentation masks.
+2. Initialize the U-Net model with random weights for its convolutional layers.
+3. Feed an input image through the contracting path, applying repeated $3 \times 3$ convolutions, ReLU activations, and $2 \times 2$ max pooling operations to extract hierarchical features and reduce spatial dimensions.
+4. Store the feature maps from each level of the contracting path for later use in skip connections.
+5. Pass the deepest feature map through the expansive path, where it undergoes upsampling, $2 \times 2$ up-convolutions, and concatenation with the corresponding high-resolution feature maps from the contracting path.
+6. Apply repeated $3 \times 3$ convolutions and ReLU activations in the expansive path to reconstruct spatial details and refine the segmentation.
+7. Apply a final $1 \times 1$ convolution to map the feature channels to the desired number of output classes for each pixel.
+8. Calculate the loss (e.g., cross-entropy or Dice loss) between the predicted segmentation map and the ground truth mask.
+9. Perform backpropagation to compute gradients and update the model's weights using an optimization algorithm like Adam or SGD.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `input_channels` | `int` | `1` | >= 1 | Number of channels in the input image (e.g., 1 for grayscale, 3 for RGB). |
+| `output_channels` | `int` | `2` | >= 1 | Number of output classes for segmentation (e.g., 2 for binary segmentation). |
+| `depth` | `int` | `4` | >= 2 | Number of downsampling/upsampling blocks in the U-Net architecture. |
+| `features_root` | `int` | `64` | >= 16 | Number of feature maps in the first convolutional layer of the encoder path. This number typically doubles at each subsequent downsampling step. |
+| `kernel_size` | `tuple` | `(3, 3)` | e.g., (3, 3), (5, 5) | Size of the convolutional kernels used in the network's convolutional blocks. |
+| `padding` | `str` | `same` | 'same', 'valid' | Type of padding applied to convolutional layers to maintain spatial dimensions. 'same' padding ensures output size matches input size for convolutions. |
+| `activation` | `str` | `relu` | 'relu', 'leaky_relu', 'elu' | Activation function used after convolutional layers in the encoder and decoder paths. |
+| `dropout_rate` | `float` | `0.0` | [0.0, 1.0) | Dropout probability applied to some layers to prevent overfitting. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- U-Net excels at precise localization of objects, producing accurate pixel-level segmentation masks.
+- It is highly effective even when trained on relatively small datasets, making it suitable for domains where annotated data is scarce.
+- The architecture efficiently combines context information from the contracting path with fine-grained spatial information from skip connections.
+- U-Net can handle variations in object size and shape within an image, segmenting both large and small structures effectively.
+- Its robust performance has made it a benchmark model in medical image analysis and other dense prediction tasks.
+- The architecture is highly adaptable and can be extended to 3D data (3D U-Net) or integrated with attention mechanisms.
+
+## Weaknesses
+
+- U-Net can be computationally intensive, requiring significant GPU memory and processing power, especially for high-resolution images or 3D data.
+- Training often requires careful hyperparameter tuning, including learning rate, batch size, and choice of loss function.
+- The model's performance is highly dependent on the quality and consistency of the ground truth annotations.
+- Boundary artifacts or 'jagged' edges can sometimes occur in the segmentation output, particularly for complex shapes.
+- The architecture may struggle with highly ambiguous or extremely fine structures if the receptive field is not sufficiently large or if the dataset is too small.
+
+## Use Cases
+
+### Medical Imaging
+
+Segmenting organs, tumors, lesions, and other anatomical structures in MRI, CT, and microscopic images for diagnosis and treatment planning.
+
+### Satellite Imagery
+
+Identifying and delineating land cover types, roads, buildings, and agricultural fields from aerial and satellite photographs for environmental monitoring and urban planning.
+
+### Autonomous Driving
+
+Segmenting road, sidewalk, vehicles, pedestrians, and other objects in real-time camera feeds to enable scene understanding and navigation for self-driving cars.
+
+### Industrial Inspection
+
+Detecting and localizing defects, cracks, or anomalies on surfaces of manufactured products for quality control and automated inspection systems.
+
+### Microscopy
+
+Segmenting cells, nuclei, and other subcellular structures in biological microscopy images to quantify cellular processes and analyze tissue morphology.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement U-Net from scratch
+```
+
+### Using scikit-learn
+
+```python
+# U-Net does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="U-Net Lab" />
+
+## References
+
+- Ronneberger et al. (2015). Ronneberger et al..

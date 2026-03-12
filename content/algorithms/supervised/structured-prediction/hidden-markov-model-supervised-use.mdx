@@ -1,0 +1,185 @@
+---
+title: "Hidden Markov Model (supervised use)"
+slug: "hidden-markov-model-supervised-use"
+category: "supervised"
+subcategory: "structured-prediction"
+year: 1960
+author: "Baum & Welch era"
+paper: "Baum & Welch era"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: true
+  graph: false
+tags: ["discrete-states", "dynamic-programming", "generative-model", "markov-process", "probabilistic-model", "sequence-modeling", "structured-prediction", "time-series-analysis"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "hidden-markov-model"
+---
+
+## Overview
+
+Hidden Markov Models (HMMs) are probabilistic graphical models designed to model sequences of observable events that depend on an underlying sequence of unobserved (hidden) states. In a supervised context, HMMs are trained using sequences where both the observations and their corresponding hidden states are known, allowing for direct estimation of the model's parameters. This approach is particularly effective for tasks requiring the prediction of a sequence of labels for a given input sequence, leveraging the temporal dependencies between states and observations.
+
+## History
+
+**1960** — Leonard E. Baum and his colleagues at the Institute for Defense Analyses developed the foundational theory of HMMs, including the Baum-Welch algorithm for parameter estimation.
+
+**1967** — The Viterbi algorithm, a dynamic programming algorithm for finding the most likely sequence of hidden states, was introduced by Andrew Viterbi.
+
+**1980** — HMMs gained significant traction and became widely adopted in speech recognition, particularly for recognizing phonemes and words, leading to practical applications.
+
+**1990** — Applications expanded into natural language processing, such as part-of-speech tagging, and bioinformatics for tasks like gene finding and protein structure prediction.
+
+**2000** — While more complex models emerged, HMMs continued to be a foundational tool, especially for tasks with limited data or when interpretability of sequential processes is crucial.
+
+## Mathematical Intuition
+
+### HMM Components and Parameters
+
+A [Hidden Markov Model](/algorithms/probabilistic/probabilistic-models/hidden-markov-model) is defined by a set of hidden states $S = \{s_1, ..., s_N\}$, a set of observable symbols $O = \{o_1, ..., o_M\}$, and three probability distributions. The initial state probabilities $\pi = \{\pi_i\}$ define the probability of starting in state $s_i$. The transition probabilities $A = \{a_{ij}\}$ define the probability of moving from state $s_i$ to state $s_j$ at the next time step, i.e., $a_{ij} = P(s_t = s_j | s_{t-1} = s_i)$. The emission probabilities $B = \{b_j(k)\}$ define the probability of observing symbol $o_k$ when in state $s_j$, i.e., $b_j(k) = P(o_t = o_k | s_t = s_j)$. The complete model is denoted as $\lambda = (A, B, \pi)$.
+
+$$
+\lambda = (A, B, \pi)
+$$
+
+$$
+A = \{a_{ij}\} \text{ where } a_{ij} = P(s_t = s_j | s_{t-1} = s_i)
+$$
+
+$$
+B = \{b_j(k)\} \text{ where } b_j(k) = P(o_t = o_k | s_t = s_j)
+$$
+
+$$
+\pi = \{\pi_i\} \text{ where } \pi_i = P(s_1 = s_i)
+$$
+
+### Supervised Parameter Estimation
+
+In a supervised setting, both the observation sequences $O = (o_1, ..., o_T)$ and their corresponding hidden state sequences $S = (s_1, ..., s_T)$ are known for a training set. This allows for direct estimation of the HMM parameters by frequency counting. The initial state probability $\pi_i$ is estimated as the frequency of sequences starting with state $s_i$. The transition probability $a_{ij}$ is estimated as the number of transitions from state $s_i$ to $s_j$ divided by the total number of transitions from state $s_i$. The emission probability $b_j(k)$ is estimated as the number of times symbol $o_k$ is observed while in state $s_j$, divided by the total number of times state $s_j$ occurs.
+
+$$
+\hat{\pi}_i = \frac{\text{Count}(s_1 = s_i)}{\sum_{k=1}^N \text{Count}(s_1 = s_k)}
+$$
+
+$$
+\hat{a}_{ij} = \frac{\text{Count}(s_t = s_j \text{ and } s_{t-1} = s_i)}{\text{Count}(s_{t-1} = s_i)}
+$$
+
+$$
+\hat{b}_j(k) = \frac{\text{Count}(o_t = o_k \text{ and } s_t = s_j)}{\text{Count}(s_t = s_j)}
+$$
+
+### Decoding with Viterbi Algorithm
+
+Once the HMM parameters $\lambda$ are learned, the primary task for new observation sequences is decoding: finding the most likely sequence of hidden states $S^* = (s_1^*, ..., s_T^*)$ that generated a given observation sequence $O = (o_1, ..., o_T)$. The Viterbi algorithm efficiently solves this problem using dynamic programming. It computes the probability of the most likely path ending in state $s_i$ at time $t$, denoted $\delta_t(i)$, and backpointers to reconstruct the path. The final state $s_T^*$ is chosen as the state $j$ that maximizes $\delta_T(j)$, and the path is reconstructed by backtracking through the stored pointers.
+
+$$
+\delta_t(j) = \max_{i} [\delta_{t-1}(i) a_{ij}] b_j(o_t)
+$$
+
+## Algorithm Steps
+
+1. Define the set of possible hidden states $S = \{s_1, ..., s_N\}$ and the set of observable symbols $O = \{o_1, ..., o_M\}$ relevant to the problem.
+2. Prepare a training dataset consisting of multiple sequences, where each sequence includes both the observed symbols $O = (o_1, ..., o_T)$ and their corresponding ground-truth hidden states $S = (s_1, ..., s_T)$.
+3. Estimate the initial state probabilities $\pi_i$ for each state $s_i$ by counting how often each state appears as the first state in the training sequences and normalizing these counts.
+4. Estimate the transition probabilities $a_{ij}$ for each pair of states $(s_i, s_j)$ by counting the occurrences of transitions from $s_i$ to $s_j$ across all training sequences and dividing by the total count of transitions from $s_i$.
+5. Estimate the emission probabilities $b_j(k)$ for each state $s_j$ and observable symbol $o_k$ by counting how often $o_k$ is observed while in state $s_j$ and dividing by the total count of occurrences of state $s_j$.
+6. The estimated parameters $\lambda = (A, B, \pi)$ now define the trained Hidden Markov Model.
+7. For inference on a new, unseen observation sequence, apply the Viterbi algorithm using the learned model parameters to determine the most probable sequence of hidden states.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `integer` | `1` | integer > 0 | The number of hidden states in the model, representing the distinct unobserved conditions or categories. |
+| `n_iter` | `integer` | `10` | integer > 0 | The maximum number of iterations to perform the Expectation-Maximization (Baum-Welch) algorithm during fitting, even if parameters are initialized by counts. |
+| `tol` | `float` | `1e-2` | float > 0 | The convergence threshold for the EM algorithm. Training stops if the log-likelihood improvement falls below this value. |
+| `params` | `string` | `ste` | 's', 't', 'e', or combinations (e.g., 'ste') | A string specifying which parameters to estimate during fitting. 's' for startprob, 't' for transmat, 'e' for emissionprob. |
+| `init_params` | `string` | `ste` | 's', 't', 'e', or combinations (e.g., 'ste') | A string specifying which parameters to initialize prior to fitting. 's' for startprob, 't' for transmat, 'e' for emissionprob. For supervised HMM, these can be directly estimated from data. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- HMMs provide a robust probabilistic framework for modeling sequential data where the underlying generative process is unobserved.
+- The model parameters (transition and emission probabilities) are highly interpretable, offering insights into the dynamics of the hidden states and their relation to observations.
+- Supervised training allows for direct and efficient estimation of model parameters from labeled sequences, avoiding local optima issues common in unsupervised learning.
+- The Viterbi algorithm provides an efficient dynamic programming solution for finding the most likely sequence of hidden states, making inference practical.
+- HMMs are effective for tasks requiring sequence labeling or segmentation, even with noisy or incomplete observation data.
+
+## Weaknesses
+
+- The core assumption of the Markov property, where the current state depends only on the immediate previous state, may not hold for all real-world sequences.
+- HMMs assume that observations are conditionally independent given the current hidden state, which can be a strong and often violated assumption.
+- The number of hidden states must be predetermined by the user, and an incorrect choice can significantly impact model performance.
+- HMMs struggle to capture long-range dependencies within sequences, as their memory is limited to the previous state.
+- The model's performance can degrade if the training data does not adequately represent all possible transitions and emissions.
+
+## Use Cases
+
+### Speech Recognition
+
+Used for converting spoken language into text by modeling sequences of phonemes or acoustic features, identifying the most probable word sequence.
+
+### Natural Language Processing
+
+Applied in tasks such as part-of-speech tagging, where words in a sentence are labeled with their grammatical categories based on context.
+
+### Bioinformatics
+
+Employed for gene finding, protein structure prediction, and sequence alignment in DNA and protein sequences, modeling biological processes.
+
+### Financial Modeling
+
+Utilized to identify and predict different market regimes (e.g., bull, bear, volatile) based on financial time series data and their underlying states.
+
+### Activity Recognition
+
+Used to infer human activities (e.g., walking, running, sitting) from sequences of sensor data collected from wearables or environmental sensors.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Hidden Markov Model (supervised use) from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import HiddenMarkovModelSupervisedUse
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = HiddenMarkovModelSupervisedUse()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Hidden Markov Model (supervised use) Lab" />
+
+## References
+
+- Baum & Welch era (1960). Baum & Welch era.
+- [scikit-learn: HiddenMarkovModelSupervisedUse](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HiddenMarkovModelSupervisedUse.html)

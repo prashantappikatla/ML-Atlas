@@ -1,0 +1,176 @@
+---
+title: "Bayesian Network"
+slug: "bayesian-network"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1985
+author: "Pearl"
+paper: "Pearl"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["causality", "directed-acyclic-graph", "graphical-model", "inference", "parameter-learning", "probabilistic-model", "structure-learning", "uncertainty"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "conditional-random-field"
+  - "dynamic-bayesian-network"
+  - "hidden-markov-model"
+  - "markov-random-field"
+  - "naive-bayes"
+---
+
+## Overview
+
+Bayesian Networks (BNs) are probabilistic graphical models that represent a set of random variables and their conditional dependencies via a directed acyclic graph (DAG). Each node in the DAG corresponds to a random variable, and directed edges indicate direct causal or influential relationships. BNs provide a compact and intuitive way to model complex joint probability distributions, enabling efficient inference and learning from data. They are particularly effective for reasoning under uncertainty and making predictions in domains with incomplete information.
+
+## History
+
+**1985** — Judea Pearl introduces Bayesian Networks as a formal framework for representing and reasoning with probabilistic knowledge, building upon earlier work in expert systems and artificial intelligence.
+
+**1988** — Judea Pearl's seminal book "Probabilistic Reasoning in Intelligent Systems: Networks of Plausible Inference" provides a comprehensive theoretical foundation for Bayesian Networks, establishing them as a cornerstone of modern AI.
+
+**1990** — Significant advancements occur in algorithms for learning Bayesian Network structures and parameters from data, moving beyond manual expert elicitation.
+
+**1999** — The development of exact and approximate inference algorithms, such as variable elimination and Markov Chain Monte Carlo (MCMC) methods, makes BNs practical for larger and more complex problems.
+
+**2000** — Bayesian Networks find widespread application in diverse fields, including medical diagnosis, bioinformatics, natural language processing, and decision support systems.
+
+## Mathematical Intuition
+
+### Joint Probability Factorization
+
+A Bayesian Network represents the joint probability distribution of a set of random variables $X = \{X_1, ..., X_n\}$ by exploiting conditional independence relationships. For a given DAG $G$ where each node $X_i$ has a set of parents $Pa(X_i)$, the joint probability distribution can be factorized as:
+$$P(X_1, ..., X_n) = \prod_{i=1}^{n} P(X_i | Pa(X_i))$$
+This factorization significantly reduces the number of parameters required to specify the distribution compared to a full joint probability table.
+
+$$
+P(X_1, ..., X_n) = \prod_{i=1}^{n} P(X_i | Pa(X_i))
+$$
+
+### Conditional Independence Encoding
+
+The structure of the DAG in a Bayesian Network encodes conditional independence assumptions. A variable $X_i$ is conditionally independent of its non-descendants given its parents. This property, known as the "d-separation" criterion, allows for efficient determination of independence relationships between any two sets of variables given a third set. For example, if $X$ and $Y$ are d-separated by $Z$, then $X \perp Y | Z$.
+
+$$
+X \perp Y | Z
+$$
+
+### Inference in BNs
+
+Inference in Bayesian Networks involves computing the posterior probability distribution of a set of query variables given observed evidence variables. This can include tasks like marginal inference ($P(X_i)$), conditional inference ($P(X_i | E=e)$), or maximum a posteriori (MAP) inference. Exact inference algorithms, such as variable elimination and the junction tree algorithm, are computationally intensive for dense networks, leading to the development of approximate methods like sampling (e.g., MCMC).
+
+### Learning Structure and Parameters
+
+Learning a Bayesian Network from data involves two main tasks: structure learning and parameter learning. Structure learning aims to discover the optimal DAG that best represents the conditional dependencies in the data, often using score-based methods (e.g., hill climbing with BIC score) or constraint-based methods (e.g., PC algorithm). Parameter learning involves estimating the Conditional Probability Distributions (CPDs) for each node given its parents in the learned or pre-defined structure, typically using Maximum Likelihood Estimation or Bayesian estimation.
+
+## Algorithm Steps
+
+1. Define the set of random variables $X = \{X_1, ..., X_n\}$ that are relevant to the problem domain.
+2. Determine the directed acyclic graph (DAG) structure $G$ that represents the conditional dependencies among the variables, either manually by expert knowledge or automatically through structure learning algorithms.
+3. For each node $X_i$ in the DAG, learn its Conditional Probability Distribution (CPD) $P(X_i | Pa(X_i))$ from the available data, where $Pa(X_i)$ are the parents of $X_i$.
+4. Construct the full Bayesian Network by combining the learned graph structure and the estimated CPDs.
+5. To perform inference, specify evidence by setting values for observed variables.
+6. Apply an inference algorithm (e.g., variable elimination, junction tree, or sampling) to compute the posterior probabilities of query variables given the evidence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `structure_learning_method` | `string` | `hillclimb` | hillclimb, exact, pc, k2 | The algorithm used to learn the graph structure from data. Common methods include score-based (e.g., hillclimb, exact) or constraint-based (e.g., pc). |
+| `scoring_function` | `string` | `bic` | bic, aic, bdeu, k2score | The score function used by score-based structure learning algorithms to evaluate candidate network structures. |
+| `max_parents` | `integer` | `None` | integer $\ge 1$ | The maximum number of parents allowed for any node during structure learning, used to constrain the search space and prevent overfitting. |
+| `parameter_learning_method` | `string` | `maximum_likelihood` | maximum_likelihood, bayesian_estimation | The method used to estimate the Conditional Probability Distributions (CPDs) for each node given its parents. |
+| `prior` | `string` | `dirichlet` | dirichlet, uniform | The type of prior distribution used for Bayesian parameter estimation (e.g., Dirichlet prior for discrete variables). |
+| `alpha` | `float` | `0.5` | float $\ge 0$ | The pseudo-count parameter for Bayesian estimation, often representing the strength of the prior belief. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Bayesian Networks provide a clear and intuitive graphical representation of complex probabilistic relationships, aiding interpretability.
+- They can effectively handle missing data by integrating it into the probabilistic inference process rather than requiring imputation.
+- BNs naturally support both diagnostic (effect to cause) and predictive (cause to effect) reasoning, making them versatile for various inference tasks.
+- The modular structure allows for easy incorporation of expert knowledge into the model, either by defining the graph structure or specifying prior probabilities.
+- They offer a principled framework for reasoning under uncertainty, providing probability distributions over outcomes rather than just point estimates.
+- BNs can model causal relationships, which is crucial for understanding underlying mechanisms and designing effective interventions.
+
+## Weaknesses
+
+- Learning the optimal graph structure from data is an NP-hard problem, especially for networks with many variables, often requiring heuristic search methods.
+- Exact inference in densely connected or large Bayesian Networks is computationally intractable, necessitating approximate inference algorithms that may sacrifice accuracy.
+- The quality of a Bayesian Network heavily depends on the accuracy of the Conditional Probability Distributions, which can be difficult to estimate reliably with sparse data.
+- Defining the graph structure manually can be challenging and time-consuming for complex domains, requiring significant expert knowledge.
+- Bayesian Networks typically assume discrete variables or require discretization of continuous variables, which can lead to loss of information.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Diagnosing diseases based on symptoms, test results, and patient history, providing probabilities for different conditions.
+
+### Bioinformatics
+
+Modeling gene regulatory networks, predicting protein interactions, and analyzing genetic pathways.
+
+### Risk Assessment
+
+Evaluating financial risks, insurance claims, or creditworthiness by modeling dependencies between various factors.
+
+### Decision Support Systems
+
+Aiding decision-making in complex environments by quantifying the impact of different choices under uncertainty.
+
+### Fault Diagnosis
+
+Identifying the root causes of failures in complex systems, such as industrial machinery or software applications.
+
+### Natural Language Processing
+
+Modeling dependencies between words or concepts for tasks like sentiment analysis or topic modeling.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bayesian Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import BayesianNetwork
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = BayesianNetwork()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bayesian Network Lab" />
+
+## References
+
+- Pearl (1985). Pearl.
+- [scikit-learn: BayesianNetwork](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.BayesianNetwork.html)

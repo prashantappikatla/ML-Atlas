@@ -1,0 +1,212 @@
+---
+title: "Dynamic Bayesian Network"
+slug: "dynamic-bayesian-network"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1997
+author: "Murphy"
+paper: "Murphy"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: true
+tags: ["causal-inference", "graphical-model", "hidden-states", "inference", "learning", "probabilistic-model", "sequential-data", "temporal-dependencies", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-network"
+  - "conditional-random-field"
+  - "hidden-markov-model"
+  - "kalman-filter"
+  - "markov-random-field"
+  - "particle-filter"
+  - "recurrent-neural-network"
+---
+
+## Overview
+
+Dynamic Bayesian Networks (DBNs) are probabilistic graphical models that extend Bayesian Networks to model sequences of observations and states over time. They represent a stochastic process with a set of random variables, where the dependencies between variables within a time slice and across consecutive time slices are explicitly defined. DBNs are particularly well-suited for modeling systems where the underlying state is hidden and evolves according to a probabilistic transition, while observations provide noisy evidence of this state.
+
+## History
+
+**1980** — Foundational work on modeling temporal sequences with Hidden Markov Models (HMMs) and Kalman Filters began to emerge, laying groundwork for DBNs.
+
+**1990** — Research intensified on extending static Bayesian Networks to incorporate temporal dependencies, leading to early conceptualizations of dynamic models.
+
+**1997** — Kevin Murphy's seminal PhD thesis, "Dynamic Bayesian Networks: Representation, Inference and Learning," formalized DBNs, unifying HMMs and Kalman Filters as special cases and establishing the framework.
+
+**2000** — Increased application of DBNs across various fields, including bioinformatics, speech recognition, and robotics, driven by advancements in efficient inference and learning algorithms.
+
+## Mathematical Intuition
+
+### Representing Temporal Dependencies
+
+A Dynamic [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) models a stochastic process $X_t$ over time $t$. It is defined by a pair $(B_0, B_{ightarrow})$, where $B_0$ is a [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) representing the joint probability distribution of variables at the initial time slice $t=0$, and $B_{ightarrow}$ is a two-slice [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) (2TBN) representing the conditional probability distribution $P(X_t | X_{t-1})$ for $t > 0$. The 2TBN specifies dependencies between variables in slice $t-1$ and slice $t$. The joint probability distribution over a sequence of length $T$ is given by:
+$$P(X_0, ..., X_T) = P(X_0) \prod_{t=1}^T P(X_t | X_{t-1})$$
+Each $X_t$ is a set of random variables, $X_t = \{X_t^1, ..., X_t^N\}$. The conditional probability $P(X_t | X_{t-1})$ can be factored according to the local dependencies defined by the 2TBN:
+$$P(X_t | X_{t-1}) = \prod_{i=1}^N P(X_t^i | Pa(X_t^i))$$
+where $Pa(X_t^i)$ are the parents of $X_t^i$ in the 2TBN, which can include variables from $X_t$ and $X_{t-1}$.
+
+$$
+P(X_0, ..., X_T) = P(X_0) \prod_{t=1}^T P(X_t | X_{t-1})
+$$
+
+$$
+P(X_t | X_{t-1}) = \prod_{i=1}^N P(X_t^i | Pa(X_t^i))
+$$
+
+### Transition and Observation Models
+
+DBNs typically distinguish between hidden state variables $H_t$ and observed variables $O_t$. The transition model describes the evolution of hidden states over time, often assuming a first-order Markov property:
+$$P(H_t | H_{t-1})$$
+The observation model describes how observations are generated from the hidden states:
+$$P(O_t | H_t)$$
+These conditional probability distributions (CPDs) are fundamental components. For discrete variables, CPDs are often represented as conditional probability tables. For continuous variables, they might be represented by Gaussian distributions (e.g., in Linear-Gaussian DBNs, which generalize Kalman Filters). The parameters of these CPDs are typically assumed to be stationary, meaning they do not change over time.
+
+$$
+P(H_t | H_{t-1})
+$$
+
+$$
+P(O_t | H_t)
+$$
+
+### Common Inference Tasks
+
+A primary goal of DBNs is to perform inference, which involves computing posterior probabilities of variables given observed evidence. Key inference tasks include:
+1.  **Filtering**: Computing the current state given all past and current observations: $P(H_t | O_{1:t})$.
+2.  **Prediction**: Computing a future state given past and current observations: $P(H_{t+k} | O_{1:t})$ for $k > 0$.
+3.  **Smoothing**: Computing a past state given all observations up to the present: $P(H_k | O_{1:T})$ for $k < T$.
+4.  **Most Probable Explanation (Viterbi algorithm)**: Finding the sequence of states that is most likely to have generated a sequence of observations: $\arg\max_{H_{1:T}} P(H_{1:T} | O_{1:T})$.
+These tasks often leverage dynamic programming algorithms, such as the Forward-Backward algorithm, or approximate methods like particle filters, to efficiently propagate beliefs through the temporal sequence.
+
+$$
+P(H_t | O_{1:t})
+$$
+
+$$
+P(H_{t+k} | O_{1:t})
+$$
+
+$$
+P(H_k | O_{1:T})
+$$
+
+$$
+\arg\max_{H_{1:T}} P(H_{1:T} | O_{1:T})
+$$
+
+### Learning Parameters and Structure
+
+Learning in DBNs involves estimating the parameters of the CPDs and, sometimes, the structure of the network itself. When the network structure is known and all variables are observed, parameters can be estimated using maximum likelihood estimation. However, when hidden variables are present, the Expectation-Maximization (EM) algorithm is commonly employed. The E-step computes expected sufficient statistics for the hidden variables given the current parameters and observed data, and the M-step updates the parameters to maximize the likelihood based on these statistics. Structure learning, which involves finding the optimal graph structure (dependencies between variables), is more complex and often relies on heuristic search algorithms combined with scoring functions (e.g., Bayesian Information Criterion) to evaluate candidate structures.
+
+## Algorithm Steps
+
+1. Define the initial Bayesian Network $B_0$ for time slice $t=0$, specifying the variables and their dependencies.
+2. Define the two-slice Bayesian Network (2TBN) $B_{ightarrow}$ for transitions from $t-1$ to $t$, specifying dependencies between variables in $X_{t-1}$ and $X_t$.
+3. Specify the functional forms or parameterizations for all Conditional Probability Distributions (CPDs) in $B_0$ and $B_{ightarrow}$ (e.g., discrete tables, Gaussian distributions).
+4. Initialize the parameters of the CPDs, either randomly or using available prior knowledge.
+5. If hidden variables are present, apply an iterative learning algorithm such as Expectation-Maximization (EM): compute expected sufficient statistics for hidden variables (E-step) and then update parameters (M-step) until convergence.
+6. Once parameters are learned, perform inference tasks (e.g., filtering, smoothing, prediction) by propagating beliefs through the network using algorithms like the Forward-Backward algorithm or particle filters.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `None` | integer > 0 | Number of hidden states or components for each latent variable in the model, if applicable. |
+| `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the Expectation-Maximization (EM) algorithm during parameter learning. |
+| `tol` | `float` | `1e-4` | float > 0 | Convergence threshold for the EM algorithm. If the change in log-likelihood between iterations is less than this value, the algorithm stops. |
+| `init_params` | `str` | `'random'` | 'random', 'prior' | Method used to initialize the parameters of the conditional probability distributions. Options typically include 'random' or 'prior'. |
+| `transition_model_type` | `str` | `'discrete'` | 'discrete', 'gaussian', 'linear-gaussian' | Specifies the type of conditional probability distribution used for state transitions (e.g., 'discrete' for categorical, 'gaussian' for continuous). |
+| `observation_model_type` | `str` | `'discrete'` | 'discrete', 'gaussian', 'softmax' | Specifies the type of conditional probability distribution used for observations given states (e.g., 'discrete', 'gaussian', 'softmax'). |
+| `structure_learning_method` | `str` | `'none'` | 'none', 'greedy-search', 'hill-climbing' | Method for learning the network structure. 'none' implies a predefined structure. Other options might include 'greedy-search' or 'hill-climbing'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- DBNs explicitly model temporal dependencies and causal relationships between variables over time, making them suitable for dynamic systems.
+- They provide a principled probabilistic framework for handling uncertainty and can quantify the confidence of predictions and inferences.
+- The graphical structure offers interpretability, allowing domain experts to understand the relationships between variables and how they evolve.
+- DBNs can naturally handle missing data by integrating it into the probabilistic inference process.
+- Prior domain knowledge can be readily incorporated into the network structure and initial parameter estimates, improving learning efficiency and model accuracy.
+- They generalize many simpler temporal models, such as Hidden Markov Models and Kalman Filters, providing a flexible modeling framework.
+
+## Weaknesses
+
+- Inference and learning in DBNs can be computationally intensive, especially for networks with many variables, complex structures, or long sequences.
+- Learning the optimal network structure from data is a challenging problem, often requiring heuristic search methods and significant computational resources.
+- The performance of DBNs can be sensitive to the quality of the initial parameter estimates and the choice of network structure.
+- Scalability can be an issue, as the number of parameters and the complexity of inference grow rapidly with the number of variables and states.
+- Requires significant domain expertise to define a reasonable initial network structure and specify appropriate conditional probability distributions.
+
+## Use Cases
+
+### Speech Recognition
+
+Modeling the temporal sequence of phonemes and words to transcribe spoken language into text, capturing the dynamic nature of speech.
+
+### Bioinformatics
+
+Analyzing gene regulatory networks, protein-protein interactions, and disease progression over time using sequential biological data.
+
+### Robotics
+
+State estimation, localization, and tracking of robots in dynamic environments, integrating sensor data over time for robust navigation.
+
+### Medical Diagnosis
+
+Monitoring patient health, predicting disease onset, and tracking the progression of chronic conditions based on sequential medical observations.
+
+### Finance
+
+Predicting stock market trends, modeling asset prices, and detecting anomalies in financial time series data by capturing temporal dependencies.
+
+### Weather Forecasting
+
+Integrating various meteorological observations over time to predict future weather patterns and climate changes with probabilistic uncertainty.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Dynamic Bayesian Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import DynamicBayesianNetwork
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = DynamicBayesianNetwork()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Dynamic Bayesian Network Lab" />
+
+## References
+
+- Murphy (1997). Murphy.
+- [scikit-learn: DynamicBayesianNetwork](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.DynamicBayesianNetwork.html)

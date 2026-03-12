@@ -1,0 +1,171 @@
+---
+title: "Fuzzy C-Means"
+slug: "fuzzy-c-means"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1973
+author: "Dunn / Bezdek"
+paper: "Dunn / Bezdek"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["centroid-based", "clustering", "data-analysis", "fuzzy-logic", "iterative-algorithm", "pattern-recognition", "soft-clustering", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gaussian-mixture-model"
+  - "k-means"
+  - "spectral-clustering"
+---
+
+## Overview
+
+Fuzzy C-Means (FCM) is an unsupervised clustering algorithm that assigns each data point a degree of membership to multiple clusters, rather than exclusively assigning it to a single cluster. It extends the concept of [K-Means](/algorithms/unsupervised/clustering/k-means) by introducing a fuzzification parameter that controls the "softness" of cluster boundaries. The algorithm iteratively optimizes an objective function that minimizes the sum of squared Euclidean distances between data points and cluster centers, weighted by their fuzzy membership values. This approach is particularly useful for datasets where clusters are overlapping or not clearly separated.
+
+## History
+
+**1973** — James C. Dunn introduced the original "Fuzzy ISODATA" algorithm, laying the mathematical foundation for fuzzy clustering.
+
+**1981** — James Bezdek, Robert Ehrlich, and William Full generalized Dunn's algorithm and popularized it under the name "Fuzzy C-Means", making it more accessible and widely adopted.
+
+**1984** — Bezdek published "Pattern Recognition with Fuzzy Objective Function Algorithms", a seminal work that further solidified FCM's theoretical basis and practical applications.
+
+**1993** — Krishnapuram and Keller introduced Possibilistic C-Means (PCM) to address FCM's sensitivity to noise and outliers by allowing memberships to sum to less than one.
+
+## Mathematical Intuition
+
+### Fuzzy Objective Function
+
+The core of Fuzzy C-Means is its objective function, which minimizes the sum of squared Euclidean distances between data points and cluster centers, weighted by the fuzzy membership values.
+$$ J_m = \sum_{i=1}^{N} \sum_{j=1}^{C} u_{ij}^m \|x_i - c_j\|^2 $$
+Here, $N$ is the number of data points, $C$ is the number of clusters, $x_i$ is the $i$-th data point, $c_j$ is the centroid of the $j$-th cluster, $u_{ij}$ is the fuzzy membership of $x_i$ in cluster $j$, and $m$ is the fuzzification parameter. The memberships $u_{ij}$ must satisfy $\sum_{j=1}^{C} u_{ij} = 1$ for each $i$, and $0 < \sum_{i=1}^{N} u_{ij} < N$ for each $j$.
+
+$$
+J_m = \sum_{i=1}^{N} \sum_{j=1}^{C} u_{ij}^m \|x_i - c_j\|^2
+$$
+
+### Membership Update Rule
+
+To minimize the objective function $J_m$ with respect to $u_{ij}$, subject to the constraint that memberships sum to one, the following update rule is derived using Lagrange multipliers.
+$$ u_{ij} = \frac{1}{\sum_{k=1}^{C} \left( \frac{\|x_i - c_j\|}{\|x_i - c_k\|} \right)^{\frac{2}{m-1}}} $$
+This formula ensures that data points closer to a cluster center have higher membership values for that cluster.
+
+$$
+u_{ij} = \frac{1}{\sum_{k=1}^{C} \left( \frac{\|x_i - c_j\|}{\|x_i - c_k\|} \right)^{\frac{2}{m-1}}}
+$$
+
+### Centroid Update Rule
+
+The cluster centers $c_j$ are updated by taking the weighted average of all data points, where the weights are the fuzzy membership values raised to the power of $m$.
+$$ c_j = \frac{\sum_{i=1}^{N} u_{ij}^m x_i}{\sum_{i=1}^{N} u_{ij}^m} $$
+This update rule effectively moves each cluster center to the "fuzzy mean" of the data points belonging to it.
+
+$$
+c_j = \frac{\sum_{i=1}^{N} u_{ij}^m x_i}{\sum_{i=1}^{N} u_{ij}^m}
+$$
+
+### Fuzzification Parameter m
+
+The parameter $m > 1$ controls the degree of fuzziness in the clustering. As $m$ approaches 1, the memberships become harder, approaching a [K-Means](/algorithms/unsupervised/clustering/k-means)-like hard assignment. As $m$ increases, the memberships become fuzzier, allowing data points to have more equal membership values across multiple clusters. A common choice for $m$ is 2.
+
+## Algorithm Steps
+
+1. Initialize the number of clusters $C$, the fuzzification parameter $m > 1$, and a small tolerance $\epsilon$.
+2. Randomly initialize the $C$ cluster centers $c_j$ or the fuzzy membership matrix $U = [u_{ij}]$ such that $\sum_{j=1}^{C} u_{ij} = 1$ for each data point $x_i$.
+3. Iteratively update the fuzzy membership values $u_{ij}$ for all data points $x_i$ and clusters $c_j$ using the formula $u_{ij} = \frac{1}{\sum_{k=1}^{C} \left( \frac{\|x_i - c_j\|}{\|x_i - c_k\|} \right)^{\frac{2}{m-1}}}$.
+4. Update the cluster centers $c_j$ for all clusters using the formula $c_j = \frac{\sum_{i=1}^{N} u_{ij}^m x_i}{\sum_{i=1}^{N} u_{ij}^m}$.
+5. Calculate the objective function $J_m = \sum_{i=1}^{N} \sum_{j=1}^{C} u_{ij}^m \|x_i - c_j\|^2$.
+6. Repeat steps 3-5 until the change in the objective function $J_m$ between successive iterations is less than the tolerance $\epsilon$, or a maximum number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int` | `3` | integer > 0 | The number of clusters to form. |
+| `m` | `float` | `2.0` | float > 1.0 | The fuzzification exponent. A value of 1.0 results in hard clustering (like K-Means), while larger values increase the fuzziness of the cluster assignments. |
+| `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the algorithm to converge. |
+| `tol` | `float` | `1e-4` | float > 0 | Tolerance for stopping criterion. The algorithm stops when the change in the objective function between iterations is less than this value. |
+| `random_state` | `int or None` | `None` | integer or None | Determines random number generation for centroid initialization. Use an int for reproducible results. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Provides a more informative clustering result by assigning degrees of membership, which is useful for ambiguous data.
+- Can effectively handle datasets where clusters naturally overlap or have indistinct boundaries.
+- Less susceptible to poor initial centroid placement compared to K-Means due to the soft assignment.
+- The fuzzification parameter $m$ offers a tunable control over the degree of overlap between clusters.
+- Can reveal underlying data structures that hard clustering methods might miss.
+
+## Weaknesses
+
+- Requires the number of clusters $C$ to be specified in advance, which can be challenging without prior knowledge.
+- Sensitive to the choice of the fuzzification parameter $m$, which significantly impacts the clustering outcome.
+- Computationally more intensive than K-Means, especially for large datasets, due to the calculation and update of the full membership matrix.
+- Sensitive to outliers and noise, as the squared Euclidean distance metric can be heavily influenced by extreme values.
+- The convergence to a local optimum is not guaranteed to be the global optimum.
+
+## Use Cases
+
+### Medical Imaging
+
+Used for segmenting different tissue types in MRI or CT scans, where boundaries are often fuzzy.
+
+### Pattern Recognition
+
+Applied in scenarios requiring soft classification, such as identifying patterns with gradual transitions between categories.
+
+### Geospatial Analysis
+
+Useful for delineating environmental zones or soil types that exhibit continuous variation rather than sharp divisions.
+
+### Image Processing
+
+Employed for color image quantization and segmentation, allowing pixels to belong to multiple color groups.
+
+### Market Segmentation
+
+Helps in identifying customer segments with overlapping preferences or behaviors, providing a nuanced view of the market.
+
+### Data Mining
+
+Used for exploratory data analysis to uncover hidden structures in complex datasets where hard assignments are too restrictive.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Fuzzy C-Means from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import FuzzyCMeans
+
+model = FuzzyCMeans()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Fuzzy C-Means Lab" />
+
+## References
+
+- Dunn / Bezdek (1973). Dunn / Bezdek.
+- [scikit-learn: FuzzyCMeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FuzzyCMeans.html)

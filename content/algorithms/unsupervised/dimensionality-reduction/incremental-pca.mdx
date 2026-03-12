@@ -1,0 +1,195 @@
+---
+title: "Incremental PCA"
+slug: "incremental-pca"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 2001
+author: "Online PCA methods"
+paper: "Online PCA methods"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["dimensionality-reduction", "feature-extraction", "large-datasets", "matrix-factorization", "online-learning", "streaming-data", "svd", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "isomap"
+  - "kernel-pca"
+  - "truncated-svd"
+---
+
+## Overview
+
+Incremental Principal Component Analysis (Incremental PCA) is a variant of PCA designed to handle datasets that are too large to fit into memory. It achieves this by processing data in mini-batches, iteratively updating the principal components and singular values without requiring the entire dataset to be loaded at once. This makes it particularly suitable for online learning scenarios, streaming data, and very large datasets where traditional batch PCA is infeasible due to memory constraints.
+
+## History
+
+**1901** — Karl Pearson introduces the concept of principal components in his work on lines and planes of closest fit to systems of points.
+
+**1933** — Harold Hotelling further develops PCA as a statistical method for analyzing sets of statistical variables.
+
+**1989** — Terence Sanger proposes an online algorithm for PCA based on a Hebbian learning rule, demonstrating early concepts of incremental updates.
+
+**2001** — The increasing scale of datasets and the emergence of streaming data applications drive significant interest in 'online PCA methods' capable of processing data incrementally.
+
+**2006** — Michael Brand publishes work on incremental singular value decomposition, providing a robust mathematical framework for efficiently updating SVD with new data batches.
+
+## Mathematical Intuition
+
+### PCA: Projecting Data onto Components
+
+Principal Component Analysis (PCA) aims to reduce the dimensionality of a dataset by transforming it into a new coordinate system such that the greatest variance by any projection of the data lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. Given a mean-centered data matrix $X \in \mathbb{R}^{N \times D}$, where $N$ is the number of samples and $D$ is the number of features, standard PCA typically involves computing the Singular Value Decomposition (SVD) of $X$:
+$$X = U \Sigma V^T$$
+Here, $U \in \mathbb{R}^{N \times D}$ and $V \in \mathbb{R}^{D \times D}$ are orthogonal matrices, and $\Sigma \in \mathbb{R}^{D \times D}$ is a diagonal matrix containing the singular values. The columns of $V$ are the principal components, ordered by the magnitude of their corresponding singular values in $\Sigma$. Projecting $X$ onto its first $k$ principal components yields $X_k = X V_k$, where $V_k$ consists of the first $k$ columns of $V$. The variance captured by each component is proportional to the square of its singular value.
+
+$$
+X \in \mathbb{R}^{N \times D}
+$$
+
+$$
+X = U \Sigma V^T
+$$
+
+$$
+U \in \mathbb{R}^{N \times D}
+$$
+
+$$
+V \in \mathbb{R}^{D \times D}
+$$
+
+$$
+\Sigma \in \mathbb{R}^{D \times D}
+$$
+
+$$
+X_k = X V_k
+$$
+
+### The Challenge of Large Datasets
+
+For very large datasets, computing the full SVD of $X$ or the eigenvalue decomposition of the covariance matrix $C = \frac{1}{N-1} X^T X$ can be computationally prohibitive and memory-intensive. If $N$ or $D$ is extremely large, storing $X$ or $C$ in memory might not be feasible. This limitation makes standard batch PCA unsuitable for streaming data or datasets that exceed available RAM. Incremental PCA addresses this by processing data in smaller, manageable batches, thereby avoiding the need to load the entire dataset into memory at once.
+
+$$
+C = \frac{1}{N-1} X^T X
+$$
+
+### Incremental SVD Update Mechanism
+
+Incremental PCA operates by processing data in mini-batches, updating the principal components and singular values iteratively. Instead of computing the SVD on the entire dataset at once, it maintains an approximation of the current principal components and singular values. When a new batch of data $X_{batch}$ arrives, the algorithm effectively combines the information from this new batch with the accumulated information from previous batches. A common approach involves performing a partial SVD on the current batch and then merging these results with the existing components. Mathematically, if we have the SVD of the data processed so far, $X_{prev} = U_{prev} \Sigma_{prev} V_{prev}^T$, and a new batch $X_{batch}$, the goal is to find the SVD of the concatenated data $[X_{prev}; X_{batch}]$. This can be achieved by forming an auxiliary matrix, often by concatenating the current singular values and components with the new batch's contribution, and then performing an SVD on this smaller, combined matrix to obtain the updated principal components and singular values. This update avoids recomputing the SVD from scratch, making it memory and computationally efficient for large-scale problems.
+
+$$
+X_{prev} = U_{prev} \Sigma_{prev} V_{prev}^T
+$$
+
+$$
+[X_{prev}; X_{batch}]
+$$
+
+$$
+X_{batch}
+$$
+
+## Algorithm Steps
+
+1. Initialize the principal components and singular values, typically to an empty state or by processing a small initial batch of data.
+2. Divide the entire dataset into a sequence of mini-batches, each small enough to fit into memory.
+3. For each mini-batch $X_{batch}$ in the sequence:
+4. Center $X_{batch}$ by subtracting its mean, ensuring the data has zero mean.
+5. Perform a partial Singular Value Decomposition (SVD) on $X_{batch}$ to obtain its singular values and components.
+6. Combine the singular values and components from $X_{batch}$ with the currently accumulated principal components and singular values. This step typically involves forming a temporary matrix that represents the combined information and then performing an SVD on this temporary matrix.
+7. Update the accumulated principal components and singular values based on the SVD result from the combined matrix.
+8. Repeat steps 3-7 until all mini-batches have been processed, yielding the final set of principal components and singular values.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int or None` | `None` | integer >= 1 or None | The number of principal components to keep. If None, all components are kept. |
+| `batch_size` | `int or None` | `None` | integer >= 1 or None | The number of samples to use for each batch. If None, batch_size is set to 5 * n_components, or 500 if n_components is None. |
+| `copy` | `bool` | `True` | True, False | If False, data passed to fit are overwritten. This can save memory but is not safe for use with other estimators. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Incremental PCA can process datasets that are too large to fit into memory, making it suitable for big data applications.
+- It is well-suited for online learning and streaming data scenarios, where data arrives continuously.
+- The algorithm is memory-efficient as it only needs to load and process one mini-batch at a time.
+- It can be more computationally efficient than batch PCA for very large datasets, especially when the number of components is significantly smaller than the number of features.
+- Incremental PCA allows for the dynamic updating of principal components as new data becomes available without re-analyzing all past data.
+- It provides a practical approach to dimensionality reduction when data cannot be stored or processed in its entirety.
+
+## Weaknesses
+
+- The results of Incremental PCA may not be identical to those of batch PCA due to the approximations involved in the incremental updates and the order of batches.
+- The performance and quality of the dimensionality reduction can be sensitive to the choice of the `batch_size` parameter.
+- Multiple passes over the data might be required for optimal results if the `batch_size` is small and the data is not truly streaming.
+- It can be slower than randomized PCA for very high-dimensional data if the desired number of components is small.
+- The algorithm can be more complex to implement and tune compared to standard batch PCA.
+
+## Use Cases
+
+### Image Processing
+
+Used for feature extraction and dimensionality reduction of large image datasets, such as in facial recognition systems (e.g., eigenfaces) or object detection, where images are processed in batches.
+
+### Natural Language Processing
+
+Applied to reduce the dimensionality of high-dimensional text representations like TF-IDF vectors or word embeddings for large text corpora, facilitating tasks like topic modeling or document clustering.
+
+### Sensor Data Analysis
+
+Enables real-time dimensionality reduction of streaming data from sensors in IoT devices or industrial monitoring, allowing for efficient storage and anomaly detection.
+
+### Bioinformatics
+
+Utilized for analyzing large genomic or proteomic datasets, where the number of features (e.g., genes) can be very high, to identify key patterns or reduce noise.
+
+### Recommendation Systems
+
+Employed to reduce the dimensionality of sparse user-item interaction matrices, which can be very large, to improve the efficiency and quality of recommendations.
+
+### Financial Data Analysis
+
+Used to analyze large volumes of high-frequency financial data, reducing the number of features for risk management, portfolio optimization, or algorithmic trading strategies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Incremental PCA from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import IncrementalPca
+
+model = IncrementalPca()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Incremental PCA Lab" />
+
+## References
+
+- Online PCA methods (2001). Online PCA methods.
+- [scikit-learn: IncrementalPca](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.IncrementalPca.html)

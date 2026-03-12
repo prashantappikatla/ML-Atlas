@@ -1,0 +1,169 @@
+---
+title: "VGG"
+slug: "vgg"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2014
+author: "Simonyan & Zisserman"
+paper: "Simonyan & Zisserman"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "convolutional-neural-network", "deep-learning", "feature-extraction", "image-classification", "image-recognition", "large-scale", "transfer-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "densenet"
+  - "efficientnet"
+  - "mobilenet"
+  - "resnet"
+  - "stacking"
+---
+
+## Overview
+
+VGG, short for Visual Geometry Group, is a deep convolutional neural network architecture primarily designed for large-scale image recognition. It is distinguished by its simplicity, employing only 3x3 convolutional filters with a stride of 1 and 2x2 max-pooling layers with a stride of 2, stacked uniformly to achieve significant depth. The core idea behind VGG was to demonstrate that increasing the depth of a neural network, by repeatedly adding convolutional layers, could lead to improved performance in image classification tasks.
+
+## History
+
+**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), developed by Krizhevsky, Sutskever, and Hinton, won the ImageNet Large Scale Visual Recognition Challenge (ILSVRC), demonstrating the power of deep convolutional neural networks and sparking renewed interest in the field.
+
+**2014** — Simonyan and Zisserman introduced the VGG architecture in their paper 'Very Deep Convolutional Networks for Large-Scale Image Recognition,' achieving state-of-the-art results on ILSVRC 2014 by focusing on network depth.
+
+**2014** — GoogLeNet (Inception), another deep CNN architecture, was also introduced and won ILSVRC 2014, showcasing an alternative approach to increasing depth through inception modules rather than uniform small filters.
+
+**2015** — [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) (Residual Networks) was introduced by He et al., which further pushed the boundaries of network depth by incorporating residual connections, enabling the training of networks with hundreds of layers and surpassing VGG's performance.
+
+## Mathematical Intuition
+
+### Convolutional Layer Operation
+
+The fundamental building block of VGG, like other CNNs, is the convolutional layer. This layer applies a set of learnable filters (kernels) to the input volume, producing an activation map. Each filter slides across the input, performing a dot product between the filter's weights and the local region of the input it is currently covering. For a 2D input $I$ and a 2D kernel $K$, the discrete convolution operation at position $(i, j)$ is given by:$$ S(i, j) = (I * K)(i, j) = \sum_m \sum_n I(i-m, j-n) K(m, n) $$VGG exclusively uses small $3 \times 3$ filters, which are the smallest filters capable of capturing directional information (left/right, up/down, diagonals). [Stacking](/algorithms/supervised/classification/stacking) multiple $3 \times 3$ convolutional layers effectively creates a larger receptive field without increasing the number of parameters as much as a single larger filter would.
+
+$$
+S(i, j) = (I * K)(i, j) = \sum_m \sum_n I(i-m, j-n) K(m, n)
+$$
+
+### Max-Pooling for Downsampling
+
+Max-pooling layers are used to progressively reduce the spatial dimensions (width and height) of the feature maps, thereby reducing the number of parameters and computational complexity, and providing a degree of translational invariance. VGG employs $2 \times 2$ max-pooling layers with a stride of 2. For a given region $R$ in the input feature map, the max-pooling operation outputs the maximum value within that region:$$ P_{i,j} = \max_{k,l \in R_{i,j}} X_{k,l} $$This downsampling helps in extracting robust features and managing the network's memory footprint.
+
+$$
+P_{i,j} = \max_{k,l \in R_{i,j}} X_{k,l}
+$$
+
+### Network Depth and Uniformity
+
+VGG's primary contribution was demonstrating the effectiveness of increasing network depth. The architecture consists of 11 to 19 layers (VGG11, VGG13, VGG16, VGG19), built by [Stacking](/algorithms/supervised/classification/stacking) multiple $3 \times 3$ convolutional layers followed by a $2 \times 2$ max-pooling layer. The number of filters in convolutional layers increases with depth, typically starting from 64 and doubling after each max-pooling layer (e.g., 64, 128, 256, 512). This uniform and repetitive structure makes VGG architectures relatively straightforward to implement and understand, and it allows for a deeper exploration of hierarchical features.
+
+### Classification with Softmax Loss
+
+The final layers of a VGG network typically consist of fully connected layers followed by a softmax activation function for multi-class classification. The output of the last fully connected layer, representing the logits for each class, is transformed into a probability distribution over the classes using the softmax function:$$ \hat{y}_c = \frac{e^{z_c}}{\sum_{k=1}^C e^{z_k}} $$During training, the network minimizes the categorical cross-entropy loss between the predicted probabilities $\hat{y}$ and the true one-hot encoded labels $y$:$$ L = -\sum_{c=1}^C y_c \log(\hat{y}_c) $$This loss function encourages the network to assign high probabilities to the correct class.
+
+$$
+\hat{y}_c = \frac{e^{z_c}}{\sum_{k=1}^C e^{z_k}}
+$$
+
+$$
+L = -\sum_{c=1}^C y_c \log(\hat{y}_c)
+$$
+
+## Algorithm Steps
+
+1. Initialize the network weights, typically using a method like Xavier initialization, and biases with small constant values.
+2. Feed a batch of input images into the first convolutional block, which consists of one or more $3 \times 3$ convolutional layers followed by a ReLU activation function.
+3. Apply a $2 \times 2$ max-pooling layer with a stride of 2 to downsample the feature maps.
+4. Repeat steps 2 and 3 for several blocks, progressively increasing the number of filters (e.g., 64, 128, 256, 512) after each max-pooling layer.
+5. Flatten the output of the last convolutional block into a 1D vector.
+6. Pass the flattened vector through a series of fully connected layers, typically two hidden layers with 4096 units each, followed by a ReLU activation.
+7. Apply a final fully connected layer with $N$ units, where $N$ is the number of classes, and then a softmax activation function to obtain class probabilities.
+8. Calculate the categorical cross-entropy loss between the predicted probabilities and the true labels, and update the network weights using an optimization algorithm like Stochastic Gradient Descent (SGD) with backpropagation.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `input_shape` | `tuple` | `(224, 224, 3)` | Positive integers for height, width, and channels (e.g., (224, 224, 3) for RGB images). | The dimensions of the input images (height, width, channels) that the network expects. |
+| `num_classes` | `int` | `1000` | Integer greater than 1. | The number of output classes for the classification task, determining the size of the final fully connected layer. |
+| `learning_rate` | `float` | `0.01` | Positive float (e.g., 0.001 to 0.1). | The step size at which the model's weights are updated during training. |
+| `optimizer` | `str` | `SGD` | ['SGD', 'Adam', 'RMSprop', 'Adagrad'] | The optimization algorithm used to update network weights (e.g., SGD, Adam, RMSprop). |
+| `batch_size` | `int` | `32` | Integer greater than 0 (e.g., 16, 32, 64, 128). | The number of samples processed before the model's internal parameters are updated. |
+| `epochs` | `int` | `100` | Integer greater than 0. | The number of complete passes through the entire training dataset. |
+| `dropout_rate` | `float` | `0.5` | Float between 0.0 and 1.0. | The fraction of neurons to randomly set to zero during training in the fully connected layers to prevent overfitting. |
+| `weight_decay` | `float` | `0.0005` | Non-negative float (e.g., 0.0001 to 0.01). | L2 regularization penalty applied to the weights to prevent overfitting. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- VGG's simple and uniform architecture, consisting of only $3 \times 3$ convolutions and $2 \times 2$ max-pooling, makes it conceptually easy to understand and implement.
+- The use of multiple small $3 \times 3$ convolutional filters in sequence effectively increases the receptive field while maintaining a lower number of parameters compared to a single large filter.
+- VGG models achieved state-of-the-art performance on large-scale image classification benchmarks like ImageNet at the time of their introduction.
+- Pre-trained VGG models are highly effective as feature extractors for transfer learning, providing robust and generalizable visual representations.
+- The deep architecture allows VGG to learn hierarchical features, from simple edges and textures in early layers to complex object parts in deeper layers.
+
+## Weaknesses
+
+- VGG models are computationally expensive and require significant memory due to their depth and large number of fully connected layers, making them slow to train and infer.
+- The large number of parameters, particularly in the fully connected layers, makes VGG prone to overfitting if not properly regularized or trained on sufficiently large datasets.
+- Compared to more modern architectures like ResNet or Inception, VGG is less efficient in terms of parameter count and computational operations for similar performance levels.
+- The fixed architecture with uniform filter sizes offers less flexibility for adapting to varying feature scales compared to multi-scale approaches like Inception modules.
+
+## Use Cases
+
+### Image Classification
+
+VGG models are widely used for classifying images into predefined categories, such as identifying objects in photographs or categorizing medical images.
+
+### Object Detection
+
+VGG networks serve as powerful backbone feature extractors in two-stage object detection frameworks like Faster R-CNN, providing rich spatial features for region proposal and classification.
+
+### Feature Extraction
+
+Pre-trained VGG models are commonly used to extract generic visual features from images, which can then be used for various downstream tasks with smaller, task-specific classifiers.
+
+### Style Transfer
+
+The hierarchical features learned by VGG are instrumental in neural style transfer algorithms, where different layers capture content and style information to combine them into new images.
+
+### Image Segmentation
+
+VGG's convolutional layers can be adapted as encoders in fully convolutional networks (FCNs) for semantic segmentation, providing dense feature maps that are then upsampled to pixel-level predictions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement VGG from scratch
+```
+
+### Using scikit-learn
+
+```python
+# VGG does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="VGG Lab" />
+
+## References
+
+- Simonyan & Zisserman (2014). Simonyan & Zisserman.

@@ -1,0 +1,180 @@
+---
+title: "BYOL"
+slug: "byol"
+category: "deep-learning"
+subcategory: "self-supervised-learning"
+year: 2020
+author: "Grill et al."
+paper: "Grill et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "contrastive-learning", "deep-learning", "image-processing", "neural-networks", "representation-learning", "self-supervised-learning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "moco"
+  - "momentum"
+  - "simclr"
+  - "transformer"
+  - "vision-transformer"
+---
+
+## Overview
+
+BYOL (Bootstrap Your Own Latent) is a self-supervised learning method that learns representations by predicting the output of a target network from an online network, where both networks are trained on augmented views of the same image. A key distinction is its ability to avoid representational collapse without relying on negative pairs or explicit contrastive terms. It achieves this by employing a stop-gradient operation and an exponential moving average update for the target network's weights.
+
+## History
+
+**2018** — Contrastive Predictive Coding (CPC) by Oord et al. introduced the idea of learning representations by predicting future, present, or past information in a latent space, laying groundwork for contrastive learning.
+
+**2019** — [Momentum](/algorithms/meta-learning/optimization/momentum) Contrast (MoCo) by He et al. proposed using a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a large dynamic dictionary for contrastive learning, enabling larger batch sizes effectively.
+
+**2020** — [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr) by Chen et al. demonstrated the power of large batch sizes and strong data augmentations in contrastive self-supervised learning, achieving state-of-the-art results.
+
+**2020** — Bootstrap Your Own Latent (BYOL) by Grill et al. was introduced, demonstrating that high-quality representations could be learned without negative pairs, challenging prevailing assumptions in self-supervised learning.
+
+**2021** — DINO (Self-distillation with no labels) by Caron et al. extended the BYOL paradigm by using self-distillation with a [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) architecture, achieving impressive performance.
+
+## Mathematical Intuition
+
+### Online and Target Networks
+
+BYOL employs two neural networks: an online network and a target network. Both networks consist of an encoder $f$ and a projection head $g$. The online network additionally has a prediction head $q$. The online network's parameters are $\theta_o$, and the target network's parameters are $\theta_t$. The online network processes an augmented view $v$ and outputs a prediction, while the target network processes another augmented view $v'$ and outputs a representation.
+
+$$
+\text{Online: } q_\theta(g_\theta(f_\theta(v)))
+$$
+
+$$
+\text{Target: } g_\xi(f_\xi(v'))
+$$
+
+### Loss Function and Stop-Gradient
+
+The objective is to minimize the mean squared error between the $L_2$-normalized output of the online prediction head and the $L_2$-normalized output of the target projection head. Crucially, gradients are only propagated through the online network, as indicated by the stop-gradient operation applied to the target network's output. This prevents the online network from simply matching the target network's output trivially.
+
+$$
+L_{BYOL} = || \bar{q}_\theta(\bar{z}_o) - \bar{z}_t ||_2^2
+$$
+
+$$
+\bar{z}_o = \text{norm}(g_\theta(f_\theta(v)))
+$$
+
+$$
+\bar{z}_t = \text{norm}(g_\xi(f_\xi(v')))
+$$
+
+### Exponential Moving Average Update
+
+The target network's parameters $\theta_t$ are not updated via backpropagation. Instead, they are an exponential moving average (EMA) of the online network's parameters $\theta_o$. This slow-moving target provides a stable learning signal and helps prevent representational collapse.
+
+$$
+\theta_t \leftarrow \tau \theta_t + (1-\tau) \theta_o
+$$
+
+### Absence of Negative Pairs
+
+Unlike many contrastive learning methods, BYOL does not explicitly use negative pairs to prevent representational collapse. The combination of the stop-gradient operation on the target network and the EMA update mechanism is hypothesized to be sufficient to prevent the online network from simply outputting a constant vector, effectively bootstrapping its own representations.
+
+## Algorithm Steps
+
+1. Given an input image, generate two distinct augmented views, $v$ and $v'$.
+2. Pass $v$ through the online network to obtain its representation $z_o = g_\theta(f_\theta(v))$ and then its prediction $p_o = q_\theta(z_o)$.
+3. Pass $v'$ through the target network to obtain its representation $z_t = g_\xi(f_\xi(v'))$.
+4. Compute the mean squared error loss between the $L_2$-normalized $p_o$ and $L_2$-normalized $z_t$.
+5. Repeat steps 2-4 for the symmetric case, passing $v'$ through the online network and $v$ through the target network, and sum the losses.
+6. Update the online network's parameters $\theta_o$ using an optimizer (e.g., SGD or Adam) based on the computed loss.
+7. Update the target network's parameters $\theta_t$ as an exponential moving average of the online network's parameters $\theta_o$ using a decay rate $\tau$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0002` | positive float | The initial learning rate for the optimizer updating the online network. |
+| `batch_size` | `integer` | `4096` | positive integer | The number of samples processed in each training iteration. Larger batches are generally preferred for BYOL. |
+| `ema_decay_rate` | `float` | `0.996` | 0.0 to 1.0 | The exponential moving average decay rate for updating the target network's parameters. Typically annealed from a lower value to 1.0. |
+| `projection_head_dims` | `list of integers` | `[4096, 256]` | list of positive integers | Dimensions of the layers in the projection head, typically a multi-layer perceptron (MLP). |
+| `predictor_head_dims` | `list of integers` | `[4096, 256]` | list of positive integers | Dimensions of the layers in the prediction head, typically a multi-layer perceptron (MLP). |
+| `optimizer` | `string` | `Adam` | SGD, Adam, LARS | The optimization algorithm used to update the online network's weights. |
+| `num_epochs` | `integer` | `1000` | positive integer | The total number of training epochs. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- BYOL achieves state-of-the-art performance on various downstream tasks, often matching or exceeding supervised baselines.
+- It eliminates the need for carefully constructed negative pairs, simplifying the training objective compared to contrastive methods.
+- The method is robust to different choices of data augmentations, although strong augmentations are still beneficial.
+- BYOL's learned representations are highly transferable to various downstream tasks with minimal fine-tuning.
+- The stop-gradient and EMA mechanisms provide a stable learning signal, preventing representational collapse without explicit negative samples.
+
+## Weaknesses
+
+- BYOL can be sensitive to hyperparameters, particularly the learning rate schedule, batch size, and EMA decay rate.
+- Training BYOL typically requires large batch sizes to achieve optimal performance, which can be computationally expensive.
+- The theoretical understanding of why BYOL avoids collapse without negative pairs is still an active area of research.
+- The computational cost is higher than some simpler self-supervised methods due to maintaining two networks and a prediction head.
+
+## Use Cases
+
+### Image Classification
+
+Pre-training a backbone encoder with BYOL on a large unlabeled image dataset can significantly improve performance on downstream classification tasks.
+
+### Object Detection
+
+Features learned by BYOL can be used as a strong initialization for backbone networks in object detection models, leading to faster convergence and higher accuracy.
+
+### Medical Imaging
+
+Applying BYOL to unlabeled medical scans can help learn robust features for tasks like disease diagnosis or anomaly detection, where labeled data is scarce.
+
+### Robotics
+
+Self-supervised pre-training with BYOL can enable robots to learn general visual representations from their environment, improving performance on tasks like navigation or manipulation.
+
+### Video Understanding
+
+Extending BYOL to video data allows learning spatio-temporal representations for tasks such as action recognition or video retrieval.
+
+### Remote Sensing
+
+BYOL can be used to pre-train models on satellite or aerial imagery, improving performance on tasks like land cover classification or change detection.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement BYOL from scratch
+```
+
+### Using scikit-learn
+
+```python
+# BYOL does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="BYOL Lab" />
+
+## References
+
+- Grill et al. (2020). Grill et al..

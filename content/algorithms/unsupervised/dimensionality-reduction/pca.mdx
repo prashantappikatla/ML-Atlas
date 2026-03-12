@@ -1,0 +1,184 @@
+---
+title: "PCA"
+slug: "pca"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1901
+author: "Pearson"
+paper: "Pearson"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["data-compression", "data-preprocessing", "dimensionality-reduction", "eigenvalue-decomposition", "feature-extraction", "linear-algebra", "svd", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "isomap"
+  - "kernel-pca"
+  - "linear-discriminant-analysis"
+  - "non-negative-matrix-factorization"
+---
+
+## Overview
+
+Principal Component Analysis (PCA) is a linear dimensionality reduction technique that transforms data into a new coordinate system such that the greatest variance by any projection lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. It aims to identify the directions, or principal components, along which the data varies the most, effectively decorrelating the features and reducing the number of dimensions while retaining as much variance as possible.
+
+## History
+
+**1901** — Karl Pearson formally introduced PCA in "On Lines and Planes of Closest Fit to Systems of Points in Space," laying the mathematical foundation for finding orthogonal components that maximize variance.
+
+**1933** — Harold Hotelling independently developed a similar method, which he called "principal components," in the context of [Factor Analysis](/algorithms/unsupervised/dimensionality-reduction/factor-analysis), further popularizing the technique in psychometrics.
+
+**1960** — With the advent of computers, numerical methods for eigenvalue decomposition became more efficient, making PCA practical for larger datasets and broader applications.
+
+**1980** — PCA became a standard tool in multivariate data analysis, particularly in fields like chemometrics and image processing, for data compression and visualization.
+
+**1990** — Extensions like [Kernel PCA](/algorithms/unsupervised/dimensionality-reduction/kernel-pca) were developed to address non-linear relationships in data, expanding the applicability of the core PCA concept.
+
+## Mathematical Intuition
+
+### Maximizing Projected Variance
+
+PCA seeks to find a projection direction $w$ (a unit vector) such that the variance of the projected data points is maximized. Given a dataset $X$ (where each row is a sample and each column is a feature), and assuming the data is centered, the variance of the projected data $Xw$ is $w^T (X^T X) w$. Since $X^T X$ is proportional to the covariance matrix $C$, the objective is to maximize $w^T C w$ subject to the constraint $w^T w = 1$. 
+$$ \max_{w} w^T C w \quad \text{subject to} \quad w^T w = 1 $$
+Using a Lagrangian multiplier $\lambda$, we get $L(w, \lambda) = w^T C w - \lambda (w^T w - 1)$. Differentiating with respect to $w$ and setting to zero yields $C w = \lambda w$, which is the eigenvalue equation. The principal components are the eigenvectors of the covariance matrix, and the explained variance along each component is given by its corresponding eigenvalue.
+$$ C w = \lambda w $$
+
+$$
+\max_{w} w^T C w \quad \text{subject to} \quad w^T w = 1
+$$
+
+$$
+C w = \lambda w
+$$
+
+### Eigen-decomposition of Covariance Matrix
+
+The covariance matrix $C$ of a centered dataset $X$ (with $N$ samples and $D$ features) is given by $C = \frac{1}{N-1} X^T X$. The eigenvectors of this symmetric, positive semi-definite matrix represent the principal components, which are orthogonal directions in the feature space. The eigenvalues associated with these eigenvectors quantify the amount of variance captured along each principal component. Sorting the eigenvalues in descending order allows us to identify the most significant principal components, which correspond to the directions of greatest variance in the data.
+$$ C = \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})(x_i - \bar{x})^T $$
+where $x_i$ is a data point and $\bar{x}$ is the mean.
+
+$$
+C = \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})(x_i - \bar{x})^T
+$$
+
+### Singular Value Decomposition Equivalence
+
+PCA can also be efficiently computed using Singular Value Decomposition (SVD). For a centered data matrix $X$ (of shape $N \times D$), its SVD is $X = U \Sigma V^T$, where $U$ is an $N \times N$ orthogonal matrix, $\Sigma$ is an $N \times D$ rectangular diagonal matrix of singular values, and $V$ is a $D \times D$ orthogonal matrix. The columns of $V$ are the right singular vectors, which are identical to the eigenvectors of $X^T X$ (and thus the principal components of $X$). The singular values in $\Sigma$ are related to the eigenvalues of $X^T X$ by $\sigma_i^2 = (N-1)\lambda_i$. Projecting the data onto the principal components is achieved by computing $X V_k$, where $V_k$ contains the first $k$ columns of $V$.
+$$ X = U \Sigma V^T $$
+$$ X^T X = (U \Sigma V^T)^T (U \Sigma V^T) = V \Sigma^T U^T U \Sigma V^T = V \Sigma^T \Sigma V^T $$
+Comparing $X^T X = V \Sigma^T \Sigma V^T$ with the eigenvalue decomposition $C = V \Lambda V^T$ (where $\Lambda$ is a diagonal matrix of eigenvalues), we see that the columns of $V$ are the eigenvectors and the diagonal elements of $\Sigma^T \Sigma$ are proportional to the eigenvalues.
+
+$$
+X = U \Sigma V^T
+$$
+
+$$
+X^T X = (U \Sigma V^T)^T (U \Sigma V^T) = V \Sigma^T U^T U \Sigma V^T = V \Sigma^T \Sigma V^T
+$$
+
+## Algorithm Steps
+
+1. Center the input data matrix $X$ by subtracting the mean of each feature from its respective column, resulting in a zero-mean dataset.
+2. Compute the covariance matrix $C$ of the centered data, typically as $C = \frac{1}{N-1} X^T X$, where $N$ is the number of samples.
+3. Calculate the eigenvectors and corresponding eigenvalues of the covariance matrix $C$.
+4. Sort the eigenvectors in descending order based on their corresponding eigenvalues, as larger eigenvalues indicate directions of greater variance.
+5. Select the top $k$ eigenvectors, where $k$ is the desired number of dimensions, to form a projection matrix $W$ (also known as the principal component matrix).
+6. Transform the original centered data $X$ into the new $k$-dimensional subspace by multiplying it with the projection matrix: $X_{transformed} = X W$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int, float, str or None` | `None` | integer >= 1, float (0, 1], 'mle', or None | Number of components to keep. If 'mle' and svd_solver='full', Minka's MLE is used to estimate the dimension. If 0 < n_components < 1, selects the number of components such that the amount of variance that needs to be explained is greater than the percentage specified by n_components. |
+| `copy` | `bool` | `True` | True, False | If False, data passed to fit are overwritten and running fit(X).transform(X) will not yield the expected results, use fit_transform(X) instead. |
+| `whiten` | `bool` | `False` | True, False | When True (False by default) the components vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. |
+| `svd_solver` | `str` | `'auto'` | 'auto', 'full', 'arpack', 'randomized' | The solver is selected by a default policy based on X.shape and n_components: 'auto', 'full', 'arpack', 'randomized'. |
+| `tol` | `float` | `0.0` | float >= 0.0 | Tolerance for singular values computed by svd_solver == 'arpack'. |
+| `iterated_power` | `int or 'auto'` | `'auto'` | integer >= 0 or 'auto' | Number of iterations for the power method computed by svd_solver == 'randomized'. |
+| `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance, or None | Used when svd_solver == 'arpack' or 'randomized' for tests reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- PCA effectively reduces the dimensionality of high-dimensional datasets, which can mitigate the curse of dimensionality and improve computational efficiency.
+- It decorrelates features, transforming a set of correlated variables into a set of linearly uncorrelated variables, which can be beneficial for subsequent modeling.
+- By focusing on directions of maximum variance, PCA can help in noise reduction, as noise often contributes less to the overall variance.
+- The principal components can sometimes offer insights into the underlying structure of the data, revealing dominant patterns or relationships.
+- PCA is a mathematically well-defined and robust method with a unique solution for a given dataset.
+- It can be used as a preprocessing step to improve the performance and reduce the training time of supervised learning algorithms.
+
+## Weaknesses
+
+- PCA is a linear transformation, meaning it cannot capture non-linear relationships between features, which can lead to information loss in complex datasets.
+- The interpretability of principal components can be challenging, as each component is a linear combination of all original features, making it difficult to assign semantic meaning.
+- PCA is sensitive to the scaling of the features; features with larger variances will have a disproportionately larger influence on the principal components.
+- Information loss is inherent in dimensionality reduction; choosing the optimal number of components $k$ often involves a trade-off between dimensionality reduction and retaining sufficient variance.
+- It assumes that the directions of maximum variance are the most important, which may not always align with the directions most relevant for a specific task, especially in supervised contexts.
+
+## Use Cases
+
+### Image Processing
+
+Used for image compression by reducing the number of pixel dimensions while retaining essential visual information, and in facial recognition systems to extract distinguishing features.
+
+### Bioinformatics
+
+Applied to analyze gene expression data, reducing thousands of gene features to a few principal components to identify patterns related to diseases or biological processes.
+
+### Finance
+
+Employed in portfolio optimization to identify principal components of asset returns, helping to understand underlying risk factors and construct diversified portfolios.
+
+### Data Visualization
+
+Reduces high-dimensional datasets to two or three dimensions, allowing for visual exploration of clusters, outliers, and overall data structure.
+
+### Preprocessing for Machine Learning
+
+Serves as a feature engineering step to reduce the number of input features for supervised learning models, improving model generalization and reducing training time.
+
+### Quality Control
+
+Utilized in manufacturing to monitor process parameters, where PCA can detect anomalies or shifts in production by identifying deviations from normal operating principal components.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PCA from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.decomposition import PCA
+
+model = PCA()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="PCA Lab" />
+
+## References
+
+- Pearson (1901). Pearson.
+- [scikit-learn: PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html)

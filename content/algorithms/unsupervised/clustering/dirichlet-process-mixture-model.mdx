@@ -1,0 +1,191 @@
+---
+title: "Dirichlet Process Mixture Model"
+slug: "dirichlet-process-mixture-model"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1994
+author: "Antoniak / Bayesian nonparametrics"
+paper: "Antoniak / Bayesian nonparametrics"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian", "clustering", "density-estimation", "generative-model", "mixture-models", "non-parametric", "probabilistic", "unsupervised"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "chinese-restaurant-process"
+  - "gaussian-mixture-model"
+  - "hierarchical-clustering"
+  - "k-means"
+  - "latent-dirichlet-allocation"
+  - "mean-shift"
+  - "spectral-clustering"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+The Dirichlet Process Mixture Model (DPMM) is a non-parametric Bayesian approach to clustering that automatically infers the optimal number of clusters from the data. Unlike traditional mixture models that require a predefined number of components, DPMM leverages the Dirichlet Process as a prior over the infinite space of possible cluster assignments. This allows the model to adapt its complexity to the underlying data structure, making it particularly useful for exploratory data analysis where the number of groups is unknown.
+
+## History
+
+**1974** — C. E. Antoniak introduced the Dirichlet Process as a prior distribution for Bayesian non-parametric inference, laying the theoretical foundation for models that can adapt their complexity to data.
+
+**1994** — Radford M. Neal published 'Density Estimation Using Dirichlet Process Mixture Models,' detailing practical Markov Chain Monte Carlo (MCMC) methods for inference in DPMMs, making them computationally feasible.
+
+**2000** — The [Chinese Restaurant Process](/algorithms/probabilistic/bayesian-nonparametrics/chinese-restaurant-process) (CRP), an intuitive metaphor for the Dirichlet Process, gained prominence, simplifying the understanding and implementation of DPMMs, especially for Gibbs sampling.
+
+**2006** — David Blei and Michael Jordan, among others, developed variational inference methods for DPMMs, offering faster, deterministic alternatives to MCMC for approximate posterior inference.
+
+## Mathematical Intuition
+
+### Dirichlet Process as Prior
+
+The Dirichlet Process, denoted $DP(\alpha, H)$, is a probability distribution over probability distributions. Here, $H$ is the base distribution (e.g., a Gaussian distribution) and $\alpha > 0$ is the concentration parameter. A draw from a Dirichlet Process, $G \sim DP(\alpha, H)$, is almost surely a discrete distribution, even if $H$ is continuous. This discreteness is crucial as it naturally leads to clustering, where data points can share the same underlying component parameters drawn from $G$. The expectation of $G$ is $H$, i.e., $E[G] = H$.
+
+$$
+G \sim DP(\alpha, H)
+$$
+
+$$
+E[G] = H
+$$
+
+### Chinese Restaurant Process Analogy
+
+The [Chinese Restaurant Process](/algorithms/probabilistic/bayesian-nonparametrics/chinese-restaurant-process) (CRP) provides an intuitive metaphor for understanding the clustering behavior induced by the Dirichlet Process. Imagine customers entering a restaurant with an infinite number of tables. The first customer sits at the first table. Subsequent customers either sit at an existing table with probability proportional to the number of customers already at that table, or they start a new table with probability proportional to $\alpha$. Each table represents a cluster, and the customers at a table share the same cluster parameters. The concentration parameter $\alpha$ controls the propensity to create new clusters.
+
+### Infinite Mixture Model Formulation
+
+A Dirichlet Process Mixture Model assumes that each data point $x_i$ is generated from a component $k$ with parameters $\theta_k$, where these parameters are drawn from a distribution $G$. The distribution $G$ itself is drawn from a Dirichlet Process $DP(\alpha, H)$. Formally, the generative process can be described as:$$G \sim DP(\alpha, H)$$$$\theta_k \sim G \quad \text{for } k=1, 2, \dots$$$$z_i \sim Categorical(\pi)$$$$x_i \sim F(\theta_{z_i})$$where $F$ is the likelihood function (e.g., Gaussian), $z_i$ is the cluster assignment for $x_i$, and $\pi$ are the mixture weights implicitly defined by $G$. The key is that $G$ generates an infinite number of distinct $\theta_k$ values, but only a finite number are 'active' for a given dataset.
+
+$$
+G \sim DP(\alpha, H)
+$$
+
+$$
+\theta_k \sim G \quad \text{for } k=1, 2, \dots
+$$
+
+$$
+z_i \sim Categorical(\pi)
+$$
+
+$$
+x_i \sim F(\theta_{z_i})
+$$
+
+### Inference via Gibbs Sampling
+
+Inference in DPMMs often employs Gibbs sampling, a type of Markov Chain Monte Carlo (MCMC) algorithm. The core idea is to iteratively sample the cluster assignment $z_i$ for each data point $x_i$ conditioned on all other assignments and the current cluster parameters, and then sample the cluster parameters conditioned on the assignments. The conditional probability of assigning $x_i$ to an existing cluster $k$ with $n_k$ points and parameters $\theta_k$ is proportional to $n_k \cdot F(x_i | \theta_k)$. The probability of assigning $x_i$ to a new cluster is proportional to $\alpha \cdot \int F(x_i | \theta) dH(\theta)$. This process naturally allows for the creation and deletion of clusters over iterations.
+
+$$
+n_k \cdot F(x_i | \theta_k)
+$$
+
+$$
+\alpha \cdot \int F(x_i | \theta) dH(\theta)
+$$
+
+## Algorithm Steps
+
+1. Initialize cluster assignments $z_i$ for each data point $x_i$ randomly or using a simple method like K-Means.
+2. For a specified number of MCMC iterations, perform the following steps:
+3. For each data point $x_i$ from $i=1$ to $N$:
+4. Temporarily remove $x_i$ from its current cluster, updating the cluster counts and parameters.
+5. Calculate the posterior probability of assigning $x_i$ to each existing cluster $k$, proportional to $n_k \cdot F(x_i | \theta_k)$, where $n_k$ is the count of points in cluster $k$ and $\theta_k$ are its parameters.
+6. Calculate the posterior probability of assigning $x_i$ to a new cluster, proportional to $\alpha \cdot \int F(x_i | \theta) dH(\theta)$, where $H$ is the base distribution.
+7. Sample a new cluster assignment $z_i$ for $x_i$ based on these calculated probabilities.
+8. Update the parameters $\theta_k$ for all clusters based on their new assignments (e.g., maximum likelihood estimates or posterior means for the base distribution parameters).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `1` | n_components >= 1 | The maximum number of mixture components to consider. While DPMM aims to infer the number of components, this parameter sets an upper bound in practical implementations like scikit-learn's BayesianGaussianMixture. |
+| `covariance_type` | `str` | `full` | {'full', 'tied', 'diag', 'spherical'} | Controls the type of covariance matrix for each component: 'full' (each component has its own general covariance matrix), 'tied' (all components share the same general covariance matrix), 'diag' (each component has its own diagonal covariance matrix), or 'spherical' (each component has its own single variance). |
+| `max_iter` | `int` | `100` | max_iter >= 1 | The maximum number of iterations to perform for the inference algorithm (e.g., variational inference or MCMC steps). |
+| `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance, or None | Controls the pseudo random number generator used for random sampling during initialization and iteration. |
+| `weight_concentration_prior_type` | `str` | `dirichlet_process` | {'dirichlet_process', 'dirichlet_distribution'} | Specifies the type of prior for the mixture weights. Setting to 'dirichlet_process' enables the DPMM-like behavior where components can be pruned. |
+| `weight_concentration_prior` | `float or None` | `None` | weight_concentration_prior > 0 | The concentration parameter $\alpha$ for the Dirichlet Process prior on the mixture weights. A smaller value encourages fewer active components. If None, it is inferred from data. |
+| `mean_prior` | `array-like of shape (n_features,) or None` | `None` |  | The prior mean of the component means. If None, it is initialized to the empirical mean of the data. |
+| `mean_precision_prior` | `float or array-like of shape (n_features,) or None` | `None` | mean_precision_prior > 0 | The prior precision of the component means. A higher value means the component means are expected to be closer to the mean_prior. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- DPMM automatically determines the number of clusters from the data, removing the need for manual specification or heuristic methods.
+- It provides a full Bayesian treatment, yielding uncertainty estimates for cluster assignments and parameters.
+- The model is flexible and can discover clusters of varying shapes and sizes, depending on the choice of the base distribution.
+- DPMM is robust to outliers, as they can form their own small clusters rather than distorting larger ones.
+- It can handle situations where the true number of clusters is unknown or potentially very large.
+
+## Weaknesses
+
+- Inference in DPMMs, especially using MCMC methods, can be computationally intensive and slow for large datasets.
+- The choice of the base distribution $H$ significantly impacts the model's performance and assumptions about cluster shapes.
+- The concentration parameter $\alpha$ can be challenging to set, as it influences the number of clusters discovered.
+- Interpreting the results, particularly the infinite nature of components, can be more complex than with finite mixture models.
+- Convergence diagnostics for MCMC chains can be difficult to assess reliably.
+
+## Use Cases
+
+### Bioinformatics
+
+Clustering gene expression data to identify distinct cell types or disease subtypes without prior knowledge of their count.
+
+### Natural Language Processing
+
+Topic modeling, where documents are assumed to be mixtures of an unknown number of topics, allowing for discovery of latent semantic structures.
+
+### Customer Segmentation
+
+Identifying distinct customer groups based on purchasing behavior or demographics, where the optimal number of segments is not known beforehand.
+
+### Image Segmentation
+
+Grouping pixels with similar features (e.g., color, texture) into regions, where the number of distinct regions in an image is variable.
+
+### Anomaly Detection
+
+Identifying rare events or outliers that form very small, distinct clusters, indicating unusual patterns in the data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Dirichlet Process Mixture Model from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import DirichletProcessMixtureModel
+
+model = DirichletProcessMixtureModel()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Dirichlet Process Mixture Model Lab" />
+
+## References
+
+- Antoniak / Bayesian nonparametrics (1994). Antoniak / Bayesian nonparametrics.
+- [scikit-learn: DirichletProcessMixtureModel](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DirichletProcessMixtureModel.html)

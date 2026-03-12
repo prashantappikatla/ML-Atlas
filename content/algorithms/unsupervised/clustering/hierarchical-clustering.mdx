@@ -1,0 +1,187 @@
+---
+title: "Hierarchical Clustering"
+slug: "hierarchical-clustering"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1963
+author: "Ward"
+paper: "Ward"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["agglomerative", "bottom-up", "clustering", "dendrogram", "distance-based", "hierarchical", "linkage-criteria", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "affinity-propagation"
+  - "birch"
+  - "dbscan"
+  - "gaussian-mixture-model"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
+  - "spectral-clustering"
+---
+
+## Overview
+
+Hierarchical Clustering constructs a hierarchy of clusters, represented as a dendrogram, rather than partitioning data into a fixed number of clusters. It can be either agglomerative (bottom-up) or divisive (top-down), with agglomerative being the more common approach. This method reveals the nested structure of clusters, allowing practitioners to choose a suitable number of clusters by cutting the dendrogram at an appropriate level. The algorithm does not require prior specification of the number of clusters.
+
+## History
+
+**1963** — Joe H. Ward Jr. introduced a general agglomerative hierarchical clustering method, focusing on minimizing the sum of squares within clusters, now widely known as Ward's method.
+
+**1967** — S. C. Johnson formalized various linkage criteria, including single, complete, and average linkage, providing a mathematical framework for different agglomerative strategies.
+
+**1973** — Peter H. A. Sneath and Robert R. Sokal published "Numerical Taxonomy: The Principles and Practice of Numerical Classification," a comprehensive text that further popularized and detailed various clustering methods, including hierarchical approaches.
+
+**1987** — L. Kaufman and P. J. Rousseeuw introduced the concept of "silhouette plots" for evaluating the quality of clusters, which can be applied to hierarchical clustering results to aid in determining the optimal number of clusters.
+
+**2000** — With increasing computational power and data availability, hierarchical clustering found broader application in bioinformatics for gene expression analysis and in text mining for document organization.
+
+## Mathematical Intuition
+
+### Distance Metrics for Points
+
+Hierarchical clustering begins by defining a measure of dissimilarity or distance between individual data points. Common choices include Euclidean distance, Manhattan distance, and Cosine distance. The selection of an appropriate metric is crucial as it dictates how similarity is perceived in the feature space. For instance, Euclidean distance measures the straight-line distance between two points $x$ and $y$ in $n$-dimensional space, while Manhattan distance measures the sum of absolute differences along each dimension.
+
+$$
+$$d_{	ext{Euclidean}}(x, y) = \sqrt{\sum_{i=1}^n (x_i - y_i)^2}$$
+$$
+
+$$
+$$d_{	ext{Manhattan}}(x, y) = \sum_{i=1}^n |x_i - y_i|$$
+$$
+
+$$
+$$\text{cosine_similarity}(x, y) = \frac{x \cdot y}{\|x\| \|y\|} = \frac{\sum_{i=1}^n x_i y_i}{\sqrt{\sum_{i=1}^n x_i^2} \sqrt{\sum_{i=1}^n y_i^2}}$$
+$$
+
+### Linkage Criteria for Clusters
+
+Once individual point distances are established, a linkage criterion defines the distance between two clusters. This criterion determines how the algorithm decides which clusters to merge at each step. Different linkage methods lead to different cluster structures. Single linkage considers the minimum distance between any two points in the respective clusters, complete linkage considers the maximum distance, and average linkage considers the average distance. Ward's method, distinct from distance-based linkages, merges clusters to minimize the total within-cluster variance.
+
+$$
+$$d_{\text{single}}(C_i, C_j) = \min_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$d_{\text{complete}}(C_i, C_j) = \max_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$d_{\text{average}}(C_i, C_j) = \frac{1}{|C_i||C_j|} \sum_{x \in C_i, y \in C_j} d(x, y)$$
+$$
+
+$$
+$$\Delta_{\text{Ward}}(C_i, C_j) = \frac{|C_i||C_j|}{|C_i|+|C_j|} \| \bar{x}_i - \bar{x}_j \|^2$$
+$$
+
+### Dendrogram Construction and Cut
+
+The hierarchical clustering process culminates in the construction of a dendrogram, a tree-like diagram that illustrates the sequence of merges or splits. The leaves of the dendrogram represent individual data points, and the internal nodes represent the formation of clusters. The height of each merge point on the dendrogram indicates the distance or dissimilarity at which the clusters were joined. To obtain a flat partitioning of clusters, one can 'cut' the dendrogram horizontally at a chosen height, where each vertical line intersected by the cut represents a cluster. Alternatively, one can specify a desired number of clusters, and the dendrogram will be cut to yield that many partitions.
+
+## Algorithm Steps
+
+1. Initialize each data point as a single cluster, resulting in $N$ clusters for $N$ data points.
+2. Compute the pairwise distance between all initial clusters using a chosen distance metric, such as Euclidean distance $d(x, y)$.
+3. Repeatedly merge the two closest clusters based on a selected linkage criterion (e.g., single, complete, average, or Ward's method).
+4. Update the distances between the newly formed cluster and all other existing clusters, according to the chosen linkage criterion.
+5. Continue merging clusters until only one cluster remains, containing all data points.
+6. Construct a dendrogram to visualize the merging process, where the height of each merge represents the distance between the merged clusters.
+7. Determine the final number of clusters by cutting the dendrogram at a specific height or by selecting a desired number of clusters from the hierarchy.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int or None` | `None` | integer >= 1 or None | The number of clusters to form. If None, the algorithm performs a full hierarchy and `distance_threshold` must be specified. |
+| `affinity` | `str or callable` | `'euclidean'` | {'euclidean', 'l1', 'l2', 'manhattan', 'cosine', 'precomputed'} | Metric used to compute the linkage. Can be 'euclidean', 'l1', 'l2', 'manhattan', 'cosine', or 'precomputed'. If 'precomputed', a distance matrix must be provided. |
+| `linkage` | `str` | `'ward'` | {'ward', 'complete', 'average', 'single'} | Which linkage criterion to use. 'ward' minimizes the variance of the clusters being merged. 'average' uses the average of the distances of each observation of the two sets. 'complete' or 'maximum' linkage uses the maximum distances between all observations of the two sets. 'single' uses the minimum of the distances between all observations of the two sets. |
+| `distance_threshold` | `float or None` | `None` | float >= 0 or None | The linkage distance threshold above which clusters will not be merged. If None, `n_clusters` must be specified. |
+| `compute_full_tree` | `str or bool` | `'auto'` | {'auto', True, False} | Whether to compute the full tree or only up to `n_clusters`. 'auto' computes the full tree if `n_clusters` is None or `distance_threshold` is set, otherwise it computes a truncated tree. |
+| `compute_distances` | `bool` | `False` | {True, False} | Whether to compute the distances between clusters. This is useful for plotting dendrograms. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It produces a hierarchy of clusters, allowing for flexible determination of the number of clusters by inspecting the dendrogram.
+- The dendrogram provides a rich visual representation of the data's nested structure, which can reveal meaningful relationships.
+- It does not require specifying the number of clusters in advance, unlike K-Means.
+- It can discover clusters of arbitrary shapes, especially with appropriate linkage criteria.
+- The method is deterministic, meaning the same input will always yield the same dendrogram.
+- It is effective for datasets where the underlying cluster structure is inherently hierarchical.
+
+## Weaknesses
+
+- The computational complexity is typically $O(N^3)$ or $O(N^2 \log N)$ for $N$ data points, making it slow for large datasets.
+- It is sensitive to noise and outliers, which can significantly distort the cluster structure.
+- Once a merge decision is made, it cannot be undone, potentially leading to suboptimal clusters if early merges were poor.
+- Choosing the appropriate linkage criterion and distance metric can be challenging and significantly impacts the results.
+- Interpreting the dendrogram to select the optimal number of clusters can be subjective and requires domain expertise.
+
+## Use Cases
+
+### Bioinformatics
+
+Grouping genes with similar expression patterns or classifying species based on genetic similarity to understand evolutionary relationships.
+
+### Market Segmentation
+
+Identifying distinct customer segments based on purchasing behavior or demographic data to tailor marketing strategies.
+
+### Document Analysis
+
+Organizing collections of documents into thematic categories based on content similarity for information retrieval and summarization.
+
+### Image Processing
+
+Segmenting images into regions with similar texture or color properties for object recognition or medical image analysis.
+
+### Social Network Analysis
+
+Detecting communities or groups of closely connected individuals within a network to understand social structures.
+
+### Geospatial Analysis
+
+Clustering geographical locations with similar attributes, such as crime hotspots or ecological zones, for urban planning or environmental studies.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Hierarchical Clustering from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import AgglomerativeClustering
+
+model = AgglomerativeClustering()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Hierarchical Clustering Lab" />
+
+## References
+
+- Ward (1963). Ward.
+- [scikit-learn: AgglomerativeClustering](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html)

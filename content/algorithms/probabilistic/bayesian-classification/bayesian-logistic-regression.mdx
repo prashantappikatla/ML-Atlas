@@ -1,0 +1,191 @@
+---
+title: "Bayesian Logistic Regression"
+slug: "bayesian-logistic-regression"
+category: "probabilistic"
+subcategory: "bayesian-classification"
+year: 1992
+author: "Bayesian GLM literature"
+paper: "Bayesian GLM literature"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian-methods", "classification", "generalized-linear-model", "mcmc", "probabilistic-model", "regularization", "uncertainty-quantification", "variational-inference"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-linear-regression"
+  - "gaussian-process-classification"
+  - "logistic-regression"
+---
+
+## Overview
+
+Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) extends traditional [Logistic Regression](/algorithms/supervised/classification/logistic-regression) by incorporating prior distributions over the model parameters, allowing for the quantification of uncertainty in predictions and parameter estimates. This probabilistic approach provides a full posterior distribution over the model weights, rather than just point estimates, which can be particularly valuable in scenarios with limited data or when robust uncertainty measures are required. It naturally regularizes the model, mitigating overfitting by penalizing overly complex solutions through the prior.
+
+## History
+
+**1980** — The foundational work on Generalized Linear Models (GLMs) established the mathematical basis for [Logistic Regression](/algorithms/supervised/classification/logistic-regression), providing a framework for modeling binary outcomes.
+
+**1990** — Growing interest in Bayesian methods for GLMs emerged, facilitated by the development of Markov Chain Monte Carlo (MCMC) techniques for approximating intractable posterior distributions.
+
+**1992** — The concept of applying Bayesian inference to [Logistic Regression](/algorithms/supervised/classification/logistic-regression) models gained significant traction within the broader Bayesian GLM literature, emphasizing the estimation of full posterior distributions over parameters.
+
+**2000** — Advances in computational Bayesian methods, including more efficient MCMC samplers (e.g., Hamiltonian Monte Carlo) and the emergence of Variational Inference, made Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) more scalable and practical.
+
+**2010** — Probabilistic programming languages like Stan and PyMC3 democratized the implementation of Bayesian models, including Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression), making them accessible to a wider audience of practitioners.
+
+## Mathematical Intuition
+
+### Logistic Regression Likelihood
+
+The core of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) involves modeling the probability of a binary outcome. For a given input vector $x_i$ and parameters $w$ (weights) and $b$ (bias), the probability of the positive class ($y_i=1$) is defined by the sigmoid function:
+$$P(y_i=1 | x_i, w, b) = \sigma(w^T x_i + b) = \frac{1}{1 + e^{-(w^T x_i + b)}}$$
+The likelihood for a dataset $D = \{(x_i, y_i)\}_{i=1}^N$ is the product of individual Bernoulli probabilities:
+$$P(D | w, b) = \prod_{i=1}^N P(y_i | x_i, w, b) = \prod_{i=1}^N \sigma(w^T x_i + b)^{y_i} (1 - \sigma(w^T x_i + b))^{1-y_i}$$
+
+$$
+P(y_i=1 | x_i, w, b) = \sigma(w^T x_i + b) = \frac{1}{1 + e^{-(w^T x_i + b)}}
+$$
+
+$$
+P(D | w, b) = \prod_{i=1}^N P(y_i | x_i, w, b) = \prod_{i=1}^N \sigma(w^T x_i + b)^{y_i} (1 - \sigma(w^T x_i + b))^{1-y_i}
+$$
+
+### Bayesian Framework and Posterior
+
+In a Bayesian setting, the model parameters $w$ and $b$ are treated as random variables, and prior distributions $P(w, b)$ are assigned to them. Common choices for priors are Gaussian distributions, such as $w \sim N(0, \Sigma_w)$ and $b \sim N(0, \sigma_b^2)$. The objective is to compute the posterior distribution over the parameters given the observed data $D$, using Bayes' theorem:
+$$P(w, b | D) = \frac{P(D | w, b) P(w, b)}{P(D)}$$
+Here, $P(D | w, b)$ is the likelihood, $P(w, b)$ is the prior, and $P(D)$ is the marginal likelihood (or evidence), which is often analytically intractable:
+$$P(D) = \int P(D | w, b) P(w, b) dw db$$
+
+$$
+w \sim N(0, \Sigma_w)
+$$
+
+$$
+b \sim N(0, \sigma_b^2)
+$$
+
+$$
+P(w, b | D) = \frac{P(D | w, b) P(w, b)}{P(D)}
+$$
+
+$$
+P(D) = \int P(D | w, b) P(w, b) dw db
+$$
+
+### Approximate Inference Methods
+
+Since the posterior distribution $P(w, b | D)$ for Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) is typically not analytically tractable, approximate inference methods are employed. Two primary approaches are:
+1.  **Markov Chain Monte Carlo (MCMC)**: Methods like Metropolis-Hastings or Hamiltonian Monte Carlo (HMC) draw samples from the posterior distribution. These samples can then be used to estimate posterior means, credible intervals, and make predictions by averaging over the samples.
+2.  **Variational Inference (VI)**: This approach approximates the true posterior with a simpler, tractable distribution $q(w, b)$ by minimizing the Kullback-Leibler (KL) divergence between $q(w, b)$ and $P(w, b | D)$. This transforms the inference problem into an optimization problem, often solved using iterative algorithms.
+
+## Algorithm Steps
+
+1. Define the likelihood function for logistic regression, which models the probability of a binary outcome given input features and model parameters.
+2. Specify prior distributions for the model parameters (weights $w$ and bias $b$), typically using Gaussian priors to reflect initial beliefs about their values and uncertainty.
+3. Formulate the posterior distribution $P(w, b | D)$ using Bayes' theorem, combining the likelihood and the priors.
+4. Choose an inference method, such as Markov Chain Monte Carlo (MCMC) or Variational Inference (VI), to approximate the intractable posterior distribution.
+5. If using MCMC, run a sampling algorithm (e.g., Hamiltonian Monte Carlo) for a specified number of iterations, discarding initial warmup samples, to obtain a set of samples from the posterior.
+6. If using VI, optimize the parameters of a simpler variational distribution $q(w, b)$ to minimize its Kullback-Leibler divergence from the true posterior.
+7. Use the approximated posterior distribution (either samples from MCMC or the optimized variational distribution) to make predictions and quantify uncertainty.
+8. For a new input $x^*$, predict the probability of the positive class by averaging $\sigma(w^T x^* + b)$ over the posterior samples of $w$ and $b$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `prior_mean` | `float or numpy.ndarray` | `0.0` | (-inf, inf) | Specifies the central tendency of the prior belief about the model coefficients (weights and bias). |
+| `prior_scale` | `float or numpy.ndarray` | `1.0` | (0, inf) | Controls the strength of regularization; smaller values imply stronger regularization (more belief that weights are near prior_mean). |
+| `inference_method` | `str` | `'mcmc'` | ['mcmc', 'variational_inference'] | Determines the computational strategy for approximating the posterior distribution. |
+| `n_samples` | `int` | `2000` | (1, inf) | The total number of samples generated by the MCMC sampler after the warmup phase. |
+| `n_warmup` | `int` | `1000` | [0, n_samples) | Number of initial samples to discard (burn-in) to allow the MCMC chain to converge to the stationary distribution. |
+| `random_state` | `int or None` | `None` | [0, inf) or None | Controls the random seed for MCMC sampling or variational inference initialization for reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Provides a full posterior distribution over parameters, enabling robust quantification of uncertainty in predictions and parameter estimates.
+- Naturally incorporates regularization through the prior distributions, which helps prevent overfitting, especially with small datasets.
+- Less prone to overfitting compared to maximum likelihood estimation, as it averages over many possible models weighted by their posterior probability.
+- Can incorporate prior knowledge about the parameters, which is beneficial when domain expertise is available.
+- Offers more robust and interpretable results by providing credible intervals for parameters and predictions.
+- Can handle multicollinearity better than frequentist methods due to the regularization effect of priors.
+
+## Weaknesses
+
+- Computational cost can be significantly higher than frequentist logistic regression, especially for large datasets or complex models, due to the need for iterative inference methods like MCMC.
+- The choice of prior distributions can significantly influence the posterior results, requiring careful consideration and sensitivity analysis.
+- Interpretation of results can be more complex due to the probabilistic nature of parameter estimates and the need to work with distributions rather than point estimates.
+- Convergence diagnostics for MCMC methods can be challenging, and ensuring that the sampler has adequately explored the posterior space requires expertise.
+- Implementing Bayesian Logistic Regression often requires specialized probabilistic programming libraries, which can have a steeper learning curve.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Predicting the probability of a disease given patient symptoms and test results, with quantified uncertainty for critical clinical decisions.
+
+### Credit Scoring
+
+Assessing the likelihood of loan default, providing not just a point estimate but also a confidence interval around that prediction for risk management.
+
+### Marketing Analytics
+
+Modeling customer churn or conversion rates, allowing for more nuanced decision-making based on probabilistic outcomes and their associated uncertainties.
+
+### Social Sciences
+
+Analyzing survey data to predict binary outcomes, such as voting behavior or policy adoption, while accounting for uncertainty due to small sample sizes or complex interactions.
+
+### Environmental Science
+
+Predicting the presence or absence of a species in a given habitat, incorporating prior ecological knowledge and quantifying the uncertainty of the prediction.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bayesian Logistic Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import BayesianLogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = BayesianLogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bayesian Logistic Regression Lab" />
+
+## References
+
+- Bayesian GLM literature (1992). Bayesian GLM literature.
+- [scikit-learn: BayesianLogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.BayesianLogisticRegression.html)

@@ -1,0 +1,196 @@
+---
+title: "Multinomial Logistic Regression"
+slug: "multinomial-logistic-regression"
+category: "supervised"
+subcategory: "classification"
+year: 1969
+author: "Softmax regression"
+paper: "Softmax regression"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["classification", "generalized-linear-model", "interpretable", "linear-model", "probabilistic", "softmax-regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression), also known as Softmax Regression, extends binary [Logistic Regression](/algorithms/supervised/classification/logistic-regression) to handle classification problems with more than two possible discrete outcomes. It models the probability of an input belonging to each class using a linear predictor function and the softmax activation function. This algorithm is a fundamental linear classifier, widely used as a baseline and as the output layer in neural networks for multi-class classification.
+
+## History
+
+**1944** — Joseph Berkson introduces the logit transformation, a foundational concept for [Logistic Regression](/algorithms/supervised/classification/logistic-regression), in biostatistics.
+
+**1960** — The general framework of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) gains prominence, particularly in medical and social sciences for modeling binary outcomes.
+
+**1969** — The extension of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) to handle multiple, mutually exclusive classes, often termed multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) or softmax regression, becomes an established method.
+
+**1972** — John Nelder and Robert Wedderburn publish their seminal paper on Generalized Linear Models (GLMs), providing a unified theoretical framework that encompasses [Logistic Regression](/algorithms/supervised/classification/logistic-regression).
+
+**1980** — With advancements in computing and optimization algorithms, [Logistic Regression](/algorithms/supervised/classification/logistic-regression), including its multinomial variant, sees broader application in various statistical and early machine learning tasks.
+
+**2000** — Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) becomes a standard baseline algorithm in machine learning, frequently employed as the final layer in deep learning architectures for multi-class prediction.
+
+## Mathematical Intuition
+
+### Binary Logistic Regression Basis
+
+Binary [Logistic Regression](/algorithms/supervised/classification/logistic-regression) models the probability of a binary outcome. For an input feature vector $x$, the log-odds of the positive class is a linear combination of features: $log(\frac{P(y=1|x)}{P(y=0|x)}) = w^T x + b$. Applying the sigmoid function to this linear combination yields the probability of the positive class: $P(y=1|x) = \sigma(w^T x + b) = \frac{1}{1 + e^{-(w^T x + b)}}$.
+
+$$
+log(\frac{P(y=1|x)}{P(y=0|x)}) = w^T x + b
+$$
+
+$$
+P(y=1|x) = \sigma(w^T x + b) = \frac{1}{1 + e^{-(w^T x + b)}}
+$$
+
+### Multinomial Extension with Softmax
+
+For $K$ classes, Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) assigns a weight vector $w_k$ and bias $b_k$ to each class $k$. For a given input $x$, a score $s_k(x) = w_k^T x + b_k$ is computed for each class. These scores are then transformed into probabilities using the softmax function, ensuring that the probabilities for all classes sum to one: $$P(y=k|x) = \frac{e^{s_k(x)}}{\sum_{j=1}^{K} e^{s_j(x)}} = \frac{e^{w_k^T x + b_k}}{\sum_{j=1}^{K} e^{w_j^T x + b_j}}$$ The softmax function effectively normalizes the exponentiated scores into a probability distribution.
+
+$$
+s_k(x) = w_k^T x + b_k
+$$
+
+$$
+P(y=k|x) = \frac{e^{s_k(x)}}{\sum_{j=1}^{K} e^{s_j(x)}} = \frac{e^{w_k^T x + b_k}}{\sum_{j=1}^{K} e^{w_j^T x + b_j}}
+$$
+
+### Cross-Entropy Loss Function
+
+The model parameters (weights $W$ and biases $B$) are learned by minimizing a loss function. For multinomial classification, the negative log-likelihood, or categorical cross-entropy loss, is commonly used. For a single training example $(x^{(i)}, y^{(i)})$ where $y^{(i)}$ is the true class (represented as a one-hot vector), the loss is: $$L(W, B) = -\sum_{k=1}^{K} y_k^{(i)} \log(P(y=k|x^{(i)}))$$ The total loss is the average over all training examples, often with an added regularization term (e.g., L2 penalty) to prevent overfitting.
+
+$$
+L(W, B) = -\sum_{k=1}^{K} y_k^{(i)} \log(P(y=k|x^{(i)}))
+$$
+
+### Gradient Descent Optimization
+
+The parameters $W$ and $B$ are optimized using an iterative optimization algorithm, typically gradient descent or its variants (e.g., L-BFGS, SAG, SAGA). The gradients of the loss function with respect to each weight $w_{jk}$ and bias $b_k$ are computed. For example, the gradient for a weight $w_{jk}$ (connecting feature $j$ to class $k$) is: $$\frac{\partial L}{\partial w_{jk}} = (P(y=k|x) - y_k) x_j$$ Parameters are updated in the direction opposite to their gradients, scaled by a learning rate, until convergence.
+
+$$
+\frac{\partial L}{\partial w_{jk}} = (P(y=k|x) - y_k) x_j
+$$
+
+## Algorithm Steps
+
+1. Initialize the weight matrix $W$ (of size $D \times K$, where $D$ is the number of features and $K$ is the number of classes) and bias vector $B$ (of size $K$) with small random values or zeros.
+2. For each training example $x^{(i)}$ with true class $y^{(i)}$ (one-hot encoded), compute the linear scores for each class: $s_k(x^{(i)}) = w_k^T x^{(i)} + b_k$ for $k=1, ..., K$.
+3. Apply the softmax function to convert scores into predicted probabilities for each class: $P(y=k|x^{(i)}) = \frac{e^{s_k(x^{(i)})}}{\sum_{j=1}^{K} e^{s_j(x^{(i)})}}$.
+4. Calculate the categorical cross-entropy loss for the current example: $L^{(i)} = -\sum_{k=1}^{K} y_k^{(i)} \log(P(y=k|x^{(i)}))$.
+5. Compute the gradients of the loss with respect to the weights and biases for the current example.
+6. Update the weights and biases using an optimization algorithm (e.g., gradient descent, L-BFGS) based on the computed gradients and a specified learning rate.
+7. Repeat steps 2-6 for a fixed number of iterations or until the change in the loss function falls below a predefined tolerance threshold.
+8. Once training is complete, for a new input $x_{new}$, compute the scores $s_k(x_{new})$ and apply the softmax function to get class probabilities, then predict the class with the highest probability.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `penalty` | `str` | `l2` | {'l1', 'l2', 'elasticnet', 'none'} | Specifies the norm of the penalty. 'l2' is the most common. 'l1' and 'elasticnet' are also supported by certain solvers. 'none' means no regularization. |
+| `C` | `float` | `1.0` | (0, inf) | Inverse of regularization strength; must be a positive float. Smaller values specify stronger regularization. |
+| `solver` | `str` | `lbfgs` | {'lbfgs', 'newton-cg', 'sag', 'saga'} | Algorithm to use in the optimization problem. For 'multinomial' classification, 'lbfgs', 'newton-cg', 'sag', and 'saga' are supported. |
+| `max_iter` | `int` | `100` | (0, inf) | Maximum number of iterations taken for the solvers to converge. |
+| `tol` | `float` | `0.0001` | (0, inf) | Tolerance for stopping criteria. The algorithm stops when the change in loss is less than this value. |
+| `fit_intercept` | `bool` | `true` | {true, false} | Specifies if a constant (a.k.a. bias or intercept) should be added to the decision function. |
+| `class_weight` | `dict or 'balanced'` | `null` | null or 'balanced' | Weights associated with classes. Use 'balanced' to automatically adjust weights inversely proportional to class frequencies in the input data. |
+| `l1_ratio` | `float` | `null` | [0, 1] | The Elastic-Net mixing parameter, with $0 \le l1\_ratio \le 1$. Only used if penalty is 'elasticnet'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Multinomial Logistic Regression is computationally efficient and scales well to large datasets with many features.
+- The model provides interpretable probability scores for each class, indicating the confidence of the prediction.
+- It serves as an excellent baseline model for multi-class classification tasks due to its simplicity and effectiveness.
+- The algorithm is robust to noisy data when L2 regularization is applied, which helps prevent overfitting.
+- It naturally handles multi-class problems without requiring a one-vs-rest or one-vs-one decomposition strategy.
+- The model's linear decision boundaries make it easy to understand the influence of individual features on class predictions.
+
+## Weaknesses
+
+- Multinomial Logistic Regression assumes linear decision boundaries, which can limit its performance on complex, non-linearly separable data.
+- It can be sensitive to multicollinearity among features, potentially leading to unstable coefficient estimates.
+- The model's performance can degrade if there are many irrelevant features, as it does not inherently perform feature selection.
+- It is prone to overfitting if the number of features is very high relative to the number of training examples, especially without proper regularization.
+- Feature scaling is often necessary for optimal performance, particularly when using regularization or gradient-based solvers.
+
+## Use Cases
+
+### Healthcare
+
+Predicting the likelihood of a patient developing one of several diseases based on symptoms, medical history, and lab results.
+
+### Marketing
+
+Classifying customer segments (e.g., high-value, medium-value, low-value) based on purchasing behavior and demographics for targeted campaigns.
+
+### Natural Language Processing
+
+Sentiment analysis to categorize text into multiple sentiment classes (e.g., positive, neutral, negative, mixed) or topic classification of documents.
+
+### Finance
+
+Assessing credit risk by classifying loan applicants into different risk categories (e.g., low, medium, high default risk).
+
+### E-commerce
+
+Recommending product categories to users based on their browsing history and past purchases.
+
+### Education
+
+Predicting student performance levels (e.g., pass, fail, distinction) based on attendance, study habits, and prior grades.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Multinomial Logistic Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import MultinomialLogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = MultinomialLogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Multinomial Logistic Regression Lab" />
+
+## References
+
+- Softmax regression (1969). Softmax regression.
+- [scikit-learn: MultinomialLogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.MultinomialLogisticRegression.html)

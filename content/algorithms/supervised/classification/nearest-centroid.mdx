@@ -1,0 +1,178 @@
+---
+title: "Nearest Centroid"
+slug: "nearest-centroid"
+category: "supervised"
+subcategory: "classification"
+year: 1936
+author: "Rocchio-style centroid methods"
+paper: "Rocchio-style centroid methods"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["centroid-based", "classification", "distance-metric", "fast-training", "interpretable", "prototype-based", "simple", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "k-nearest-neighbors"
+  - "linear-discriminant-analysis"
+  - "perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Nearest Centroid is a simple, yet effective, classification algorithm that assigns a new data point to the class whose centroid is closest. It operates by first computing the mean feature vector (centroid) for each class in the training data. During prediction, the algorithm calculates the distance from the new data point to each class centroid and selects the class corresponding to the minimum distance. This method is computationally efficient and provides a clear, interpretable decision boundary.
+
+## History
+
+**1936** — Ronald Fisher introduced [Linear Discriminant Analysis](/algorithms/supervised/classification/linear-discriminant-analysis) (LDA), which implicitly uses class means (centroids) to define decision boundaries, laying foundational concepts for centroid-based classification.
+
+**1951** — Evelyn Fix and Joseph Hodges Jr. published early work on non-parametric discrimination, introducing the concept of the Nearest Neighbor rule, which shares the idea of proximity-based classification.
+
+**1965** — Joseph Rocchio developed the Rocchio algorithm for relevance feedback in information retrieval, which updates query vectors by moving them closer to relevant document centroids and away from irrelevant ones, directly employing centroid-based classification principles.
+
+**1967** — Thomas Cover and Peter Hart provided theoretical analysis for the Nearest Neighbor rule, establishing its asymptotic error rate and further popularizing proximity-based methods.
+
+**1990** — With the rise of machine learning and data mining, centroid-based methods, including Nearest Centroid, found renewed interest and application in various domains due to their simplicity and efficiency.
+
+## Mathematical Intuition
+
+### Centroid Calculation
+
+For a given class $k$ with $N_k$ training samples, the centroid $\mu_k$ is computed as the mean of all feature vectors belonging to that class.
+$$ \mu_k = \frac{1}{N_k} \sum_{x_i \in C_k} x_i $$
+where $x_i$ is a feature vector and $C_k$ is the set of training samples belonging to class $k$.
+
+$$
+\mu_k = \frac{1}{N_k} \sum_{x_i \in C_k} x_i
+$$
+
+### Classification Rule
+
+A new data point $x_{new}$ is classified by finding the class centroid $\mu_k$ that minimizes a chosen distance metric $d(x_{new}, \mu_k)$. The predicted class $\hat{y}$ is then:
+$$ \hat{y} = \arg\min_k d(x_{new}, \mu_k) $$
+Common distance metrics include Euclidean distance ($L_2$ norm) and Manhattan distance ($L_1$ norm).
+
+$$
+\hat{y} = \arg\min_k d(x_{new}, \mu_k)
+$$
+
+### Distance Metrics
+
+The choice of distance metric significantly influences the decision boundary. For Euclidean distance, $d(x, y) = \sqrt{\sum_{j=1}^D (x_j - y_j)^2}$, the decision boundary between two classes is a hyperplane equidistant from their centroids. Other metrics like Manhattan distance or cosine similarity can also be used.
+
+$$
+d(x, y) = \sqrt{\sum_{j=1}^D (x_j - y_j)^2}
+$$
+
+### Shrinkage for Robustness
+
+To improve robustness, especially with high-dimensional data or imbalanced classes, a shrinkage mechanism can be applied. This involves moving the centroids towards the global mean of all data points, effectively regularizing their positions. The shrunken centroid $\mu_k'$ can be expressed as:
+$$ \mu_k' = (1 - \alpha) \mu_k + \alpha \mu_{global} $$
+where $\mu_{global}$ is the global mean and $\alpha$ is the shrinkage factor.
+
+$$
+\mu_k' = (1 - \alpha) \mu_k + \alpha \mu_{global}
+$$
+
+## Algorithm Steps
+
+1. For each unique class present in the training dataset, identify all data points belonging to that class.
+2. Calculate the centroid for each class by computing the mean of all feature vectors within that class.
+3. Store these computed class centroids.
+4. To classify a new, unseen data point $x_{new}$, calculate its distance to each of the stored class centroids $\mu_k$ using a predefined distance metric $d(x_{new}, \mu_k)$.
+5. Assign the new data point to the class whose centroid is closest to it, i.e., $\arg\min_k d(x_{new}, \mu_k)$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `metric` | `string` | `euclidean` | "euclidean", "manhattan", "cosine" or any metric supported by scipy.spatial.distance.cdist | The distance metric to use when calculating the distance between a new data point and class centroids. |
+| `shrink_threshold` | `float or None` | `None` | [0.0, infinity) | Threshold for shrinking the centroids towards the global mean. If None, no shrinkage is applied. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- The algorithm is extremely simple to understand and implement, making it a good baseline classifier.
+- Training is very fast as it only involves calculating class means once.
+- Prediction is also efficient, requiring only distance calculations to a small number of centroids.
+- It is robust to noisy data points that are far from the class centroid, as they have less influence on the mean.
+- The model is highly interpretable, as each centroid directly represents the "average" instance of its class.
+- It requires minimal memory storage, only needing to store the centroids and not the entire training dataset.
+
+## Weaknesses
+
+- Nearest Centroid assumes that classes are linearly separable and have convex decision boundaries, which is often not true for complex datasets.
+- Its performance can degrade significantly if classes are highly overlapping or have complex, non-linear structures.
+- It is sensitive to the choice of distance metric, which can drastically alter classification results.
+- The algorithm is susceptible to the curse of dimensionality, where distances become less meaningful in very high-dimensional spaces.
+- It performs poorly on imbalanced datasets, as the centroid of a minority class might be pulled towards the majority class if not handled carefully.
+
+## Use Cases
+
+### Document Classification
+
+Classifying text documents into predefined categories by representing documents as TF-IDF vectors and using centroids of each category.
+
+### Image Recognition
+
+Simple image classification tasks where images are represented by feature vectors (e.g., pixel intensities or extracted features) and grouped by visual similarity.
+
+### Medical Diagnosis
+
+Preliminary classification of patient data into disease categories based on averaged physiological measurements or test results.
+
+### Anomaly Detection
+
+Identifying outliers by calculating distances to known normal class centroids and flagging points that are significantly far from any centroid.
+
+### Customer Segmentation
+
+Grouping customers into segments based on their average purchasing behavior or demographic features for targeted marketing.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Nearest Centroid from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import NearestCentroid
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = NearestCentroid()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Nearest Centroid Lab" />
+
+## References
+
+- Rocchio-style centroid methods (1936). Rocchio-style centroid methods.
+- [scikit-learn: NearestCentroid](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.NearestCentroid.html)

@@ -1,0 +1,172 @@
+---
+title: "MiniBatch K-Means"
+slug: "minibatch-k-means"
+category: "unsupervised"
+subcategory: "clustering"
+year: 2010
+author: "Sculley"
+paper: "Sculley"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["centroid-based", "clustering", "data-reduction", "iterative", "large-scale", "online-learning", "stochastic", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "dbscan"
+  - "fuzzy-c-means"
+  - "gaussian-mixture-model"
+  - "k-means"
+  - "mean-shift"
+---
+
+## Overview
+
+MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) is a variant of the [K-Means](/algorithms/unsupervised/clustering/k-means) clustering algorithm that uses mini-batches of data points to update the cluster centroids, significantly reducing computation time for large datasets. It aims to minimize the sum of squared distances between data points and their assigned cluster centroids, similar to standard [K-Means](/algorithms/unsupervised/clustering/k-means), but achieves this through iterative, stochastic updates. This approach makes it particularly suitable for large-scale clustering problems where processing the entire dataset in each iteration is computationally prohibitive. Despite using mini-batches, it often produces results comparable to the full-batch [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm.
+
+## History
+
+**1967** — James MacQueen formally introduced the term "[K-Means](/algorithms/unsupervised/clustering/k-means)" in his paper "Some methods for classification and analysis of multivariate observations," laying the groundwork for centroid-based clustering.
+
+**1982** — Stuart Lloyd published "Least squares quantization in PCM," detailing an iterative algorithm for data quantization that is essentially the standard [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm, though his work was initially done in 1957.
+
+**2007** — David Arthur and Sergei Vassilvitskii proposed the [K-Means](/algorithms/unsupervised/clustering/k-means)++ initialization method in "[K-Means](/algorithms/unsupervised/clustering/k-means)++: The advantages of careful seeding," significantly improving the quality of [K-Means](/algorithms/unsupervised/clustering/k-means) results by selecting initial centroids more intelligently.
+
+**2010** — David Sculley introduced MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) in his paper "Web-Scale [K-Means](/algorithms/unsupervised/clustering/k-means) Clustering" at the 19th International Conference on World Wide Web, proposing an efficient method for clustering large datasets.
+
+## Mathematical Intuition
+
+### K-Means Objective Function
+
+The standard [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm seeks to minimize the sum of squared Euclidean distances between each data point and its assigned centroid. For a dataset $X = \{x_1, ..., x_N\}$ and $K$ clusters with centroids $C = \{c_1, ..., c_K\}$, the objective function (inertia) is:
+$$J(C) = \sum_{i=1}^{N} \min_{j \in \{1, ..., K\}} ||x_i - c_j||^2$$
+MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) aims to optimize a similar objective, but it does so approximately by using mini-batches.
+
+$$
+J(C) = \sum_{i=1}^{N} \min_{j \in \{1, ..., K\}} ||x_i - c_j||^2
+$$
+
+### Mini-Batch Centroid Update Rule
+
+Instead of using all data points to recompute centroids in each iteration, MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) samples a small, random subset (mini-batch) of the data. For each point $x_k$ in the mini-batch, it is assigned to its closest centroid $c_j$. The centroid $c_j$ is then updated using a learning rate $\eta$ and the current data point $x_k$. A common update rule for a centroid $c_j$ that has been assigned $n_j$ points so far, upon receiving a new point $x_k$ assigned to it, is:
+$$c_j \leftarrow c_j + \eta (x_k - c_j)$$
+where $\eta = 1 / (n_j + 1)$ effectively computes a running average. This update is performed incrementally for each point in the mini-batch.
+
+$$
+c_j \leftarrow c_j + \eta (x_k - c_j)
+$$
+
+$$
+\eta = 1 / (n_j + 1)
+$$
+
+### Algorithm Convergence Criteria
+
+The algorithm typically converges when the centroids no longer change significantly between successive mini-batch updates, or when a maximum number of iterations is reached. The change in centroids can be measured by the sum of squared distances between the new and old centroids. Since the updates are stochastic, convergence might be less smooth than with full-batch [K-Means](/algorithms/unsupervised/clustering/k-means), but it generally reaches a good local optimum quickly.
+
+## Algorithm Steps
+
+1. Initialize $K$ cluster centroids randomly from the dataset or using a smart initialization method like k-means++.
+2. Repeat for a specified number of iterations or until convergence:
+3. Draw a random mini-batch of data points from the dataset.
+4. For each data point $x_i$ in the mini-batch, assign it to its closest centroid $c_j$ based on Euclidean distance.
+5. For each centroid $c_j$ that received new assignments from the mini-batch, update its position incrementally. If $n_j$ is the count of points assigned to $c_j$ so far, and $x_k$ is a new point assigned to it, update $c_j \leftarrow c_j + \frac{1}{n_j+1}(x_k - c_j)$.
+6. Increment the count $n_j$ for each updated centroid.
+7. Check for convergence by monitoring the change in centroid positions, typically by comparing centroid positions over a few mini-batches.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int` | `8` | integer > 0 | The number of clusters to form as well as the number of centroids to generate. |
+| `init` | `str or ndarray` | `'k-means++'` | {'k-means++', 'random'} or ndarray | Method for initialization. 'k-means++' selects initial cluster centers for k-mean clustering in a smart way to speed up convergence. 'random' chooses k observations (rows) at random from data for the initial centroids. If an ndarray is passed, it should be of shape (n_clusters, n_features) and gives the initial centers. |
+| `n_init` | `int` | `10` | integer > 0 | Number of times the k-means algorithm is run with different centroid seeds. The final results are the best output of n_init consecutive runs in terms of inertia. |
+| `max_iter` | `int` | `100` | integer > 0 | Maximum number of passes over the training data (full passes, not mini-batch passes). |
+| `batch_size` | `int` | `1024` | integer > 0 | Size of the mini batch. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance or None | Determines random number generation for centroid initialization and mini-batch sampling. Pass an int for reproducible output across multiple function calls. |
+| `tol` | `float` | `0.0` | float >= 0.0 | Controls the tolerance for the stopping criterion. If the inertia does not improve by at least 'tol' for 'max_no_improvement' consecutive mini-batches, the algorithm converges. |
+| `max_no_improvement` | `int` | `10` | integer > 0 | Number of consecutive mini-batch updates with no improvement in the inertia to declare convergence. |
+| `compute_labels` | `bool` | `True` | {True, False} | Compute label assignments and inertia for the complete dataset once the algorithm has converged. This is more computationally expensive but provides a full view of the clustering. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Significantly faster than standard K-Means for large datasets due to processing only mini-batches.
+- Requires less memory than standard K-Means, making it suitable for datasets that do not fit into memory.
+- Often achieves a similar quality of clustering as standard K-Means, especially with a sufficient number of iterations.
+- Can be used for online learning scenarios where data arrives in streams.
+- Less prone to getting stuck in poor local optima compared to standard K-Means when using multiple initializations.
+
+## Weaknesses
+
+- The quality of clustering can be sensitive to the choice of mini-batch size.
+- Convergence might be less stable or slower than standard K-Means for very small datasets.
+- The stochastic nature of updates can lead to slightly different results across runs, even with the same initialization.
+- Like K-Means, it requires the number of clusters $K$ to be specified in advance.
+
+## Use Cases
+
+### Customer Segmentation
+
+Grouping customers into distinct segments based on purchasing behavior or demographic data for targeted marketing.
+
+### Document Clustering
+
+Organizing large collections of text documents into thematic groups after converting text to numerical representations.
+
+### Image Compression
+
+Reducing the number of colors in an image by clustering similar pixel colors and representing them with their centroid.
+
+### Anomaly Detection
+
+Identifying unusual data points that do not fit well into any established cluster, often used in fraud detection.
+
+### Data Preprocessing
+
+Reducing the dimensionality of data or creating features for other machine learning models by using cluster assignments.
+
+### Bioinformatics
+
+Grouping genes or proteins with similar expression patterns or functions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MiniBatch K-Means from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import MinibatchKMeans
+
+model = MinibatchKMeans()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="MiniBatch K-Means Lab" />
+
+## References
+
+- Sculley (2010). Sculley.
+- [scikit-learn: MinibatchKMeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MinibatchKMeans.html)

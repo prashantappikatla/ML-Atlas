@@ -1,0 +1,217 @@
+---
+title: "Kernel Ridge Regression"
+slug: "kernel-ridge-regression"
+category: "supervised"
+subcategory: "regression"
+year: 2001
+author: "Saunders et al."
+paper: "Saunders et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["closed-form", "kernel-methods", "non-linear", "regression", "regularization", "ridge-regression", "statistical-learning", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "gaussian-process-regression"
+  - "linear-regression"
+  - "ridge-regression"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression) (KRR) extends linear [Ridge Regression](/algorithms/supervised/regression/ridge-regression) by implicitly mapping the input data into a higher-dimensional feature space using a kernel function, thereby enabling the modeling of non-linear relationships. This method combines the regularization benefits of [Ridge Regression](/algorithms/supervised/regression/ridge-regression), which penalizes large coefficients to prevent overfitting, with the flexibility of kernel methods to capture complex patterns. KRR achieves this by performing [Linear Regression](/algorithms/supervised/regression/linear-regression) in the transformed feature space without explicitly computing the transformation, making it computationally efficient for certain high-dimensional scenarios. The algorithm finds a closed-form solution for the regression coefficients in the dual space, expressed in terms of the kernel matrix.
+
+## History
+
+**1970** — Arthur Hoerl and Robert Kennard introduce [Ridge Regression](/algorithms/supervised/regression/ridge-regression) as a method to address multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression) models, laying the foundation for regularized linear models.
+
+**1992** — Bernhard Boser, Isabelle Guyon, and Vladimir Vapnik introduce the 'kernel trick' in Support Vector Machines, demonstrating how linear models can learn non-linear decision boundaries by implicitly operating in a high-dimensional feature space.
+
+**1998** — Bernhard Schölkopf, Alex Smola, and Klaus-Robert Müller generalize the kernel trick to a broader class of algorithms, expanding the applicability of kernel methods beyond SVMs and paving the way for KRR.
+
+**2001** — Craig Saunders, Alex Gammerman, and Vladimir Vapnik formally introduce Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression), combining the L2 regularization of [Ridge Regression](/algorithms/supervised/regression/ridge-regression) with the non-linear mapping capabilities of kernel functions.
+
+## Mathematical Intuition
+
+### Ridge Regression Objective
+
+[Ridge Regression](/algorithms/supervised/regression/ridge-regression) aims to minimize the sum of squared errors while penalizing the L2 norm of the weight vector $ \mathbf{w} $. This regularization helps prevent overfitting and improves the conditioning of the problem. The primal objective function is given by:
+$$ \min_{\mathbf{w}} ||\mathbf{X}\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2 $$
+where $ \mathbf{X} $ is the feature matrix, $ \mathbf{y} $ is the target vector, and $ \alpha > 0 $ is the regularization parameter. The closed-form solution for $ \mathbf{w} $ is $ \mathbf{w} = (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y} $.
+
+$$
+\min_{\mathbf{w}} ||\mathbf{X}\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2
+$$
+
+$$
+\mathbf{w} = (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}
+$$
+
+### The Kernel Trick
+
+The kernel trick allows linear models to learn non-linear relationships by implicitly mapping the input data $ \mathbf{x} $ into a higher-dimensional feature space $ \phi(\mathbf{x}) $. Instead of explicitly computing $ \phi(\mathbf{x}) $, which can be computationally expensive or infinite-dimensional, a kernel function $ K(\mathbf{x}_i, \mathbf{x}_j) $ is used to directly compute the dot product $ \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j) $ in the feature space. Common kernel functions include the Radial Basis Function (RBF) kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma ||\mathbf{x}_i - \mathbf{x}_j||^2) $ and polynomial kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T \mathbf{x}_j + c)^d $.
+
+$$
+\phi(\mathbf{x})
+$$
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)
+$$
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma ||\mathbf{x}_i - \mathbf{x}_j||^2)
+$$
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T \mathbf{x}_j + c)^d
+$$
+
+### KRR Dual Formulation
+
+By applying [Ridge Regression](/algorithms/supervised/regression/ridge-regression) in the feature space, the objective becomes $ \min_{\mathbf{w}} ||\Phi\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2 $, where $ \Phi $ is the matrix with rows $ \phi(\mathbf{x}_i)^T $. According to the representer theorem, the optimal solution $ \mathbf{w} $ can be expressed as a linear combination of the training feature vectors: $ \mathbf{w} = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i) = \Phi^T \boldsymbol{\beta} $. Substituting this into the objective and solving for $ \boldsymbol{\beta} $ yields the dual problem solution:
+$$ \boldsymbol{\beta} = (\mathbf{K} + \alpha \mathbf{I})^{-1}\mathbf{y} $$
+where $ \mathbf{K} $ is the $ N \times N $ Gram matrix with elements $ K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j) = \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j) $.
+
+$$
+\min_{\mathbf{w}} ||\Phi\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2
+$$
+
+$$
+\mathbf{w} = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i) = \Phi^T \boldsymbol{\beta}
+$$
+
+$$
+\boldsymbol{\beta} = (\mathbf{K} + \alpha \mathbf{I})^{-1}\mathbf{y}
+$$
+
+$$
+K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j) = \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)
+$$
+
+### Prediction Function
+
+Once the coefficient vector $ \boldsymbol{\beta} $ is determined, predictions for a new input $ \mathbf{x}^* $ are made by computing its similarity to the training data points using the same kernel function. The prediction function is given by:
+$$ f(\mathbf{x}^*) = \mathbf{w}^T \phi(\mathbf{x}^*) = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i)^T \phi(\mathbf{x}^*) = \sum_{i=1}^N \beta_i K(\mathbf{x}_i, \mathbf{x}^*) $$
+This formulation highlights that predictions depend only on the kernel function values between the new input and the training data, not on the explicit feature mapping $ \phi $.
+
+$$
+f(\mathbf{x}^*) = \mathbf{w}^T \phi(\mathbf{x}^*)
+$$
+
+$$
+f(\mathbf{x}^*) = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i)^T \phi(\mathbf{x}^*)
+$$
+
+$$
+f(\mathbf{x}^*) = \sum_{i=1}^N \beta_i K(\mathbf{x}_i, \mathbf{x}^*)
+$$
+
+## Algorithm Steps
+
+1. Select a kernel function $ K(\cdot, \cdot) $ (e.g., RBF, polynomial, linear) and a regularization parameter $ \alpha > 0 $.
+2. Given a training dataset $ \{(\mathbf{x}_1, y_1), \dots, (\mathbf{x}_N, y_N)\} $, compute the $ N \times N $ Gram matrix $ \mathbf{K} $, where each element $ K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j) $.
+3. Construct the regularized kernel matrix $ \mathbf{K}_{\text{reg}} = \mathbf{K} + \alpha \mathbf{I} $, where $ \mathbf{I} $ is the $ N \times N $ identity matrix.
+4. Solve the linear system $ \mathbf{K}_{\text{reg}} \boldsymbol{\beta} = \mathbf{y} $ for the coefficient vector $ \boldsymbol{\beta} $, where $ \mathbf{y} $ is the vector of target values.
+5. To make a prediction for a new input $ \mathbf{x}^* $, compute the kernel vector $ \mathbf{k}^* = [K(\mathbf{x}_1, \mathbf{x}^*), \dots, K(\mathbf{x}_N, \mathbf{x}^*)]^T $.
+6. Calculate the predicted output $ f(\mathbf{x}^*) $ by taking the dot product of $ (\mathbf{k}^*)^T $ and $ \boldsymbol{\beta} $, i.e., $ f(\mathbf{x}^*) = (\mathbf{k}^*)^T \boldsymbol{\beta} $.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | alpha > 0 | Regularization strength; must be a positive float. Smaller values specify stronger regularization. |
+| `kernel` | `str or callable` | `'linear'` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', or callable | Specifies the kernel type to be used in the algorithm. It can be 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', or a callable function. |
+| `gamma` | `float` | `None` | gamma > 0 | Kernel coefficient for 'rbf', 'poly', and 'sigmoid' kernels. If None, defaults to 1 / (n_features * X.var()) for 'rbf' and 'poly', and 1 / n_features for 'sigmoid'. |
+| `degree` | `int` | `3` | degree >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `coef0` | `float` | `1.0` | any real number | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `kernel_params` | `dict` | `None` | dictionary of parameters | Parameters (keyword arguments) for a callable kernel function. Ignored by built-in kernels. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Kernel Ridge Regression can effectively model complex non-linear relationships in data by leveraging the kernel trick.
+- The L2 regularization term inherently helps prevent overfitting, leading to improved generalization performance on unseen data.
+- It provides a closed-form solution for the regression coefficients, which can be computationally efficient for training compared to iterative optimization methods for certain problem sizes.
+- KRR performs well on high-dimensional data, particularly when the number of features is comparable to or exceeds the number of samples.
+- It is generally less sensitive to the choice of kernel parameters compared to Support Vector Regression, often requiring less fine-tuning.
+
+## Weaknesses
+
+- The computational cost scales cubically with the number of training samples $ O(N^3) $ due to the inversion of the $ N \times N $ kernel matrix, making it impractical for very large datasets.
+- Memory usage scales quadratically with the number of training samples $ O(N^2) $ to store the kernel matrix, posing a challenge for large datasets.
+- The performance of KRR is highly dependent on the appropriate choice of kernel function and its associated hyperparameters, which often requires extensive cross-validation.
+- Interpretability of the model can be challenging due to the implicit mapping to a high-dimensional feature space and the non-linear nature of the predictions.
+- KRR does not inherently provide sparse solutions, meaning all training samples contribute to the prediction, unlike Support Vector Regression.
+
+## Use Cases
+
+### Bioinformatics
+
+Predicting protein-ligand binding affinities or gene expression levels based on molecular descriptors and genomic data.
+
+### Financial Modeling
+
+Forecasting stock prices, predicting market volatility, or assessing credit risk using various economic indicators and historical data.
+
+### Material Science
+
+Predicting material properties such as hardness, conductivity, or tensile strength from their chemical composition or structural features.
+
+### Environmental Science
+
+Modeling air pollution levels, predicting climate variables, or forecasting water quality based on sensor data and environmental factors.
+
+### Drug Discovery
+
+Predicting drug efficacy, toxicity, or absorption, distribution, metabolism, and excretion (ADME) properties based on chemical structure and biological assays.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Kernel Ridge Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import KernelRidgeRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = KernelRidgeRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Kernel Ridge Regression Lab" />
+
+## References
+
+- Saunders et al. (2001). Saunders et al..
+- [scikit-learn: KernelRidgeRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.KernelRidgeRegression.html)

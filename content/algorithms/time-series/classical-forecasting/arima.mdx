@@ -1,0 +1,174 @@
+---
+title: "ARIMA"
+slug: "arima"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1970
+author: "Box & Jenkins"
+paper: "Box & Jenkins"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["autoregressive", "box-jenkins", "classical-ml", "forecasting", "stationarity", "statistical-model", "time-series", "univariate-forecasting"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "exponential-smoothing"
+  - "prophet"
+---
+
+## Overview
+
+Autoregressive Integrated Moving Average (ARIMA) is a statistical model used for time series forecasting. It combines autoregressive (AR), differencing (I for integrated), and moving average (MA) components to capture various patterns in time-dependent data. ARIMA models are particularly effective for univariate time series that exhibit trends or seasonality, transforming non-stationary data into a stationary form for prediction.
+
+## History
+
+**1970** — George Box and Gwilym Jenkins published "Time Series Analysis: Forecasting and Control," introducing the ARIMA model and a systematic methodology for its application, known as the Box-Jenkins method.
+
+**1976** — The second edition of Box and Jenkins' seminal book further solidified ARIMA as a foundational method in time series analysis, detailing practical aspects of model identification, estimation, and diagnostic checking.
+
+**1980** — ARIMA models became widely adopted across various fields, including economics, engineering, and business, due to their robust theoretical foundation and practical utility in forecasting.
+
+## Mathematical Intuition
+
+### Autoregressive (AR) Component
+
+An autoregressive model of order $p$, denoted $AR(p)$, models the current value of a time series $y_t$ as a linear combination of its past $p$ values and a white noise error term $\epsilon_t$. This component captures the dependency between an observation and a number of lagged observations.
+$$y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_p y_{t-p} + \epsilon_t$$
+where $c$ is a constant, $\phi_i$ are the autoregressive coefficients, and $\epsilon_t$ is white noise.
+
+$$
+y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_p y_{t-p} + \epsilon_t
+$$
+
+### Integrated (I) Component
+
+The "Integrated" part addresses non-stationarity in the time series by differencing. A time series is differenced $d$ times to achieve stationarity, meaning its statistical properties (mean, variance, autocorrelation) do not change over time. The differenced series $y'_t$ is defined as $y'_t = y_t - y_{t-1}$ for first-order differencing ($d=1$).
+$$y'_t = (1-L)^d y_t$$
+where $L$ is the lag operator, such that $L y_t = y_{t-1}$. The order $d$ represents the number of times the raw observations are differenced.
+
+$$
+y'_t = (1-L)^d y_t
+$$
+
+$$
+L y_t = y_{t-1}
+$$
+
+### Moving Average (MA) Component
+
+A moving average model of order $q$, denoted $MA(q)$, models the current value of a time series $y_t$ as a linear combination of past $q$ white noise error terms. This component captures the dependency between an observation and a residual error from a moving average model applied to lagged observations.
+$$y_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \dots + \theta_q \epsilon_{t-q}$$
+where $\mu$ is the series mean, $\epsilon_t$ is white noise, and $\theta_i$ are the moving average coefficients.
+
+$$
+y_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \dots + \theta_q \epsilon_{t-q}
+$$
+
+### Combining AR, I, MA
+
+An ARIMA$(p, d, q)$ model combines these three components. The model is applied to the differenced series $y'_t = (1-L)^d y_t$. The full ARIMA model can be written as:
+$$\left(1 - \sum_{i=1}^p \phi_i L^i\right) (1-L)^d y_t = \left(1 + \sum_{j=1}^q \theta_j L^j\right) \epsilon_t$$
+This equation represents an $AR(p)$ model applied to the $d$-th differenced series, with the error terms modeled by an $MA(q)$ process.
+
+$$
+\left(1 - \sum_{i=1}^p \phi_i L^i\right) (1-L)^d y_t = \left(1 + \sum_{j=1}^q \theta_j L^j\right) \epsilon_t
+$$
+
+## Algorithm Steps
+
+1. Model Identification: Analyze the time series using plots of the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) to determine appropriate orders $p$, $d$, and $q$.
+2. Differencing for Stationarity: If the series is non-stationary (e.g., exhibits trend or seasonality), apply differencing $d$ times until the series becomes stationary, as indicated by constant mean and variance.
+3. Parameter Estimation: Estimate the coefficients $\phi_i$ and $\theta_j$ for the chosen $p$ and $q$ orders using maximum likelihood estimation or non-linear least squares.
+4. Diagnostic Checking: Evaluate the fitted model by examining the residuals; if residuals resemble white noise (no significant autocorrelation), the model is considered adequate, otherwise, refine the model parameters.
+5. Forecasting: Use the fitted ARIMA model to generate future predictions for the time series, along with confidence intervals.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `order` | `tuple` | `(0, 0, 0)` | tuple of non-negative integers | The $(p, d, q)$ order of the model for the number of AR parameters, differences, and MA parameters, respectively. |
+| `seasonal_order` | `tuple` | `(0, 0, 0, 0)` | tuple of non-negative integers | The $(P, D, Q, S)$ order of the seasonal component of the model for the seasonal AR parameters, seasonal differences, seasonal MA parameters, and periodicity, respectively. If non-zero, this effectively makes the model a SARIMA. |
+| `trend` | `str or None` | `None` | ['n', 'c', 't', 'ct'] or None | Parameter controlling the deterministic trend polynomial. Options include 'n' (no trend), 'c' (constant), 't' (linear trend), 'ct' (constant and linear trend). |
+| `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the AR parameters during estimation. |
+| `enforce_invertibility` | `bool` | `True` | True, False | Whether to enforce invertibility of the MA parameters during estimation. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- ARIMA models can effectively capture complex temporal dependencies, including trends and seasonality, through differencing.
+- The Box-Jenkins methodology provides a systematic and well-established framework for model identification, estimation, and validation.
+- Parameters of an ARIMA model are often interpretable, offering insights into the underlying dynamics of the time series.
+- It is a robust and widely used method for short-to-medium term forecasting in various domains.
+- ARIMA models can provide accurate forecasts for univariate time series with clear linear patterns.
+
+## Weaknesses
+
+- ARIMA models assume a linear relationship between observations and their lags, making them less suitable for highly non-linear time series.
+- The model identification process (determining $p, d, q$) can be subjective and time-consuming, requiring expertise in time series analysis.
+- They are sensitive to outliers and structural breaks in the time series, which can significantly impact model performance.
+- ARIMA models are primarily designed for univariate time series and do not inherently handle multiple exogenous variables without extensions like ARIMAX.
+- Forecasting accuracy tends to degrade significantly for longer prediction horizons.
+
+## Use Cases
+
+### Finance
+
+Predicting stock prices, currency exchange rates, or commodity prices to inform trading strategies and risk management.
+
+### Economics
+
+Forecasting macroeconomic indicators such as GDP growth, inflation rates, and unemployment figures for policy formulation.
+
+### Retail
+
+Predicting future sales volumes for inventory management, supply chain optimization, and staffing decisions.
+
+### Energy
+
+Forecasting electricity demand or energy consumption patterns to optimize power generation and distribution.
+
+### Meteorology
+
+Short-term prediction of weather variables like temperature or rainfall for operational planning.
+
+### Healthcare
+
+Forecasting disease incidence or patient admissions to manage resource allocation and public health interventions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ARIMA from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ARIMA does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ARIMA Lab" />
+
+## References
+
+- Box & Jenkins (1970). Box & Jenkins.

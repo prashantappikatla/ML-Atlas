@@ -1,0 +1,180 @@
+---
+title: "Expectation Maximization"
+slug: "expectation-maximization"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1977
+author: "Dempster, Laird, Rubin"
+paper: "Dempster, Laird, Rubin"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["incomplete-data", "iterative-algorithm", "latent-variables", "maximum-likelihood", "optimization", "parameter-estimation", "probabilistic-models", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "gaussian-mixture-model"
+  - "hidden-markov-model"
+  - "latent-dirichlet-allocation"
+---
+
+## Overview
+
+The Expectation Maximization (EM) algorithm is an iterative optimization method for finding maximum likelihood or maximum a posteriori (MAP) estimates of parameters in statistical models where the model depends on unobserved latent variables. It alternates between an E-step, which computes the expected value of the log-likelihood function with respect to the latent variables, and an M-step, which maximizes this expected log-likelihood to update the model parameters. EM is particularly useful for problems involving incomplete data or when direct maximization of the likelihood function is intractable due to the presence of hidden states.
+
+## History
+
+**1958** — H.O. Hartley proposes an iterative algorithm for maximum likelihood estimation with incomplete data, which serves as a precursor to the generalized EM algorithm.
+
+**1970** — Leonard E. Baum and colleagues introduce the Baum-Welch algorithm, a specific instance of EM used for training Hidden Markov Models.
+
+**1977** — Arthur P. Dempster, Nan M. Laird, and Donald B. Rubin formally generalize the EM algorithm and prove its convergence properties in their seminal paper 'Maximum Likelihood from Incomplete Data via the EM Algorithm', establishing it as a general statistical tool.
+
+**1983** — C.F. Jeff Wu provides a rigorous proof of the convergence of the EM algorithm under general conditions, clarifying its theoretical foundations.
+
+**1990** — The EM algorithm gains widespread adoption across various fields, including machine learning, computer vision, and bioinformatics, for tasks such as clustering, topic modeling, and image segmentation.
+
+## Mathematical Intuition
+
+### Likelihood with Latent Variables
+
+When a statistical model involves observed data $X$ and unobserved latent variables $Z$, the objective is often to maximize the marginal likelihood $P(X|\theta)$, where $\theta$ represents the model parameters. This marginal likelihood is obtained by summing or integrating over the latent variables: $P(X|\theta) = \sum_Z P(X,Z|\theta)$. Directly maximizing the log of this sum can be computationally challenging due to the logarithm of a sum.
+
+$$
+\log P(X|\theta) = \log \sum_Z P(X,Z|\theta)
+$$
+
+### E-step: Expectation of Log-Likelihood
+
+The E-step computes the expected value of the complete-data log-likelihood with respect to the conditional distribution of the latent variables given the observed data and current parameter estimates. Let $\theta^{(t)}$ be the parameters at iteration $t$. The E-step calculates the function $Q(\theta, \theta^{(t)})$, which is the expectation of the complete-data log-likelihood $\log P(X,Z|\theta)$ over the posterior distribution $P(Z|X,\theta^{(t)})$. This step effectively 'fills in' the missing latent variables by calculating their most probable distributions.
+
+$$
+Q(\theta, \theta^{(t)}) = E_{Z|X,\theta^{(t)}}[\log P(X,Z|\theta)]
+$$
+
+### M-step: Maximization of Expected Log-Likelihood
+
+The M-step updates the model parameters $\theta$ by maximizing the $Q$ function computed in the E-step. This step finds the parameters that best explain the observed data, assuming the latent variables are distributed according to the expectations from the E-step. This maximization is typically simpler than directly maximizing the marginal likelihood because the complete-data log-likelihood often decomposes into terms that are easier to optimize.
+
+$$
+\theta^{(t+1)} = \arg\max_{\theta} Q(\theta, \theta^{(t)})
+$$
+
+### Convergence Guarantee
+
+Each iteration of the EM algorithm is guaranteed to increase or maintain the marginal log-likelihood $P(X|\theta)$. The algorithm converges to a local maximum of the likelihood function. Convergence is typically assessed by monitoring the change in the log-likelihood or the parameter values between iterations, stopping when the change falls below a predefined tolerance.
+
+$$
+\log P(X|\theta^{(t+1)}) \ge \log P(X|\theta^{(t)})
+$$
+
+## Algorithm Steps
+
+1. Initialize the model parameters $\theta^{(0)}$ randomly or using a heuristic method.
+2. Repeat until convergence criteria are met:
+3. (E-step) Compute the posterior probability distribution of the latent variables $P(Z|X,\theta^{(t)})$ for each data point $X$, given the current parameters $\theta^{(t)}$.
+4. (E-step) Calculate the expected value of the complete-data log-likelihood function, $Q(\theta, \theta^{(t)}) = E_{Z|X,\theta^{(t)}}[\log P(X,Z|\theta)]$.
+5. (M-step) Update the parameters $\theta^{(t+1)}$ by maximizing the $Q$ function: $\theta^{(t+1)} = \arg\max_{\theta} Q(\theta, \theta^{(t)})$.
+6. Check for convergence by comparing the change in log-likelihood or parameter values between $\theta^{(t)}$ and $\theta^{(t+1)}$ against a small tolerance $\text{tol}$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `max_iter` | `integer` | `100` | positive integer | Maximum number of EM iterations to perform before stopping. |
+| `tol` | `float` | `1e-3` | positive float | The convergence threshold. The algorithm stops if the change in the log-likelihood or parameters between iterations is below this value. |
+| `n_init` | `integer` | `1` | positive integer | Number of times the EM algorithm is run with different random initializations. The best result is chosen based on the log-likelihood. |
+| `random_state` | `integer or None` | `None` | integer >= 0 or None | Controls the pseudo-random number generation for initial parameter selection to ensure reproducibility. |
+| `initial_parameters` | `string or object` | `random` | e.g., 'random', 'kmeans' (for GMMs), or a dictionary of initial parameter values | Method or specific values used to initialize the model parameters before the first E-step. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It provides a principled way to handle missing data or unobserved latent variables in statistical models.
+- Each iteration is guaranteed to increase or maintain the log-likelihood, ensuring convergence to a local optimum.
+- The E-step and M-step are often computationally simpler than directly maximizing the marginal likelihood function.
+- It is a general framework applicable to a wide range of probabilistic models, including Gaussian Mixture Models and Hidden Markov Models.
+- It can naturally incorporate prior knowledge about parameters through Maximum A Posteriori (MAP) estimation.
+- The algorithm is relatively easy to implement for many common probabilistic models.
+
+## Weaknesses
+
+- EM is guaranteed to converge only to a local maximum of the likelihood function, making initialization crucial.
+- The convergence rate can be slow, especially when the fraction of missing information or the number of latent variables is large.
+- The E-step can be computationally intensive if the latent variable space is very large or complex.
+- It requires the specification of a probabilistic model for the data and latent variables, which might not always be straightforward or accurate.
+- It does not provide an estimate of the covariance matrix of the parameters, unlike direct maximum likelihood methods.
+
+## Use Cases
+
+### Clustering
+
+Used in Gaussian Mixture Models (GMMs) to assign data points to clusters based on probabilistic distributions, where cluster assignments are the latent variables.
+
+### Image Processing
+
+Applied in image segmentation to group pixels into regions based on color, texture, or other features, often by modeling pixel properties with GMMs.
+
+### Natural Language Processing
+
+Employed in topic modeling algorithms like [Latent Dirichlet Allocation](/algorithms/unsupervised/topic-modeling/latent-dirichlet-allocation) (LDA) to discover abstract 'topics' in a collection of documents, with topic assignments being latent.
+
+### Bioinformatics
+
+Utilized for motif discovery in DNA sequences, inferring phylogenetic trees, or analyzing gene expression data with unobserved regulatory states.
+
+### Speech Recognition
+
+Forms the basis of the Baum-Welch algorithm for training Hidden Markov Models (HMMs) used in acoustic modeling for speech processing, where hidden states represent phonemes.
+
+### Financial Modeling
+
+Can be used for modeling asset returns with unobserved market regimes or for risk management with incomplete financial data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Expectation Maximization from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import ExpectationMaximization
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ExpectationMaximization()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Expectation Maximization Lab" />
+
+## References
+
+- Dempster, Laird, Rubin (1977). Dempster, Laird, Rubin.
+- [scikit-learn: ExpectationMaximization](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ExpectationMaximization.html)

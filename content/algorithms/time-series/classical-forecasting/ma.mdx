@@ -1,0 +1,150 @@
+---
+title: "MA"
+slug: "ma"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1931
+author: "Slutsky"
+paper: "Slutsky"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["baseline-model", "classical-forecasting", "forecasting", "smoothing", "statistical-model", "time-series", "trend-analysis", "univariate"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+  - "holt-winters"
+---
+
+## Overview
+
+Moving Average (MA) is a fundamental technique in time series analysis used for smoothing data and identifying trends by calculating the average of a specified number of preceding data points. It helps to reduce noise and short-term fluctuations, making underlying patterns or cycles more apparent. This method is particularly valued for its simplicity and interpretability, serving as a foundational component in more complex forecasting models. The MA component also forms a crucial part of more advanced models like [ARIMA](/algorithms/time-series/classical-forecasting/arima), where it models the dependency between an observation and a residual error from a moving average model applied to prior observations.
+
+## History
+
+**1931** — Eugen Slutsky published "The Summation of Random Causes as the Source of Cyclic Processes," demonstrating how moving averages of random series could produce cyclical patterns, a foundational insight for understanding economic cycles.
+
+**1937** — George Udny Yule further explored the properties of moving averages in the context of autoregressive processes, contributing to the understanding of their statistical behavior and interconnections.
+
+**1950** — The concept of moving averages became integral to the development of more sophisticated time series models, notably with the introduction of Exponential Moving Averages (EMA) and their incorporation into forecasting methodologies.
+
+**1970** — George Box and Gwilym Jenkins formalized the Autoregressive Integrated Moving Average ([ARIMA](/algorithms/time-series/classical-forecasting/arima)) models, where the Moving Average (MA) component models the dependency between an observation and a residual error from a moving average model applied to prior observations.
+
+## Mathematical Intuition
+
+### Simple Moving Average Definition
+
+The Simple Moving Average (SMA) at time $t$ for a series $X_t$ with a window size $k$ is the unweighted average of the $k$ most recent observations. This formula averages the current observation $X_t$ and the $k-1$ preceding observations. The choice of $k$ significantly impacts the smoothness of the resulting series; a larger $k$ leads to greater smoothing but also more lag.
+
+$$
+SMA_t = \frac{1}{k} \sum_{i=0}^{k-1} X_{t-i}
+$$
+
+### Weighted Moving Average Concept
+
+The Weighted Moving Average (WMA) assigns different weights to observations within the window, typically giving more importance to recent data points. For a window size $k$, the WMA at time $t$ is given by the sum of weighted observations, where $w_i$ are the weights such that $\sum_{i=0}^{k-1} w_i = 1$. A common weighting scheme is linear, where the most recent observation has the highest weight, and weights decrease linearly for older observations.
+
+$$
+WMA_t = \sum_{i=0}^{k-1} w_i X_{t-i}
+$$
+
+### MA Component in ARIMA Models
+
+In the context of an [ARIMA](/algorithms/time-series/classical-forecasting/arima)($p, d, q$) model, the Moving Average (MA) component of order $q$ models the dependency between an observation and a residual error from a moving average model applied to prior observations. Specifically, the MA($q$) part of the model is expressed as a linear combination of current and past white noise error terms. This formulation captures the impact of past forecast errors on the current value, assuming the errors are independently and identically distributed.
+
+$$
+Y_t = \mu + \epsilon_t + \sum_{j=1}^{q} \theta_j \epsilon_{t-j}
+$$
+
+## Algorithm Steps
+
+1. Define a window size, $k$, which specifies the number of past observations to include in each average calculation.
+2. For the first $k-1$ data points in the time series, a moving average cannot be computed as there are not enough preceding observations.
+3. Starting from the $k$-th data point, calculate the average of the current observation and the $k-1$ preceding observations. For a series $X_t$, this is $MA_t = \frac{1}{k} \sum_{i=0}^{k-1} X_{t-i}$.
+4. Shift the window one position forward in time and repeat the averaging process for the next data point.
+5. Continue this process until a moving average value has been computed for all possible data points in the series.
+6. To forecast the next value, $X_{T+1}$, the moving average of the last $k$ observed values, $MA_T$, can be used as the prediction.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `window_size` | `int` | `None` | integer > 0 | The number of observations to include in the moving average calculation. This parameter determines the degree of smoothing. |
+| `weights` | `array-like` | `None` | array of floats summing to 1.0 | An array of weights to apply to observations within the window, for weighted moving averages. If None, a simple moving average is computed. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Moving Average models are exceptionally simple to understand and implement, making them a good starting point for time series analysis.
+- They effectively smooth out short-term fluctuations and noise in time series data, revealing underlying trends or cycles.
+- The output of a Moving Average is highly interpretable, as each point represents a direct average of recent observations.
+- MA models can serve as a robust baseline for comparison against more complex forecasting algorithms.
+- They are computationally inexpensive, requiring minimal resources for calculation even on large datasets.
+
+## Weaknesses
+
+- Moving Average models introduce a lag in the smoothed series, as they always reflect past data and cannot immediately react to new trends.
+- They are inherently unable to capture complex non-linear patterns, seasonality, or long-term trends effectively without significant modifications.
+- The choice of window size is critical and often arbitrary, heavily influencing the degree of smoothing and the lag introduced.
+- MA models struggle with forecasting future values when there is a clear trend or seasonality in the data, as they tend to flatten predictions.
+- They require a complete history of observations within the window, making them unsuitable for series with missing data points without imputation.
+
+## Use Cases
+
+### Finance
+
+Used to smooth stock prices and identify trends, helping traders make decisions about buying or selling assets or for technical analysis.
+
+### Economics
+
+Applied to economic indicators like GDP or unemployment rates to filter out short-term volatility and reveal underlying economic cycles or long-term shifts.
+
+### Manufacturing
+
+Employed for quality control by smoothing sensor readings from production lines to detect anomalies or shifts in process parameters over time.
+
+### Environmental Monitoring
+
+Used to smooth environmental data such as temperature or pollution levels, making long-term climate trends or seasonal patterns more visible.
+
+### Retail
+
+Applied to sales data to identify underlying demand patterns, aiding in inventory management, sales forecasting, and promotional planning.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MA from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MA does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MA Lab" />
+
+## References
+
+- Slutsky (1931). Slutsky.

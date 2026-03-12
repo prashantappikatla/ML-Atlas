@@ -1,0 +1,201 @@
+---
+title: "ALBERT"
+slug: "albert"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2019
+author: "Lan et al."
+paper: "Lan et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "language-modeling", "natural-language-processing", "parameter-reduction", "pre-trained-models", "self-supervised-learning", "text-embeddings", "transformers"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bert"
+  - "distilbert"
+  - "gpt"
+  - "roberta"
+  - "t5"
+  - "transformer"
+---
+
+## Overview
+
+ALBERT (A Lite BERT) is a language model that significantly reduces the number of parameters in BERT-like architectures while maintaining or improving performance. It achieves this through two primary parameter reduction techniques: factorized embedding parameterization and cross-layer parameter sharing. ALBERT is designed for efficient pre-training and fine-tuning on various natural language processing tasks, making large-scale [Transformer](/algorithms/deep-learning/transformers/transformer) models more accessible.
+
+## History
+
+**2018** — BERT (Bidirectional Encoder Representations from Transformers) was introduced by Devlin et al., revolutionizing NLP with its deep bidirectional pre-training for language understanding.
+
+**2019** — Lan et al. introduced ALBERT, proposing parameter reduction techniques to address the memory limitations and training speed of large BERT models, making them more efficient.
+
+**2019** — The seminal paper "ALBERT: A Lite BERT for Self-supervised Learning of Language Representations" by Lan, Chen, Goodman, Gimpel, Sharma, and Soricut was published, detailing the architecture and experimental results.
+
+## Mathematical Intuition
+
+### Factorized Embedding Parameterization
+
+In standard BERT, the vocabulary embedding size $E$ is typically tied to the hidden state size $H$, meaning $E=H$. ALBERT decouples these, allowing $E \ll H$. The vocabulary embedding matrix $V \times H$ (where $V$ is vocabulary size) is factorized into two smaller matrices: a $V \times E$ matrix and an $E \times H$ matrix. This reduces the number of parameters for the embedding layer from $O(V \times H)$ to $O(V \times E + E \times H)$.
+
+$$ \text{Original: } W_{embed} \in \mathbb{R}^{V \times H} $$
+$$ \text{ALBERT: } W_{embed} = W_2 W_1 \text{ where } W_1 \in \mathbb{R}^{V \times E}, W_2 \in \mathbb{R}^{E \times H} $$
+
+$$
+E \ll H
+$$
+
+$$
+O(V \times H)
+$$
+
+$$
+O(V \times E + E \times H)
+$$
+
+$$
+\text{Original: } W_{embed} \in \mathbb{R}^{V \times H}
+$$
+
+$$
+\text{ALBERT: } W_{embed} = W_2 W_1 \text{ where } W_1 \in \mathbb{R}^{V \times E}, W_2 \in \mathbb{R}^{E \times H}
+$$
+
+### Cross-layer Parameter Sharing
+
+ALBERT shares all parameters across all [Transformer](/algorithms/deep-learning/transformers/transformer) encoder layers, including feed-forward network parameters and attention parameters. This means that instead of having $N$ distinct layers with $N$ sets of parameters, there is effectively only one set of parameters that is reused $N$ times. This drastically reduces the total number of parameters from $O(N \times H^2)$ to $O(H^2)$, where $N$ is the number of layers and $H$ is the hidden size.
+
+$$ \text{For all layers } i=1, \dots, N: W_{FFN}^{(i)} = W_{FFN}, W_{Attn}^{(i)} = W_{Attn} $$
+
+$$
+N
+$$
+
+$$
+O(N \times H^2)
+$$
+
+$$
+O(H^2)
+$$
+
+$$
+\text{For all layers } i=1, \dots, N: W_{FFN}^{(i)} = W_{FFN}, W_{Attn}^{(i)} = W_{Attn}
+$$
+
+### Sentence Order Prediction (SOP)
+
+ALBERT replaces BERT's Next Sentence Prediction (NSP) task with Sentence Order Prediction (SOP). NSP was found to be less effective because it conflated topic prediction with coherence prediction. SOP focuses purely on inter-sentence coherence by predicting whether two consecutive segments from a document are in their original order or swapped. For positive examples, two consecutive segments A and B are used. For negative examples, the order of A and B is swapped. This binary classification task helps the model learn finer-grained discourse-level coherence.
+
+$$ P(\text{is_next} | \text{segment A, segment B}) $$
+
+$$
+P(\text{is_next} | \text{segment A, segment B})
+$$
+
+## Algorithm Steps
+
+1. Tokenize the input text into subword units using a WordPiece vocabulary.
+2. Construct pre-training tasks: Masked Language Modeling (MLM) by randomly masking 15% of tokens and predicting the original ones, and Sentence Order Prediction (SOP) by predicting if two segments are in their original or swapped order.
+3. Pass the token embeddings, position embeddings, and segment embeddings through the factorized embedding layer to obtain the initial hidden states.
+4. Process the hidden states through multiple layers of a Transformer encoder, where all layers share the same parameters (attention weights and feed-forward network weights).
+5. Compute the MLM loss by predicting masked tokens and the SOP loss by classifying sentence order.
+6. Optimize the combined loss function using an Adam optimizer with a linear learning rate decay schedule.
+7. After pre-training, fine-tune the ALBERT model on downstream NLP tasks by adding a task-specific head and training with labeled data.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `vocab_size` | `integer` | `30000` | positive integer | The size of the vocabulary used for tokenizing input text. |
+| `embedding_size` | `integer` | `128` | positive integer | Dimensionality of the token embeddings, which is decoupled from the hidden size in ALBERT. |
+| `hidden_size` | `integer` | `768` | positive integer | Dimensionality of the encoder layers and the pooler layer. |
+| `num_hidden_layers` | `integer` | `12` | positive integer | Number of Transformer encoder layers in the model. |
+| `num_attention_heads` | `integer` | `12` | positive integer | Number of attention heads for each attention layer in the Transformer. |
+| `intermediate_size` | `integer` | `3072` | positive integer | Dimensionality of the 'intermediate' (feed-forward) layer in the Transformer encoder. |
+| `max_position_embeddings` | `integer` | `512` | positive integer | The maximum sequence length that this model might ever be used with. |
+| `type_vocab_size` | `integer` | `2` | positive integer | The size of the token type vocabulary, typically 2 for segment A and segment B. |
+| `hidden_dropout_prob` | `float` | `0.1` | 0.0 to 1.0 | The dropout probability for all fully connected layers in the embeddings and encoder. |
+| `attention_probs_dropout_prob` | `float` | `0.1` | 0.0 to 1.0 | The dropout ratio for the attention probabilities. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Significantly reduces the number of parameters compared to BERT, leading to smaller model sizes and lower memory consumption.
+- Achieves comparable or superior performance to BERT on various NLP benchmarks despite having far fewer parameters.
+- Faster training and inference times due to the reduced parameter count and computational complexity.
+- The Sentence Order Prediction (SOP) task is more effective than BERT's Next Sentence Prediction (NSP) for learning inter-sentence coherence.
+- Enables the training of deeper and wider models without a proportional increase in parameters, allowing for better representation learning.
+- The parameter reduction techniques make it more feasible to deploy large language models on resource-constrained devices.
+
+## Weaknesses
+
+- Despite parameter reduction, ALBERT still requires substantial computational resources and large datasets for effective pre-training.
+- The performance gains from parameter sharing can sometimes come at the cost of slower convergence during pre-training.
+- The optimal choice of embedding size $E$ relative to hidden size $H$ can be task-dependent and requires careful tuning.
+- The shared parameters across layers might limit the model's capacity to learn highly specialized representations at different depths of the network.
+- Fine-tuning performance can be sensitive to hyperparameters, similar to other large transformer models.
+
+## Use Cases
+
+### Natural Language Understanding
+
+Used for tasks like text classification, natural language inference, and sentiment analysis by encoding text into rich contextual representations.
+
+### Question Answering
+
+Applied to extract answers from given passages or documents, often outperforming larger models due to its efficient architecture.
+
+### Text Summarization
+
+Leveraged for generating concise summaries of longer texts, either abstractively or extractively, by understanding document context.
+
+### Named Entity Recognition
+
+Employed to identify and classify named entities (e.g., persons, organizations, locations) in text with high accuracy.
+
+### Information Retrieval
+
+Used to improve search relevance by understanding query intent and document content more deeply than traditional methods.
+
+### Machine Translation
+
+Can be integrated into translation pipelines to provide better contextual embeddings for source and target languages.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ALBERT from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ALBERT does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ALBERT Lab" />
+
+## References
+
+- Lan et al. (2019). Lan et al..

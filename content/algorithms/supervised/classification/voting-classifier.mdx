@@ -1,0 +1,181 @@
+---
+title: "Voting Classifier"
+slug: "voting-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 1990
+author: "Ensemble methods"
+paper: "Ensemble methods"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["classification", "ensemble", "heterogeneous-ensemble", "majority-vote", "meta-estimator", "model-combination", "probability-averaging", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bagging-classifier"
+  - "decision-tree-classifier"
+  - "gradient-boosting-classifier"
+  - "logistic-regression"
+  - "random-forest-classifier"
+  - "support-vector-machine"
+---
+
+## Overview
+
+The Voting Classifier is an ensemble meta-estimator that combines predictions from multiple individual machine learning classifiers to produce a more robust and often more accurate final prediction. It aggregates the outputs of diverse base models, either by majority vote (hard voting) or by averaging predicted probabilities (soft voting), to mitigate the weaknesses of individual models and leverage their collective strengths. This approach aims to reduce variance and bias, leading to improved generalization performance.
+
+## History
+
+**1990** — The concept of combining multiple models to improve predictive performance gained traction, with early work on ensemble methods like Stacked Generalization by Wolpert laying foundational ideas for model aggregation.
+
+**1996** — Leo Breiman introduced Bagging (Bootstrap Aggregating), a general-purpose ensemble method that demonstrated the power of combining multiple models trained on bootstrapped samples, often using majority voting for classification.
+
+**1998** — Josef Kittler, Mohamad Hatef, Robert P. W. Duin, and J. Matas published 'Combining Classifiers: From Simple to Weighted Voting,' a seminal paper that systematically explored various strategies for combining classifier outputs, including simple and weighted voting schemes.
+
+**2000** — Thomas G. Dietterich's survey 'Ensemble Methods in Machine Learning' provided a comprehensive overview of the field, solidifying the importance of techniques like voting, bagging, and boosting in improving classification accuracy.
+
+**2001** — The textbook 'Pattern Classification' by Duda, Hart, and Stork extensively discussed classifier combination rules, including majority voting, as a standard technique for improving robustness and accuracy in pattern recognition.
+
+## Mathematical Intuition
+
+### Hard Voting (Majority Rule)
+
+Hard voting, also known as majority voting, is applied when base classifiers output discrete class labels. For a given input $x$, each of the $K$ base classifiers $h_k$ predicts a class label $c_j \in \{1, \dots, C\}$. The final prediction $\hat{y}$ is the class that receives the most votes across all classifiers. Mathematically, this can be expressed as: $$ \hat{y} = \text{argmax}_j \sum_{k=1}^K I(h_k(x) = c_j) $$ where $I(\cdot)$ is the indicator function, which is 1 if the condition is true and 0 otherwise. In the case of a tie, a predefined rule (e.g., selecting the class with the lowest index) is used.
+
+$$
+\hat{y} = \text{argmax}_j \sum_{k=1}^K I(h_k(x) = c_j)
+$$
+
+### Soft Voting (Probability Averaging)
+
+Soft voting is utilized when base classifiers can output class probabilities (or confidence scores). For an input $x$, each classifier $h_k$ provides a probability distribution $P_k(c_j|x)$ for each class $c_j$. The Voting Classifier then averages these probabilities across all base classifiers for each class. The final predicted class $\hat{y}$ is the one with the highest average probability: $$ \hat{y} = \text{argmax}_j \sum_{k=1}^K P_k(c_j|x) $$ This method often performs better than hard voting, especially when classifiers are well-calibrated, as it considers the confidence of each classifier's prediction.
+
+$$
+\hat{y} = \text{argmax}_j \sum_{k=1}^K P_k(c_j|x)
+$$
+
+### Weighted Voting Extension
+
+Both hard and soft voting can be extended to include weights for individual classifiers. If some classifiers are known to be more accurate or reliable, they can be assigned higher weights $w_k$. For soft voting, the weighted average probability for each class $c_j$ becomes: $$ \hat{y} = \text{argmax}_j \sum_{k=1}^K w_k P_k(c_j|x) $$ For hard voting, the votes are weighted before summing: $$ \hat{y} = \text{argmax}_j \sum_{k=1}^K w_k I(h_k(x) = c_j) $$ The weights $w_k$ are typically non-negative and can be normalized, often summing to 1. These weights allow for fine-tuning the ensemble's behavior based on the perceived performance or importance of its constituent models.
+
+$$
+\hat{y} = \text{argmax}_j \sum_{k=1}^K w_k P_k(c_j|x)
+$$
+
+$$
+\hat{y} = \text{argmax}_j \sum_{k=1}^K w_k I(h_k(x) = c_j)
+$$
+
+## Algorithm Steps
+
+1. Define a set of $K$ diverse base classifiers (e.g., Logistic Regression, Support Vector Machine, Decision Tree) that will form the ensemble.
+2. Train each of the $K$ base classifiers independently on the same training dataset.
+3. For a new, unseen input $x$, each trained base classifier $h_k$ makes a prediction.
+4. If 'hard' voting is selected, each classifier $h_k$ outputs a discrete class label $c_j$. These labels are collected.
+5. If 'soft' voting is selected, each classifier $h_k$ outputs a probability distribution $P_k(c_j|x)$ for each class $c_j$. These probabilities are collected.
+6. For hard voting, the class that receives the majority of the votes (or weighted votes) from the base classifiers is chosen as the final prediction.
+7. For soft voting, the probabilities for each class $c_j$ are averaged (or weighted averaged) across all base classifiers, and the class with the highest average probability is selected as the final prediction.
+8. The Voting Classifier outputs this final aggregated prediction for the input $x$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `estimators` | `list of (str, estimator) tuples` | `None` | list of valid scikit-learn classifier instances | List of (name, estimator) tuples. Estimators must be classifiers. The 'name' is a string identifier for the estimator. |
+| `voting` | `str` | `'hard'` | 'hard', 'soft' | Specifies the voting strategy. 'hard' uses predicted class labels for majority rule voting. 'soft' uses predicted class probabilities (or confidence scores) and averages them. |
+| `weights` | `array-like of shape (n_estimators,)` | `None` | list of non-negative floats | Sequence of weights (float) to assign to each estimator. If None, all estimators are weighted equally. Only used if 'voting' is 'soft' or if 'hard' voting needs weighted majority. |
+| `n_jobs` | `int` | `None` | integer, -1 or greater | The number of jobs to run in parallel for fit and predict. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
+| `flatten_transform` | `bool` | `true` | true, false | If True, the transform method returns a flattened array of predictions. If False, it returns a matrix where each column corresponds to an estimator. |
+| `verbose` | `bool` | `false` | true, false | If True, the time elapsed for fitting and predicting is printed to stdout. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- It often achieves higher prediction accuracy and better generalization performance compared to any single base classifier.
+- It can reduce the variance of predictions, making the model more robust to noise and outliers in the training data.
+- It is highly flexible, allowing the combination of various types of base classifiers (heterogeneous ensembles).
+- It can mitigate the risk of relying on a single model's biases or weaknesses by averaging out errors.
+- It is relatively straightforward to implement and understand, especially for hard voting.
+- It can be parallelized, as base classifiers are trained and predict independently, potentially speeding up the process.
+
+## Weaknesses
+
+- The computational cost can be significantly higher due to the need to train and run multiple base classifiers.
+- The interpretability of the final model is reduced, as it becomes difficult to understand the contribution of individual features or the reasoning behind a specific prediction.
+- Performance heavily relies on the quality and diversity of the base classifiers; if all base models are poor or highly correlated, the ensemble may not improve much.
+- It can be sensitive to miscalibrated probability outputs from base classifiers when using soft voting, potentially leading to suboptimal aggregation.
+- Selecting optimal weights for base classifiers can be challenging and often requires additional optimization or cross-validation.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Combining predictions from multiple diagnostic models (e.g., for disease detection from medical images or patient data) to improve accuracy and reduce false positives/negatives.
+
+### Fraud Detection
+
+Aggregating outputs from various anomaly detection algorithms to identify fraudulent transactions more reliably in financial systems.
+
+### Sentiment Analysis
+
+Combining different natural language processing models (e.g., rule-based, machine learning-based) to determine the sentiment of text with higher confidence.
+
+### Image Classification
+
+Ensembling multiple Convolutional Neural Networks (CNNs) or other image classifiers to achieve state-of-the-art performance in tasks like object recognition.
+
+### Customer Churn Prediction
+
+Using a voting classifier to combine predictions from models trained on different customer features to more accurately predict which customers are likely to churn.
+
+### Recommendation Systems
+
+Aggregating the outputs of various recommendation algorithms (e.g., collaborative filtering, content-based) to provide more diverse and accurate recommendations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Voting Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import VotingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = VotingClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Voting Classifier Lab" />
+
+## References
+
+- Ensemble methods (1990). Ensemble methods.
+- [scikit-learn: VotingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html)

@@ -1,0 +1,179 @@
+---
+title: "Seq2Seq"
+slug: "seq2seq"
+category: "deep-learning"
+subcategory: "sequence-models"
+year: 2014
+author: "Sutskever et al."
+paper: "Sutskever et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "encoder-decoder", "machine-translation", "natural-language-processing", "recurrent-neural-network", "sequence-model", "text-generation", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "transformer"
+---
+
+## Overview
+
+Seq2Seq (Sequence-to-Sequence) models are a class of deep learning architectures designed to transform input sequences into output sequences of potentially different lengths. They typically consist of an encoder that processes the input sequence into a fixed-dimensional context vector, and a decoder that generates the output sequence based on this context vector. This architecture is particularly effective for tasks requiring mapping one sequence to another, such as machine translation or text summarization. Its power lies in its ability to learn complex, non-linear mappings between variable-length sequences.
+
+## History
+
+**2014** — Sutskever, Vinyals, and Le introduced the Sequence to Sequence Learning with Neural Networks model, demonstrating its effectiveness for machine translation using LSTMs.
+
+**2014** — Cho et al. concurrently proposed a similar encoder-decoder framework using GRUs, highlighting its application in phrase representation and machine translation.
+
+**2015** — Bahdanau, Cho, and Bengio introduced the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), significantly improving Seq2Seq models by allowing the decoder to focus on relevant parts of the input sequence.
+
+**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, which replaced recurrent layers with self-attention mechanisms, becoming the dominant model for many sequence tasks and influencing subsequent Seq2Seq developments.
+
+## Mathematical Intuition
+
+### Encoder-Decoder Architecture
+
+The core of a Seq2Seq model is its encoder-decoder structure. The encoder processes an input sequence $X = (x_1, x_2, ..., x_{T_x})$ into a fixed-dimensional context representation $c$. The decoder then uses this context $c$ to generate an output sequence $Y = (y_1, y_2, ..., y_{T_y})$.
+$$ c = f_{enc}(x_1, ..., x_{T_x}) $$
+$$ y_t = f_{dec}(y_{t-1}, h_t, c) $$
+where $h_t$ is the decoder's hidden state at time $t$.
+
+$$
+c = f_{enc}(x_1, ..., x_{T_x})
+$$
+
+$$
+y_t = f_{dec}(y_{t-1}, h_t, c)
+$$
+
+### Recurrent Neural Network Cells
+
+Both the encoder and decoder typically employ Recurrent Neural Networks (RNNs), often Long Short-Term Memory (LSTM) units or Gated Recurrent Units (GRU), to process sequences. An RNN cell updates its hidden state $h_t$ based on the current input $x_t$ and the previous hidden state $h_{t-1}$. For a simple RNN:
+$$ h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h) $$
+The encoder's final hidden state (or a transformation thereof) often serves as the initial context vector for the decoder.
+
+$$
+h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h)
+$$
+
+### Context Vector Representation
+
+In the basic Seq2Seq model, the encoder compresses the entire input sequence into a single fixed-size context vector $c$. This vector is intended to encapsulate all necessary information from the input sequence.
+$$ c = h_{T_x} $$
+where $h_{T_x}$ is the final hidden state of the encoder. This fixed-size bottleneck can be a limitation for very long sequences, potentially leading to information loss.
+
+$$
+c = h_{T_x}
+$$
+
+### Training Objective Function
+
+Seq2Seq models are typically trained by maximizing the conditional probability of the target sequence given the input sequence. This is achieved by minimizing the negative log-likelihood of the target sequence.
+$$ L(\theta) = - \sum_{t=1}^{T_y} \log P(y_t | y_1, ..., y_{t-1}, X; \theta) $$
+During training, teacher forcing is often used, where the actual previous target token $y_{t-1}$ is fed as input to the decoder at each step, rather than the decoder's own prediction.
+
+$$
+L(\theta) = - \sum_{t=1}^{T_y} \log P(y_t | y_1, ..., y_{t-1}, X; \theta)
+$$
+
+## Algorithm Steps
+
+1. Initialize the encoder and decoder RNNs with random weights.
+2. For each input-output sequence pair $(X, Y)$ in the training dataset, feed the input sequence $X = (x_1, ..., x_{T_x})$ token by token into the encoder RNN, updating its hidden state at each step.
+3. After processing the entire input sequence, obtain the final encoder hidden state, which serves as the initial context vector $c$ for the decoder.
+4. Feed a special "start-of-sequence" token to the decoder, along with the context vector $c$ and an initial decoder hidden state, then predict subsequent output tokens $y_t$ sequentially, using either the ground truth $y_{t-1}^*$ (teacher forcing) or the decoder's own previous prediction $y_{t-1}$ as input.
+5. Calculate the loss (e.g., cross-entropy) between the predicted output sequence and the true target sequence $Y$, then perform backpropagation through time to compute gradients and update the model's weights using an optimizer.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_size` | `integer` | `256` | positive integer | The number of features in the hidden state of the RNN cells in both the encoder and decoder. |
+| `num_layers` | `integer` | `1` | positive integer | The number of recurrent layers in the encoder and decoder. Stacking layers can increase model capacity. |
+| `dropout_rate` | `float` | `0.0` | 0.0 to 1.0 | The dropout probability applied to the output of each RNN layer, used for regularization. |
+| `learning_rate` | `float` | `0.001` | positive float | The step size for the optimizer during training, controlling how much the model weights are adjusted. |
+| `optimizer_type` | `string` | `Adam` | ['Adam', 'SGD', 'RMSprop'] | The optimization algorithm used to update model weights (e.g., 'Adam', 'SGD', 'RMSprop'). |
+| `embedding_dim` | `integer` | `128` | positive integer | The dimension of the word embeddings used for input tokens. |
+| `max_output_length` | `integer` | `50` | positive integer | The maximum length of the sequence that the decoder is allowed to generate during inference. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Seq2Seq models can handle input and output sequences of variable lengths, making them highly flexible for many real-world problems.
+- They are capable of learning complex, non-linear mappings between sequences without explicit feature engineering.
+- The modular encoder-decoder architecture allows for different types of RNNs or even other sequence processing blocks to be used.
+- With the addition of attention mechanisms, Seq2Seq models can effectively process long sequences by selectively focusing on relevant input parts.
+- They have achieved state-of-the-art performance in tasks like machine translation and text summarization.
+
+## Weaknesses
+
+- The basic Seq2Seq model without attention struggles with very long input sequences due to the fixed-size context vector bottleneck, leading to information loss.
+- Training can be computationally intensive and require significant amounts of data to achieve good performance.
+- The sequential nature of RNNs in the encoder and decoder can limit parallelization, making training slower compared to attention-only models like Transformers.
+- Exposure bias can occur during inference when the decoder generates tokens based on its own potentially incorrect predictions, unlike teacher forcing during training.
+- The model's interpretability can be low, making it difficult to understand why specific outputs are generated.
+
+## Use Cases
+
+### Machine Translation
+
+Translating sentences from one natural language to another, such as English to French, by mapping an input sentence sequence to an output sentence sequence.
+
+### Text Summarization
+
+Generating a concise summary of a longer document or article, where the input is a long text sequence and the output is a shorter summary sequence.
+
+### Chatbots and Dialogue Systems
+
+Creating conversational agents that can understand user queries and generate appropriate responses, treating conversations as sequences of turns.
+
+### Speech Recognition
+
+Transcribing spoken audio into text, where the input is an audio feature sequence and the output is a text sequence.
+
+### Code Generation
+
+Generating programming code snippets based on natural language descriptions or specifications, mapping a natural language sequence to a code sequence.
+
+### Time Series Forecasting
+
+Predicting future values in a time series based on historical observations, treating the past and future values as sequences.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Seq2Seq from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Seq2Seq does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Seq2Seq Lab" />
+
+## References
+
+- Sutskever et al. (2014). Sutskever et al..

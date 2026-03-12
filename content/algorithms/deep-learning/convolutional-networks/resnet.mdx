@@ -1,0 +1,168 @@
+---
+title: "ResNet"
+slug: "resnet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2015
+author: "He et al."
+paper: "He et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["computer-vision", "convolutional-neural-networks", "deep-learning", "gradient-descent", "image-classification", "residual-networks", "skip-connections", "transfer-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "densenet"
+  - "resnext"
+  - "transformer"
+  - "u-net"
+  - "vgg"
+---
+
+## Overview
+
+Residual Networks (ResNets) address the vanishing gradient problem in very deep neural networks by introducing skip connections, also known as identity mappings. These connections allow the network to learn residual functions with reference to the input, rather than unreferenced functions, facilitating the training of architectures with hundreds or even thousands of layers. This innovation significantly improved performance on various computer vision tasks and enabled the development of much deeper and more accurate models.
+
+## History
+
+**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), developed by Krizhevsky et al., demonstrated the power of deep Convolutional Neural Networks (CNNs) on the ImageNet dataset, sparking renewed interest in deep learning.
+
+**2014** — VGG and GoogLeNet architectures pushed the boundaries of network depth, but also highlighted the challenges of training extremely deep models due to vanishing gradients and increased computational cost.
+
+**2015** — He et al. introduced Residual Networks (ResNets) in "Deep Residual Learning for Image Recognition," proposing skip connections to enable the training of networks with unprecedented depth and achieving state-of-the-art results on ImageNet.
+
+**2016** — [ResNeXt](/algorithms/deep-learning/convolutional-networks/resnext), proposed by Xie et al., generalized the residual block by introducing "cardinality" through group convolutions, further improving performance and efficiency.
+
+**2017** — [DenseNet](/algorithms/deep-learning/convolutional-networks/densenet), introduced by Huang et al., explored an alternative connection strategy where each layer is connected to every other layer in a feed-forward fashion, building upon the idea of improved information flow.
+
+## Mathematical Intuition
+
+### The Residual Function Concept
+
+Deep neural networks aim to learn a complex mapping $H(x)$ from an input $x$. As networks become deeper, directly optimizing $H(x)$ becomes challenging due to issues like vanishing gradients. ResNet proposes that instead of learning $H(x)$ directly, the network should learn a residual function $F(x) = H(x) - x$. The original mapping is then reformulated as $H(x) = F(x) + x$. The skip connection directly passes the input $x$ to the output of the block, allowing the stacked non-linear layers to learn the residual $F(x)$.
+
+$$
+H(x) = F(x, \{W_i\}) + x
+$$
+
+### Identity Mapping and Gradient Flow
+
+The identity mapping $x$ in the residual block ensures that if the optimal function for a layer is an identity mapping, the network can easily learn $F(x) = 0$. This is simpler than learning an identity mapping directly through a stack of non-linear layers. Crucially, during backpropagation, the gradient can flow directly through the identity connection, mitigating the vanishing gradient problem. The gradient for a residual block output $H(x)$ with respect to its input $x$ can be expressed as:
+
+$$
+\frac{\partial \mathcal{L}}{\partial x} = \frac{\partial \mathcal{L}}{\partial H(x)} \left( \frac{\partial F(x)}{\partial x} + 1 \right)
+$$
+
+### Bottleneck Residual Architecture
+
+For deeper ResNets (e.g., ResNet-50 and above), a "bottleneck" residual block is often used to reduce computational complexity. This block typically consists of three convolutional layers: a $1 \times 1$ convolution to reduce dimensions, a $3 \times 3$ convolution, and another $1 \times 1$ convolution to restore dimensions. This design allows for deeper networks with fewer parameters and computations compared to using two $3 \times 3$ convolutions. The identity shortcut $x$ is added to $F(x)$ after the final $1 \times 1$ convolution.
+
+$$
+F(x) = W_3 \sigma(W_2 \sigma(W_1 x))
+$$
+
+## Algorithm Steps
+
+1. Initialize the weights and biases of all convolutional layers, batch normalization layers, and the final fully connected layer.
+2. Define the architecture by stacking multiple residual blocks, where each block consists of a sequence of convolutional layers, batch normalization, and activation functions, with an identity skip connection adding the block's input to its output.
+3. For each training iteration, perform a forward pass: input data $x$ propagates through the network, including the residual connections, to produce an output prediction $\hat{y}$.
+4. Calculate the loss function $\mathcal{L}(\hat{y}, y)$ between the predicted output $\hat{y}$ and the true label $y$.
+5. Perform a backward pass (backpropagation) to compute the gradients of the loss function with respect to all network parameters, leveraging the direct gradient path provided by the skip connections.
+6. Update the network parameters using an optimization algorithm (e.g., Stochastic Gradient Descent, Adam) based on the computed gradients and a specified learning rate.
+7. Repeat steps 3-6 for a predefined number of epochs or until convergence criteria are met.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `input_shape` | `tuple` | `None` | e.g., (224, 224, 3) | Shape of input images (height, width, channels). |
+| `num_classes` | `int` | `1000` | integer > 0 | Number of classes for the final classification layer. |
+| `blocks_config` | `list of int` | `[3, 4, 6, 3]` | list of integers | Configuration of residual blocks for each stage of the network (e.g., for ResNet-50). |
+| `initial_filters` | `int` | `64` | integer > 0 | Number of filters in the initial convolutional layer. |
+| `activation` | `string` | `relu` | e.g., "relu", "leaky_relu" | Activation function to use within residual blocks. |
+| `include_top` | `boolean` | `true` | true or false | Whether to include the fully-connected layer at the top of the network. |
+| `weights` | `string or None` | `imagenet` | e.g., "imagenet", None | Pre-trained weights to load for the model, or None for random initialization. |
+| `learning_rate` | `float` | `0.001` | float > 0 | Initial learning rate for the optimizer. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Effectively mitigates the vanishing gradient problem, enabling the training of extremely deep neural networks.
+- Achieves state-of-art performance across a wide range of computer vision tasks, including image classification and object detection.
+- The modular design of residual blocks allows for flexible scaling and adaptation to different network depths and complexities.
+- Skip connections facilitate feature reuse and allow earlier layers' features to directly influence deeper layers, improving information flow.
+- Can converge faster than plain deep networks due to the easier optimization landscape provided by residual learning.
+- Pre-trained ResNet models are widely available and can be effectively used for transfer learning on new datasets.
+
+## Weaknesses
+
+- Requires significant computational resources (GPU memory and processing power) for training very deep models, especially for large input images.
+- The large number of parameters in deep ResNets can lead to overfitting if the training dataset is small or insufficient regularization is applied.
+- Architectural design and hyperparameter tuning (e.g., number of layers, filter sizes, learning rate schedules) can be complex and time-consuming.
+- While mitigating vanishing gradients, it does not entirely eliminate other optimization challenges like exploding gradients, which still require careful handling.
+- The interpretability of very deep ResNet models can be challenging, making it difficult to understand why specific predictions are made.
+
+## Use Cases
+
+### Image Classification
+
+Identifying the primary object or scene depicted in an image, such as categorizing animals, objects, or landscapes.
+
+### Object Detection
+
+Locating and classifying multiple objects within an image, commonly used in autonomous driving and surveillance systems.
+
+### Semantic Segmentation
+
+Assigning a class label to every pixel in an image, crucial for medical image analysis and robotic perception.
+
+### Medical Imaging
+
+Assisting in the diagnosis of diseases by classifying medical scans (e.g., X-rays, MRIs) or segmenting tumors.
+
+### Video Analysis
+
+Processing frames of video for action recognition, anomaly detection, or content moderation.
+
+### Generative Adversarial Networks (GANs)
+
+Used as powerful discriminators or components within generators to produce high-quality synthetic images.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ResNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ResNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ResNet Lab" />
+
+## References
+
+- He et al. (2015). He et al..

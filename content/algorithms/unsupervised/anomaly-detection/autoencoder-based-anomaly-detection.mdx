@@ -1,0 +1,215 @@
+---
+title: "Autoencoder-based Anomaly Detection"
+slug: "autoencoder-based-anomaly-detection"
+category: "unsupervised"
+subcategory: "anomaly-detection"
+year: 2016
+author: "Deep anomaly detection literature"
+paper: "Deep anomaly detection literature"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["anomaly-detection", "deep-learning", "dimensionality-reduction", "neural-networks", "outlier-detection", "reconstruction-error", "unsupervised-anomaly-detection", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "isolation-forest"
+  - "one-class-svm"
+---
+
+## Overview
+
+[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based anomaly detection leverages neural networks to learn a compressed, low-dimensional representation of normal data, then reconstruct it. Anomalies, by definition, deviate significantly from the learned normal patterns, resulting in high reconstruction errors. This unsupervised approach is particularly effective for high-dimensional data where manual feature engineering for anomaly detection is challenging.
+
+## History
+
+**1986** — Early work on autoencoders by Rumelhart, Hinton, and Williams introduced the concept of learning identity mappings through backpropagation.
+
+**2006** — Hinton and Salakhutdinov demonstrated the effectiveness of deep autoencoders for dimensionality reduction and unsupervised pre-training of deep neural networks.
+
+**2010** — With the increasing availability of computational power and data, autoencoders began to be explored more widely for unsupervised learning tasks, including anomaly detection.
+
+**2016** — The year marks a significant increase in research and application of deep learning methods, including autoencoders, specifically for anomaly detection tasks across various domains, solidifying their role in the field.
+
+**2017** — Development of specialized [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) architectures, such as Variational Autoencoders (VAEs) and Adversarial Autoencoders (AAEs), were adapted for more robust and generative anomaly detection.
+
+**2019** — Further advancements included robust autoencoders and hybrid models combining autoencoders with other techniques to address challenges like noisy data and threshold determination.
+
+## Mathematical Intuition
+
+### Autoencoder Architecture Overview
+
+An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $f_\theta$ and a decoder function $g_\phi$. The encoder maps an input $x \in \mathbb{R}^D$ to a lower-dimensional latent representation $z \in \mathbb{R}^d$, where $d < D$. The decoder then attempts to reconstruct the original input from this latent representation, producing $\hat{x} = g_\phi(z) = g_\phi(f_\theta(x))$. The parameters $\theta$ and $\phi$ are typically weights and biases of neural networks.
+$$ z = f_\theta(x) $$
+$$ \hat{x} = g_\phi(z) $$
+
+$$
+f_\theta
+$$
+
+$$
+g_\phi
+$$
+
+$$
+x \in \mathbb{R}^D
+$$
+
+$$
+z \in \mathbb{R}^d
+$$
+
+$$
+d < D
+$$
+
+$$
+\hat{x} = g_\phi(z) = g_\phi(f_\theta(x))
+$$
+
+$$
+z = f_\theta(x)
+$$
+
+$$
+\hat{x} = g_\phi(z)
+$$
+
+### Reconstruction Error as Anomaly Score
+
+The core idea for anomaly detection is that an [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) trained on normal data will reconstruct normal instances with low error, while anomalous instances, which deviate from the learned patterns, will result in high reconstruction error. A common measure for this error is the Mean Squared Error (MSE) or Mean Absolute Error (MAE) between the input $x$ and its reconstruction $\hat{x}$. This error directly serves as the anomaly score.
+$$ L(x, \hat{x}) = ||x - \hat{x}||^2 $$
+
+$$
+L(x, \hat{x}) = ||x - \hat{x}||^2
+$$
+
+### Training Objective Function
+
+The [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) is trained to minimize the reconstruction error over a dataset composed primarily of normal instances. This optimization process adjusts the network parameters $\theta$ and $\phi$ to learn an efficient encoding and decoding of typical data patterns. For a dataset $X = \{x_1, ..., x_N\}$, the objective function is typically:
+$$ \min_{\theta, \phi} \frac{1}{N} \sum_{i=1}^N L(x_i, g_\phi(f_\theta(x_i))) $$
+This ensures the model learns to represent and reconstruct normal data effectively.
+
+$$
+\min_{\theta, \phi} \frac{1}{N} \sum_{i=1}^N L(x_i, g_\phi(f_\theta(x_i)))
+$$
+
+### Anomaly Detection Thresholding
+
+After training, the reconstruction error for a new input $x_{new}$ serves as its anomaly score. A higher reconstruction error indicates a greater deviation from the learned normal data distribution, thus suggesting a higher likelihood of being an anomaly.
+$$ S(x_{new}) = L(x_{new}, g_\phi(f_\theta(x_{new}))) $$
+An anomaly threshold $\tau$ is then determined, often based on the distribution of scores from the training data, such that if $S(x_{new}) > \tau$, the instance is classified as an anomaly.
+
+$$
+S(x_{new}) = L(x_{new}, g_\phi(f_\theta(x_{new})))
+$$
+
+## Algorithm Steps
+
+1. Prepare a training dataset consisting predominantly of normal instances, ensuring it is scaled and preprocessed appropriately.
+2. Design the autoencoder architecture, specifying the number of layers, neurons per layer, activation functions, and the dimensionality of the latent space.
+3. Initialize the autoencoder's weights and biases randomly.
+4. Train the autoencoder by iteratively feeding batches of normal data, computing the reconstruction error $L(x, \hat{x})$, and updating the network parameters using an optimization algorithm (e.g., Adam) to minimize this error.
+5. Monitor the training process using a validation set to prevent overfitting and determine when to stop training.
+6. After training, determine an anomaly threshold $\tau$ based on the reconstruction errors of the training data or a validation set of normal instances, often using statistical methods like percentiles or standard deviations.
+7. For a new, unseen data instance $x_{new}$, pass it through the trained autoencoder to obtain its reconstruction $\hat{x}_{new}$.
+8. Calculate the reconstruction error $S(x_{new}) = L(x_{new}, \hat{x}_{new})$ and compare it with the predetermined threshold $\tau$; if $S(x_{new}) > \tau$, classify $x_{new}$ as an anomaly.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_hidden_layers` | `integer` | `2` | 1 to N | The number of hidden layers in both the encoder and decoder networks. |
+| `latent_dim` | `integer` | `2` | 1 to D-1 (where D is input dimension) | The dimensionality of the bottleneck layer (latent space). |
+| `activation` | `string` | `'relu'` | 'relu', 'sigmoid', 'tanh', 'leaky_relu' | The activation function used for the hidden layers in the encoder and decoder. |
+| `optimizer` | `string` | `'adam'` | 'adam', 'sgd', 'rmsprop' | The optimization algorithm used for training the autoencoder. |
+| `learning_rate` | `float` | `0.001` | 0.0001 to 0.1 | The step size used by the optimizer during weight updates. |
+| `epochs` | `integer` | `100` | 1 to N | The number of complete passes through the entire training dataset. |
+| `batch_size` | `integer` | `32` | 1 to N (where N is dataset size) | The number of samples processed before the model's parameters are updated. |
+| `loss_function` | `string` | `'mse'` | 'mse', 'mae', 'binary_crossentropy' | The function used to quantify the reconstruction error. |
+| `dropout_rate` | `float` | `0.0` | 0.0 to 0.5 | The fraction of input units to drop during training to prevent overfitting. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Autoencoders can effectively learn complex, non-linear relationships and representations from high-dimensional data without explicit feature engineering.
+- They are inherently unsupervised, requiring only normal data for training, which is often more abundant than labeled anomalous data.
+- The reconstruction error provides an intuitive and interpretable anomaly score, directly reflecting deviation from learned normal patterns.
+- Autoencoders are highly adaptable and can be customized with various architectures (e.g., CNNs, RNNs) to suit different data types and complexities.
+- The latent space representation learned by the encoder can be useful for other tasks like dimensionality reduction or visualization.
+- They can detect various types of anomalies, including point anomalies, contextual anomalies, and collective anomalies, depending on the architecture and training data.
+
+## Weaknesses
+
+- Performance is highly dependent on the quality and representativeness of the normal training data; if the training data contains anomalies, the model may learn to reconstruct them.
+- Determining an optimal anomaly threshold can be challenging and often requires domain expertise or a small validation set.
+- Training deep autoencoders can be computationally expensive and time-consuming, especially for very large datasets or complex architectures.
+- Autoencoders might struggle with anomalies that are very similar to normal data patterns, leading to low reconstruction errors for true anomalies.
+- The choice of architecture, hyperparameters, and loss function significantly impacts performance and often requires extensive tuning.
+
+## Use Cases
+
+### Cybersecurity
+
+Detecting network intrusions, malware, or fraudulent activities by identifying unusual patterns in network traffic or user behavior logs.
+
+### Manufacturing
+
+Identifying defective products or machinery malfunctions by detecting anomalies in sensor data from production lines.
+
+### Healthcare
+
+Flagging unusual patient vital signs, medical images, or electronic health record entries that may indicate disease onset or adverse events.
+
+### Finance
+
+Detecting credit card fraud, money laundering, or unusual trading activities by analyzing transaction data.
+
+### Predictive Maintenance
+
+Monitoring sensor data from industrial equipment to predict impending failures by identifying deviations from normal operating conditions.
+
+### Quality Control
+
+Automatically inspecting products for defects in images or other sensory data by identifying deviations from standard product appearance.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Autoencoder-based Anomaly Detection from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import AutoencoderBasedAnomalyDetection
+
+model = AutoencoderBasedAnomalyDetection()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Autoencoder-based Anomaly Detection Lab" />
+
+## References
+
+- Deep anomaly detection literature (2016). Deep anomaly detection literature.
+- [scikit-learn: AutoencoderBasedAnomalyDetection](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AutoencoderBasedAnomalyDetection.html)

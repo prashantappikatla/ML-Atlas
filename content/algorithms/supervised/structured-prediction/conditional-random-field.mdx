@@ -1,0 +1,191 @@
+---
+title: "Conditional Random Field"
+slug: "conditional-random-field"
+category: "supervised"
+subcategory: "structured-prediction"
+year: 2001
+author: "Lafferty et al."
+paper: "Lafferty et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: true
+  graph: true
+tags: ["bioinformatics", "computer-vision", "discriminative-model", "dynamic-programming", "graphical-models", "natural-language-processing", "sequence-labeling", "structured-prediction"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "hidden-markov-model"
+  - "recurrent-neural-network"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Conditional Random Fields (CRFs) are a class of discriminative probabilistic models designed for structured prediction, particularly effective in tasks where output variables exhibit strong interdependencies. Unlike generative models, CRFs directly model the conditional probability of the output sequence given the input sequence, allowing them to incorporate rich, arbitrary features of the input without needing to model their dependencies. This makes CRFs robust to feature engineering and well-suited for sequence labeling and segmentation problems across various domains.
+
+## History
+
+**2001** — John Lafferty, Andrew McCallum, and Fernando Pereira introduce Conditional Random Fields in their seminal paper "Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data," defining them as undirected graphical models that model the conditional probability of outputs given inputs.
+
+**2003** — Sha and Pereira apply CRFs to noun phrase chunking, demonstrating their effectiveness in natural language processing tasks and showcasing their ability to leverage rich features.
+
+**2004** — Sutton and McCallum publish a comprehensive tutorial on CRFs, which significantly contributed to popularizing the model and its applications within the machine learning community.
+
+**2006** — Wallach applies CRFs to information extraction from research papers, further extending their utility beyond basic sequence labeling to more complex structured prediction problems.
+
+**2008** — While deep learning models begin to emerge, CRFs continue to be a strong baseline and are often integrated into hybrid architectures, such as Bi-LSTM-CRF models, to enhance sequence labeling performance.
+
+## Mathematical Intuition
+
+### Conditional Probability Formulation
+
+Conditional Random Fields model the conditional probability $P(Y|X)$ of an output sequence $Y = (y_1, ..., y_T)$ given an input sequence $X = (x_1, ..., x_T)$. For a linear-chain CRF, this probability is typically factorized over cliques (edges and vertices) in an undirected graph, expressed as:
+$$P(Y|X) = \frac{1}{Z(X)} \exp \left( \sum_{i=1}^T \sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i) \right)$$
+Here, $f_k$ are feature functions, $\lambda_k$ are learned weights, and $Z(X)$ is the normalization constant, also known as the partition function, which ensures that the probabilities sum to one over all possible output sequences $Y$.
+
+$$
+P(Y|X) = \frac{1}{Z(X)} \exp \left( \sum_{i=1}^T \sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i) \right)
+$$
+
+### Feature Functions and Potentials
+
+Feature functions $f_k(y_{i-1}, y_i, x, i)$ are real-valued functions that capture specific characteristics of the input $x$ at position $i$ and the current and previous labels $y_i, y_{i-1}$. These functions can be arbitrary and non-independent, allowing CRFs to incorporate rich contextual information. The sum $\sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i)$ forms the potential function for a clique, representing the "score" or affinity of a particular configuration of labels and inputs. These features can be local (e.g., word identity) or global (e.g., sentence length).
+
+$$
+f_k(y_{i-1}, y_i, x, i)
+$$
+
+$$
+\sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i)
+$$
+
+### Energy Function and Parameterization
+
+The exponentiated sum of weighted feature functions can be conceptualized as an energy function $E(Y, X) = - \sum_{i=1}^T \sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i)$. With this, the conditional probability can be rewritten as $P(Y|X) = \frac{1}{Z(X)} \exp(-E(Y, X))$. The parameters $\lambda_k$ are the model's weights, which are learned during training to maximize the conditional likelihood of the observed training data. The learning process aims to assign higher probabilities to correct label sequences and lower probabilities to incorrect ones.
+
+$$
+E(Y, X) = - \sum_{i=1}^T \sum_{k} \lambda_k f_k(y_{i-1}, y_i, x, i)
+$$
+
+$$
+P(Y|X) = \frac{1}{Z(X)} \exp(-E(Y, X))
+$$
+
+### Inference and Learning Algorithms
+
+Inference in CRFs involves finding the most probable label sequence $Y^*$ for a given input $X$, i.e., $Y^* = \arg\max_Y P(Y|X)$. For linear-chain CRFs, this can be efficiently solved using dynamic programming algorithms such as the Viterbi algorithm. Learning involves estimating the parameters $\lambda_k$ by maximizing the log-likelihood of the training data, typically using gradient-based optimization methods like L-BFGS. The gradients require computing expected feature counts, which can be done efficiently using the forward-backward algorithm.
+
+$$
+Y^* = \arg\max_Y P(Y|X)
+$$
+
+## Algorithm Steps
+
+1. Define the graph structure of the CRF, typically a linear chain for sequence labeling, where nodes represent input elements and edges represent dependencies between adjacent output labels.
+2. Engineer a comprehensive set of feature functions $f_k(y_{i-1}, y_i, x, i)$ that capture relevant characteristics of the input sequence $X$ and potential transitions between output labels $Y$.
+3. Initialize the weights $\lambda_k$ for each feature function, often to zero or small random values.
+4. Iteratively update the weights $\lambda_k$ by maximizing the conditional log-likelihood of the training data $P(Y|X)$ using an optimization algorithm, such as L-BFGS.
+5. During each iteration of training, compute the partition function $Z(X)$ and marginal probabilities efficiently using dynamic programming (e.g., the forward-backward algorithm) to calculate the gradients of the log-likelihood.
+6. Repeat the optimization steps until convergence or a maximum number of iterations is reached, yielding the learned parameters $\lambda_k$.
+7. For prediction on new, unseen input sequences $X$, use an efficient inference algorithm (e.g., the Viterbi algorithm for linear-chain CRFs) to find the most probable output sequence $Y^*$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `optimizer` | `string` | `lbfgs` | ['lbfgs', 'sgd', 'ap', 'pa', 'arow'] | The optimization algorithm used for learning the model parameters (e.g., L-BFGS, SGD, Averaged Perceptron). |
+| `l1_regularization` | `float` | `0.1` | float > 0 | Coefficient for L1 regularization, which encourages sparsity in feature weights and helps prevent overfitting. |
+| `l2_regularization` | `float` | `0.1` | float > 0 | Coefficient for L2 regularization, which penalizes large weights and helps prevent overfitting. |
+| `max_iterations` | `integer` | `100` | integer > 0 | Maximum number of iterations for the optimization algorithm to converge. |
+| `transition_features` | `boolean` | `true` | boolean | Whether to include features that depend on transitions between consecutive labels $y_{i-1}$ and $y_i$. |
+| `state_features` | `boolean` | `true` | boolean | Whether to include features that depend on the current label $y_i$ and the input $x$ at position $i$. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- CRFs are discriminative models, directly modeling $P(Y|X)$, which allows them to avoid modeling complex dependencies between input features, unlike generative models.
+- They can incorporate a vast number of arbitrary, non-independent features of the input sequence, leading to high accuracy in structured prediction tasks.
+- CRFs mitigate the label bias problem inherent in generative sequence models like Hidden Markov Models (HMMs) by normalizing probabilities globally over the entire output sequence.
+- They are particularly effective for sequence labeling and segmentation tasks where output labels exhibit strong dependencies.
+- The Viterbi algorithm provides efficient exact inference for linear-chain CRFs, making prediction practical even for long sequences.
+- CRFs can be extended to arbitrary graph structures, making them versatile for various structured prediction problems beyond linear sequences.
+
+## Weaknesses
+
+- Training CRFs can be computationally intensive, especially when the number of features is large or the graph structure is complex, due to the need to compute the partition function.
+- Feature engineering is a critical and often time-consuming step, requiring significant domain expertise to design effective features that capture relevant patterns.
+- CRFs are prone to the "exposure bias" problem during training, where the model is trained on ground truth sequences but tested on sequences generated by its own potentially erroneous predictions.
+- They typically require a significant amount of labeled training data to learn robust feature weights effectively, which can be costly to obtain.
+- Compared to deep learning models, CRFs may struggle with automatically learning hierarchical features from raw data, often requiring manual feature extraction.
+
+## Use Cases
+
+### Natural Language Processing
+
+Used for part-of-speech tagging, named entity recognition, and shallow parsing to identify and classify linguistic units and entities in text.
+
+### Bioinformatics
+
+Applied in gene finding, protein secondary structure prediction, and sequence alignment to analyze and annotate biological sequences.
+
+### Computer Vision
+
+Employed for image segmentation, object recognition, and scene understanding by modeling spatial dependencies between pixels or regions.
+
+### Speech Recognition
+
+Utilized for phoneme segmentation and labeling, improving the accuracy of converting audio signals into textual representations.
+
+### Information Extraction
+
+Used to extract structured information from unstructured documents, such as identifying key fields in invoices, resumes, or scientific articles.
+
+### Activity Recognition
+
+Applied to time-series data from sensors to identify and classify human activities or events, such as walking, running, or sitting.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Conditional Random Field from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import ConditionalRandomField
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ConditionalRandomField()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Conditional Random Field Lab" />
+
+## References
+
+- Lafferty et al. (2001). Lafferty et al..
+- [scikit-learn: ConditionalRandomField](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ConditionalRandomField.html)

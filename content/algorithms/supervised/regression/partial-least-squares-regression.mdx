@@ -1,0 +1,217 @@
+---
+title: "Partial Least Squares Regression"
+slug: "partial-least-squares-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1966
+author: "Wold"
+paper: "Wold"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["chemometrics", "dimensionality-reduction", "high-dimensional-data", "latent-variables", "multicollinearity", "multivariate-analysis", "regression", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "lasso-regression"
+  - "linear-regression"
+  - "ridge-regression"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Partial Least Squares Regression (PLS-R) is a statistical method that finds a [Linear Regression](/algorithms/supervised/regression/linear-regression) model by projecting the predictor variables and observed response variables onto a new space. It constructs latent variables (components) that maximize the covariance between the projected predictor and response data, making it particularly useful for high-dimensional data with multicollinearity. Unlike Principal Component Regression (PCR), PLS-R considers the response variable when extracting components, leading to potentially better predictive performance. This approach is effective for both single and multiple response variables.
+
+## History
+
+**1966** — Herman Wold introduces the original PLS algorithm, initially developed for applications in econometrics.
+
+**1975** — Wold further develops the Non-linear Iterative Partial Least Squares (NIPALS) algorithm, a widely adopted method for computing PLS components.
+
+**1983** — Svante Wold and Harald Martens popularize PLS in chemometrics, demonstrating its utility for multivariate calibration and analysis of spectroscopic data.
+
+**1993** — S. Wold, H. N. J. M. Schuurmans, and M. Sjöström publish on the use of PLS for classification (PLS-DA), extending its applicability beyond regression.
+
+**2002** — A review by S. Wold, M. Sjöström, and L. Eriksson solidifies PLS as a cornerstone method in chemometrics and related fields, detailing its theoretical foundations and applications.
+
+## Mathematical Intuition
+
+### Latent Variable Projection
+
+Partial Least Squares Regression aims to model the relationship between a set of predictor variables $X$ (dimensions $N 	imes P$) and a set of response variables $Y$ (dimensions $N 	imes M$) by projecting both onto a lower-dimensional space of latent variables. These latent variables, also known as components, are constructed to capture the maximum covariance between $X$ and $Y$. The decomposition can be expressed as:
+$$X = TP^T + E$$
+$$Y = UQ^T + F$$
+where $T$ and $U$ are the score matrices for $X$ and $Y$ respectively, $P$ and $Q$ are the loading matrices, and $E$ and $F$ are the residual matrices. The goal is to find components that are relevant for predicting $Y$ from $X$.
+
+$$
+X = TP^T + E
+$$
+
+$$
+Y = UQ^T + F
+$$
+
+### Maximizing Covariance
+
+The core principle of PLS is to extract successive latent components that maximize the covariance between the $X$-scores and $Y$-scores. For the first component, we seek weight vectors $w_1$ for $X$ and $c_1$ for $Y$ such that the covariance between the $X$-score $t_1 = Xw_1$ and the $Y$-score $u_1 = Yc_1$ is maximized. This optimization problem is formulated as:
+$$\max_{w_1, c_1} \text{Cov}(Xw_1, Yc_1) = \max_{w_1, c_1} (Xw_1)^T (Yc_1)$$
+subject to $||w_1|| = 1$ and $||c_1|| = 1$. This ensures that the extracted components are maximally predictive of the response variables.
+
+$$
+\max_{w_1, c_1} \text{Cov}(Xw_1, Yc_1) = \max_{w_1, c_1} (Xw_1)^T (Yc_1)
+$$
+
+### NIPALS Algorithm for Components
+
+The Non-linear Iterative Partial Least Squares (NIPALS) algorithm is a common method for iteratively extracting PLS components. For each component $h$:
+1. Initialize $u_h$ (e.g., as a column from $Y$).
+2. Calculate $X$-weights: $w_h \propto X^T u_h$. Normalize $w_h$ such that $||w_h|| = 1$.
+3. Calculate $X$-scores: $t_h = X w_h$.
+4. Calculate $Y$-weights: $c_h \propto Y^T t_h$. Normalize $c_h$ such that $||c_h|| = 1$.
+5. Calculate $Y$-scores: $u_h = Y c_h$.
+6. Repeat steps 2-5 until $t_h$ and $u_h$ converge.
+7. Calculate $X$-loadings: $p_h = X^T t_h / (t_h^T t_h)$.
+8. Deflate $X$ and $Y$: $X_{new} = X - t_h p_h^T$, $Y_{new} = Y - t_h c_h^T$. This process is repeated for the desired number of components, ensuring orthogonality of the $X$-scores.
+
+$$
+w_h \propto X^T u_h
+$$
+
+$$
+t_h = X w_h
+$$
+
+$$
+c_h \propto Y^T t_h
+$$
+
+$$
+u_h = Y c_h
+$$
+
+$$
+p_h = X^T t_h / (t_h^T t_h)
+$$
+
+$$
+X_{new} = X - t_h p_h^T
+$$
+
+$$
+Y_{new} = Y - t_h c_h^T
+$$
+
+## Algorithm Steps
+
+1. Standardize the predictor matrix $X$ and response matrix $Y$ to have zero mean and unit variance.
+2. Initialize the first latent variable score vector $u_1$ (e.g., as a column from $Y$).
+3. Iteratively calculate the $X$-weights $w_h$ and $Y$-weights $c_h$ for the current component $h$ by maximizing the covariance between $Xw_h$ and $Yc_h$ until convergence.
+4. Compute the $X$-score vector $t_h = Xw_h$ and $Y$-score vector $u_h = Yc_h$.
+5. Calculate the $X$-loadings $p_h = X^T t_h / (t_h^T t_h)$ and $Y$-loadings $q_h = Y^T u_h / (u_h^T u_h)$.
+6. Deflate the $X$ and $Y$ matrices by subtracting the contribution of the current component: $X \leftarrow X - t_h p_h^T$ and $Y \leftarrow Y - u_h q_h^T$.
+7. Repeat steps 3-6 for the desired number of components, typically determined by cross-validation.
+8. Construct the final regression model using the extracted components and their relationships to predict $Y$ from $X$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | integer, greater than or equal to 1 | The number of latent components to compute. This is the main parameter to tune for model complexity. |
+| `scale` | `bool` | `True` | True, False | Whether to scale $X$ and $Y$ to unit variance before fitting. Centering is always performed. |
+| `max_iter` | `int` | `500` | integer, greater than 0 | The maximum number of iterations of the NIPALS algorithm to compute each component. |
+| `tol` | `float` | `1e-06` | float, greater than 0 | Tolerance for the convergence of the NIPALS algorithm. Iterations stop when the change in weights is below this tolerance. |
+| `copy` | `bool` | `True` | True, False | Whether to copy $X$ and $Y$ in fit before scaling, deflating, and subtracting the mean. If False, data is modified in-place. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It effectively handles high-dimensional data with a large number of predictor variables, even when the number of predictors exceeds the number of observations.
+- PLS Regression is robust to multicollinearity among predictor variables, as it projects them onto orthogonal latent components.
+- It can model multiple response variables simultaneously, making it suitable for multivariate regression problems.
+- The method often provides good predictive performance, especially when the underlying structure of the data is well-represented by a few latent components.
+- PLS components are explicitly chosen to maximize the covariance with the response variables, making them more relevant for prediction than Principal Component Analysis components.
+- It can identify and quantify the relationships between predictor and response variables through the interpretation of loadings and weights.
+
+## Weaknesses
+
+- The interpretability of individual predictor variables can be challenging due to their combination into abstract latent components.
+- The choice of the optimal number of components is crucial for model performance and often requires computationally intensive cross-validation.
+- PLS Regression assumes a linear relationship between the latent variables and the response, which may not hold for all datasets.
+- Outliers in the data can significantly influence the extracted components and the resulting model, potentially leading to biased predictions.
+- The computational cost can increase with a very large number of variables or observations, especially for the NIPALS algorithm.
+
+## Use Cases
+
+### Chemometrics
+
+Predicting chemical properties such as concentration, purity, or reaction rates from complex spectroscopic data like Near-Infrared (NIR) or Raman spectra.
+
+### Process Control
+
+Monitoring and predicting quality parameters in industrial manufacturing processes based on numerous sensor readings and operational variables.
+
+### Bioinformatics
+
+Analyzing high-throughput biological data, such as gene expression profiles or metabolomics data, to predict disease outcomes, drug responses, or biological pathways.
+
+### Econometrics
+
+Modeling complex relationships between various economic indicators, market trends, and financial outcomes, especially in situations with many correlated predictors.
+
+### Environmental Science
+
+Predicting environmental quality metrics like air pollution levels or water quality from diverse sensor networks and meteorological data.
+
+### Sensory Science
+
+Relating instrumental measurements of food or beverage properties to human sensory panel evaluations to understand consumer perception.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Partial Least Squares Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import PartialLeastSquaresRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = PartialLeastSquaresRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Partial Least Squares Regression Lab" />
+
+## References
+
+- Wold (1966). Wold.
+- [scikit-learn: PartialLeastSquaresRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PartialLeastSquaresRegression.html)

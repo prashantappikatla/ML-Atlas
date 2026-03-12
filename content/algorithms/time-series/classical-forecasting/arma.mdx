@@ -1,0 +1,161 @@
+---
+title: "ARMA"
+slug: "arma"
+category: "time-series"
+subcategory: "classical-forecasting"
+year: 1938
+author: "Wold"
+paper: "Wold"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["autoregressive", "classical-ml", "forecasting", "moving-average", "stationary", "time-series", "univariate"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "arima"
+---
+
+## Overview
+
+Autoregressive Moving Average (ARMA) models combine autoregressive (AR) and moving average (MA) components to model time series data. It is employed for forecasting future values based on past observations and past forecast errors, under the assumption that the time series is stationary. The model is characterized by two parameters, $p$ for the AR order and $q$ for the MA order, which dictate the number of past values and past error terms included in the prediction.
+
+## History
+
+**1938** — Herman Wold introduced the Wold Decomposition Theorem, which provided the theoretical foundation for representing any weakly stationary stochastic process as a moving average process, thereby underpinning MA and ARMA models.
+
+**1951** — George Box and Gwilym Jenkins began developing a systematic methodology for identifying, estimating, and validating time series models, including ARMA, which later became known as the Box-Jenkins methodology.
+
+**1970** — Box and Jenkins published "Time Series Analysis: Forecasting and Control," which popularized ARMA (and [ARIMA](/algorithms/time-series/classical-forecasting/arima)) models and provided a practical, comprehensive framework for their application, becoming a cornerstone in time series analysis.
+
+## Mathematical Intuition
+
+### Autoregressive (AR) Component
+
+The Autoregressive (AR) component of an ARMA model, denoted as AR($p$), models the current value of a time series, $Y_t$, as a linear combination of its $p$ previous values and a white noise error term. This component captures the dependency of the current observation on past observations.
+$$Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \epsilon_t$$
+Here, $c$ is a constant, $\phi_i$ are the autoregressive coefficients, and $\epsilon_t$ is a white noise error term at time $t$.
+
+$$
+Y_t = c + \sum_{i=1}^{p} \phi_i Y_{t-i} + \epsilon_t
+$$
+
+### Moving Average (MA) Component
+
+The Moving Average (MA) component, denoted as MA($q$), models the current value of a time series as a linear combination of the current and $q$ previous white noise error terms. This component accounts for the impact of past forecast errors on the current observation.
+$$Y_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \dots + \theta_q \epsilon_{t-q}$$
+In this equation, $\mu$ is the mean of the series, $\theta_j$ are the moving average coefficients, and $\epsilon_t$ represents the white noise error term at time $t$.
+
+$$
+Y_t = \mu + \epsilon_t + \sum_{j=1}^{q} \theta_j \epsilon_{t-j}
+$$
+
+### Combined ARMA Model Formulation
+
+An ARMA($p,q$) model integrates both the AR($p$) and MA($q$) components, providing a comprehensive framework for modeling stationary time series. It expresses the current value as a linear combination of past values and past error terms.
+$$Y_t = c + \phi_1 Y_{t-1} + \dots + \phi_p Y_{t-p} + \epsilon_t + \theta_1 \epsilon_{t-1} + \dots + \theta_q \epsilon_{t-q}$$
+This model assumes that the time series $Y_t$ is stationary, meaning its statistical properties such as mean, variance, and autocorrelation remain constant over time.
+
+$$
+Y_t = c + \sum_{i=1}^{p} \phi_i Y_{t-i} + \epsilon_t + \sum_{j=1}^{q} \theta_j \epsilon_{t-j}
+$$
+
+### Stationarity Requirement
+
+A fundamental requirement for the application of ARMA models is that the underlying time series must be stationary. Stationarity implies that the mean, variance, and autocorrelation structure of the series do not change over time. If a time series is non-stationary, it typically needs to be transformed, often through differencing, to achieve stationarity before an ARMA model can be appropriately fitted. This transformation leads to the Autoregressive Integrated Moving Average ([ARIMA](/algorithms/time-series/classical-forecasting/arima)) model, where 'I' denotes the integration or differencing step.
+
+## Algorithm Steps
+
+1. Inspect the time series data for trends, seasonality, and stationarity using visual plots and statistical tests such as the Augmented Dickey-Fuller (ADF) test.
+2. If the series is non-stationary, apply differencing to transform it into a stationary series; for ARMA, this step is assumed to be completed or not required.
+3. Analyze the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots of the stationary series to identify potential orders $p$ and $q$ for the AR and MA components, respectively.
+4. Estimate the model parameters $\phi_i$ and $\theta_j$ for various candidate $(p, q)$ orders using methods like maximum likelihood estimation (MLE).
+5. Evaluate the fitted models using information criteria such as AIC (Akaike Information Criterion) or BIC (Bayesian Information Criterion) to select the optimal $(p, q)$ order that balances model fit and complexity.
+6. Perform diagnostic checks on the residuals of the chosen model to ensure they resemble white noise, indicating that the model has captured all significant patterns.
+7. Use the validated ARMA model to generate future forecasts and construct prediction intervals for the time series.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `order` | `tuple of int` | `Required` | p >= 0, q >= 0 | The order of the ARMA model, specified as a tuple (p, q) where p is the autoregressive order and q is the moving average order. |
+| `trend` | `string` | `c` | 'n', 'c', 't', 'ct' | Specifies whether to include a constant or trend term in the model. Options include 'n' (no trend), 'c' (constant), 't' (linear trend), 'ct' (constant and linear trend). |
+| `solver` | `string` | `lbfgs` | 'lbfgs', 'bfgs', 'newton', 'nm', 'cg', 'ncg', 'powell' | The optimization algorithm used to estimate the model parameters. |
+| `maxiter` | `int` | `50` | maxiter > 0 | The maximum number of iterations for the optimization algorithm. |
+| `disp` | `boolean` | `false` | true, false | Whether to print convergence messages during optimization. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- ARMA models provide a flexible framework for modeling a wide range of stationary time series patterns.
+- The model parameters are interpretable, offering insights into the underlying autoregressive and moving average processes.
+- It can produce accurate short-term forecasts for time series that exhibit stable statistical properties.
+- The Box-Jenkins methodology offers a systematic and well-established approach for model identification, estimation, and validation.
+- ARMA models are relatively simple to implement and computationally efficient compared to more complex deep learning models for time series.
+
+## Weaknesses
+
+- ARMA models strictly require the time series to be stationary, often necessitating differencing which can obscure the original data's interpretation.
+- Identifying the correct orders $p$ and $q$ can be subjective and challenging, relying heavily on the interpretation of ACF and PACF plots.
+- They struggle with non-linear relationships, structural breaks, or sudden shifts in the time series data.
+- ARMA models do not inherently handle seasonality, requiring extensions like SARIMA for seasonal patterns.
+- Long-term forecasts from ARMA models tend to become less reliable as the prediction horizon increases due to accumulating errors.
+
+## Use Cases
+
+### Economics
+
+Forecasting macroeconomic indicators such as GDP growth rates, inflation rates, or unemployment figures to inform policy decisions.
+
+### Finance
+
+Predicting short-term movements in stock prices, exchange rates, or commodity prices for trading strategies and risk management.
+
+### Meteorology
+
+Modeling temperature fluctuations, rainfall patterns, or wind speeds for short-range weather predictions and climate analysis.
+
+### Operations Management
+
+Forecasting demand for products or services to optimize inventory levels, production schedules, and resource allocation.
+
+### Environmental Science
+
+Predicting pollution levels, water flow rates in rivers, or air quality indices based on historical time series data.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ARMA from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ARMA does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ARMA Lab" />
+
+## References
+
+- Wold (1938). Wold.

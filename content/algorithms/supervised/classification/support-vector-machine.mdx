@@ -1,0 +1,195 @@
+---
+title: "Support Vector Machine"
+slug: "support-vector-machine"
+category: "supervised"
+subcategory: "classification"
+year: 1995
+author: "Cortes & Vapnik"
+paper: "Cortes & Vapnik"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["binary-classification", "classification", "kernel-methods", "large-margin", "multi-class-classification", "optimization", "statistical-learning", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "k-nearest-neighbors"
+  - "kernel-ridge-regression"
+  - "linear-discriminant-analysis"
+  - "logistic-regression"
+  - "perceptron"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They operate by finding an optimal hyperplane that maximally separates data points belonging to different classes in a high-dimensional feature space. The core idea is to maximize the margin between the decision boundary and the closest training data points, known as support vectors, thereby enhancing generalization performance.
+
+## History
+
+**1960** — Vladimir Vapnik and Alexey Chervonenkis developed the foundational theory of statistical learning, including the concept of structural risk minimization.
+
+**1992** — Bernhard Boser, Isabelle Guyon, and Vladimir Vapnik introduced the 'kernel trick,' enabling SVMs to implicitly map data into higher-dimensional spaces to handle non-linear decision boundaries.
+
+**1995** — Corinna Cortes and Vladimir Vapnik published their seminal paper 'Support-Vector Networks,' formalizing the soft-margin SVM, which allows for some misclassification to improve robustness.
+
+**1998** — John Platt developed Sequential Minimal Optimization (SMO), an efficient algorithm for training SVMs, significantly improving their practical applicability to larger datasets.
+
+**2000** — SVMs gained widespread adoption across various fields, including bioinformatics and text classification, due to their strong theoretical foundations and empirical success.
+
+## Mathematical Intuition
+
+### Optimal Separating Hyperplane
+
+The goal of a Support Vector Machine is to find a hyperplane that best separates data points of different classes. For a binary classification problem, a hyperplane in an $n$-dimensional feature space is defined by the equation $w \cdot x + b = 0$, where $w$ is the normal vector to the hyperplane and $b$ is the bias term. The decision rule for a new data point $x$ is given by $sign(w \cdot x + b)$.
+
+$$
+w \cdot x + b = 0
+$$
+
+### Maximizing the Margin
+
+The margin is defined as the distance between the separating hyperplane and the closest data points from either class, known as support vectors. To maximize this margin, we seek to maximize $2/||w||$, which is equivalent to minimizing $||w||^2/2$. The functional margin for a data point $(x_i, y_i)$ is $y_i(w \cdot x_i + b)$, and for a correctly classified point, this must be $\ge 1$.
+
+$$
+\min_{w, b} \frac{1}{2} ||w||^2
+$$
+
+$$
+\text{subject to } y_i(w \cdot x_i + b) \ge 1 \text{ for all } i=1, \dots, N.
+$$
+
+### Soft Margin Formulation
+
+For non-linearly separable data or to allow for misclassifications, the soft margin SVM introduces slack variables $\xi_i \ge 0$. These variables quantify the degree of misclassification or violation of the margin constraints. The optimization problem then includes a penalty term for these violations, controlled by the regularization parameter $C$.
+
+$$
+\min_{w, b, \xi} \frac{1}{2} ||w||^2 + C \sum_{i=1}^N \xi_i
+$$
+
+$$
+\text{subject to } y_i(w \cdot x_i + b) \ge 1 - \xi_i \text{ and } \xi_i \ge 0 \text{ for all } i=1, \dots, N.
+$$
+
+### The Kernel Trick
+
+When data is not linearly separable in the original feature space, the kernel trick allows SVMs to implicitly map the data into a higher-dimensional feature space where it might become linearly separable. This is achieved by replacing the dot product $x_i \cdot x_j$ with a kernel function $K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)$, where $\phi$ is the mapping function. Common kernels include polynomial, radial basis function (RBF), and sigmoid.
+
+$$
+K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)
+$$
+
+## Algorithm Steps
+
+1. Prepare the dataset, ensuring features are scaled appropriately and labels are encoded for binary or multi-class classification.
+2. Choose a kernel function (e.g., linear, polynomial, RBF) and set the regularization parameter $C$ and other kernel-specific hyperparameters (e.g., $gamma$ for RBF).
+3. Formulate the optimization problem, which involves minimizing $||w||^2/2 + C \sum \xi_i$ subject to the margin constraints $y_i(w \cdot \phi(x_i) + b) \ge 1 - \xi_i$.
+4. Solve the dual form of this optimization problem to find the Lagrange multipliers $\alpha_i$, which correspond to the support vectors.
+5. Compute the weight vector $w = \sum_{i=1}^N \alpha_i y_i \phi(x_i)$ and the bias term $b$ using the support vectors.
+6. Construct the decision function $f(x) = sign(\sum_{i \in SV} \alpha_i y_i K(x_i, x) + b)$ for new data points, where $SV$ denotes the set of support vector indices.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `C` | `float` | `1.0` | positive float | Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive. |
+| `kernel` | `str` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | Specifies the kernel type to be used in the algorithm. |
+| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `gamma` | `Union[str, float]` | `scale` | 'scale', 'auto', or positive float | Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If 'scale', uses $1 / (n\_features * X.var())$ as value. If 'auto', uses $1 / n\_features$. |
+| `coef0` | `float` | `0.0` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `shrinking` | `bool` | `True` | True, False | Whether to use the shrinking heuristic. |
+| `probability` | `bool` | `False` | True, False | Whether to enable probability estimates. This must be enabled prior to calling fit, and will slow down that method. |
+| `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion. |
+| `cache_size` | `float` | `200` | positive float | Specify the size of the kernel cache (in MB). |
+| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within solver, or -1 for no limit. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Effective in high-dimensional spaces, making them suitable for problems with many features.
+- Memory efficient because they only use a subset of training points (support vectors) in the decision function.
+- Versatile due to the use of different kernel functions, allowing them to model complex non-linear decision boundaries.
+- Robust to overfitting, especially with a well-chosen margin and regularization parameter $C$.
+- Strong theoretical foundation rooted in statistical learning theory, providing good generalization properties.
+- Can work well with small to medium-sized datasets where the number of features is greater than the number of samples.
+
+## Weaknesses
+
+- Can be computationally expensive and slow to train on very large datasets, especially without efficient implementations like SMO.
+- Performance is highly sensitive to the choice of kernel function and hyperparameters like $C$ and $gamma$.
+- Less effective on noisy datasets with a high degree of class overlap, as the soft margin might struggle to find a clear separation.
+- Does not directly provide probability estimates, requiring additional calibration methods like Platt scaling for probabilistic outputs.
+- Interpreting the model can be challenging, particularly when using non-linear kernels, as the decision boundary is in a transformed feature space.
+
+## Use Cases
+
+### Bioinformatics
+
+Used for protein classification, gene expression analysis, and disease diagnosis based on biological data.
+
+### Text Classification
+
+Applied in spam detection, sentiment analysis, and categorizing documents into predefined topics.
+
+### Image Recognition
+
+Employed for object detection, facial recognition, and digit recognition after feature extraction.
+
+### Handwriting Recognition
+
+Used to classify handwritten characters and digits in various applications.
+
+### Medical Diagnosis
+
+Aids in classifying medical images (e.g., MRI scans) or patient data to detect diseases.
+
+### Financial Forecasting
+
+Can be used for predicting stock market trends or credit risk assessment based on financial indicators.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Support Vector Machine from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = SVC()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Support Vector Machine Lab" />
+
+## References
+
+- Cortes & Vapnik (1995). Cortes & Vapnik.
+- [scikit-learn: SVC](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)

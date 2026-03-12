@@ -1,0 +1,190 @@
+---
+title: "GPT"
+slug: "gpt"
+category: "deep-learning"
+subcategory: "transformers"
+year: 2018
+author: "OpenAI"
+paper: "OpenAI"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["decoder-only", "deep-learning", "generative-model", "language-model", "natural-language-processing", "pre-training", "self-attention", "transformer"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "bert"
+  - "roberta"
+  - "t5"
+  - "transformer"
+---
+
+## Overview
+
+Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer) (GPT) models are a family of large language models primarily designed for natural language generation and understanding tasks. They leverage a decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, pre-trained on vast amounts of text data using an unsupervised language modeling objective. This pre-training enables GPT models to learn complex linguistic patterns, factual knowledge, and reasoning abilities, which can then be fine-tuned for various downstream applications or used directly for zero-shot and few-shot learning.
+
+## History
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture was introduced by Vaswani et al. in 'Attention Is All You Need', laying the foundational self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) for GPT models.
+
+**2018** — OpenAI introduced GPT-1 in 'Improving Language Understanding by Generative Pre-Training', demonstrating the effectiveness of pre-training a large [Transformer](/algorithms/deep-learning/transformers/transformer) decoder on diverse text and then fine-tuning for specific tasks.
+
+**2019** — GPT-2 was released by OpenAI, significantly increasing model size and demonstrating impressive zero-shot generalization capabilities across various NLP tasks without explicit fine-tuning.
+
+**2020** — OpenAI unveiled GPT-3, a massive 175-billion parameter model, showcasing remarkable few-shot learning abilities and setting new benchmarks for generative language models.
+
+**2022** — ChatGPT, a fine-tuned version of GPT-3.5, was released by OpenAI, popularizing conversational AI and demonstrating advanced dialogue capabilities.
+
+**2023** — GPT-4 was introduced by OpenAI, further enhancing reasoning, factual accuracy, and multimodal capabilities, accepting both text and image inputs.
+
+## Mathematical Intuition
+
+### Transformer Decoder Architecture
+
+The GPT model is built upon the [Transformer](/algorithms/deep-learning/transformers/transformer)'s decoder-only architecture. Each decoder block typically consists of a masked multi-head self-attention layer, followed by a position-wise feed-forward network. Residual connections and layer normalization are applied after each sub-layer to facilitate training of deep networks. The masking in self-attention ensures that a token can only attend to previous tokens in the sequence, which is crucial for generative language modeling.
+
+$$
+\text{Output} = \text{LayerNorm}(\text{Input} + \text{Sublayer}(\text{Input}))
+$$
+
+### Masked Multi-Head Self-Attention
+
+The core of the [Transformer](/algorithms/deep-learning/transformers/transformer) decoder is the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which allows the model to weigh the importance of different tokens in the input sequence when processing each token. For each token, three vectors are derived: Query ($Q$), Key ($K$), and Value ($V$). The attention scores are computed as a scaled dot product between $Q$ and $K$, followed by a softmax function. This is then multiplied by $V$. Masking is applied to prevent attention to future tokens. Multi-head attention performs this process in parallel with different learned linear projections, then concatenates and linearly transforms the results.
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
+$$
+
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O
+$$
+
+$$
+\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+### Generative Pre-training Objective
+
+GPT models are pre-trained using an unsupervised language modeling objective. Given a sequence of tokens $U = (u_1, u_2, ..., u_n)$, the model is trained to maximize the likelihood of predicting the next token $u_i$ given the previous tokens $(u_1, ..., u_{i-1})$. This is achieved by minimizing the negative log-likelihood (cross-entropy loss) over a massive corpus of text. This objective forces the model to learn grammar, facts, and reasoning patterns inherent in human language.
+
+$$
+L(U) = -\sum_{i} \log P(u_i | u_1, ..., u_{i-1}; \theta)
+$$
+
+### Positional Encoding Integration
+
+Since the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture does not inherently process sequence order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens in the sequence. These encodings can be learned or fixed (e.g., sinusoidal functions) and are summed with the token embeddings before being fed into the first decoder block.
+
+$$
+PE_{(pos, 2i)} = \sin(pos / 10000^{2i/d_{model}})
+$$
+
+$$
+PE_{(pos, 2i+1)} = \cos(pos / 10000^{2i/d_{model}})
+$$
+
+## Algorithm Steps
+
+1. Prepare a massive, diverse text corpus for unsupervised pre-training, tokenizing the text into sequences.
+2. Initialize a Transformer decoder-only model with randomly weighted parameters, including token embeddings and positional encodings.
+3. During the pre-training phase, feed input token sequences to the model, applying masked self-attention to ensure each token can only attend to preceding tokens.
+4. The model predicts the next token in the sequence based on the context provided by previous tokens, outputting a probability distribution over the vocabulary.
+5. Compute the negative log-likelihood (cross-entropy) loss between the predicted probability distribution and the actual next token.
+6. Perform backpropagation to calculate gradients and update model parameters using an optimizer like Adam.
+7. Optionally, fine-tune the pre-trained model on a smaller, task-specific dataset with a supervised objective, adapting its learned representations for specific applications.
+8. For inference, provide a prompt to the model and iteratively sample subsequent tokens based on the model's predictions, generating coherent and contextually relevant text.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_layers` | `integer` | `12` | integer > 0 | The number of Transformer decoder blocks in the model. |
+| `n_heads` | `integer` | `12` | integer > 0, typically a divisor of d_model | The number of attention heads in the multi-head self-attention mechanism. |
+| `d_model` | `integer` | `768` | integer > 0 | The dimensionality of the embedding space and the hidden states within the Transformer blocks. |
+| `d_ff` | `integer` | `3072` | integer > 0 | The dimensionality of the inner layer of the position-wise feed-forward networks. |
+| `max_position_embeddings` | `integer` | `512` | integer > 0 | The maximum sequence length that the model can handle, determining the size of positional embeddings. |
+| `vocab_size` | `integer` | `50257` | integer > 0 | The size of the vocabulary used by the tokenizer and the model's output layer. |
+| `learning_rate` | `float` | `5e-5` | float > 0 | The initial learning rate for the optimizer during training. |
+| `dropout_rate` | `float` | `0.1` | 0.0 <= float < 1.0 | The dropout probability applied to various layers for regularization. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- GPT models excel at generating highly coherent, contextually relevant, and human-like text across a wide range of styles and topics.
+- They demonstrate strong few-shot and zero-shot learning capabilities, allowing them to perform new tasks with minimal or no task-specific examples after pre-training.
+- The pre-training on vast text corpora enables the models to acquire extensive world knowledge and common sense reasoning abilities, albeit imperfectly.
+- GPT models are highly versatile and can be adapted or prompted for numerous natural language processing tasks, including summarization, translation, and question answering.
+- The Transformer architecture allows for parallel processing of input sequences, contributing to efficient training on modern hardware.
+- They learn rich, contextualized word and phrase representations that capture nuanced semantic and syntactic information.
+
+## Weaknesses
+
+- Training and deploying large GPT models require substantial computational resources, including high-end GPUs and significant energy consumption.
+- GPT models can generate factually incorrect information or 'hallucinations' due to their probabilistic nature and lack of true understanding.
+- They may perpetuate biases present in their training data, leading to unfair or harmful outputs.
+- The interpretability of decisions made by large Transformer models remains a significant challenge, making it difficult to understand their reasoning.
+- Controlling the output of generative models precisely can be difficult, often requiring careful prompt engineering or additional fine-tuning.
+
+## Use Cases
+
+### Content Generation
+
+Automating the creation of articles, marketing copy, creative writing, and social media posts.
+
+### Chatbots and Conversational AI
+
+Powering intelligent virtual assistants, customer service chatbots, and interactive dialogue systems.
+
+### Code Generation and Assistance
+
+Helping developers write code, debug, explain code snippets, and generate documentation.
+
+### Text Summarization
+
+Condensing long documents, articles, or reports into shorter, coherent summaries.
+
+### Machine Translation
+
+Translating text between different human languages, leveraging its understanding of linguistic structures.
+
+### Sentiment Analysis
+
+Analyzing text to determine the emotional tone or sentiment expressed, useful for customer feedback or social media monitoring.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GPT from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GPT does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GPT Lab" />
+
+## References
+
+- OpenAI (2018). OpenAI.

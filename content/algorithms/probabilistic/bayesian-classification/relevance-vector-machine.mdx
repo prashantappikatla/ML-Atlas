@@ -1,0 +1,183 @@
+---
+title: "Relevance Vector Machine"
+slug: "relevance-vector-machine"
+category: "probabilistic"
+subcategory: "bayesian-classification"
+year: 2001
+author: "Tipping"
+paper: "Tipping"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["automatic-relevance-determination", "bayesian", "classification", "kernel-method", "probabilistic", "regression", "sparse-learning", "uncertainty-quantification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-linear-regression"
+  - "kernel-ridge-regression"
+  - "support-vector-machine"
+---
+
+## Overview
+
+The Relevance Vector Machine (RVM) is a sparse Bayesian kernel-based model for regression and classification tasks. It leverages a hierarchical Bayesian framework with an Automatic Relevance Determination (ARD) prior over model weights, which promotes sparsity by driving many weights to zero. This results in a model that typically uses fewer basis functions (relevance vectors) than Support Vector Machines, while providing probabilistic predictions.
+
+## History
+
+**2001** — Michael E. Tipping introduced the Relevance Vector Machine in his seminal paper, 'Sparse Bayesian Learning and the Relevance Vector Machine,' establishing a new paradigm for sparse kernel models.
+
+**2003** — Tipping's work was further detailed and expanded in his Ph.D. thesis, solidifying the theoretical foundations and practical implications of RVMs for various machine learning problems.
+
+**2004** — The RVM was included in Christopher Bishop's influential textbook 'Pattern Recognition and Machine Learning,' increasing its visibility and adoption within the academic community as a powerful alternative to SVMs.
+
+**2006** — Extensions and improvements to the RVM algorithm, such as faster optimization methods and handling of larger datasets, began to emerge, addressing some of its computational challenges.
+
+## Mathematical Intuition
+
+### RVM Model and Likelihood
+
+The RVM model assumes a functional form similar to a generalized linear model, where the output $y(\mathbf{x})$ is a linear combination of kernel functions. For regression, the target $t$ for an input $\mathbf{x}$ is modeled as $t = y(\mathbf{x}) + \epsilon$, where $\epsilon$ is Gaussian noise with variance $\sigma^2$. The model output is given by: $$y(\mathbf{x}; \mathbf{w}) = \sum_{i=1}^N w_i K(\mathbf{x}, \mathbf{x}_i) + w_0$$ where $K(\cdot, \cdot)$ is a kernel function, $\mathbf{x}_i$ are the training inputs, and $\mathbf{w} = [w_0, w_1, \dots, w_N]^T$ are the weights. The likelihood of the data $\mathbf{t} = [t_1, \dots, t_N]^T$ given the weights and noise variance is: $$p(\mathbf{t}|\mathbf{w}, \sigma^2) = \prod_{n=1}^N \mathcal{N}(t_n|y(\mathbf{x}_n; \mathbf{w}), \sigma^2)$$ For classification, a sigmoid function is typically applied to $y(\mathbf{x})$ to model the probability of class membership.
+
+$$
+y(\mathbf{x}; \mathbf{w}) = \sum_{i=1}^N w_i K(\mathbf{x}, \mathbf{x}_i) + w_0
+$$
+
+$$
+p(\mathbf{t}|\mathbf{w}, \sigma^2) = \prod_{n=1}^N \mathcal{N}(t_n|y(\mathbf{x}_n; \mathbf{w}), \sigma^2)
+$$
+
+### Bayesian Priors and Sparsity
+
+To achieve sparsity and avoid overfitting, RVM employs a hierarchical Bayesian prior over the weights $\mathbf{w}$. Each weight $w_i$ is assigned an independent Gaussian prior with its own precision (inverse variance) parameter $\alpha_i$: $$p(\mathbf{w}|\boldsymbol{\alpha}) = \prod_{i=0}^N \mathcal{N}(w_i|0, \alpha_i^{-1})$$ where $\boldsymbol{\alpha} = [\alpha_0, \alpha_1, \dots, \alpha_N]^T$. These $\alpha_i$ are themselves given Gamma hyperpriors. During optimization, many $\alpha_i$ values tend to infinity, which in turn forces the corresponding $w_i$ to zero. The basis functions associated with non-zero weights are called 'relevance vectors,' analogous to support vectors in SVMs, but typically far fewer in number.
+
+$$
+p(\mathbf{w}|\boldsymbol{\alpha}) = \prod_{i=0}^N \mathcal{N}(w_i|0, \alpha_i^{-1})
+$$
+
+### Hyperparameter Optimization (ARD)
+
+The key to RVM's performance lies in learning the hyperparameters $\boldsymbol{\alpha}$ and $\sigma^2$ from the data. This is typically done by maximizing the marginal likelihood (also known as evidence) $p(\mathbf{t}|\boldsymbol{\alpha}, \sigma^2)$, which is obtained by integrating out the weights $\mathbf{w}$: $$p(\mathbf{t}|\boldsymbol{\alpha}, \sigma^2) = \int p(\mathbf{t}|\mathbf{w}, \sigma^2) p(\mathbf{w}|\boldsymbol{\alpha}) d\mathbf{w}$$ This integral can be computed analytically due to the Gaussian nature of the likelihood and prior. The maximization is usually performed using an iterative Expectation-Maximization (EM) like procedure or a fast marginal likelihood maximization algorithm. In each iteration, the posterior distribution over $\mathbf{w}$ is computed, and then $\boldsymbol{\alpha}$ and $\sigma^2$ are updated based on the moments of this posterior.
+
+$$
+p(\mathbf{t}|\boldsymbol{\alpha}, \sigma^2) = \int p(\mathbf{t}|\mathbf{w}, \sigma^2) p(\mathbf{w}|\boldsymbol{\alpha}) d\mathbf{w}
+$$
+
+### Predictive Distribution
+
+For a new input $\mathbf{x}^*$, the RVM provides a full predictive distribution $p(t^*|\mathbf{t}, \boldsymbol{\alpha}, \sigma^2)$, rather than just a point estimate. This is achieved by integrating over the posterior distribution of the weights: $$p(t^*|\mathbf{t}, \boldsymbol{\alpha}, \sigma^2) = \int p(t^*|\mathbf{x}^*, \mathbf{w}, \sigma^2) p(\mathbf{w}|\mathbf{t}, \boldsymbol{\alpha}, \sigma^2) d\mathbf{w}$$ For regression, this predictive distribution is Gaussian, with a mean and variance that depend on the relevance vectors and the learned hyperparameters. This provides a measure of uncertainty associated with each prediction, which is a significant advantage over point-estimate models.
+
+$$
+p(t^*|\mathbf{t}, \boldsymbol{\alpha}, \sigma^2) = \int p(t^*|\mathbf{x}^*, \mathbf{w}, \sigma^2) p(\mathbf{w}|\mathbf{t}, \boldsymbol{\alpha}, \sigma^2) d\mathbf{w}
+$$
+
+## Algorithm Steps
+
+1. Initialize the hyperparameters $\boldsymbol{\alpha}$ and $\sigma^2$ to small positive values, and construct the kernel matrix $\mathbf{K}$ where $K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j)$.
+2. Iteratively update the posterior distribution over weights $\mathbf{w}$ given the current hyperparameters, calculating its mean $\boldsymbol{\mu}$ and covariance $\boldsymbol{\Sigma}$.
+3. Update the noise variance $\sigma^2$ using the current posterior moments of $\mathbf{w}$ and the data, typically via an analytical expression derived from maximizing the marginal likelihood.
+4. Update each precision hyperparameter $\alpha_i$ based on the corresponding posterior mean $\mu_i$ and variance $\Sigma_{ii}$ of $w_i$, using an analytical update rule.
+5. Monitor the $\alpha_i$ values; if an $\alpha_i$ becomes very large, the corresponding weight $w_i$ is effectively driven to zero, and that basis function (and its associated data point) can be removed from the model.
+6. Repeat steps 2-5 until convergence, which is typically determined by a small change in the marginal likelihood or the hyperparameters between iterations, or until a maximum number of iterations is reached.
+7. Upon convergence, the final set of non-zero weights $\mathbf{w}$ and their associated data points (relevance vectors) define the sparse model.
+8. For prediction, use the learned posterior distribution of $\mathbf{w}$ and $\sigma^2$ to compute the predictive mean and variance for new input data points.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `str` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid' | Specifies the kernel type to be used in the algorithm. Common choices include 'linear', 'poly', 'rbf' (Gaussian), and 'sigmoid'. |
+| `gamma` | `float or 'scale'` | `'scale'` | positive float or 'scale' | Kernel coefficient for 'rbf', 'poly', and 'sigmoid' kernels. If 'scale', it uses $1 / (n_{features} * X.var())$ as value. |
+| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `coef0` | `float` | `0.0` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
+| `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion. The algorithm converges when the change in hyperparameters falls below this threshold. |
+| `max_iter` | `int` | `1000` | integer >= 1 | Maximum number of iterations for the optimization algorithm. If the algorithm does not converge within this limit, it stops. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- RVMs typically produce much sparser models than Support Vector Machines, requiring fewer basis functions (relevance vectors) for prediction.
+- The Bayesian framework provides probabilistic outputs for predictions, including a measure of uncertainty, which is valuable for decision-making.
+- RVMs naturally avoid the need for a regularization parameter like SVM's $C$, as sparsity is achieved through the Automatic Relevance Determination prior.
+- The model is less sensitive to the choice of kernel parameters compared to SVMs, as these are learned from the data.
+- RVMs can generalize well even with limited training data due to their Bayesian formulation and inherent sparsity.
+
+## Weaknesses
+
+- The training process for RVMs can be computationally more expensive and slower than SVMs, especially for large datasets, due to the iterative optimization of hyperparameters.
+- The optimization procedure for RVMs can converge to local optima, potentially leading to suboptimal models.
+- RVMs can be sensitive to the choice of kernel function, and an inappropriate kernel may lead to poor performance.
+- The probabilistic output for classification tasks often requires approximation methods, which can add complexity and potential inaccuracies.
+- Unlike SVMs, RVMs do not have a guaranteed global optimum for the hyperparameter optimization, making convergence properties less predictable.
+
+## Use Cases
+
+### Medical Diagnosis
+
+RVMs can be used for classifying diseases based on patient data, providing not only a diagnosis but also a confidence score, which is crucial in clinical settings.
+
+### Bioinformatics
+
+Applied in gene expression analysis or protein structure prediction, RVMs can identify key features (relevance vectors) that are most indicative of biological outcomes.
+
+### Signal Processing
+
+RVMs are effective for noise reduction, signal reconstruction, and system identification, particularly when dealing with sparse or high-dimensional sensor data.
+
+### Financial Forecasting
+
+Used for predicting stock prices or market trends, RVMs can offer probabilistic forecasts and identify the most relevant economic indicators.
+
+### Robotics
+
+In control systems and sensor fusion, RVMs can model complex dynamics and make robust predictions with uncertainty estimates, aiding in autonomous navigation and decision-making.
+
+### Image Processing
+
+After feature extraction, RVMs can be used for object recognition, image classification, or segmentation tasks, benefiting from their sparsity and probabilistic outputs.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Relevance Vector Machine from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import RelevanceVectorMachine
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = RelevanceVectorMachine()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Relevance Vector Machine Lab" />
+
+## References
+
+- Tipping (2001). Tipping.
+- [scikit-learn: RelevanceVectorMachine](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.RelevanceVectorMachine.html)

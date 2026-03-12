@@ -1,0 +1,183 @@
+---
+title: "Gradient Boosting for Forecasting"
+slug: "gradient-boosting-for-forecasting"
+category: "time-series"
+subcategory: "machine-learning-forecasting"
+year: 1999
+author: "Friedman"
+paper: "Friedman"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["boosting", "decision-trees", "ensemble", "forecasting", "gradient-descent", "regression", "supervised-learning", "time-series"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adaboost"
+  - "catboost"
+  - "lightgbm"
+  - "xgboost"
+---
+
+## Overview
+
+Gradient Boosting for Forecasting is an ensemble machine learning technique that builds a strong predictive model by sequentially combining multiple weak learners, typically decision trees. Each new tree is trained to correct the errors of the preceding ensemble, iteratively minimizing a differentiable loss function. This method excels in capturing complex non-linear relationships and interactions within time-series data, making it highly effective for predicting future values.
+
+## History
+
+**1999** — Jerome Friedman introduced the Gradient Boosting Machine (GBM), formalizing the concept of boosting by fitting new models to the negative gradient of the loss function.
+
+**2001** — Friedman published 'Greedy Function Approximation: A Gradient Boosting Machine,' providing a comprehensive framework and theoretical foundation for the algorithm.
+
+**2014** — Chen and Guestrin released [XGBoost](/algorithms/supervised/regression/xgboost) (eXtreme Gradient Boosting), an optimized and scalable implementation that significantly improved performance and popularized gradient boosting in competitive machine learning.
+
+**2016** — Microsoft introduced [LightGBM](/algorithms/supervised/regression/lightgbm), a gradient boosting framework that uses tree-based learning algorithms, designed for distributed and high-performance training, particularly on large datasets.
+
+**2017** — Yandex released [CatBoost](/algorithms/supervised/regression/catboost), another gradient boosting library that addresses categorical features more effectively and reduces overfitting through ordered boosting.
+
+## Mathematical Intuition
+
+### Ensemble Learning via Additive Models
+
+Gradient Boosting constructs an additive model $F_M(x)$ as a weighted sum of $M$ weak learners $h_m(x)$, typically decision trees. The model is built iteratively, where each new learner $h_m(x)$ is added to improve the overall prediction. The general form of the ensemble model at iteration $m$ is $F_m(x) = F_{m-1}(x) + ho_m h_m(x)$, where $F_0(x)$ is an initial constant prediction, and $ho_m$ is the weight or step size for the $m$-th learner.
+
+$$
+F_M(x) = \sum_{m=1}^M \rho_m h_m(x)
+$$
+
+$$
+F_m(x) = F_{m-1}(x) + \rho_m h_m(x)
+$$
+
+### Minimizing Loss with Gradient Descent
+
+The core idea of Gradient Boosting is to minimize a differentiable loss function $L(y, F(x))$ by iteratively adding weak learners that 'step' in the direction of the negative gradient. At each iteration $m$, the algorithm computes the negative gradient of the loss function with respect to the current ensemble's prediction $F_{m-1}(x)$, evaluated at each data point $(x_i, y_i)$. These negative gradients, often called pseudo-residuals, serve as the targets for the new weak learner.
+
+$$
+\hat{g}_{im} = -\left[ \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right]_{F(x_i)=F_{m-1}(x_i)}
+$$
+
+### Fitting Weak Learners to Pseudo-Residuals
+
+Once the pseudo-residuals $\hat{g}_{im}$ are computed for all data points, a new weak learner $h_m(x)$ (e.g., a regression tree) is fitted to predict these pseudo-residuals. That is, the tree is trained to map input features $x_i$ to $\hat{g}_{im}$. The goal of this weak learner is to approximate the steepest descent direction in the function space, effectively identifying where the current model $F_{m-1}(x)$ is making the largest errors.
+
+$$
+h_m(x) \approx \hat{g}_{im}
+$$
+
+### Updating the Ensemble Model
+
+After fitting $h_m(x)$, the optimal step size $\rho_m$ (also known as the learning rate or shrinkage parameter) is determined. This step size scales the output of the weak learner and is chosen to minimize the loss function when adding $h_m(x)$ to the current model. The ensemble model is then updated by adding the scaled weak learner: $F_m(x) = F_{m-1}(x) + \nu \cdot \rho_m h_m(x)$, where $\nu$ is a global learning rate parameter (shrinkage) that controls the contribution of each tree and helps prevent overfitting.
+
+$$
+\rho_m = \operatorname{argmin}_{\rho} \sum_{i=1}^N L(y_i, F_{m-1}(x_i) + \rho h_m(x_i))
+$$
+
+$$
+F_m(x) = F_{m-1}(x) + \nu \cdot \rho_m h_m(x)
+$$
+
+## Algorithm Steps
+
+1. Initialize the ensemble model $F_0(x)$ with a constant value, typically the argument that minimizes the loss function for the given data, e.g., $F_0(x) = \operatorname{argmin}_{\rho} \sum_{i=1}^N L(y_i, \rho)$.
+2. For $m = 1$ to $M$ (number of boosting iterations):
+3. Compute the negative gradient (pseudo-residuals) for each data point $(x_i, y_i)$ with respect to the current model $F_{m-1}(x)$: $\hat{g}_{im} = -[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}]_{F(x_i)=F_{m-1}(x_i)}$.
+4. Fit a base learner $h_m(x)$ (e.g., a decision tree) to the pseudo-residuals $\hat{g}_{im}$ as targets, using the original features $x_i$.
+5. Determine the optimal step size $\rho_m$ for the current base learner by solving $\rho_m = \operatorname{argmin}_{\rho} \sum_{i=1}^N L(y_i, F_{m-1}(x_i) + \rho h_m(x_i))$.
+6. Update the ensemble model: $F_m(x) = F_{m-1}(x) + \nu \cdot \rho_m h_m(x)$, where $\nu$ is the learning rate (shrinkage parameter).
+7. The final model is $F_M(x)$.
+8. For forecasting, apply the trained model $F_M(x)$ to future time steps, often requiring lagged features of the target variable and exogenous variables.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_estimators` | `int` | `100` | 1 to infinity | The number of boosting stages (weak learners) to perform. Increasing this can improve accuracy but also increases computation time and risk of overfitting. |
+| `learning_rate` | `float` | `0.1` | 0.0 to 1.0 | Shrinkage parameter that scales the contribution of each tree. A smaller learning rate requires more estimators but can lead to more robust models. |
+| `max_depth` | `int` | `3` | 1 to infinity | The maximum depth of the individual regression estimators (decision trees). Controls the complexity of the weak learners. |
+| `subsample` | `float` | `1.0` | 0.0 to 1.0 | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce randomness and can reduce variance. |
+| `min_samples_leaf` | `int or float` | `1` | 1 to infinity (int) or 0.0 to 1.0 (float) | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
+| `loss` | `str` | `squared_error` | 'squared_error', 'absolute_error', 'huber', 'quantile' | The loss function to be optimized. Common choices include 'squared_error' for regression, 'absolute_error' for robustness to outliers, or 'huber' for a combination. |
+| `criterion` | `str` | `friedman_mse` | 'friedman_mse', 'squared_error', 'mse' | The function to measure the quality of a split in the decision trees. 'friedman_mse' is a variant of mean squared error with an improvement score by Friedman. |
+| `alpha` | `float` | `0.9` | 0.0 to 1.0 | The quantile for the 'huber' and 'quantile' loss functions. Only relevant when these loss functions are selected. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Gradient Boosting models often achieve high predictive accuracy, frequently outperforming many other machine learning algorithms on complex datasets.
+- It can model complex non-linear relationships and interactions between features, which is crucial for capturing intricate patterns in time series.
+- The algorithm is robust to different types of features, including numerical and categorical, and can handle missing values depending on the implementation.
+- It provides feature importance scores, allowing practitioners to understand which variables contribute most to the forecasts.
+- With appropriate loss functions, it can be robust to outliers in the data.
+- The sequential nature allows for continuous improvement by focusing on previously mispredicted instances.
+
+## Weaknesses
+
+- Gradient Boosting models are prone to overfitting if hyperparameters are not carefully tuned, especially on noisy or small datasets.
+- Training can be computationally intensive and slow, particularly on very large datasets or with many boosting stages, due to its sequential nature.
+- The sequential training process makes parallelization difficult, limiting speedups on multi-core processors.
+- Interpretability can be challenging compared to a single decision tree, as the final model is a complex ensemble of many trees.
+- It requires careful feature engineering for time series data, such as creating lag features, rolling statistics, and trend components, to capture temporal dependencies effectively.
+
+## Use Cases
+
+### Retail
+
+Forecasting sales demand for various products to optimize inventory management and supply chain logistics.
+
+### Finance
+
+Predicting stock prices, market trends, or credit risk over time, leveraging historical financial data and economic indicators.
+
+### Energy
+
+Forecasting electricity demand or renewable energy generation to improve grid management and resource allocation.
+
+### Healthcare
+
+Predicting disease outbreaks, patient admissions, or medical resource needs based on historical health data and environmental factors.
+
+### Manufacturing
+
+Forecasting equipment failures, production output, or raw material needs to optimize maintenance schedules and production planning.
+
+### Weather and Climate
+
+Predicting temperature, precipitation, or other meteorological conditions for short-term and medium-term forecasts.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Gradient Boosting for Forecasting from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Gradient Boosting for Forecasting does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Gradient Boosting for Forecasting Lab" />
+
+## References
+
+- Friedman (1999). Friedman.

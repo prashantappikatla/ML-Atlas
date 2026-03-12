@@ -1,0 +1,161 @@
+---
+title: "DenseNet"
+slug: "densenet"
+category: "deep-learning"
+subcategory: "convolutional-networks"
+year: 2017
+author: "Huang et al."
+paper: "Huang et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bottleneck-layers", "computer-vision", "convolutional-neural-network", "deep-learning", "dense-connectivity", "feature-reuse", "image-classification", "vanishing-gradient"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "alexnet"
+  - "efficientnet"
+  - "resnet"
+  - "resnext"
+  - "u-net"
+  - "vgg"
+---
+
+## Overview
+
+DenseNet, or Densely Connected Convolutional Network, addresses the vanishing-gradient problem and encourages feature reuse by connecting each layer to every other layer in a feed-forward fashion within a dense block. Unlike [ResNet](/algorithms/deep-learning/convolutional-networks/resnet), which sums features from previous layers, DenseNet concatenates them, leading to a more compact model with fewer parameters and improved representational power. This architecture facilitates direct access to gradients from the loss function and original input, enhancing information flow throughout the network.
+
+## History
+
+**2017** — Gao Huang, Zhuang Liu, Laurens van der Maaten, and Kilian Q. Weinberger introduced DenseNet in their paper "Densely Connected Convolutional Networks," proposing a novel connectivity pattern that significantly improved performance on image recognition tasks while reducing the number of parameters.
+
+## Mathematical Intuition
+
+### Dense Connectivity within Blocks
+
+In a traditional convolutional network with $L$ layers, the $l$-th layer receives the output of the $(l-1)$-th layer as its input. ResNets introduce a skip connection that adds the output of the $(l-1)$-th layer to the output of the $(l-2)$-th layer. DenseNet takes this further by connecting every layer to every subsequent layer within a dense block. Specifically, the output of the $l$-th layer, $x_l$, receives the feature maps of all preceding layers, $x_0, ..., x_{l-1}$, as input. This concatenation is represented as: $$x_l = H_l([x_0, x_1, ..., x_{l-1}])$$ where $[x_0, x_1, ..., x_{l-1}]$ denotes the concatenation of the feature maps produced by layers $0, ..., l-1$, and $H_l$ is a composite function typically consisting of Batch Normalization, ReLU activation, and a $3 \times 3$ Convolution.
+
+$$
+x_l = H_l([x_0, x_1, ..., x_{l-1}])
+$$
+
+### Growth Rate and Feature Reuse
+
+The number of feature maps produced by each layer within a dense block is controlled by a hyperparameter called the growth rate, denoted as $k$. If each $H_l$ produces $k$ feature maps, then the $l$-th layer has $k_0 + k \times (l-1)$ input feature maps, where $k_0$ is the number of feature maps in the input to the dense block. This design promotes feature reuse across the network, as each layer has access to a 'collective knowledge' of all preceding feature maps. A small growth rate $k$ is often sufficient to achieve state-of-the-art results, leading to more compact models.
+
+$$
+k
+$$
+
+$$
+k_0 + k \times (l-1)
+$$
+
+### Bottleneck and Transition Layers
+
+To improve computational efficiency and reduce the number of input feature maps to subsequent layers, DenseNet employs bottleneck layers and transition layers. Within a dense block, a $1 \times 1$ convolution (bottleneck layer) is often applied before the $3 \times 3$ convolution. This reduces the number of input feature maps to the $3 \times 3$ convolution, making it more efficient. Between dense blocks, transition layers are used for downsampling. A transition layer consists of a $1 \times 1$ convolution followed by a $2 \times 2$ average pooling layer. A compression factor $\theta \in (0, 1]$ can be applied in the transition layer, reducing the number of output feature maps from the preceding dense block by a factor of $\theta$. If a dense block has $M$ feature maps, the transition layer will output $\lfloor \theta M \rfloor$ feature maps.
+
+$$
+\theta \in (0, 1]
+$$
+
+$$
+\lfloor \theta M \rfloor
+$$
+
+## Algorithm Steps
+
+1. An input image is passed through an initial convolutional layer followed by a max-pooling layer to extract low-level features and reduce spatial dimensions.
+2. The output then enters a sequence of dense blocks, each comprising multiple densely connected layers.
+3. Within each dense layer, the input feature maps are concatenated with the outputs of all preceding layers within that block, then passed through a composite function (Batch Normalization, ReLU, $1 \times 1$ Convolution, Batch Normalization, ReLU, $3 \times 3$ Convolution).
+4. Between dense blocks, transition layers are applied, consisting of a $1 \times 1$ Convolution (to reduce feature map count) and a $2 \times 2$ average pooling layer (to reduce spatial dimensions).
+5. After the final dense block, a global average pooling layer is applied to reduce each feature map to a single value.
+6. The resulting feature vector is then fed into a fully connected softmax layer for classification.
+7. The network is trained end-to-end using backpropagation and an optimization algorithm (e.g., SGD, Adam) to minimize a loss function (e.g., cross-entropy for classification).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `growth_rate` | `int` | `32` | Positive integer | The number of feature maps (channels) produced by each layer within a dense block. |
+| `block_config` | `tuple` | `(6, 12, 24, 16)` | Tuple of positive integers | A tuple specifying the number of layers in each dense block. The length of the tuple determines the number of dense blocks. |
+| `num_init_features` | `int` | `64` | Positive integer | The number of feature maps (channels) produced by the initial convolutional layer before the first dense block. |
+| `compression_rate` | `float` | `0.5` | 0.0 < compression_rate <= 1.0 | The factor by which the number of feature maps is reduced in the transition layers. A value of 1.0 means no compression. |
+| `dropout_rate` | `float` | `0.0` | 0.0 <= dropout_rate < 1.0 | The dropout probability applied after each convolutional layer within dense blocks and transition layers for regularization. |
+| `kernel_size` | `int` | `3` | Positive integer (e.g., 3) | The size of the convolutional kernel used in the $3 \times 3$ convolutional layers within dense blocks. |
+| `activation` | `str` | `relu` | e.g., 'relu', 'leaky_relu' | The activation function used after batch normalization in the composite function. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- DenseNet effectively mitigates the vanishing-gradient problem by providing direct connections from earlier layers to later layers.
+- It encourages feature reuse, leading to more compact models with fewer parameters compared to other architectures like ResNet for similar performance.
+- The architecture improves information flow and gradient propagation throughout the network, enhancing learning efficiency.
+- DenseNets often achieve state-of-the-art performance on various image recognition benchmarks.
+- The explicit concatenation of features provides a clear distinction between features that are reused and features that are newly generated by each layer.
+
+## Weaknesses
+
+- DenseNet can have high memory consumption due to the concatenation of feature maps, especially for very deep models.
+- The computational cost can be significant for extremely deep DenseNets, despite having fewer parameters than some alternatives.
+- The dense connectivity pattern can make the architecture more complex to visualize and debug compared to simpler sequential models.
+- The concatenation operation can lead to a large number of input channels for later layers, potentially increasing the computational burden of convolutional operations.
+
+## Use Cases
+
+### Image Classification
+
+DenseNet is widely used for classifying images into predefined categories, achieving high accuracy on datasets like ImageNet, CIFAR-10, and CIFAR-100.
+
+### Object Detection
+
+It serves as a powerful backbone network in object detection frameworks (e.g., Faster R-CNN, YOLO) to extract robust features for localizing and identifying objects within images.
+
+### Semantic Segmentation
+
+DenseNet architectures are adapted for pixel-level classification tasks, such as segmenting different regions or objects in an image, often integrated into [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) or FCN-like structures.
+
+### Medical Image Analysis
+
+Its ability to learn rich features from limited data makes it suitable for tasks like disease diagnosis from X-rays, MRI scans, and CT scans, and tumor detection.
+
+### Satellite Imagery Analysis
+
+DenseNets are applied to analyze satellite and aerial imagery for land cover classification, urban planning, and environmental monitoring due to their strong feature extraction capabilities.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DenseNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+# DenseNet does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="DenseNet Lab" />
+
+## References
+
+- Huang et al. (2017). Huang et al..

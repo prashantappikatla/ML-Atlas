@@ -1,0 +1,171 @@
+---
+title: "Chinese Restaurant Process"
+slug: "chinese-restaurant-process"
+category: "probabilistic"
+subcategory: "bayesian-nonparametrics"
+year: 1997
+author: "Pitman / Aldous"
+paper: "Pitman / Aldous"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian-nonparametrics", "clustering", "dirichlet-process", "generative-model", "partition-model", "probabilistic", "stochastic-process", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "dirichlet-process-mixture-model"
+  - "gaussian-mixture-model"
+  - "hierarchical-dirichlet-process"
+  - "indian-buffet-process"
+---
+
+## Overview
+
+The Chinese Restaurant Process (CRP) is a stochastic process that generates random partitions of integers, providing a foundational model in Bayesian nonparametrics. It offers an intuitive metaphor for sequential clustering, where customers (data points) arrive and choose to sit at an existing table (cluster) or start a new one, with probabilities dependent on the number of people already at each table. This process is a key component for constructing flexible probabilistic models, particularly those that can infer the number of clusters from data, such as the [Dirichlet Process Mixture Model](/algorithms/unsupervised/clustering/dirichlet-process-mixture-model).
+
+## History
+
+**1975** — John Kingman introduces the Kingman coalescent, a stochastic process describing partitions, laying groundwork for exchangeable partition structures.
+
+**1985** — David Aldous publishes work on exchangeable random partitions, contributing to the mathematical understanding of such processes.
+
+**1995** — Jim Pitman formalizes the Pitman-Yor process, a generalization of the CRP, in his work on random partitions.
+
+**1997** — Jim Pitman and Lester Dubins are credited with popularizing the "Chinese Restaurant Process" metaphor, which provides an intuitive explanation for the distribution over partitions induced by the Dirichlet Process.
+
+**2000** — The CRP becomes a widely used conceptual tool and prior in Bayesian nonparametric models, particularly in areas like topic modeling and density estimation.
+
+## Mathematical Intuition
+
+### CRP Metaphor and Predictive Rule
+
+The Chinese Restaurant Process models the sequential assignment of customers to tables. The first customer always starts a new table. For subsequent customers, the probability of joining an existing table is proportional to the number of customers already seated there, while the probability of starting a new table is proportional to a concentration parameter $\alpha$. This "rich-get-richer" dynamic naturally leads to partitions where a few large clusters (tables) are common, alongside several smaller ones.
+$$ P(z_i = k | z_1, \dots, z_{i-1}, \alpha) = \begin{cases} \frac{n_k}{i-1+\alpha} & \text{if } k \text{ is an existing table} \\ \frac{\alpha}{i-1+\alpha} & \text{if } k \text{ is a new table} \end{cases} $$
+Here, $z_i$ is the table assignment for customer $i$, $n_k$ is the number of customers at table $k$, and $\alpha > 0$ is the concentration parameter.
+
+$$
+P(z_i = k | z_1, \dots, z_{i-1}, \alpha) = \begin{cases} \frac{n_k}{i-1+\alpha} & \text{if } k \text{ is an existing table} \\ \frac{\alpha}{i-1+\alpha} & \text{if } k \text{ is a new table} \end{cases}
+$$
+
+### Connection to Dirichlet Process
+
+The Chinese Restaurant Process is a constructive definition of the distribution over partitions induced by the Dirichlet Process (DP). Specifically, if we draw samples from a Dirichlet Process $G \sim \text{DP}(\alpha, G_0)$, where $G_0$ is the base distribution, and then draw observations $x_i \sim G$ for $i=1, \dots, N$, the partition of these observations into groups sharing the same underlying parameter value from $G$ follows the CRP. This connection is crucial for understanding how the CRP provides a prior for clustering in Bayesian nonparametric models.
+$$ G \sim \text{DP}(\alpha, G_0) $$
+$$ x_i \sim G \quad \text{for } i=1, \dots, N $$
+
+$$
+G \sim \text{DP}(\alpha, G_0)
+$$
+
+$$
+x_i \sim G \quad \text{for } i=1, \dots, N
+$$
+
+### Exchangeability and De Finetti's Theorem
+
+The CRP generates exchangeable partitions, meaning the probability of a particular partition structure is invariant to the ordering of the customers. This property is fundamental in Bayesian statistics, as De Finetti's Theorem states that an exchangeable sequence of random variables is a mixture of i.i.d. sequences. In the context of CRP, this implies that the observed partition can be thought of as arising from an underlying, unobserved random measure (the Dirichlet Process), which generates the parameters for each cluster.
+
+## Algorithm Steps
+
+1. Initialize the process by seating the first customer at the first table; the number of existing tables $K=1$ and the total number of customers $N=1$.
+2. For each subsequent customer $i$ from $2$ to $N$ (total customers):
+3. Calculate the probability of joining each existing table $k$ as $P(\text{join table } k) = \frac{n_k}{i-1+\alpha}$, where $n_k$ is the current number of customers at table $k$.
+4. Calculate the probability of starting a new table as $P(\text{start new table}) = \frac{\alpha}{i-1+\alpha}$.
+5. Draw a random number $u \sim \text{Uniform}(0,1)$.
+6. Assign customer $i$ to an existing table $k$ if $u$ falls within the cumulative probability range for that table, or assign customer $i$ to a new table if $u$ falls within the range for starting a new table.
+7. Update the counts $n_k$ for the chosen table and increment the total number of customers $i$; if a new table was started, increment $K$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | alpha > 0 | The concentration parameter that controls the propensity for new tables (clusters) to be formed. A larger $\alpha$ encourages more clusters, while a smaller $\alpha$ favors fewer, larger clusters. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It automatically determines the number of clusters from the data, removing the need for a pre-specified cluster count.
+- The non-parametric nature allows for flexible modeling of complex data structures without strong assumptions about the underlying distribution.
+- It provides a rich and interpretable prior for clustering, allowing for a principled Bayesian approach to grouping data.
+- The "rich-get-richer" property naturally encourages a few large clusters while allowing for many smaller, unique clusters.
+- It forms the basis for many advanced Bayesian nonparametric models, including hierarchical and dependent processes.
+
+## Weaknesses
+
+- The computational cost can be high for large datasets, especially when integrated into complex inference algorithms like Gibbs sampling.
+- The concentration parameter $\alpha$ can significantly influence the resulting number of clusters, requiring careful prior specification or inference.
+- It does not directly process raw data; it requires a likelihood model (e.g., Gaussian, multinomial) to connect the partition to observed features.
+- The "rich-get-richer" effect can sometimes lead to a "stickiness" where new data points are strongly attracted to existing large clusters, making it harder to form new, smaller clusters.
+
+## Use Cases
+
+### Clustering
+
+Used as a prior for the number of clusters in Bayesian nonparametric clustering models, such as Dirichlet Process Mixture Models.
+
+### Topic Modeling
+
+Forms the basis for [Hierarchical Dirichlet Process](/algorithms/unsupervised/topic-modeling/hierarchical-dirichlet-process) (HDP) topic models, which can discover an unknown number of topics in text corpora.
+
+### Bioinformatics
+
+Applied in population genetics to infer population structure without assuming a fixed number of ancestral populations.
+
+### Image Segmentation
+
+Can be incorporated into models for segmenting images into an unknown number of distinct regions based on pixel properties.
+
+### Natural Language Processing
+
+Used in tasks like word sense disambiguation or discovering latent categories of words or phrases.
+
+### Anomaly Detection
+
+Can identify rare or novel patterns by assigning them to new, small clusters that deviate from established groups.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Chinese Restaurant Process from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import ChineseRestaurantProcess
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ChineseRestaurantProcess()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Chinese Restaurant Process Lab" />
+
+## References
+
+- Pitman / Aldous (1997). Pitman / Aldous.
+- [scikit-learn: ChineseRestaurantProcess](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ChineseRestaurantProcess.html)

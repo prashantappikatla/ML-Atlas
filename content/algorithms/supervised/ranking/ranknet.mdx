@@ -1,0 +1,180 @@
+---
+title: "RankNet"
+slug: "ranknet"
+category: "supervised"
+subcategory: "ranking"
+year: 2005
+author: "Burges et al."
+paper: "Burges et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["cross-entropy", "gradient-descent", "information-retrieval", "learning-to-rank", "neural-networks", "pairwise-ranking", "recommender-systems", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "lambdamart"
+---
+
+## Overview
+
+RankNet addresses the problem of learning to rank by transforming it into a pairwise classification task. It employs a neural network to predict a relevance score for individual items and optimizes these scores by minimizing a cross-entropy loss over pairs of documents, aiming to correctly order them based on their true relative relevance. This approach enables the model to learn complex non-linear ranking functions directly from preference data, making it a foundational algorithm in the learning-to-rank field.
+
+## History
+
+**2005** — Burges et al. introduce RankNet at ICML, proposing a neural network-based approach for learning to rank using pairwise preferences.
+
+**2006** — Chris Burges publishes "Learning to Rank using Gradient Descent," further detailing RankNet and its loss function, solidifying its theoretical underpinnings.
+
+**2007** — RankNet serves as a foundational component for LambdaRank, which improves upon its gradient by incorporating non-differentiable ranking metrics like NDCG into the optimization process.
+
+**2008** — [LambdaMART](/algorithms/supervised/ranking/lambdamart), an extension of LambdaRank using Multiple Additive Regression Trees (MART), emerges as a highly effective and widely adopted ranking algorithm, building on the pairwise ranking principles established by RankNet.
+
+## Mathematical Intuition
+
+### Pairwise Preference and Scoring
+
+RankNet operates by considering pairs of items $(x_i, x_j)$ from a given query. A neural network $f(x)$ is used to assign a relevance score $s_k = f(x_k)$ to each item $x_k$. The model then predicts the probability that item $x_i$ is more relevant than item $x_j$ using a sigmoid function applied to the difference of their scores:
+$$P_{ij} = P(x_i \succ x_j | x_i, x_j) = \frac{1}{1 + e^{-(s_i - s_j)}}$$
+Here, $s_i$ and $s_j$ are the scores predicted by the neural network for items $x_i$ and $x_j$, respectively. The true preference $\bar{P}_{ij}$ is defined as 1 if $x_i$ is truly more relevant than $x_j$, 0 if $x_j$ is truly more relevant than $x_i$, and 0.5 if they have equal relevance.
+
+$$
+P_{ij} = P(x_i \succ x_j | x_i, x_j) = \frac{1}{1 + e^{-(s_i - s_j)}}
+$$
+
+### Cross-Entropy Loss Function
+
+To learn the ranking function, RankNet minimizes a cross-entropy loss function over all ordered pairs of documents. For a single pair $(x_i, x_j)$, the loss is given by:
+$$C(P_{ij}, \bar{P}_{ij}) = -\bar{P}_{ij} \log P_{ij} - (1 - \bar{P}_{ij}) \log (1 - P_{ij})$$
+The total loss $L$ for a given query is the sum of these pairwise losses over all relevant pairs $\mathcal{P}$:
+$$L = \sum_{(i,j) \in \mathcal{P}} C(P_{ij}, \bar{P}_{ij})$$
+This loss function encourages the model to assign higher scores to more relevant items within each pair, aligning the predicted probabilities $P_{ij}$ with the true preferences $\bar{P}_{ij}$.
+
+$$
+C(P_{ij}, \bar{P}_{ij}) = -\bar{P}_{ij} \log P_{ij} - (1 - \bar{P}_{ij}) \log (1 - P_{ij})
+$$
+
+$$
+L = \sum_{(i,j) \in \mathcal{P}} C(P_{ij}, \bar{P}_{ij})
+$$
+
+### Gradient Calculation for Optimization
+
+The neural network weights are updated using gradient descent. The gradient of the loss with respect to the score $s_k$ of an item $x_k$ is crucial for backpropagation. It can be shown that the gradient $\lambda_k = \frac{\partial L}{\partial s_k}$ for a specific item $x_k$ is:
+$$\lambda_k = \sum_{j: (k,j) \in \mathcal{P}} (\bar{P}_{kj} - P_{kj}) - \sum_{i: (i,k) \in \mathcal{P}} (\bar{P}_{ik} - P_{ik})$$
+This $\lambda_k$ term represents the net 'push' or 'pull' on the score $s_k$ based on all pairs involving $x_k$. The term $(\bar{P}_{kj} - P_{kj})$ indicates how much the predicted preference for $x_k$ over $x_j$ deviates from the true preference. These gradients are then propagated back through the neural network to update its weights.
+
+$$
+\lambda_k = \sum_{j: (k,j) \in \mathcal{P}} (\bar{P}_{kj} - P_{kj}) - \sum_{i: (i,k) \in \mathcal{P}} (\bar{P}_{ik} - P_{ik})
+$$
+
+## Algorithm Steps
+
+1. Initialize a neural network $f(x)$ with random weights to serve as the scoring function.
+2. For each query in the training dataset, generate all possible ordered pairs of documents $(x_i, x_j)$ that are associated with that query.
+3. For each pair $(x_i, x_j)$, determine the true preference $\bar{P}_{ij}$: 1 if $x_i$ is more relevant than $x_j$, 0 if $x_j$ is more relevant than $x_i$, and 0.5 if they have equal relevance.
+4. Compute the predicted scores $s_i = f(x_i)$ and $s_j = f(x_j)$ for each document in the pair using the current neural network.
+5. Calculate the predicted probability $P_{ij} = \frac{1}{1 + e^{-(s_i - s_j)}}$ that $x_i$ is more relevant than $x_j$.
+6. Compute the pairwise cross-entropy loss $L = \sum_{(i,j)} [-\bar{P}_{ij} \log P_{ij} - (1 - \bar{P}_{ij}) \log (1 - P_{ij})]$ over all training pairs.
+7. Calculate the gradients of the loss with respect to the neural network weights using backpropagation, based on the $\lambda_k$ terms.
+8. Update the neural network weights using an optimization algorithm like stochastic gradient descent to minimize the loss.
+9. Repeat steps 2-8 for a fixed number of epochs or until convergence criteria are met.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers, e.g., (50, 20) | The sizes of the hidden layers in the neural network. Each element represents the number of neurons in that layer. |
+| `activation` | `string` | `relu` | 'identity', 'logistic', 'tanh', 'relu' | Activation function for the hidden layers. |
+| `solver` | `string` | `adam` | 'lbfgs', 'sgd', 'adam' | The solver for weight optimization. |
+| `alpha` | `float` | `0.0001` | float >= 0.0 | L2 penalty (regularization term) parameter. |
+| `batch_size` | `int` | `'auto'` | integer >= 1 or 'auto' | Size of minibatches for stochastic optimizers. If 'auto', batch_size=min(200, n_samples). |
+| `learning_rate_init` | `float` | `0.001` | float > 0.0 | The initial learning rate used for 'sgd' or 'adam' solvers. |
+| `max_iter` | `int` | `200` | integer >= 1 | Maximum number of iterations (epochs) for the solver to run. |
+| `tol` | `float` | `1e-4` | float >= 0.0 | Tolerance for the optimization. When the loss or score is not improving by at least 'tol' for 'n_iter_no_change' consecutive iterations, convergence is considered to be reached. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- RankNet can learn complex non-linear ranking functions due to its use of neural networks as the scoring mechanism.
+- The pairwise approach directly optimizes for relative order, which is often more aligned with the intrinsic nature of ranking problems than point-wise methods.
+- It is robust to noise in relevance labels, as the pairwise loss averages over many comparisons, mitigating the impact of individual mislabeled items.
+- The model's output scores $f(x)$ can be directly used to rank new, unseen items by sorting them based on these scores.
+- It provides a flexible framework that can incorporate various types of features for documents, as long as they can be represented numerically.
+
+## Weaknesses
+
+- The number of document pairs grows quadratically with the number of documents per query, leading to high computational cost for queries with many results.
+- It does not directly optimize for common information retrieval metrics like Normalized Discounted Cumulative Gain (NDCG) or Mean Average Precision (MAP), which are often non-differentiable.
+- The training process can be slow due to the large number of pairs and the inherent complexity of neural network training.
+- The model's performance is highly dependent on the quality and quantity of pairwise preference labels, which can be expensive to acquire.
+- Interpreting the learned ranking function can be challenging due to the black-box nature of neural networks, making it difficult to understand feature importance.
+
+## Use Cases
+
+### Search Engines
+
+Ranking search results based on user queries to improve relevance and user satisfaction, a core application in web search.
+
+### Recommender Systems
+
+Ordering recommended items such as products, movies, or articles for users based on their preferences and past interactions to enhance engagement.
+
+### Information Retrieval
+
+Prioritizing documents or web pages in response to a user's information need, ensuring the most relevant content is presented first.
+
+### E-commerce
+
+Ranking product listings on an online store to maximize sales, user engagement, or conversion rates based on various product and user features.
+
+### Computational Advertising
+
+Ordering advertisements to be displayed to users based on predicted click-through rates or relevance to optimize ad revenue and user experience.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement RankNet from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Ranknet
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Ranknet()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="RankNet Lab" />
+
+## References
+
+- Burges et al. (2005). Burges et al..
+- [scikit-learn: Ranknet](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ranknet.html)

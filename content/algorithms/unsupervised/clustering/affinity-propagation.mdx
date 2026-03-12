@@ -1,0 +1,182 @@
+---
+title: "Affinity Propagation"
+slug: "affinity-propagation"
+category: "unsupervised"
+subcategory: "clustering"
+year: 2007
+author: "Frey & Dueck"
+paper: "Frey & Dueck"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["clustering", "density-based", "exemplar-based", "iterative", "message-passing", "non-parametric", "similarity-matrix", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "dbscan"
+  - "gaussian-mixture-model"
+  - "hierarchical-clustering"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
+  - "spectral-clustering"
+---
+
+## Overview
+
+Affinity Propagation is a clustering algorithm that identifies representative data points, called exemplars, and assigns other points to these exemplars based on message passing. Unlike traditional methods like [K-Means](/algorithms/unsupervised/clustering/k-means), it does not require the number of clusters to be specified beforehand, instead discovering them by iteratively exchanging real-valued messages between all data points. The algorithm simultaneously considers all data points as potential exemplars and refines their responsibilities and availabilities through an iterative process until convergence.
+
+## History
+
+**2007** — Brendan J. Frey and Delbert Dueck introduced Affinity Propagation in their seminal Science paper, "Clustering by Passing Messages Between Data Points," proposing a novel message-passing algorithm for identifying exemplars and clusters.
+
+## Mathematical Intuition
+
+### Similarity and Preference Definition
+
+Affinity Propagation begins by defining a similarity $s(i, k)$ between data points $i$ and $k$, which quantifies how well point $k$ is suited to be an exemplar for point $i$. A common choice for similarity is the negative squared Euclidean distance. The preference $s(k, k)$ for each data point $k$ indicates its suitability to be an exemplar; higher preferences lead to more clusters. The algorithm seeks to maximize the sum of similarities between data points and their assigned exemplars.
+
+$$
+s(i, k) = -\|x_i - x_k\|^2
+$$
+
+### Responsibility Message Update
+
+The responsibility $r(i, k)$ is a message sent from data point $i$ to candidate exemplar $k$, reflecting how well $k$ serves as an exemplar for $i$, taking into account other potential exemplars for $i$. This message is updated iteratively based on the current similarities and availabilities of other exemplars. A higher $r(i, k)$ suggests that $k$ is a good exemplar for $i$.
+
+$$
+r(i, k) \leftarrow s(i, k) - \max_{k' \neq k} \{a(i, k') + s(i, k')\}
+$$
+
+### Availability Message Update
+
+The availability $a(i, k)$ is a message sent from candidate exemplar $k$ to data point $i$, reflecting how appropriate it would be for $i$ to choose $k$ as its exemplar, considering other points that might choose $k$. For $i \neq k$, $a(i, k)$ reflects the accumulated evidence that $k$ is an exemplar for $i$. For $i = k$, $a(k, k)$ reflects the accumulated evidence that $k$ is an exemplar.
+
+$$
+a(i, k) \leftarrow \min \left\{0, r(k, k) + \sum_{i' \neq i, i' \neq k} \max\{0, r(i', k)\} \right\}
+$$
+
+$$
+a(k, k) \leftarrow \sum_{i' \neq k} \max\{0, r(i', k)\}
+$$
+
+### Damping Factor for Stability
+
+To prevent numerical oscillations and ensure convergence, a damping factor $\lambda$ (typically between 0.5 and 1.0) is applied to the message updates. This factor smooths the iterative updates of both responsibility and availability messages, making the algorithm more stable and robust to the choice of parameters.
+
+$$
+r_{t+1}(i, k) = (1 - \lambda) r_t(i, k) + \lambda r_{\text{new}}(i, k)
+$$
+
+$$
+a_{t+1}(i, k) = (1 - \lambda) a_t(i, k) + \lambda a_{\text{new}}(i, k)
+$$
+
+## Algorithm Steps
+
+1. Initialize all responsibility $r(i, k)$ and availability $a(i, k)$ messages to zero for all pairs of data points $i, k$.
+2. Compute the similarity matrix $S$, where $s(i, k)$ is the similarity between point $i$ and point $k$, and $s(k, k)$ is the preference for point $k$ to be an exemplar.
+3. Iteratively update responsibility messages $r(i, k)$ for each point $i$ and candidate exemplar $k$ using the current availabilities and similarities.
+4. Iteratively update availability messages $a(i, k)$ for each point $i$ and candidate exemplar $k$ using the current responsibilities.
+5. Apply a damping factor to both responsibility and availability messages to prevent oscillations and promote convergence.
+6. Repeat the message update steps until the exemplar assignments converge or a maximum number of iterations is reached.
+7. Assign each data point $i$ to the exemplar $k$ that maximizes the sum of its responsibility and availability: $k^* = \arg\max_k \{r(i, k) + a(i, k)\}$.
+8. Identify the final exemplars as those points $k$ for which $r(k, k) + a(k, k) > 0$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `damping` | `float` | `0.5` | [0.5, 1.0) | The extent to which the current value is maintained relative to incoming messages. This helps prevent numerical oscillations when updating messages. |
+| `max_iter` | `int` | `200` | integer > 0 | The maximum number of iterations for the message passing procedure. |
+| `convergence_iter` | `int` | `15` | integer > 0 | The number of iterations with no change in the number of exemplars to declare convergence. If the number of exemplars does not change for this many iterations, the algorithm stops. |
+| `affinity` | `str` | `euclidean` | {"euclidean", "precomputed"} | The type of affinity to use. 'euclidean' computes negative squared Euclidean distances. 'precomputed' expects a user-provided similarity matrix. |
+| `preference` | `array-like or float` | `None` | float or array of shape (n_samples,) | The preference for each point to be an exemplar. If None, it is set to the median of the input similarities. Higher values lead to more clusters. |
+| `random_state` | `int, RandomState instance or None` | `None` |  | Determines random number generation for initializing preferences if 'preference' is not set and 'affinity' is 'euclidean'. |
+| `copy` | `bool` | `True` | {True, False} | Whether to copy the input data or modify it in place. |
+| `verbose` | `bool` | `False` | {True, False} | Enable verbose output. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- Affinity Propagation does not require the number of clusters to be specified beforehand, discovering them automatically based on data affinities.
+- Exemplars are actual data points from the dataset, which makes the cluster centers highly interpretable.
+- The algorithm can find clusters of arbitrary shapes, making it more flexible than methods assuming spherical clusters.
+- Given fixed preferences and similarities, the algorithm is deterministic, ensuring reproducible results.
+- It is robust to the initialization of messages, as they are typically set to zero, avoiding issues with random starts.
+- The algorithm can handle high-dimensional data effectively if an appropriate similarity measure is chosen.
+
+## Weaknesses
+
+- The computational complexity is $O(N^2)$ for similarity calculation and $O(N^2 T)$ for message passing, making it slow for large datasets where $N$ is the number of data points and $T$ is the number of iterations.
+- Memory usage is $O(N^2)$ due to storing the similarity matrix and message matrices, which can be prohibitive for large datasets.
+- The quality of clustering is highly sensitive to the choice of the preference parameter, which often requires careful tuning or domain knowledge.
+- The damping factor can be difficult to tune and significantly impacts convergence speed and the final cluster quality.
+- It can struggle with noisy data or outliers, as every data point is considered a potential exemplar or assigned to one.
+
+## Use Cases
+
+### Bioinformatics
+
+Identifying protein families or gene expression patterns where the number of underlying biological groups is unknown.
+
+### Image Processing
+
+Grouping similar image patches or features for tasks such as object recognition, image segmentation, or summarization.
+
+### Market Segmentation
+
+Discovering natural customer segments based on purchasing behavior or demographics without predefining the number of segments.
+
+### Document Analysis
+
+Clustering documents based on their content similarity to identify thematic groups or topics within a corpus.
+
+### Sensor Networks
+
+Grouping sensor readings from spatially proximate sensors to detect events or anomalies in environmental monitoring.
+
+### Recommendation Systems
+
+Identifying groups of users with similar preferences or items with similar attributes to improve recommendation accuracy and diversity.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Affinity Propagation from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import AffinityPropagation
+
+model = AffinityPropagation()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Affinity Propagation Lab" />
+
+## References
+
+- Frey & Dueck (2007). Frey & Dueck.
+- [scikit-learn: AffinityPropagation](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html)

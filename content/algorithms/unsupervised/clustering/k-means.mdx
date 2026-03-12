@@ -1,0 +1,160 @@
+---
+title: "K-Means"
+slug: "k-means"
+category: "unsupervised"
+subcategory: "clustering"
+year: 1957
+author: "Lloyd"
+paper: "Lloyd"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["centroid-based", "clustering", "distance-based", "iterative", "low-complexity", "partitioning", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "agglomerative-clustering"
+  - "dbscan"
+  - "gaussian-mixture-model"
+  - "k-medoids"
+  - "mean-shift"
+---
+
+## Overview
+
+K-Means is an iterative, unsupervised clustering algorithm that partitions $n$ observations into $k$ clusters, where each observation belongs to the cluster with the nearest mean (centroid). Its primary goal is to minimize the within-cluster sum of squares, effectively grouping similar data points together. The algorithm is widely used for its simplicity and computational efficiency, especially with large datasets.
+
+## History
+
+**1957** — Stuart Lloyd developed the algorithm as a technique for pulse code modulation, publishing it much later in 1982.
+
+**1965** — E.W. Forgy published a similar method, and James MacQueen independently proposed the algorithm and coined the term "k-means" in his paper "Some methods for classification and analysis of multivariate observations".
+
+**1982** — Stuart Lloyd's original work from 1957 was formally published in "Quantization in pulse code modulation: Locating the centers of mass of partitions of a finite set of points".
+
+**2007** — David Arthur and Sergei Vassilvitskii introduced K-Means++, an initialization strategy designed to improve the quality of the final clustering by selecting initial centroids that are far apart.
+
+## Mathematical Intuition
+
+### Objective Function Minimization
+
+K-Means aims to partition $n$ data points into $k$ clusters such that the sum of squared distances between each point and its assigned cluster centroid is minimized. This objective function, often called the within-cluster sum of squares (WCSS) or inertia, is defined as:
+$$J = \sum_{i=1}^{k} \sum_{x \in C_i} \|x - \mu_i\|^2$$
+where $C_i$ is the $i$-th cluster, $\mu_i$ is the centroid of cluster $C_i$, and $x$ is a data point. The algorithm iteratively reassigns points and updates centroids to reduce this value.
+
+$$
+J = \sum_{i=1}^{k} \sum_{x \in C_i} \|x - \mu_i\|^2
+$$
+
+### Centroid Update Rule
+
+The centroid $\mu_i$ for each cluster $C_i$ is calculated as the mean of all data points assigned to that cluster. This update rule ensures that the centroid is the point that minimizes the sum of squared distances to all points within its cluster.
+$$\mu_i = \frac{1}{|C_i|} \sum_{x \in C_i} x$$
+This step is crucial for moving the centroids to the center of their respective clusters, thereby reducing the overall WCSS.
+
+$$
+\mu_i = \frac{1}{|C_i|} \sum_{x \in C_i} x
+$$
+
+### Alternating Optimization Strategy
+
+K-Means employs an alternating optimization strategy, which involves two main steps repeated until convergence. First, each data point is assigned to the cluster whose centroid is closest (E-step). Second, the centroids are recomputed as the mean of all points assigned to that cluster (M-step). This iterative process guarantees that the objective function $J$ is non-increasing at each step, eventually converging to a local minimum.
+
+## Algorithm Steps
+
+1. Initialize $k$ centroids randomly from the dataset or using a smarter method like K-Means++.
+2. Assign each data point to the cluster whose centroid is closest, typically using Euclidean distance.
+3. Recalculate the position of each cluster centroid as the mean of all data points assigned to that cluster.
+4. Repeat steps 2 and 3 until the centroids no longer change significantly or a maximum number of iterations is reached.
+5. The algorithm converges when the assignments of data points to clusters no longer change, or the change in centroids is below a specified tolerance $tol$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_clusters` | `int` | `8` | integer > 0 | The number of clusters to form as well as the number of centroids to generate. |
+| `init` | `str or callable` | `'k-means++'` | 'k-means++', 'random', or a callable | Method for initialization: 'k-means++' (smart initialization), 'random' (randomly choose $k$ observations), or a callable. |
+| `n_init` | `int or str` | `'auto'` | integer > 0 or 'auto' | Number of times the K-Means algorithm is run with different centroid seeds. The final results are the best output of $n_{init}$ consecutive runs in terms of inertia. |
+| `max_iter` | `int` | `300` | integer > 0 | Maximum number of iterations of the K-Means algorithm for a single run. |
+| `tol` | `float` | `1e-4` | float >= 0 | Relative tolerance with regards to Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence. |
+| `random_state` | `int or RandomState instance` | `None` | integer or None | Determines random number generation for centroid initialization. Use an int for reproducible results. |
+| `algorithm` | `str` | `'lloyd'` | 'lloyd', 'elkan', 'auto' | The algorithm to use for K-Means clustering. 'lloyd' is the standard EM-style algorithm. 'elkan' is a more efficient variant for sparse data. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- K-Means is computationally efficient and scales well to large datasets due to its linear complexity with respect to the number of data points.
+- The algorithm is relatively easy to understand and implement, making it a popular choice for introductory clustering tasks.
+- It consistently converges to a local optimum, ensuring a stable result for a given initialization.
+- K-Means can be effectively used as a preprocessing step for other algorithms, such as reducing the number of colors in an image or creating features for supervised learning.
+- Its performance is often competitive with more complex clustering algorithms when clusters are spherical and well-separated.
+
+## Weaknesses
+
+- K-Means requires the number of clusters $k$ to be specified in advance, which is often unknown for real-world data.
+- The algorithm is sensitive to the initial placement of centroids and can converge to different local optima depending on the initialization.
+- It struggles with clusters of varying densities, sizes, or non-spherical shapes, as it implicitly assumes spherical clusters of similar variance.
+- K-Means is sensitive to outliers, which can significantly distort cluster centroids and affect the overall clustering result.
+- The algorithm is limited to data where the mean is a meaningful concept, typically numerical data, and struggles with categorical features without proper encoding.
+
+## Use Cases
+
+### Customer Segmentation
+
+Grouping customers based on purchasing behavior, demographics, or website activity to tailor marketing strategies.
+
+### Image Compression
+
+Reducing the number of distinct colors in an image by clustering similar colors and representing them with their cluster centroids.
+
+### Document Clustering
+
+Organizing large collections of documents into thematic groups based on their content, after converting text to numerical representations.
+
+### Anomaly Detection
+
+Identifying unusual data points that do not fit well into any cluster, often indicating fraud, defects, or novel events.
+
+### Geospatial Analysis
+
+Clustering geographical locations, such as crime hotspots or retail store locations, to identify patterns or optimal placements.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement K-Means from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import KMeans
+
+model = KMeans()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="K-Means Lab" />
+
+## References
+
+- Lloyd (1957). Lloyd.
+- [scikit-learn: KMeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html)

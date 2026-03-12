@@ -1,0 +1,179 @@
+---
+title: "ICA"
+slug: "ica"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1994
+author: "Comon"
+paper: "Comon"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["blind-source-separation", "component-analysis", "dimensionality-reduction", "feature-extraction", "matrix-factorization", "non-gaussian", "signal-processing", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "factor-analysis"
+  - "non-negative-matrix-factorization"
+---
+
+## Overview
+
+Independent Component Analysis (ICA) is a computational method used to separate a multivariate signal into additive subcomponents, assuming these subcomponents are non-Gaussian and statistically independent from each other. It aims to find a linear transformation that minimizes the statistical dependence between the components, effectively performing blind source separation.
+
+## History
+
+**1986** — Christian Jutten and Jeanny Hérault propose a neural network model for blind source separation, laying early groundwork for adaptive signal separation.
+
+**1994** — Christian Comon formally defines Independent Component Analysis and introduces the concept of 'independent components' in his seminal paper 'Independent Component Analysis, A New Concept?'.
+
+**1997** — Aapo Hyvärinen and Erkki Oja develop the FastICA algorithm, a highly efficient and widely used fixed-point algorithm for ICA, significantly improving its practical applicability.
+
+**1999** — The comprehensive book 'Independent Component Analysis' by Hyvärinen, Karhunen, and Oja is published, solidifying ICA as a distinct and important field in signal processing and machine learning.
+
+## Mathematical Intuition
+
+### The ICA Model
+
+ICA models observed data $X$ as a linear mixture of unknown statistically independent source signals $S$. The model is given by $X = AS$, where $X$ is an $m \times T$ matrix of observed signals, $S$ is an $n \times T$ matrix of source signals, and $A$ is an $m \times n$ unknown mixing matrix. The primary goal of ICA is to find an unmixing matrix $W$ such that $S = WX$, thereby recovering the original independent sources.
+
+$$
+X = AS
+$$
+
+$$
+S = WX
+$$
+
+### Defining Statistical Independence
+
+The core assumption of ICA is that the source signals $S_i$ are statistically independent. This implies that their joint probability density function can be factored into the product of their marginal probability density functions: $p(s_1, ..., s_n) = \prod_{i=1}^n p(s_i)$. A key property exploited by ICA is that the sum of independent non-Gaussian random variables tends to be 'more Gaussian' than the individual variables, as per the Central Limit Theorem. Consequently, ICA seeks components that are maximally non-Gaussian.
+
+$$
+p(s_1, ..., s_n) = \prod_{i=1}^n p(s_i)
+$$
+
+### Measures of Non-Gaussianity
+
+To find independent components, ICA algorithms maximize a measure of non-Gaussianity. Common measures include kurtosis and negentropy. Kurtosis, defined as $Kurt(y) = E[y^4] - 3(E[y^2])^2$, quantifies the 'tailedness' of a distribution; for a Gaussian variable, kurtosis is zero. Negentropy is a more robust measure based on differential entropy, defined as $J(y) = H(y_{Gaussian}) - H(y)$, where $H(y)$ is the differential entropy of $y$. Maximizing negentropy is equivalent to maximizing non-Gaussianity.
+
+$$
+Kurt(y) = E[y^4] - 3(E[y^2])^2
+$$
+
+$$
+J(y) = H(y_{Gaussian}) - H(y)
+$$
+
+### Optimization for Unmixing
+
+After centering and whitening the observed data $X$ to obtain $X'$, ICA algorithms iteratively search for an unmixing matrix $W$ that transforms $X'$ into $S = WX'$ such that the components of $S$ are maximally non-Gaussian. Algorithms like FastICA use fixed-point iteration to find the optimal $W$ by maximizing an approximation of negentropy, often employing contrast functions such as 'logcosh' or 'exp'.
+
+$$
+S = WX'
+$$
+
+## Algorithm Steps
+
+1. Center the observed data $X$ by subtracting its mean, resulting in zero-mean data.
+2. Whiten the centered data to remove correlations and normalize variances, typically using Principal Component Analysis (PCA) or Singular Value Decomposition (SVD), yielding whitened data $X'$.
+3. Initialize a random unmixing matrix $W$ (or a set of weight vectors $w_i$).
+4. Iteratively update each weight vector $w_i$ to maximize the non-Gaussianity of the projected component $s_i = w_i^T X'$, while ensuring orthogonality between the weight vectors.
+5. Repeat the iterative update until convergence, meaning the change in $W$ (or $w_i$) falls below a specified tolerance.
+6. The final unmixing matrix $W$ is then used to transform the whitened data $X'$ into the independent components $S = WX'$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `integer or None` | `None` | integer > 0 or None | Number of independent components to extract. If None, it defaults to min(n_samples, n_features). |
+| `algorithm` | `string` | `parallel` | parallel, deflation | Algorithm to use for ICA. 'parallel' runs components in parallel, 'deflation' extracts components one by one. |
+| `fun` | `string` | `logcosh` | logcosh, exp, cube | The functional form of the G approximation to the negentropy, used as a contrast function. |
+| `fun_args` | `dict or None` | `None` |  | Arguments to send to the functional form. For 'logcosh', this is 'alpha'. |
+| `max_iter` | `integer` | `200` | integer > 0 | Maximum number of iterations during the fixed-point search for independent components. |
+| `tol` | `float` | `0.0001` | float > 0 | A positive tolerance used to declare convergence of the algorithm. |
+| `whiten` | `boolean` | `True` | True, False | If True, the data is whitened (decorrelated and scaled to unit variance) before ICA is applied. |
+| `random_state` | `integer, RandomState instance or None` | `None` | integer >= 0 or None | Used to initialize the random unmixing matrix, ensuring reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- ICA can effectively separate statistically independent source signals from their linear mixtures, even when the mixing process is unknown.
+- It is particularly powerful for non-Gaussian data, where methods like PCA might fail to identify underlying independent structures.
+- The extracted independent components often have clear physical or semantic interpretations, aiding in data understanding.
+- ICA can be used as a robust feature extraction technique, yielding features that are less redundant than those from PCA.
+- It does not require prior knowledge of the mixing process or the source signals, making it suitable for blind source separation.
+
+## Weaknesses
+
+- The order and scaling (amplitude) of the independent components are inherently ambiguous and cannot be uniquely determined by ICA.
+- ICA assumes that the source signals are statistically independent, which may not always hold true in real-world data.
+- The performance of ICA can be sensitive to noise in the observed data, as noise can reduce the non-Gaussianity of the true sources.
+- For very large datasets or a high number of components, ICA can be computationally intensive and slow to converge.
+- ICA requires that the number of observed mixtures is at least as large as the number of independent sources.
+
+## Use Cases
+
+### Neuroscience
+
+Separating brain activity signals (e.g., fMRI, EEG, MEG) into distinct components corresponding to different neural processes or artifacts.
+
+### Audio Processing
+
+Isolating individual voices or instruments from a mixed audio recording, such as in cocktail party problem scenarios.
+
+### Medical Imaging
+
+Denoising medical images or separating different tissue types or physiological processes in MRI scans.
+
+### Financial Analysis
+
+Decomposing complex financial time series into underlying independent market factors or risk components.
+
+### Telecommunications
+
+Separating interfering communication signals in multi-user environments to improve signal clarity.
+
+### Image Processing
+
+Extracting features from images, such as edges or textures, or separating different layers in hyperspectral images.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ICA from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.cluster import Ica
+
+model = Ica()
+X_transformed = model.fit_transform(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="ICA Lab" />
+
+## References
+
+- Comon (1994). Comon.
+- [scikit-learn: Ica](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Ica.html)

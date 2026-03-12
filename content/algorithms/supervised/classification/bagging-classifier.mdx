@@ -1,0 +1,181 @@
+---
+title: "Bagging Classifier"
+slug: "bagging-classifier"
+category: "supervised"
+subcategory: "classification"
+year: 1996
+author: "Breiman"
+paper: "Breiman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bootstrap-aggregating", "classification", "decision-trees", "ensemble", "meta-algorithm", "supervised-learning", "variance-reduction"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "decision-tree-classifier"
+  - "gradient-boosting-classifier"
+  - "voting-classifier"
+---
+
+## Overview
+
+Bagging Classifier is an ensemble meta-algorithm designed to improve the stability and accuracy of machine learning algorithms, primarily by reducing variance. It achieves this by training multiple base estimators on different subsets of the training data, which are generated via bootstrap sampling. The final prediction is then determined by aggregating the predictions of these individual estimators, typically through majority voting for classification tasks.
+
+## History
+
+**1994** — Leo Breiman introduces the concept of "Bagging" (Bootstrap Aggregating) in a technical report, laying the groundwork for ensemble methods that reduce variance.
+
+**1996** — Leo Breiman publishes the seminal paper "Bagging Predictors," formally introducing the Bagging algorithm and demonstrating its effectiveness in improving prediction accuracy across various datasets.
+
+**2001** — Leo Breiman further develops the Random Forest algorithm, which extends Bagging by introducing random feature selection during the training of individual decision trees, enhancing decorrelation and performance.
+
+## Mathematical Intuition
+
+### Understanding Bootstrap Sampling
+
+Bootstrap sampling is a resampling technique used to create multiple subsets of the original training data. For a training set $D = \{(x_1, y_1), \dots, (x_N, y_N)\}$ of size $N$, a bootstrap sample $D_b$ is created by randomly drawing $N$ samples from $D$ with replacement. This process generates diverse training sets for each base estimator, ensuring variability among the ensemble members.
+$$D_b = \{(x_{i_1}, y_{i_1}), \dots, (x_{i_N}, y_{i_N})\}$$
+where $i_j$ are indices drawn uniformly from $\{1, \dots, N\}$ with replacement.
+
+$$
+D = \{(x_1, y_1), \dots, (x_N, y_N)\}
+$$
+
+$$
+D_b = \{(x_{i_1}, y_{i_1}), \dots, (x_{i_N}, y_{i_N})\}
+$$
+
+### Ensemble Prediction Aggregation
+
+After training $M$ base estimators, $h_1, \dots, h_M$, on $M$ different bootstrap samples, their predictions are combined to form a final prediction. For classification tasks, this is typically achieved via majority voting. If $h_b(x)$ is the prediction of the $b$-th base estimator for input $x$, the final Bagging Classifier prediction $H(x)$ is determined by the class that receives the most votes across all estimators.
+$$H(x) = \text{argmax}_c \sum_{b=1}^M I(h_b(x) = c)$$
+where $I(\cdot)$ is the indicator function and $c$ represents a class label.
+
+$$
+H(x) = \text{argmax}_c \sum_{b=1}^M I(h_b(x) = c)
+$$
+
+### Mechanism of Variance Reduction
+
+Bagging primarily targets the reduction of variance in unstable (high-variance) models. Consider an ensemble of $M$ independent, identically distributed estimators $h_b(x)$ with variance $\sigma^2$. The variance of their average prediction would be $\sigma^2/M$. While base estimators in Bagging are not perfectly independent, the bootstrap sampling introduces enough diversity to significantly decorrelate them. This decorrelation, combined with the aggregation (averaging or voting) of predictions, leads to a substantial reduction in the overall ensemble variance compared to a single base estimator.
+$$Var\left(\frac{1}{M}\sum_{b=1}^M h_b(x)\right) = \frac{1}{M^2} \sum_{b=1}^M Var(h_b(x)) + \frac{1}{M^2} \sum_{b \neq b'} Cov(h_b(x), h_{b'}(x))$$
+Bagging aims to reduce the covariance term by training on diverse datasets, thereby lowering the total variance of the ensemble.
+
+$$
+Var\left(\frac{1}{M}\sum_{b=1}^M h_b(x)\right) = \frac{1}{M^2} \sum_{b=1}^M Var(h_b(x)) + \frac{1}{M^2} \sum_{b \neq b'} Cov(h_b(x), h_{b'}(x))
+$$
+
+## Algorithm Steps
+
+1. Specify a base estimator (e.g., Decision Tree) and the desired number of estimators $M$ to be trained.
+2. For each of the $M$ iterations, create a bootstrap sample $D_b$ by drawing $N$ samples with replacement from the original training dataset $D$.
+3. Train a new instance of the chosen base estimator, $h_b$, using the bootstrap sample $D_b$.
+4. Repeat the sampling and training process until all $M$ base estimators are trained.
+5. For a new input $x$, obtain predictions $h_b(x)$ from each of the $M$ trained base estimators.
+6. Aggregate the predictions: for classification, use majority voting across all $M$ estimators to determine the final class label.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `base_estimator` | `estimator object` | `None` | Any scikit-learn compatible estimator | The base estimator to fit on random subsets of the dataset. If None, a DecisionTreeClassifier is used. |
+| `n_estimators` | `int` | `10` | integer >= 1 | The number of base estimators in the ensemble. |
+| `max_samples` | `int or float` | `1.0` | integer >= 1 or float in (0.0, 1.0] | The number of samples to draw from the training data $X$ to train each base estimator. |
+| `max_features` | `int or float` | `1.0` | integer >= 1 or float in (0.0, 1.0] | The number of features to draw from the training data $X$ to train each base estimator. |
+| `bootstrap` | `bool` | `True` | True or False | Whether samples are drawn with replacement when creating bootstrap samples. |
+| `bootstrap_features` | `bool` | `False` | True or False | Whether features are drawn with replacement when creating feature subsets. |
+| `oob_score` | `bool` | `False` | True or False | Whether to use out-of-bag samples to estimate the generalization error. |
+| `n_jobs` | `int` | `None` | integer >= -1 | The number of jobs to run in parallel for fitting and predicting. -1 means using all processors. |
+| `random_state` | `int or RandomState instance` | `None` | integer or RandomState instance | Controls the random seed given to each base estimator and for sampling. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Bagging significantly reduces the variance of high-variance base estimators, leading to more stable and robust models.
+- It can improve the overall accuracy of a model, especially when using unstable base learners like decision trees.
+- The ensemble approach makes the final model less prone to overfitting compared to a single, complex base estimator.
+- Training of individual base estimators can be parallelized, which can speed up the overall training process.
+- Bagging is a versatile meta-algorithm that can be applied with various types of base estimators.
+- Out-of-bag (OOB) error estimation provides a robust and unbiased estimate of the generalization error without requiring a separate validation set.
+
+## Weaknesses
+
+- Bagging increases the computational cost and memory requirements due to training and storing multiple base estimators.
+- The ensemble model is generally less interpretable than a single base estimator, making it harder to understand feature importances or decision paths.
+- It cannot reduce the bias of a strong base learner; if the base models are inherently biased, bagging will not correct this.
+- If the base models are highly correlated despite bootstrap sampling, the variance reduction benefits may be limited.
+- The performance gain might be marginal if the base estimator already has low variance.
+
+## Use Cases
+
+### Medical Diagnosis
+
+Improving the accuracy of classifying diseases based on patient data by combining predictions from multiple models, reducing diagnostic errors.
+
+### Financial Risk Assessment
+
+Enhancing the reliability of credit scoring or fraud detection systems by aggregating diverse model outputs, leading to more robust risk evaluations.
+
+### Customer Churn Prediction
+
+More accurately identifying customers likely to churn by leveraging an ensemble of predictive models, enabling targeted retention strategies.
+
+### Quality Control
+
+Detecting defects in manufacturing processes by combining multiple sensor readings and classification models, improving product consistency.
+
+### Remote Sensing
+
+Classifying land cover types from satellite imagery, where individual classifiers might be prone to noise, by aggregating multiple views.
+
+### Spam Detection
+
+Improving the accuracy of identifying spam emails by combining various text classification models, reducing false positives and negatives.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bagging Classifier from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.ensemble import BaggingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = BaggingClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bagging Classifier Lab" />
+
+## References
+
+- Breiman (1996). Breiman.
+- [scikit-learn: BaggingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html)

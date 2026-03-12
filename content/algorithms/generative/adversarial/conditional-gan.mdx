@@ -1,0 +1,166 @@
+---
+title: "Conditional GAN"
+slug: "conditional-gan"
+category: "generative"
+subcategory: "adversarial"
+year: 2014
+author: "Mirza & Osindero"
+paper: "Mirza & Osindero"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["adversarial-networks", "conditional-generation", "data-augmentation", "deep-learning", "generative-model", "image-synthesis", "neural-networks", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "cyclegan"
+  - "stylegan"
+---
+
+## Overview
+
+Conditional Generative Adversarial Networks (CGANs) extend the foundational GAN framework by incorporating auxiliary information, such as class labels or other data attributes, into both the generator and discriminator networks. This conditioning allows for directed data generation, enabling the model to produce samples that belong to specific categories or exhibit desired characteristics rather than generating samples from the entire data distribution. By providing control over the output, CGANs address a key limitation of unconditional GANs, which often produce diverse but unspecific outputs.
+
+## History
+
+**2014** — Ian Goodfellow et al. introduced Generative Adversarial Networks (GANs), establishing the adversarial training paradigm for generative models.
+
+**2014** — Mehdi Mirza and Simon Osindero published "Conditional Generative Adversarial Nets," proposing the first method to condition GANs on auxiliary information, enabling controlled data generation.
+
+**2017** — Augustus Odena et al. introduced Auxiliary Classifier GAN (AC-GAN), an extension of CGAN that uses an auxiliary classifier in the discriminator to improve conditional generation and disentanglement.
+
+**2018** — Andrew Brock et al. presented BigGAN, demonstrating highly realistic and high-resolution image generation, often leveraging conditional techniques for class-conditional synthesis.
+
+## Mathematical Intuition
+
+### Unconditional GAN Objective
+
+The original Generative Adversarial Network (GAN) framework involves a two-player min-max game between a generator $G$ and a discriminator $D$. The discriminator $D$ tries to distinguish between real data samples $x$ from the data distribution $p_{data}(x)$ and fake samples $G(z)$ generated from a noise distribution $p_z(z)$. The generator $G$ simultaneously tries to fool the discriminator by producing realistic samples. The objective function for the unconditional GAN is given by:
+
+$$
+$$\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]$$
+$$
+
+### Conditional GAN Objective
+
+Conditional GANs extend this objective by incorporating auxiliary information, denoted as $y$, into both the generator and discriminator. This conditioning variable $y$ can be a class label, an image, or any other form of data. The discriminator $D$ now attempts to distinguish between real data $x$ conditioned on $y$ and fake data $G(z|y)$ conditioned on $y$. The generator $G$ aims to produce samples $G(z|y)$ that are realistic and match the specified condition $y$. The conditional objective function becomes:
+
+$$
+$$\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x|y)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z|y)))]$$
+$$
+
+### Incorporating Conditioning Information
+
+The conditioning variable $y$ is typically incorporated into the neural network architectures of both $G$ and $D$ by concatenating it with the input. For the generator, the noise vector $z$ is concatenated with $y$ before being fed into the network, forming $G(z|y)$. For the discriminator, the real data $x$ or generated data $G(z|y)$ is concatenated with $y$ before being processed, forming $D(x|y)$ or $D(G(z|y)|y)$. This direct concatenation allows the networks to learn mappings that are dependent on the provided auxiliary information.
+
+$$
+$G(z|y)$
+$$
+
+$$
+$D(x|y)$
+$$
+
+## Algorithm Steps
+
+1. Initialize the generator $G$ and discriminator $D$ networks with random weights.
+2. For each training iteration, sample a batch of real data $x$ from the data distribution $p_{data}(x)$ and corresponding conditioning labels $y$.
+3. Sample a batch of random noise vectors $z$ from a prior distribution $p_z(z)$ (e.g., uniform or Gaussian) and a batch of conditioning labels $y'$ (which can be the same as $y$).
+4. Generate fake data $x_{fake} = G(z|y')$ by feeding the noise $z$ and conditioning $y'$ into the generator.
+5. Update the discriminator $D$ by maximizing its objective: $ \log D(x|y) + \log(1 - D(x_{fake}|y')) $. This involves computing gradients and applying an optimization step.
+6. Sample another batch of random noise vectors $z''$ and conditioning labels $y''$.
+7. Update the generator $G$ by minimizing its objective: $ \log(1 - D(G(z''|y'')))$. This involves computing gradients and applying an optimization step.
+8. Repeat until convergence or a predefined number of training epochs.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `latent_dim` | `integer` | `100` | positive integer | Dimension of the noise vector $z$ sampled from the prior distribution, which serves as input to the generator. |
+| `conditioning_dim` | `integer` | `10` | positive integer | Dimension of the conditioning vector $y$, representing the auxiliary information provided to both generator and discriminator. |
+| `learning_rate_g` | `float` | `0.0002` | positive float | Learning rate for the optimizer used to update the generator's weights. |
+| `learning_rate_d` | `float` | `0.0002` | positive float | Learning rate for the optimizer used to update the discriminator's weights. |
+| `batch_size` | `integer` | `64` | positive integer | Number of samples processed in each training iteration before updating model weights. |
+| `epochs` | `integer` | `100` | positive integer | Total number of training iterations over the entire dataset. |
+| `optimizer` | `string` | `Adam` | ['Adam', 'RMSprop', 'SGD'] | The optimization algorithm used for updating network weights (e.g., 'Adam', 'RMSprop', 'SGD'). |
+| `beta1` | `float` | `0.5` | 0.0 to 1.0 | Exponential decay rate for the first moment estimates in the Adam optimizer, influencing the momentum of weight updates. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Conditional GANs enable controlled data generation, allowing users to specify desired attributes or classes for the generated samples.
+- They can improve the stability of GAN training by providing additional information to the discriminator, potentially reducing mode collapse.
+- CGANs facilitate the generation of diverse samples within specific categories, leading to more realistic and useful outputs.
+- The framework is applicable across various data modalities, including images, text, and structured data, by adapting the conditioning mechanism.
+- CGANs can be effectively used for data augmentation, creating synthetic samples with specific characteristics to enrich training datasets.
+
+## Weaknesses
+
+- Training Conditional GANs remains challenging due to the inherent instability of adversarial training, often requiring careful hyperparameter tuning.
+- The quality of generated samples is highly dependent on the quality and representativeness of the conditioning information provided.
+- Mode collapse can still occur, where the generator produces a limited variety of outputs for a given condition.
+- Evaluating the quality and diversity of conditionally generated samples can be complex and often relies on subjective human assessment or proxy metrics.
+- CGANs require paired data (data samples with corresponding conditioning labels) for training, which may not always be readily available.
+
+## Use Cases
+
+### Image Synthesis
+
+Generating images of specific objects, scenes, or styles based on textual descriptions or class labels, such as creating a 'red car' or a 'mountain landscape'.
+
+### Text Generation
+
+Creating text passages, such as product reviews or news articles, conditioned on sentiment, topic, or keywords to control the output content.
+
+### Data Augmentation
+
+Expanding datasets for machine learning tasks by generating synthetic samples with desired characteristics, particularly useful in medical imaging or rare event prediction where data is scarce.
+
+### Style Transfer
+
+Modifying the style of an image or other data while preserving its content, guided by a conditioning input representing the target style.
+
+### Drug Discovery
+
+Generating novel molecular structures with specific desired properties, conditioned on chemical descriptors to accelerate the design of new compounds.
+
+### Speech Synthesis
+
+Producing speech with specific voices, emotions, or linguistic styles, allowing for fine-grained control over the generated audio.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Conditional GAN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Conditional GAN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Conditional GAN Lab" />
+
+## References
+
+- Mirza & Osindero (2014). Mirza & Osindero.

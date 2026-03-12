@@ -1,0 +1,191 @@
+---
+title: "Markov Random Field"
+slug: "markov-random-field"
+category: "probabilistic"
+subcategory: "probabilistic-models"
+year: 1974
+author: "Kindermann & Snell era"
+paper: "Kindermann & Snell era"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: false
+  graph: true
+tags: ["computer-vision", "generative-model", "graphical-model", "inference", "probabilistic-model", "spatial-modeling", "structured-prediction", "undirected-graph"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-network"
+  - "conditional-random-field"
+  - "hidden-markov-model"
+---
+
+## Overview
+
+Markov Random Fields (MRFs) are a class of probabilistic graphical models that represent a set of random variables and their conditional dependencies via an undirected graph. They are particularly adept at modeling spatial or contextual relationships between variables, where the value of one variable is influenced by its neighbors. MRFs are widely used for tasks requiring structured prediction, such as image segmentation, denoising, and object recognition, by defining an energy function over the graph that encodes local interactions. Their core strength lies in capturing complex dependencies without specifying a causal direction.
+
+## History
+
+**1974** — Kindermann and Snell formally defined Markov Random Fields and established their equivalence with Gibbs distributions, providing a foundational mathematical framework.
+
+**1980** — The formalization of MRFs and their connection to statistical mechanics models like the Ising model gained traction, leading to early theoretical developments in their properties.
+
+**1988** — Geman and Geman's seminal paper on stochastic relaxation and the Gibbs sampler significantly advanced the use of MRFs for image restoration and Bayesian inference.
+
+**1990** — MRFs became a cornerstone in computer vision, applied extensively to problems such as image segmentation, texture synthesis, and stereo matching.
+
+**2001** — Lafferty, McCallum, and Pereira introduced Conditional Random Fields (CRFs), a discriminative counterpart to MRFs, which gained prominence for sequence labeling and structured prediction tasks.
+
+## Mathematical Intuition
+
+### Definition and Markov Property
+
+A Markov Random Field (MRF) is an undirected graphical model where nodes represent random variables $X = (X_1, ..., X_N)$ and edges represent statistical dependencies. The fundamental property is the local Markov property: each variable $X_i$ is conditionally independent of all other variables given its immediate neighbors. Mathematically, this means $P(X_i | X_{\text{rest}}) = P(X_i | X_{\text{neighbors}(i)})$.
+$$P(X_i | X_{V \setminus \{i\}}) = P(X_i | X_{\text{ne}(i)})$$
+where $V$ is the set of all nodes and $\text{ne}(i)$ is the set of neighbors of node $i$.
+
+$$
+P(X_i | X_{V \setminus \{i\}}) = P(X_i | X_{\text{ne}(i)})
+$$
+
+### Hammersley-Clifford Theorem and Cliques
+
+The Hammersley-Clifford theorem states that a probability distribution $P(X)$ over an MRF can be factorized into a product of potential functions over its maximal cliques. A clique is a subset of nodes where every pair of nodes is connected by an edge. A maximal clique is a clique that cannot be extended by including any other node. The joint probability distribution is given by:
+$$P(X) = \frac{1}{Z} \prod_{c \in \mathcal{C}} \psi_c(X_c)$$
+Here, $\mathcal{C}$ is the set of all maximal cliques, $\psi_c(X_c)$ is the potential function for clique $c$ (which assigns a non-negative value to each configuration of variables in $X_c$), and $Z$ is the partition function, a normalization constant:
+$$Z = \sum_X \prod_{c \in \mathcal{C}} \psi_c(X_c)$$
+
+$$
+P(X) = \frac{1}{Z} \prod_{c \in \mathcal{C}} \psi_c(X_c)
+$$
+
+$$
+Z = \sum_X \prod_{c \in \mathcal{C}} \psi_c(X_c)
+$$
+
+### Energy Function and Gibbs Distribution
+
+Potential functions are often expressed in terms of an energy function. By taking the logarithm, the product form becomes a sum, leading to the Gibbs distribution. The potential functions $\psi_c(X_c)$ are typically defined as $\exp(-E_c(X_c))$, where $E_c(X_c)$ is an energy term associated with clique $c$. The joint probability distribution then becomes:
+$$P(X) = \frac{1}{Z} \exp \left( - \sum_{c \in \mathcal{C}} E_c(X_c) \right)$$
+The sum $\sum_{c \in \mathcal{C}} E_c(X_c)$ is the total energy function $E(X)$. Lower energy states correspond to higher probabilities.
+
+$$
+P(X) = \frac{1}{Z} \exp \left( - \sum_{c \in \mathcal{C}} E_c(X_c) \right)
+$$
+
+### Inference and Learning
+
+Inference in MRFs involves computing marginal probabilities $P(X_i)$ or finding the most probable configuration of variables (Maximum A Posteriori, MAP inference), i.e., $\arg\max_X P(X)$. Exact inference is often intractable for general graphs (NP-hard), leading to approximate methods like loopy belief propagation, variational methods, or sampling techniques (e.g., Gibbs sampling, MCMC). Learning involves estimating the parameters of the potential functions (e.g., weights in a log-linear model) from data, typically using maximum likelihood estimation or maximum pseudo-likelihood estimation.
+
+$$
+\arg\max_X P(X)
+$$
+
+## Algorithm Steps
+
+1. Define the graph structure $G=(V, E)$ representing the dependencies between random variables, where nodes $V$ are the variables and edges $E$ indicate direct dependencies.
+2. Identify the maximal cliques $\mathcal{C}$ in the graph $G$.
+3. Specify the form of the potential functions $\psi_c(X_c)$ for each maximal clique $c \in \mathcal{C}$, often parameterized (e.g., as log-linear models).
+4. Learn the parameters of the potential functions from observed data, typically by maximizing the likelihood or pseudo-likelihood of the training data.
+5. For a new observation or task, perform inference to compute marginal probabilities $P(X_i)$ for individual variables or to find the most probable configuration $X^*$ (MAP inference).
+6. If exact inference is intractable, employ approximate inference algorithms such as loopy belief propagation, variational inference, or Markov Chain Monte Carlo (MCMC) methods.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `graph_structure` | `Graph` | `None` | Any valid undirected graph representation | The underlying undirected graph defining the conditional dependencies between variables. Can be predefined or learned. |
+| `potential_type` | `str` | `pairwise` | ['unary', 'pairwise', 'higher-order'] | The type of potential functions used to model interactions. Common choices include unary (node-wise) and pairwise (edge-wise) potentials. |
+| `potential_parameters` | `dict` | `None` | Varies based on potential_type | A dictionary or structure containing the parameters (e.g., weights, biases) for the specified potential functions. |
+| `inference_method` | `str` | `loopy_belief_propagation` | ['exact', 'loopy_belief_propagation', 'variational_mean_field', 'gibbs_sampling', 'graph_cuts', 'ICM'] | The algorithm used to perform inference (e.g., computing marginals or MAP). Exact methods are often intractable. |
+| `learning_method` | `str` | `pseudo_likelihood` | ['maximum_likelihood', 'pseudo_likelihood', 'contrastive_divergence'] | The method used to learn the potential parameters from data, often an approximation due to the intractable partition function. |
+| `regularization_strength` | `float` | `1.0` | float > 0 | Strength of regularization applied during parameter learning to prevent overfitting, typically L1 or L2. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- MRFs naturally model complex spatial or contextual dependencies between variables through their undirected graph structure.
+- They provide a flexible framework for incorporating various types of local interactions via customizable potential functions.
+- The Hammersley-Clifford theorem offers a clear connection between local conditional independencies and global factorization of the probability distribution.
+- MRFs are well-suited for structured prediction tasks where the output is a set of interdependent variables, such as image segmentation or denoising.
+- They can handle both discrete and continuous variables, depending on the choice of potential functions.
+- The probabilistic nature allows for uncertainty quantification and principled decision-making.
+
+## Weaknesses
+
+- Exact inference (computing marginals or MAP) is often computationally intractable for general MRFs, requiring approximate algorithms that may not guarantee optimality.
+- Learning the parameters of MRFs, especially for complex potential functions, can be challenging and computationally expensive, often requiring iterative optimization.
+- The partition function $Z$ is typically intractable to compute, complicating maximum likelihood estimation and requiring approximations like pseudo-likelihood.
+- MRFs are generative models, meaning they model the joint distribution of all variables, which can be less efficient for discriminative tasks compared to models like CRFs.
+- Defining an appropriate graph structure and suitable potential functions often requires significant domain expertise.
+
+## Use Cases
+
+### Computer Vision
+
+Image segmentation, denoising, and object recognition, where pixel labels or features are interdependent.
+
+### Medical Imaging
+
+Tumor detection and segmentation in MRI or CT scans by modeling spatial relationships between voxels.
+
+### Natural Language Processing
+
+Part-of-speech tagging, named entity recognition, and dependency parsing, where word labels depend on neighboring words.
+
+### Bioinformatics
+
+Protein structure prediction and gene regulatory network inference, modeling interactions between amino acids or genes.
+
+### Sensor Networks
+
+Data fusion and anomaly detection in distributed sensor systems, considering spatial correlations between sensor readings.
+
+### Ecology
+
+Species distribution modeling, where the presence of one species might influence the presence of others in nearby locations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Markov Random Field from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.naive_bayes import MarkovRandomField
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = MarkovRandomField()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Markov Random Field Lab" />
+
+## References
+
+- Kindermann & Snell era (1974). Kindermann & Snell era.
+- [scikit-learn: MarkovRandomField](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MarkovRandomField.html)

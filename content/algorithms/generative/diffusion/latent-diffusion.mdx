@@ -1,0 +1,207 @@
+---
+title: "Latent Diffusion"
+slug: "latent-diffusion"
+category: "generative"
+subcategory: "diffusion"
+year: 2022
+author: "Rombach et al."
+paper: "Rombach et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["computer-vision", "conditional-generation", "deep-learning", "diffusion-models", "generative", "image-generation", "latent-space", "text-to-image"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "autoencoder"
+  - "diffusion-model"
+  - "stable-diffusion"
+  - "u-net"
+  - "variational-autoencoder"
+---
+
+## Overview
+
+Latent Diffusion Models (LDMs) address the computational expense of Denoising Diffusion Probabilistic Models (DDPMs) by performing the iterative denoising process in a compressed latent space rather than the high-dimensional pixel space. This approach significantly reduces computational requirements for both training and inference while maintaining high-quality synthesis. LDMs leverage a pre-trained [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) to transform high-dimensional data, such as images, into a lower-dimensional latent representation, where the diffusion process then operates.
+
+## History
+
+**2015** — Jascha Sohl-Dickstein et al. introduced 'Deep Unsupervised Learning using Nonequilibrium Thermodynamics,' laying the theoretical groundwork for diffusion models by framing them as a process of gradually adding and then reversing noise.
+
+**2019** — Yang Song et al. published 'Generative Modeling by Estimating Gradients of the Data Distribution,' introducing Score-based Generative Models (SGMs) which learn to reverse a diffusion process by estimating the score function of the data distribution.
+
+**2020** — Jonathan Ho et al. presented 'Denoising Diffusion Probabilistic Models,' which simplified the training objective and demonstrated high-quality image generation, popularizing the DDPM framework.
+
+**2022** — Robin Rombach et al. introduced 'High-Resolution Image Synthesis with Latent Diffusion Models,' proposing to apply diffusion models in the latent space of a pre-trained [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), drastically improving efficiency and enabling high-resolution generation.
+
+## Mathematical Intuition
+
+### Forward Diffusion Process
+
+The forward diffusion process, also known as the noising process, gradually adds Gaussian noise to an input data sample $x_0$ over $T$ discrete time steps. At each step $t$, a small amount of noise is added, transforming $x_{t-1}$ into $x_t$. This process is defined such that $x_t$ can be directly sampled from $x_0$ using a reparameterization trick:
+$$q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1 - \bar{\alpha}_t) \mathbf{I})$$
+where $\alpha_t = 1 - \beta_t$, $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$, and $\beta_t$ is a variance schedule. As $t \to T$, $x_T$ approaches an isotropic Gaussian distribution.
+
+$$
+q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} x_0, (1 - \bar{\alpha}_t) \mathbf{I})
+$$
+
+$$
+\alpha_t = 1 - \beta_t
+$$
+
+$$
+\bar{\alpha}_t = \prod_{s=1}^t \alpha_s
+$$
+
+### Reverse Denoising Process
+
+The reverse diffusion process aims to learn the conditional probability $p_\theta(x_{t-1} | x_t)$, which represents denoising $x_t$ back to $x_{t-1}$. While the true reverse process $q(x_{t-1} | x_t, x_0)$ is tractable, $x_0$ is unknown. Diffusion models approximate this by training a neural network (often a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net)) to predict the noise $\epsilon_\theta(x_t, t)$ added at step $t$. The reverse step is then formulated as:
+$$p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$$
+where $\mu_\theta(x_t, t)$ and $\Sigma_\theta(x_t, t)$ are derived from the predicted noise $\epsilon_\theta(x_t, t)$ and the variance schedule.
+
+$$
+p_\theta(x_{t-1} | x_t)
+$$
+
+$$
+q(x_{t-1} | x_t, x_0)
+$$
+
+$$
+\epsilon_\theta(x_t, t)
+$$
+
+$$
+p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))
+$$
+
+$$
+\mu_\theta(x_t, t)
+$$
+
+$$
+\Sigma_\theta(x_t, t)
+$$
+
+### Variational Autoencoder for Latent Space
+
+Latent Diffusion Models introduce a pre-trained [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) to transform high-dimensional data into a lower-dimensional, perceptually rich latent space. The VAE consists of an encoder $E$ that maps an image $x$ to a latent representation $z = E(x)$, and a decoder $D$ that reconstructs the image from the latent code $x' = D(z)$. The diffusion process then operates on these latent representations $z_t$ instead of the original pixel data $x_t$. This compression allows the [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) to learn more efficiently and generate higher-resolution outputs with fewer computational resources.
+
+$$
+z = E(x)
+$$
+
+$$
+x' = D(z)
+$$
+
+### Conditional Latent Diffusion
+
+LDMs often incorporate conditional generation, allowing the synthesis process to be guided by various inputs, such as text descriptions, class labels, or other images. This is achieved by feeding the conditioning information $y$ (e.g., a text embedding) into the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture of the [Diffusion Model](/algorithms/generative/diffusion/diffusion-model). The [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) learns to predict noise $\epsilon_\theta(z_t, t, y)$ conditioned on $y$, enabling controlled generation. During inference, classifier-free guidance can be applied, which combines unconditional and conditional noise predictions to enhance the influence of the conditioning signal.
+
+$$
+\epsilon_\theta(z_t, t, y)
+$$
+
+## Algorithm Steps
+
+1. Train a Variational Autoencoder (VAE) consisting of an encoder $E$ and a decoder $D$ to map high-dimensional data (e.g., images) to a lower-dimensional latent space and back, ensuring high-fidelity reconstruction.
+2. Encode the training data $x_0$ into its latent representation $z_0 = E(x_0)$.
+3. For each training step, sample a random time step $t \in [1, T]$ and a noise vector $\epsilon \sim \mathcal{N}(0, \mathbf{I})$.
+4. Generate a noisy latent sample $z_t$ by adding noise to $z_0$ according to the forward diffusion process: $z_t = \sqrt{\bar{\alpha}_t} z_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon$.
+5. Train a U-Net model $\epsilon_\theta$ to predict the noise $\epsilon$ from $z_t$ and $t$, minimizing the objective $||\epsilon - \epsilon_\theta(z_t, t)||^2$. For conditional generation, also input conditioning information $y$ to the U-Net.
+6. During inference, start with a randomly sampled latent vector $z_T \sim \mathcal{N}(0, \mathbf{I})$.
+7. Iteratively denoise $z_t$ to $z_{t-1}$ for $t = T, T-1, \dots, 1$ using the trained U-Net $\epsilon_\theta$ to predict the noise and reverse the diffusion process.
+8. Decode the final denoised latent representation $z_0$ back into the data space using the VAE decoder: $x_0 = D(z_0)$.
+9. For conditional generation, apply classifier-free guidance during the reverse process by combining predictions from conditional and unconditional U-Nets.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_train_timesteps` | `integer` | `1000` | integer > 0 | The number of diffusion steps $T$ in the forward and reverse processes. Higher values generally lead to better quality but slower inference. |
+| `beta_schedule` | `string` | `linear` | ['linear', 'cosine', 'squaredcos_cap_v2'] | The schedule for the variance $\beta_t$ in the forward diffusion process. Common options include 'linear', 'cosine', 'squaredcos_cap_v2'. |
+| `prediction_type` | `string` | `epsilon` | ['epsilon', 'sample', 'v_prediction'] | The type of output the U-Net predicts. 'epsilon' predicts the noise, 'sample' predicts the denoised sample $x_0$, 'v_prediction' predicts a combination. |
+| `encoder_latent_dim` | `integer` | `4` | integer > 0 | The dimensionality of the latent space produced by the VAE encoder. This determines the compression factor. |
+| `unet_channels` | `list of integers` | `[320, 640, 1280, 1280]` | list of integers > 0 | A list of channel dimensions for each block in the U-Net architecture. Determines model capacity. |
+| `attention_resolutions` | `list of integers` | `[4, 2, 1]` | list of integers > 0 | A list of resolutions at which self-attention blocks are applied within the U-Net. Higher resolutions imply more detailed attention. |
+| `learning_rate` | `float` | `1e-4` | float > 0 | The learning rate used for optimizing the U-Net model during training. |
+| `guidance_scale` | `float` | `7.5` | float >= 0 | During inference with classifier-free guidance, this parameter controls the strength of the conditioning signal. Higher values mean stronger adherence to the prompt but can reduce diversity. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Latent Diffusion Models significantly reduce computational complexity and memory footprint compared to pixel-space diffusion models, enabling training on larger datasets and generating higher-resolution outputs more efficiently.
+- They achieve state-of-the-art image generation quality, producing highly realistic and diverse samples.
+- The latent space representation allows for more efficient manipulation and exploration of semantic concepts.
+- LDMs are highly versatile, supporting various conditional generation tasks such as text-to-image synthesis, inpainting, and super-resolution.
+- The modular design, separating the VAE from the diffusion model, allows for independent optimization and reuse of components.
+- Classifier-free guidance provides a powerful mechanism for controlling the trade-off between sample quality and adherence to conditioning signals.
+
+## Weaknesses
+
+- Despite efficiency improvements, training Latent Diffusion Models still requires substantial computational resources and time.
+- The quality of generated samples is highly dependent on the fidelity of the pre-trained VAE, which can sometimes introduce reconstruction artifacts.
+- The iterative sampling process during inference can be slow, requiring many steps to produce a high-quality image.
+- Controlling very fine-grained details or specific object attributes can be challenging without extensive fine-tuning or highly specific conditioning.
+- The models can sometimes generate images with anatomical inaccuracies or other subtle artifacts, particularly in complex scenes or when dealing with human figures.
+
+## Use Cases
+
+### Creative Arts and Design
+
+Artists and designers use LDMs for rapid prototyping, generating diverse visual concepts, and creating unique digital art from text prompts or sketches.
+
+### Content Creation
+
+Used for generating stock imagery, marketing materials, and visual assets for games or virtual environments, significantly reducing production time and costs.
+
+### Image Editing and Manipulation
+
+Applications include inpainting (filling missing parts of an image), outpainting (extending images beyond their original borders), and style transfer, allowing for sophisticated image transformations.
+
+### Fashion and Product Design
+
+Designers can leverage LDMs to visualize new clothing designs, product variations, or interior decor concepts based on textual descriptions or reference images.
+
+### Scientific Visualization
+
+Researchers can use LDMs to generate synthetic data for training other models or to visualize complex scientific phenomena based on abstract inputs.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Latent Diffusion from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Latent Diffusion does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Latent Diffusion Lab" />
+
+## References
+
+- Rombach et al. (2022). Rombach et al..

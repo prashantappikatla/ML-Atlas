@@ -1,0 +1,176 @@
+---
+title: "Winnow"
+slug: "winnow"
+category: "supervised"
+subcategory: "classification"
+year: 1988
+author: "Littlestone"
+paper: "Littlestone"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: true
+  timeseries: false
+  graph: false
+tags: ["binary-classification", "high-dimensional", "linear-model", "mistake-driven", "multiplicative-updates", "online-learning", "sparse-data", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "perceptron"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Winnow is an online learning algorithm designed for binary classification, particularly effective in high-dimensional feature spaces where the target concept depends on a small subset of features. It maintains a weight vector for features and updates these weights multiplicatively based on prediction errors. The algorithm aims to find a linear separator and is notable for its provable mistake bounds, which are independent of the total number of features.
+
+## History
+
+**1988** — Littlestone introduced the Winnow algorithm in his seminal paper, 'Learning Quickly When Irrelevant Attributes Abound: A New Linear-Threshold Algorithm', establishing its theoretical foundations and mistake bounds.
+
+**1991** — Littlestone and Warmuth further analyzed Winnow and its variants, providing deeper theoretical insights into online learning and the algorithm's performance guarantees.
+
+**1995** — The algorithm gained recognition within the computational learning theory community for its efficiency in high-dimensional settings, influencing subsequent research in online learning.
+
+**1998** — Winnow and its extensions, such as Balanced Winnow, were applied to practical problems like text classification and spam filtering, demonstrating their utility in real-world applications.
+
+**2002** — The theoretical framework of Winnow continued to inspire the development of other mistake-driven online learning algorithms, including variants of the [Perceptron](/algorithms/supervised/classification/perceptron) and Passive-Aggressive algorithms.
+
+## Mathematical Intuition
+
+### Linear Threshold Prediction
+
+Winnow operates on a linear threshold model, where a prediction is made by comparing a weighted sum of features against a fixed threshold. For a given input vector $\mathbf{x} = (x_1, \dots, x_d)$ and a weight vector $\mathbf{w} = (w_1, \dots, w_d)$, the prediction $\hat{y}$ is determined by the sign of the difference between the dot product $\mathbf{w} \cdot \mathbf{x}$ and a threshold $\theta$. Typically, features $x_i$ are binary (0 or 1), and weights $w_i$ are non-negative.
+$$ \hat{y} = \begin{cases} 1 & \text{if } \sum_{i=1}^d w_i x_i \ge \theta \\ 0 & \text{otherwise} \end{cases} $$
+
+$$
+\hat{y} = \begin{cases} 1 & \text{if } \sum_{i=1}^d w_i x_i \ge \theta \\ 0 & \text{otherwise} \end{cases}
+$$
+
+### Multiplicative Weight Updates
+
+The core of Winnow's learning mechanism is its multiplicative weight update rule. When a mistake occurs, the weights corresponding to the active features ($x_i=1$) are adjusted by multiplying them with a promotion parameter $\alpha > 1$. If the algorithm predicts 0 but the true label is 1 (false negative), weights of active features are promoted. If it predicts 1 but the true label is 0 (false positive), weights of active features are demoted.
+
+If $\hat{y} = 0$ and $y = 1$ (false negative):
+$$ w_i \leftarrow w_i \cdot \alpha \quad \text{for all } i \text{ where } x_i = 1 $$
+If $\hat{y} = 1$ and $y = 0$ (false positive):
+$$ w_i \leftarrow w_i / \alpha \quad \text{for all } i \text{ where } x_i = 1 $$
+
+$$
+w_i \leftarrow w_i \cdot \alpha \quad \text{for all } i \text{ where } x_i = 1
+$$
+
+$$
+w_i \leftarrow w_i / \alpha \quad \text{for all } i \text{ where } x_i = 1
+$$
+
+### Mistake Bound Guarantees
+
+A significant theoretical strength of Winnow is its provable mistake bound. For a $k$-sparse target function (where only $k$ features are relevant), the total number of mistakes made by Winnow is bounded by $O(k \log d)$, where $d$ is the total number of features. This bound demonstrates that Winnow's performance is robust to a large number of irrelevant features, making it particularly suitable for high-dimensional data where sparsity is present.
+$$ \text{Number of Mistakes} \le O(k \log d) $$
+
+$$
+\text{Number of Mistakes} \le O(k \log d)
+$$
+
+## Algorithm Steps
+
+1. Initialize all feature weights $w_i$ to 1 for $i=1, \dots, d$, set the threshold $\theta$ (e.g., $d/2$), and choose a promotion parameter $\alpha > 1$.
+2. For each training example $(\mathbf{x}, y)$ received sequentially:
+3. Calculate the weighted sum $S = \sum_{i=1}^d w_i x_i$.
+4. Make a prediction $\hat{y}$: if $S \ge \theta$, then $\hat{y} = 1$; otherwise, $\hat{y} = 0$.
+5. If the prediction is correct (i.e., $\hat{y} = y$), no weight updates are performed.
+6. If a false negative occurs (i.e., $\hat{y} = 0$ but $y = 1$): For every feature $i$ where $x_i = 1$, update its weight $w_i \leftarrow w_i \cdot \alpha$.
+7. If a false positive occurs (i.e., $\hat{y} = 1$ but $y = 0$): For every feature $i$ where $x_i = 1$, update its weight $w_i \leftarrow w_i / \alpha$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `2.0` | > 1.0 | The promotion parameter used for multiplicative weight updates. A value greater than 1.0. |
+| `threshold` | `float` | `0.5` | any float | The decision threshold for classifying an example as positive or negative. The weighted sum must exceed this value for a positive prediction. |
+| `weights_init` | `str` | `ones` | ['ones', 'random'] | Strategy for initializing the feature weights. Common options include 'ones' or 'random'. |
+| `max_iter` | `int` | `1000` | >= 1 | The maximum number of passes over the training data (epochs) to perform during learning. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Winnow exhibits strong theoretical mistake bounds, particularly advantageous when the target function depends on a small subset of features.
+- It is computationally efficient, especially in high-dimensional sparse feature spaces, due to its multiplicative updates only affecting active features.
+- The algorithm is robust to irrelevant features, as their weights tend to remain small or decrease over time.
+- Winnow is an online learning algorithm, capable of processing data sequentially and adapting to changes in the data distribution.
+- Its performance guarantees are often superior to additive update rules like the Perceptron in scenarios with many irrelevant features.
+
+## Weaknesses
+
+- Winnow is primarily designed for binary classification problems and does not natively extend to multi-class scenarios without significant modifications.
+- The algorithm can be sensitive to noise and mislabeled examples, as every mistake triggers a weight update.
+- It requires careful tuning of its parameters, such as the promotion parameter $\alpha$ and the threshold $\theta$, which can impact performance.
+- Winnow typically assumes binary features (or features that can be binarized), which might necessitate preprocessing for continuous or categorical data.
+- Its performance can degrade if the underlying data distribution is highly non-linear or if the relevant features are not sparse.
+
+## Use Cases
+
+### Spam Filtering
+
+Identifying spam emails by learning from features like specific keywords or sender characteristics, where relevant features are often sparse.
+
+### Document Classification
+
+Categorizing text documents into predefined classes based on the presence or absence of certain terms, leveraging its efficiency with high-dimensional text features.
+
+### Intrusion Detection
+
+Detecting anomalous network activity or system intrusions by classifying network packets or system calls, where a few indicators might signify an attack.
+
+### Medical Diagnosis
+
+Assisting in binary diagnostic tasks where a disease's presence is indicated by a sparse set of symptoms or test results from a larger pool of features.
+
+### Financial Fraud Detection
+
+Identifying fraudulent transactions based on a sparse set of indicators in transaction data, benefiting from its ability to handle many irrelevant features.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Winnow from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Winnow
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Winnow()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Winnow Lab" />
+
+## References
+
+- Littlestone (1988). Littlestone.
+- [scikit-learn: Winnow](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Winnow.html)

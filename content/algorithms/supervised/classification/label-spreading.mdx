@@ -1,0 +1,184 @@
+---
+title: "Label Spreading"
+slug: "label-spreading"
+category: "supervised"
+subcategory: "classification"
+year: 2004
+author: "Zhou et al."
+paper: "Zhou et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["classification", "graph-based", "iterative", "kernel-methods", "label-propagation", "manifold-learning", "semi-supervised-learning", "transductive"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "k-nearest-neighbors"
+  - "label-propagation"
+---
+
+## Overview
+
+Label Spreading is a semi-supervised learning algorithm designed for classification tasks where only a small portion of the training data is labeled. It operates by constructing a similarity graph over all data points, both labeled and unlabeled, and then iteratively propagates label information from the labeled points to their neighbors. The algorithm aims to achieve a smooth label assignment across the graph, where nearby points tend to have the same label, while respecting the initial labels.
+
+## History
+
+**2003** — Xiaojin Zhu introduces [Label Propagation](/algorithms/supervised/classification/label-propagation), a foundational graph-based semi-supervised learning algorithm, which shares conceptual similarities with Label Spreading.
+
+**2004** — Dengyong Zhou, Olivier Bousquet, Thomas N. Lal, Jason Weston, and Bernhard Schölkopf introduce Label Spreading in their seminal paper 'Learning with Local and Global Consistency', extending [Label Propagation](/algorithms/supervised/classification/label-propagation) with a regularization term.
+
+**2007** — Further research and theoretical analysis solidify the understanding and application of graph-based semi-supervised learning methods, including Label Spreading, in various domains.
+
+**2010** — Label Spreading, along with other semi-supervised algorithms, becomes integrated into popular machine learning libraries like scikit-learn, increasing its accessibility and practical adoption.
+
+## Mathematical Intuition
+
+### Graph Construction and Affinity
+
+Label Spreading begins by constructing a similarity graph where each data point $x_i$ is a node. The edges represent the similarity between points, typically computed using a kernel function. For instance, the Radial Basis Function (RBF) kernel defines the affinity $W_{ij}$ between points $x_i$ and $x_j$ as:
+$$W_{ij} = \exp\left(-\frac{||x_i - x_j||^2}{2\sigma^2}\right)$$
+where $||x_i - x_j||^2$ is the squared Euclidean distance and $\sigma$ is a bandwidth parameter. This affinity matrix $W$ is then normalized to form a transition matrix $P$, often $P = D^{-1}W$, where $D$ is a diagonal matrix with $D_{ii} = \sum_j W_{ij}$.
+
+$$
+W_{ij} = \exp\left(-\frac{||x_i - x_j||^2}{2\sigma^2}\right)
+$$
+
+$$
+P = D^{-1}W
+$$
+
+$$
+D_{ii} = \sum_j W_{ij}
+$$
+
+### Iterative Label Propagation
+
+Let $Y$ be an $N \times C$ matrix representing the initial labels, where $N$ is the number of data points and $C$ is the number of classes. $Y_{ic} = 1$ if point $x_i$ is labeled with class $c$, and $0$ otherwise; for unlabeled points, all $Y_{ic}=0$. The algorithm iteratively updates a label distribution matrix $F$, initialized with $Y$. The core update rule is:
+$$F^{(t+1)} = \alpha P F^{(t)} + (1-\alpha) Y$$
+Here, $P$ is the normalized affinity matrix from the graph construction, and $\alpha \in (0, 1)$ is a clamping factor. The term $\alpha P F^{(t)}$ propagates label information from neighboring nodes, while $(1-\alpha) Y$ ensures that the original labels of the labeled data points are preserved to a certain degree, preventing complete diffusion.
+
+$$
+F^{(t+1)} = \alpha P F^{(t)} + (1-\alpha) Y
+$$
+
+$$
+\alpha \in (0, 1)
+$$
+
+### Convergence and Optimization Objective
+
+The iterative process continues until the label distribution matrix $F$ converges, typically when the change between successive iterations falls below a tolerance threshold. The converged solution $F^*$ can be expressed in closed form as:
+$$F^* = (I - \alpha P)^{-1} (1-\alpha) Y$$
+This solution minimizes a cost function that balances two objectives: a smoothness term, which encourages neighboring points to have similar labels, and a fitting term, which penalizes deviations from the initial labels of the labeled data. After convergence, the final label for an unlabeled point $x_i$ is determined by assigning it to the class $c$ for which $F^*_{ic}$ has the highest value.
+
+$$
+F^* = (I - \alpha P)^{-1} (1-\alpha) Y
+$$
+
+## Algorithm Steps
+
+1. Construct a similarity graph for all data points (labeled and unlabeled) based on a chosen kernel function (e.g., RBF or k-nearest neighbors).
+2. Compute the affinity matrix $W$, where $W_{ij}$ quantifies the similarity between data points $x_i$ and $x_j$.
+3. Normalize the affinity matrix $W$ to obtain a transition matrix $P$, typically $P = D^{-1} W$ or $P = D^{-1/2} W D^{-1/2}$, where $D$ is the diagonal degree matrix with $D_{ii} = \sum_j W_{ij}$.
+4. Initialize a label distribution matrix $F$ with the known labels $Y$, where $Y_{ic}=1$ if $x_i$ is labeled as class $c$, and $0$ otherwise; unlabeled points have all $Y_{ic}=0$.
+5. Iteratively update the label distribution matrix $F$ using the rule $F^{(t+1)} = \alpha P F^{(t)} + (1-\alpha) Y$, where $\alpha$ is the clamping factor.
+6. Repeat the update until $F$ converges (i.e., the change in $F$ between iterations is below a tolerance) or a maximum number of iterations is reached.
+7. Assign each unlabeled data point $x_i$ to the class $c$ for which the final value $F_{ic}$ is maximal.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `kernel` | `str` | `rbf` | 'rbf', 'knn' | Specifies the kernel function to use for constructing the affinity matrix. Options are 'rbf' for Radial Basis Function or 'knn' for k-nearest neighbors. |
+| `gamma` | `float` | `20` | positive float | Kernel coefficient for 'rbf' kernel. A higher gamma means a smaller standard deviation, leading to a more localized influence of individual data points. |
+| `n_neighbors` | `int` | `7` | positive integer | Number of neighbors to use for 'knn' kernel. Defines the connectivity of the graph. |
+| `alpha` | `float` | `0.2` | 0.0 to 1.0 | Clamping factor. A value between 0 and 1. It controls the influence of the initial labels versus the propagated labels. Lower alpha means more emphasis on initial labels. |
+| `max_iter` | `int` | `30` | positive integer | Maximum number of iterations allowed for the label propagation process to converge. |
+| `tol` | `float` | `0.001` | positive float | Tolerance for stopping criterion. The algorithm stops if the change in the label distribution matrix $F$ between iterations is less than this value. |
+| `n_jobs` | `int` | `None` | integer or None | The number of parallel jobs to run for neighbors search. 'None' means 1 unless in a joblib.parallel_backend context. '-1' means using all processors. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- Effectively leverages unlabeled data, making it suitable for scenarios with limited labeled examples.
+- Can capture complex, non-linear relationships between data points through the graph structure.
+- Provides soft label assignments (probabilities) for unlabeled points, offering more information than hard assignments.
+- Relatively robust to noise in the unlabeled data due to the smoothing effect of label propagation.
+- The algorithm is conceptually intuitive, relying on the principle that similar points should share similar labels.
+
+## Weaknesses
+
+- Performance is highly dependent on the quality of the similarity graph construction and the choice of kernel parameters.
+- Scalability can be a significant issue for very large datasets due to the need to compute and store the full affinity matrix.
+- Sensitive to the distribution of labeled data; sparse or biased labeled data can lead to poor propagation and inaccurate results.
+- The clamping factor $\alpha$ is a critical hyperparameter that can be difficult to tune optimally for diverse datasets.
+- Does not inherently handle out-of-sample prediction for new, unseen data points without re-running or extending the graph.
+
+## Use Cases
+
+### Bioinformatics
+
+Classifying proteins or genes with limited experimental labels by leveraging large amounts of unlabeled sequence data to propagate known functional annotations.
+
+### Image Annotation
+
+Automatically tagging images in large datasets when only a small subset has been manually labeled, by propagating labels from known images to visually similar unlabeled ones.
+
+### Document Classification
+
+Categorizing large corpora of text documents where only a few examples per category are available, by building a similarity graph based on document features.
+
+### Fraud Detection
+
+Identifying fraudulent transactions or accounts by propagating suspiciousness from known fraudulent cases through a network of transactions or user interactions.
+
+### Customer Segmentation
+
+Grouping customers based on their behavior and attributes, using a small set of pre-labeled customer segments to guide the propagation process and classify new customers.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Label Spreading from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import LabelSpreading
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = LabelSpreading()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
+```
+
+## Lab
+
+<LabEmbed url={""} title="Label Spreading Lab" />
+
+## References
+
+- Zhou et al. (2004). Zhou et al..
+- [scikit-learn: LabelSpreading](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LabelSpreading.html)

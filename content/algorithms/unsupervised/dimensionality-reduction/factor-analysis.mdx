@@ -1,0 +1,187 @@
+---
+title: "Factor Analysis"
+slug: "factor-analysis"
+category: "unsupervised"
+subcategory: "dimensionality-reduction"
+year: 1904
+author: "Spearman"
+paper: "Spearman"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["dimensionality-reduction", "factor-analysis", "feature-extraction", "latent-variables", "multivariate-analysis", "psychometrics", "statistical-modeling", "unsupervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "latent-semantic-analysis"
+---
+
+## Overview
+
+Factor Analysis is a statistical method used to describe variability among observed, correlated variables in terms of a potentially lower number of unobserved latent variables called factors. It aims to model the underlying causal structure that explains the correlations between observed variables, distinguishing itself from Principal Component Analysis by explicitly accounting for unique variance and measurement error. The goal is to identify these latent factors and quantify their influence on the observed data, providing a more parsimonious representation of complex phenomena. This technique is widely applied in fields where underlying constructs are not directly measurable.
+
+## History
+
+**1904** — Charles Spearman introduced the first formal model of factor analysis, proposing a single general intelligence factor ('g') to explain correlations among various cognitive tests.
+
+**1930** — Louis Thurstone developed multiple factor analysis, allowing for the identification of several common factors, greatly expanding the method's applicability beyond a single latent variable.
+
+**1940** — Advancements in computational methods and statistical theory, including the development of maximum likelihood estimation for factor analysis, made the technique more robust and widely adopted.
+
+**1960** — The rise of computers facilitated the practical application of factor analysis to larger datasets, leading to its widespread use in psychology, social sciences, and marketing research.
+
+## Mathematical Intuition
+
+### Model Formulation
+
+The core of Factor Analysis models an observed data vector $\mathbf{x}$ as a linear combination of $k$ unobserved latent factors $\mathbf{f}$ and a unique error term $\mathbf{\epsilon}$. This relationship is expressed as:
+$$ \mathbf{x} = \mathbf{\Lambda} \mathbf{f} + \mathbf{\epsilon} $$
+Here, $\mathbf{x}$ is a $p$-dimensional vector of observed variables, $\mathbf{f}$ is a $k$-dimensional vector of common factors ($k < p$), $\mathbf{\Lambda}$ is a $p \times k$ matrix of factor loadings, and $\mathbf{\epsilon}$ is a $p$-dimensional vector of unique errors. Key assumptions include that the common factors $\mathbf{f}$ are uncorrelated and have unit variance (i.e., $\text{Cov}(\mathbf{f}) = \mathbf{I}$), the unique errors $\mathbf{\epsilon}$ are uncorrelated with each other and with the common factors (i.e., $\text{Cov}(\mathbf{\epsilon}) = \mathbf{\Psi}$, where $\mathbf{\Psi}$ is a diagonal matrix), and both $\mathbf{f}$ and $\mathbf{\epsilon}$ are typically assumed to be normally distributed with zero mean.
+
+$$
+\mathbf{x} = \mathbf{\Lambda} \mathbf{f} + \mathbf{\epsilon}
+$$
+
+$$
+\text{Cov}(\mathbf{f}) = \mathbf{I}
+$$
+
+$$
+\text{Cov}(\mathbf{\epsilon}) = \mathbf{\Psi}
+$$
+
+### Covariance Structure
+
+A fundamental aspect of Factor Analysis is how it explains the covariance structure of the observed variables. Based on the model formulation and assumptions, the covariance matrix of the observed variables, $\mathbf{\Sigma}$, can be decomposed into two parts:
+$$ \mathbf{\Sigma} = \mathbf{\Lambda} \mathbf{\Lambda}^T + \mathbf{\Psi} $$
+This equation shows that the observed covariance structure is explained by the common factors ($\mathbf{\Lambda} \mathbf{\Lambda}^T$) and the unique variances ($\mathbf{\Psi}$). The diagonal elements of $\mathbf{\Lambda} \mathbf{\Lambda}^T$ are known as communalities, representing the proportion of variance in each observed variable that is explained by the common factors. The diagonal elements of $\mathbf{\Psi}$ represent the unique variance (or specificity) of each observed variable, which is not accounted for by the common factors.
+
+$$
+\mathbf{\Sigma} = \mathbf{\Lambda} \mathbf{\Lambda}^T + \mathbf{\Psi}
+$$
+
+### Parameter Estimation
+
+The primary goal in Factor Analysis is to estimate the factor loadings matrix $\mathbf{\Lambda}$ and the unique variances matrix $\mathbf{\Psi}$. These parameters are typically estimated using maximum likelihood estimation (MLE), which seeks to find the parameters that maximize the probability of observing the given data. The log-likelihood function involves the observed sample covariance matrix $\mathbf{S}$ and the model-implied covariance matrix $\mathbf{\Sigma}(\mathbf{\Lambda}, \mathbf{\Psi})$. Iterative algorithms, such as the expectation-maximization (EM) algorithm or gradient-based optimization methods, are commonly employed to optimize this likelihood function. Other estimation methods include principal axis factoring and minimum residual factoring.
+
+$$
+\mathbf{\Sigma}(\mathbf{\Lambda}, \mathbf{\Psi})
+$$
+
+### Factor Rotation for Interpretability
+
+The factor loadings matrix $\mathbf{\Lambda}$ obtained from estimation is not unique; for any orthogonal matrix $\mathbf{T}$ (where $\mathbf{T}\mathbf{T}^T = \mathbf{I}$), a rotated loading matrix $\mathbf{\Lambda}^* = \mathbf{\Lambda} \mathbf{T}$ yields an equivalent model for the covariance structure:
+$$ \mathbf{\Lambda}^* (\mathbf{\Lambda}^*)^T = (\mathbf{\Lambda} \mathbf{T}) (\mathbf{\Lambda} \mathbf{T})^T = \mathbf{\Lambda} \mathbf{T} \mathbf{T}^T \mathbf{\Lambda}^T = \mathbf{\Lambda} \mathbf{\Lambda}^T $$
+Factor rotation aims to find a rotation $\mathbf{T}$ that simplifies the loading matrix, making the factors more interpretable. The goal is often to achieve 'simple structure,' where each observed variable loads highly on only one factor and near zero on others. Common orthogonal rotation methods include Varimax, which maximizes the variance of the squared loadings for each factor, and oblique methods like Promax, which allow factors to be correlated.
+
+$$
+\mathbf{T}\mathbf{T}^T = \mathbf{I}
+$$
+
+$$
+\mathbf{\Lambda}^* = \mathbf{\Lambda} \mathbf{T}
+$$
+
+$$
+\mathbf{\Lambda}^* (\mathbf{\Lambda}^*)^T = (\mathbf{\Lambda} \mathbf{T}) (\mathbf{\Lambda} \mathbf{T})^T = \mathbf{\Lambda} \mathbf{T} \mathbf{T}^T \mathbf{\Lambda}^T = \mathbf{\Lambda} \mathbf{\Lambda}^T
+$$
+
+## Algorithm Steps
+
+1. Standardize the input data matrix $\mathbf{X}$ to have zero mean and unit variance for each feature, as Factor Analysis is sensitive to the scale of variables.
+2. Determine the number of common factors $k$ to extract, often based on theoretical considerations, scree plots of eigenvalues, or statistical tests.
+3. Estimate the factor loadings matrix $\mathbf{\Lambda}$ and the unique variances matrix $\mathbf{\Psi}$ using an iterative optimization algorithm, such as maximum likelihood estimation.
+4. Assess the goodness-of-fit of the model by comparing the observed sample covariance matrix $\mathbf{S}$ with the model-implied covariance matrix $\mathbf{\Lambda} \mathbf{\Lambda}^T + \mathbf{\Psi}$ using statistical tests (e.g., chi-square test).
+5. Rotate the factor loadings matrix $\mathbf{\Lambda}$ to achieve a simpler and more interpretable structure, using methods like Varimax (orthogonal) or Promax (oblique).
+6. Compute factor scores for each observation, representing the values of the latent factors for that data point, which can then be used in subsequent analyses.
+7. Interpret the extracted factors based on the rotated factor loadings, identifying which observed variables load strongly on each factor to assign meaning to the latent constructs.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `None` | 1 to number of features | The number of factors to extract. If None, it defaults to the number of features. |
+| `svd_method` | `str` | `randomized` | 'full', 'randomized' | Method to use for the singular value decomposition. 'randomized' is faster for large datasets, 'full' is more accurate. |
+| `tol` | `float` | `1e-4` | positive float | Tolerance for the stopping criterion of the iterative optimization algorithm. |
+| `max_iter` | `int` | `1000` | positive integer | Maximum number of iterations for the optimization algorithm. |
+| `copy` | `bool` | `true` | true, false | Whether to copy X or perform in-place factorization. If false, X may be overwritten. |
+| `random_state` | `int or RandomState instance` | `None` | integer or None | Used for initializing the random generator, especially when 'svd_method' is 'randomized'. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It explicitly models measurement error and unique variance for each observed variable, providing a more robust representation of underlying constructs than methods like PCA.
+- Factor Analysis provides interpretable latent factors that can represent meaningful theoretical constructs, aiding in scientific discovery and hypothesis testing.
+- It can reduce the dimensionality of complex datasets while retaining the most significant underlying information related to common variance.
+- The model allows for statistical hypothesis testing regarding the number of factors and the structure of factor loadings, providing a formal framework for model evaluation.
+- It is particularly useful in social sciences and psychology for understanding complex phenomena that cannot be directly measured, such as intelligence or personality traits.
+
+## Weaknesses
+
+- The model assumes linearity between observed variables and latent factors, which may not hold true for all datasets and can lead to inaccurate representations.
+- Determining the optimal number of factors can be subjective and lacks a universally agreed-upon objective criterion, often relying on heuristic rules or expert judgment.
+- Factor rotation introduces an element of subjectivity, as different rotation methods can lead to different interpretations of the factors, potentially impacting conclusions.
+- The computational cost can be high for very large datasets, especially with iterative estimation methods like maximum likelihood, making it less scalable than some alternatives.
+- Factor Analysis requires several statistical assumptions, such as multivariate normality of the observed variables, which are often violated in real-world data, potentially affecting the validity of results.
+
+## Use Cases
+
+### Psychology
+
+Identifying underlying personality traits (e.g., Big Five personality factors) from survey responses and psychological test scores.
+
+### Marketing
+
+Understanding consumer preferences and market segments from product ratings, brand perceptions, and demographic data to inform marketing strategies.
+
+### Finance
+
+Reducing the dimensionality of financial indicators to identify underlying economic factors influencing asset prices or market movements.
+
+### Social Sciences
+
+Exploring latent constructs like socio-economic status, quality of life, or political ideology from various observable indicators and survey data.
+
+### Education
+
+Analyzing student performance across different subjects or test items to identify underlying cognitive abilities or learning styles.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Factor Analysis from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.decomposition import FactorAnalysis
+
+model = FactorAnalysis()
+labels = model.fit_predict(X)
+```
+
+## Lab
+
+<LabEmbed url={""} title="Factor Analysis Lab" />
+
+## References
+
+- Spearman (1904). Spearman.
+- [scikit-learn: FactorAnalysis](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.FactorAnalysis.html)
