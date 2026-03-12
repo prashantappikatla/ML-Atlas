@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 from ...database import get_session
 from ...models.algorithm import Algorithm
+from ...models.status import ImplementationStatus
 
 router = APIRouter()
 
@@ -21,8 +22,30 @@ async def list_algorithms(
         query = query.where(Algorithm.subcategory == subcategory)
     if complexity:
         query = query.where(Algorithm.complexity == complexity)
+    if status:
+        query = query.join(
+            ImplementationStatus,
+            Algorithm.id == ImplementationStatus.algorithm_id,
+        ).where(ImplementationStatus.status == status)
+
     algorithms = session.exec(query).all()
-    return {"data": algorithms, "meta": {"total": len(algorithms)}}
+
+    # Batch-fetch statuses to include in every response object (avoids N+1)
+    algo_ids = [a.id for a in algorithms]
+    status_map: dict[int, str] = {}
+    if algo_ids:
+        rows = session.exec(
+            select(ImplementationStatus).where(
+                ImplementationStatus.algorithm_id.in_(algo_ids)
+            )
+        ).all()
+        status_map = {r.algorithm_id: r.status for r in rows}
+
+    data = [
+        {**a.model_dump(), "status": status_map.get(a.id, "planned")}
+        for a in algorithms
+    ]
+    return {"data": data, "meta": {"total": len(data)}}
 
 
 @router.get("/by-slug/{slug}")

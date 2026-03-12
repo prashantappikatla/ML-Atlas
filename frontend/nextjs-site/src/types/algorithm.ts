@@ -15,6 +15,7 @@ export interface Algorithm {
   compatibility_text: boolean
   compatibility_graph: boolean
   compatibility_timeseries: boolean
+  status?: string
 }
 
 export interface AlgorithmListResponse {

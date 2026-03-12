@@ -1,0 +1,196 @@
+---
+title: "Ridge Regression"
+slug: "ridge-regression"
+category: "supervised"
+subcategory: "regression"
+year: 1970
+author: "Hoerl & Kennard"
+paper: "Hoerl & Kennard"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bias-variance-tradeoff", "l2-regularization", "linear-regression", "multicollinearity", "parametric-model", "regression", "regularization", "supervised-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "elastic-net"
+  - "lasso-regression"
+  - "linear-regression"
+  - "partial-least-squares-regression"
+  - "support-vector-regression"
+---
+
+## Overview
+
+Ridge Regression is a [Linear Regression](/algorithms/supervised/regression/linear-regression) technique designed to address the problem of multicollinearity and overfitting in models with many features. It achieves this by adding an L2 regularization term to the ordinary least squares (OLS) cost function, penalizing large coefficients. This penalty shrinks the regression coefficients towards zero, improving the model's generalization performance and stability. Unlike [Lasso Regression](/algorithms/supervised/regression/lasso-regression), Ridge Regression does not perform feature selection, as coefficients are shrunk but rarely become exactly zero.
+
+## History
+
+**1970** — Arthur Hoerl and Robert Kennard introduced Ridge Regression in their seminal paper "Ridge Regression: Biased Estimation for Nonorthogonal Problems," proposing it as a solution to multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression).
+
+**1970** — Hoerl and Kennard published a follow-up paper, "Ridge Regression: Applications to Nonorthogonal Problems," demonstrating practical applications and further solidifying the method's theoretical basis.
+
+**1970** — The concept of adding a penalty to the least squares objective function laid the groundwork for a broader class of regularization techniques in statistics and machine learning.
+
+**1980** — Ridge Regression became widely adopted in statistical software packages, making it accessible for practitioners to mitigate issues arising from ill-conditioned design matrices.
+
+**1996** — The introduction of [Lasso Regression](/algorithms/supervised/regression/lasso-regression) by Tibshirani provided an alternative L1 regularization approach, leading to comparative studies and a deeper understanding of the properties of L1 versus L2 penalties.
+
+**2005** — The [Elastic Net](/algorithms/supervised/regression/elastic-net) regularization method, combining L1 and L2 penalties, was introduced by Zou and Hastie, further generalizing the concepts of Ridge and [Lasso Regression](/algorithms/supervised/regression/lasso-regression).
+
+## Mathematical Intuition
+
+### OLS Limitations and Multicollinearity
+
+Ordinary Least Squares (OLS) aims to find the regression coefficients $\beta$ that minimize the sum of squared residuals. The OLS objective function is given by $J(\beta) = ||Y - X\beta||^2_2$. The closed-form solution for OLS coefficients is $\hat{\beta}_{OLS} = (X^T X)^{-1} X^T Y$. A significant limitation of OLS arises in the presence of multicollinearity, where independent variables are highly correlated. This can lead to an ill-conditioned or singular $X^T X$ matrix, resulting in unstable, high-variance coefficient estimates that are highly sensitive to small changes in the training data.
+
+$$
+J(\beta) = ||Y - X\beta||^2_2
+$$
+
+$$
+\hat{\beta}_{OLS} = (X^T X)^{-1} X^T Y
+$$
+
+### Ridge Regression Objective Function
+
+Ridge Regression addresses the OLS limitations by adding an L2 regularization term to the objective function. This penalty term is proportional to the sum of the squared magnitudes of the coefficients, excluding the intercept. The Ridge Regression objective function is: $$J(\beta) = ||Y - X\beta||^2_2 + \alpha ||\beta||^2_2$$ where $Y$ is the vector of target values, $X$ is the design matrix, $\beta$ is the vector of coefficients, and $\alpha \ge 0$ is the regularization parameter. The term $\alpha ||\beta||^2_2 = \alpha \sum_{j=1}^p \beta_j^2$ penalizes large coefficients, shrinking them towards zero and reducing the model's complexity and variance.
+
+$$
+J(\beta) = ||Y - X\beta||^2_2 + \alpha ||\beta||^2_2
+$$
+
+$$
+\alpha ||\beta||^2_2 = \alpha \sum_{j=1}^p \beta_j^2
+$$
+
+### Closed-Form Solution Derivation
+
+To find the optimal $\beta$ for Ridge Regression, we differentiate the objective function with respect to $\beta$ and set the gradient to zero: $$\frac{\partial J(\beta)}{\partial \beta} = -2X^T(Y - X\beta) + 2\alpha\beta = 0$$ Rearranging the terms, we get: $$X^T Y - X^T X\beta + \alpha\beta = 0$$ $$X^T Y = (X^T X + \alpha I)\beta$$ Finally, the closed-form solution for the Ridge Regression coefficients is: $$\hat{\beta}_{Ridge} = (X^T X + \alpha I)^{-1} X^T Y$$ The addition of $\alpha I$ (where $I$ is the identity matrix) to $X^T X$ ensures that the matrix $(X^T X + \alpha I)$ is always invertible, even if $X^T X$ is singular due to multicollinearity or when $p > n$.
+
+$$
+\frac{\partial J(\beta)}{\partial \beta} = -2X^T(Y - X\beta) + 2\alpha\beta = 0
+$$
+
+$$
+X^T Y = (X^T X + \alpha I)\beta
+$$
+
+$$
+\hat{\beta}_{Ridge} = (X^T X + \alpha I)^{-1} X^T Y
+$$
+
+### Bias-Variance Trade-off
+
+The regularization parameter $\alpha$ in Ridge Regression controls the balance between bias and variance. A larger value of $\alpha$ increases the penalty on coefficients, leading to greater shrinkage. This increases the bias of the model (as coefficients are pushed further from their true values) but simultaneously decreases its variance (making the model less sensitive to specific training data points). Conversely, a smaller $\alpha$ reduces bias but increases variance, approaching the OLS solution as $\alpha \to 0$. The optimal $\alpha$ is typically chosen via cross-validation to achieve the best generalization performance by minimizing the total error, which is a sum of squared bias, variance, and irreducible error.
+
+## Algorithm Steps
+
+1. Standardize the input features $X$ to have zero mean and unit variance, and optionally center the target variable $Y$ for better numerical stability.
+2. Define the regularization parameter $\alpha \ge 0$, which controls the strength of the L2 penalty.
+3. Construct the augmented matrix $(X^T X + \alpha I)$, where $I$ is the identity matrix of dimensions $p \times p$, with $p$ being the number of features.
+4. Compute the Ridge Regression coefficients using the closed-form solution: $\hat{\beta}_{Ridge} = (X^T X + \alpha I)^{-1} X^T Y$.
+5. If the target variable $Y$ was centered during preprocessing, calculate the intercept term $\hat{\beta}_0 = \bar{y} - \bar{X}\hat{\beta}_{Ridge}$.
+6. For prediction on new data $X_{new}$, calculate the predicted target values $Y_{pred} = X_{new} \hat{\beta}_{Ridge} + \hat{\beta}_0$ (after standardizing $X_{new}$ using the same scaling parameters as the training data).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float or array-like` | `1.0` | alpha >= 0 | The regularization strength; must be a positive float. Larger values specify stronger regularization, leading to greater coefficient shrinkage. |
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (i.e., data is assumed to be centered). |
+| `solver` | `string` | `'auto'` | 'auto', 'svd', 'cholesky', 'lsqr', 'sag', 'saga' | Solver to use in the computational routines. Options include 'auto', 'svd', 'cholesky', 'lsqr', 'sag', and 'saga', each with different performance characteristics. |
+| `max_iter` | `int` | `None` | max_iter > 0 | Maximum number of iterations for iterative solvers ('sag', 'saga', 'lsqr'). For non-iterative solvers, this parameter has no effect. |
+| `tol` | `float` | `1e-4` | tol > 0 | The tolerance for stopping criteria for iterative solvers. Iteration will stop when the change in coefficients falls below this threshold. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It effectively handles multicollinearity among predictor variables by stabilizing coefficient estimates and making the model more robust.
+- Ridge Regression prevents overfitting by shrinking coefficients, leading to better generalization performance on unseen data.
+- It has a unique closed-form solution, making it computationally efficient for datasets where the number of samples is not excessively large.
+- The model remains interpretable as all features contribute to the prediction, albeit with potentially smaller weights.
+- It can be applied even when the number of features $p$ exceeds the number of samples $n$, provided the regularization parameter $\alpha$ is positive.
+- Ridge Regression provides a continuous solution for coefficients, unlike some other methods that might yield sparse solutions.
+
+## Weaknesses
+
+- Ridge Regression does not perform feature selection; it only shrinks coefficients towards zero but never exactly to zero, meaning all features remain in the model.
+- The choice of the regularization parameter $\alpha$ is crucial and often requires cross-validation, which can add computational overhead.
+- The model's interpretability can be reduced if many features have very small, non-zero coefficients, making it difficult to discern truly important predictors.
+- It assumes a linear relationship between features and the target variable, which may not hold for complex, non-linear datasets.
+- The coefficients are not scale-invariant, necessitating feature scaling (e.g., standardization) prior to model training.
+
+## Use Cases
+
+### Econometrics
+
+Predicting economic indicators like GDP growth or inflation, where many correlated macroeconomic variables are present and multicollinearity is common.
+
+### Finance
+
+Risk modeling, asset pricing, and portfolio optimization, especially when dealing with highly correlated asset returns or numerous financial indicators.
+
+### Medical Research
+
+Predicting disease progression, treatment response, or patient outcomes from clinical data with numerous correlated biomarkers, genetic markers, or patient characteristics.
+
+### Environmental Science
+
+Modeling environmental pollution levels, climate change impacts, or ecological patterns based on various correlated atmospheric, geographical, and biological factors.
+
+### Material Science
+
+Predicting material properties (e.g., strength, conductivity) from a large set of experimental parameters, compositional features, or processing conditions.
+
+### Sports Analytics
+
+Predicting player performance, team success, or game outcomes using a wide array of correlated statistics and metrics.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Ridge Regression from scratch
+```
+
+### Using scikit-learn
+
+```python
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = Ridge()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
+```
+
+## Lab
+
+<LabEmbed url={""} title="Ridge Regression Lab" />
+
+## References
+
+- Hoerl & Kennard (1970). Hoerl & Kennard.
+- [scikit-learn: Ridge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html)

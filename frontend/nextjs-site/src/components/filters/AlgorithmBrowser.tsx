@@ -22,6 +22,7 @@ export function AlgorithmBrowser({ algorithms }: AlgorithmBrowserProps) {
     return algorithms.filter((alg) => {
       if (filters.categories.length > 0 && !filters.categories.includes(alg.category)) return false
       if (filters.complexity.length > 0 && !filters.complexity.includes(alg.complexity)) return false
+      if (filters.status.length > 0 && !filters.status.includes(alg.status ?? 'planned')) return false
       if (filters.compatibility.length > 0) {
         const compMap: Record<string, boolean> = {
           tabular: alg.compatibility_tabular,
