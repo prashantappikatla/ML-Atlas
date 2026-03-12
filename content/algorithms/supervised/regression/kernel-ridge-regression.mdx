@@ -30,13 +30,13 @@ Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression) (K
 
 ## History
 
-**1970** — Arthur Hoerl and Robert Kennard introduce [Ridge Regression](/algorithms/supervised/regression/ridge-regression) as a method to address multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression) models, laying the foundation for regularized linear models.
+**1970** — [Arthur Hoerl](https://en.wikipedia.org/wiki/Ridge_regression) and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduce [Ridge Regression](/algorithms/supervised/regression/ridge-regression) as a method to address multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression) models, laying the foundation for regularized linear models.
 
-**1992** — Bernhard Boser, Isabelle Guyon, and Vladimir Vapnik introduce the 'kernel trick' in Support Vector Machines, demonstrating how linear models can learn non-linear decision boundaries by implicitly operating in a high-dimensional feature space.
+**1992** — [Bernhard Boser](https://en.wikipedia.org/wiki/Support_vector_machine), [Isabelle Guyon](https://en.wikipedia.org/wiki/Isabelle_Guyon), and [Vladimir Vapnik](https://en.wikipedia.org/wiki/Vladimir_Vapnik) introduce the 'kernel trick' in [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine), demonstrating how linear models can learn non-linear decision boundaries by implicitly operating in a high-dimensional feature space.
 
-**1998** — Bernhard Schölkopf, Alex Smola, and Klaus-Robert Müller generalize the kernel trick to a broader class of algorithms, expanding the applicability of kernel methods beyond SVMs and paving the way for KRR.
+**1998** — Bernhard Schölkopf, [Alex Smola](https://en.wikipedia.org/wiki/Alex_Smola), and Klaus-Robert Müller generalize the kernel trick to a broader class of algorithms, expanding the applicability of kernel methods beyond SVMs and paving the way for KRR.
 
-**2001** — Craig Saunders, Alex Gammerman, and Vladimir Vapnik formally introduce Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression), combining the L2 regularization of [Ridge Regression](/algorithms/supervised/regression/ridge-regression) with the non-linear mapping capabilities of kernel functions.
+**2001** — [Craig Saunders](https://en.wikipedia.org/wiki/Kernel_methods), [Alex Gammerman](https://en.wikipedia.org/wiki/Conformal_prediction), and Vladimir Vapnik formally introduce Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression), combining the L2 regularization of [Ridge Regression](/algorithms/supervised/regression/ridge-regression) with the non-linear mapping capabilities of kernel functions.
 
 ## Mathematical Intuition
 
@@ -56,7 +56,7 @@ $$
 
 ### The Kernel Trick
 
-The kernel trick allows linear models to learn non-linear relationships by implicitly mapping the input data $ \mathbf{x} $ into a higher-dimensional feature space $ \phi(\mathbf{x}) $. Instead of explicitly computing $ \phi(\mathbf{x}) $, which can be computationally expensive or infinite-dimensional, a kernel function $ K(\mathbf{x}_i, \mathbf{x}_j) $ is used to directly compute the dot product $ \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j) $ in the feature space. Common kernel functions include the Radial Basis Function (RBF) kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma ||\mathbf{x}_i - \mathbf{x}_j||^2) $ and polynomial kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T \mathbf{x}_j + c)^d $.
+The kernel trick allows linear models to learn non-linear relationships by implicitly mapping the input data $ \mathbf{x} $ into a higher-dimensional feature space $ \phi(\mathbf{x}) $. Instead of explicitly computing $ \phi(\mathbf{x}) $, which can be computationally expensive or infinite-dimensional, a kernel function $ K(\mathbf{x}_i, \mathbf{x}_j) $ is used to directly compute the dot product $ \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j) $ in the feature space. Common kernel functions include the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma ||\mathbf{x}_i - \mathbf{x}_j||^2) $ and polynomial kernel $ K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T \mathbf{x}_j + c)^d $.
 
 $$
 \phi(\mathbf{x})

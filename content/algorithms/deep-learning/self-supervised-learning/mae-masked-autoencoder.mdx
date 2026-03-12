@@ -80,7 +80,7 @@ $$
 
 ### Reconstruction Objective
 
-The objective of MAE is to reconstruct the original pixel values of the masked patches. The loss function is typically the Mean Squared Error (MSE) between the predicted pixel values $\hat{P}_{mask}$ and the original pixel values $P_{mask}$ of only the masked patches. This focuses the learning on predicting missing information rather than simply encoding existing information.
+The objective of MAE is to reconstruct the original pixel values of the masked patches. The loss function is typically the [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE) between the predicted pixel values $\hat{P}_{mask}$ and the original pixel values $P_{mask}$ of only the masked patches. This focuses the learning on predicting missing information rather than simply encoding existing information.
 $$ \mathcal{L} = \frac{1}{|P_{mask}|} \sum_{p_i \in P_{mask}} \| \text{pixels}(p_i) - \text{pixels}(\hat{p}_i) \|_2^2 $$
 where $\text{pixels}(p_i)$ denotes the original pixel values of patch $p_i$, and $\text{pixels}(\hat{p}_i)$ are the reconstructed pixel values for that patch.
 

@@ -40,7 +40,7 @@ Label Spreading is a semi-supervised learning algorithm designed for classificat
 
 ### Graph Construction and Affinity
 
-Label Spreading begins by constructing a similarity graph where each data point $x_i$ is a node. The edges represent the similarity between points, typically computed using a kernel function. For instance, the Radial Basis Function (RBF) kernel defines the affinity $W_{ij}$ between points $x_i$ and $x_j$ as:
+Label Spreading begins by constructing a similarity graph where each data point $x_i$ is a node. The edges represent the similarity between points, typically computed using a kernel function. For instance, the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel defines the affinity $W_{ij}$ between points $x_i$ and $x_j$ as:
 $$W_{ij} = \exp\left(-\frac{||x_i - x_j||^2}{2\sigma^2}\right)$$
 where $||x_i - x_j||^2$ is the squared Euclidean distance and $\sigma$ is a bandwidth parameter. This affinity matrix $W$ is then normalized to form a transition matrix $P$, often $P = D^{-1}W$, where $D$ is a diagonal matrix with $D_{ii} = \sum_j W_{ij}$.
 

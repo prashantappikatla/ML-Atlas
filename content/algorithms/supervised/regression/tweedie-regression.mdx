@@ -24,17 +24,17 @@ related:
 
 ## Overview
 
-Tweedie Regression is a type of Generalized Linear Model (GLM) designed to model response variables that follow a Tweedie distribution. This algorithm is particularly effective for data exhibiting characteristics such as many zero values, right-skewness, and a variance that is proportional to a power of the mean. It provides a flexible framework to handle a continuum of distributions, bridging common models like Poisson, Gamma, and Normal distributions.
+Tweedie Regression is a type of [Generalized Linear Model](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLM) designed to model response variables that follow a Tweedie distribution. This algorithm is particularly effective for data exhibiting characteristics such as many zero values, right-skewness, and a variance that is proportional to a power of the mean. It provides a flexible framework to handle a continuum of distributions, bridging common models like Poisson, Gamma, and Normal distributions.
 
 ## History
 
-**1984** — Bent Jørgensen formally introduced and unified Exponential Dispersion Models (EDMs), which include the Tweedie distributions as a key subclass, providing a comprehensive theoretical framework for these distributions.
+**1984** — Bent Jørgensen formally introduced and unified [Exponential Dispersion Models](https://en.wikipedia.org/wiki/Exponential_dispersion_model) (EDMs), which include the Tweedie distributions as a key subclass, providing a comprehensive theoretical framework for these distributions.
 
 **1994** — The book 'The Generalized Linear Model Approach to Risk Theory' by P. Albrecher and H. U. Gerber further popularized the use of GLMs, including Tweedie distributions, in actuarial science for modeling claim frequencies and severities.
 
 **2000** — The increasing computational power and development of statistical software packages made Tweedie Regression more accessible for practitioners, allowing for efficient fitting of these complex models to large datasets.
 
-**2005** — The paper 'Tweedie's Compound Poisson Model for Insurance Claims' by J. A. Smyth and R. J. Verrall highlighted the practical utility of Tweedie models, particularly for zero-inflated, continuous data common in insurance.
+**2005** — The paper 'Tweedie's [Compound Poisson Model](https://en.wikipedia.org/wiki/Compound_Poisson_distribution) for Insurance Claims' by J. A. Smyth and R. J. Verrall highlighted the practical utility of Tweedie models, particularly for zero-inflated, continuous data common in insurance.
 
 **2010** — The inclusion of Tweedie Regression in popular machine learning libraries and statistical software, such as R's 'statmod' package and later scikit-learn, broadened its adoption beyond specialized statistical fields into general machine learning applications.
 
@@ -50,7 +50,7 @@ $$
 
 ### Tweedie Distribution Properties
 
-The Tweedie distribution is a family of exponential dispersion models characterized by a power parameter $p$. Its key property is the mean-variance relationship: $Var(Y) = \phi \mu^p$, where $\phi > 0$ is the dispersion parameter and $\mu = E[Y]$. Different values of $p$ correspond to specific distributions: $p=0$ for Normal, $p=1$ for Poisson, $p=2$ for Gamma, and $p=3$ for Inverse Gaussian. For $p \in (1, 2)$, the Tweedie distribution is a compound Poisson-Gamma distribution, which is suitable for data with a mass at zero and positive continuous values.
+The Tweedie distribution is a family of exponential dispersion models characterized by a power parameter $p$. Its key property is the mean-variance relationship: $Var(Y) = \phi \mu^p$, where $\phi > 0$ is the dispersion parameter and $\mu = E[Y]$. Different values of $p$ correspond to specific distributions: $p=0$ for Normal, $p=1$ for Poisson, $p=2$ for Gamma, and $p=3$ for [Inverse Gaussian](https://en.wikipedia.org/wiki/Inverse_Gaussian_distribution). For $p \in (1, 2)$, the Tweedie distribution is a compound Poisson-Gamma distribution, which is suitable for data with a mass at zero and positive continuous values.
 
 $$
 Var(Y) = \phi \mu^p
@@ -90,7 +90,7 @@ $$
 
 ### Parameter Estimation via IRLS
 
-The model parameters $\beta$ are typically estimated using an iterative optimization algorithm, such as Iteratively Reweighted Least Squares (IRLS). This method linearizes the link function and iteratively solves a weighted least squares problem. In each iteration, the algorithm updates the working response $z$ and the weights $W$. The working response is $z = \eta + (y - \mu) \frac{d\eta}{d\mu}$, and the weights are $W = \left( \frac{d\mu}{d\eta} \right)^2 / Var(Y)$. The process continues until the change in $\beta$ falls below a specified tolerance or a maximum number of iterations is reached.
+The model parameters $\beta$ are typically estimated using an iterative optimization algorithm, such as [Iteratively Reweighted Least Squares](https://en.wikipedia.org/wiki/Iteratively_reweighted_least_squares) (IRLS). This method linearizes the link function and iteratively solves a weighted least squares problem. In each iteration, the algorithm updates the working response $z$ and the weights $W$. The working response is $z = \eta + (y - \mu) \frac{d\eta}{d\mu}$, and the weights are $W = \left( \frac{d\mu}{d\eta} \right)^2 / Var(Y)$. The process continues until the change in $\beta$ falls below a specified tolerance or a maximum number of iterations is reached.
 
 $$
 z = \eta + (y - \mu) \frac{d\eta}{d\mu}

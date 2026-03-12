@@ -35,11 +35,11 @@ Decision Tree Classifier is a non-parametric supervised learning method used for
 
 **1979** — J. Ross Quinlan introduces ID3 (Iterative Dichotomiser 3), a decision tree algorithm that uses information gain to select splitting attributes, significantly advancing the field.
 
-**1984** — Leo Breiman, Jerome Friedman, Richard Olshen, and Charles Stone publish "Classification and Regression Trees (CART)", a seminal work introducing a comprehensive framework for decision tree construction, including pruning and handling both classification and regression tasks.
+**1984** — [Leo Breiman](https://en.wikipedia.org/wiki/Leo_Breiman), [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman), [Richard Olshen](https://en.wikipedia.org/wiki/Classification_and_regression_tree), and [Charles Stone](https://en.wikipedia.org/wiki/Charles_J._Stone) publish "Classification and Regression Trees (CART)", a seminal work introducing a comprehensive framework for decision tree construction, including pruning and handling both classification and regression tasks.
 
 **1993** — J. Ross Quinlan publishes C4.5, an extension of ID3 that handles both continuous and discrete attributes, missing values, and pruning, becoming a widely adopted standard.
 
-**2001** — Leo Breiman introduces Random Forests, an ensemble method that combines multiple decision trees to improve accuracy and reduce overfitting, building upon the foundational decision tree concept.
+**2001** — Leo Breiman introduces [Random Forests](https://en.wikipedia.org/wiki/Random_forest), an ensemble method that combines multiple decision trees to improve accuracy and reduce overfitting, building upon the foundational decision tree concept.
 
 ## Mathematical Intuition
 
@@ -61,7 +61,7 @@ $$
 
 ### Splitting Criterion: Information Gain
 
-The algorithm selects the feature and split point that results in the greatest reduction in impurity, often referred to as Information Gain (when using entropy) or Gini Gain (when using Gini impurity). Information Gain for a split on feature $A$ is calculated as:$$IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)$$where $S$ is the parent node's dataset, $S_v$ is the subset for value $v$ of feature $A$, $|S|$ and $|S_v|$ are the number of samples in $S$ and $S_v$ respectively, and $H$ is the entropy. The split that maximizes this gain is chosen.
+The algorithm selects the feature and split point that results in the greatest reduction in impurity, often referred to as [Information Gain](https://en.wikipedia.org/wiki/Information_gain_(decision_tree)) (when using entropy) or Gini Gain (when using Gini impurity). Information Gain for a split on feature $A$ is calculated as:$$IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)$$where $S$ is the parent node's dataset, $S_v$ is the subset for value $v$ of feature $A$, $|S|$ and $|S_v|$ are the number of samples in $S$ and $S_v$ respectively, and $H$ is the entropy. The split that maximizes this gain is chosen.
 
 $$
 IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)

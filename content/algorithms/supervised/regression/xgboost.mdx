@@ -26,17 +26,17 @@ related:
 
 ## Overview
 
-XGBoost, which stands for eXtreme Gradient Boosting, is an optimized distributed gradient boosting library designed for speed and performance. It implements machine learning algorithms under the Gradient Boosting framework, providing a parallel tree boosting algorithm that solves many data science problems efficiently and accurately. It is particularly distinguished by its advanced regularization techniques, handling of sparse data, and ability to scale to large datasets through parallel and distributed computing.
+XGBoost, which stands for eXtreme [Gradient Boosting](https://en.wikipedia.org/wiki/Gradient_boosting), is an optimized distributed gradient boosting library designed for speed and performance. It implements machine learning algorithms under the Gradient Boosting framework, providing a parallel tree boosting algorithm that solves many data science problems efficiently and accurately. It is particularly distinguished by its advanced regularization techniques, handling of sparse data, and ability to scale to large datasets through parallel and distributed computing.
 
 ## History
 
-**1999** — Jerome Friedman introduces the Gradient Boosting Machine (GBM) algorithm, laying the theoretical foundation for boosting with arbitrary differentiable loss functions.
+**1999** — [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman) introduces the [Gradient Boosting Machine](https://en.wikipedia.org/wiki/Gradient_boosting) (GBM) algorithm, laying the theoretical foundation for boosting with arbitrary differentiable loss functions.
 
-**2001** — Jerome Friedman publishes "Greedy Function Approximation: A Gradient Boosting Machine," formalizing the GBM algorithm and its application to various statistical learning problems.
+**2001** — Jerome Friedman publishes "[Greedy Function Approximation](https://en.wikipedia.org/wiki/Gradient_boosting): A Gradient Boosting Machine," formalizing the GBM algorithm and its application to various statistical learning problems.
 
-**2014** — Tianqi Chen begins developing XGBoost as a research project, focusing on system optimization and algorithmic enhancements for gradient boosting.
+**2014** — [Tianqi Chen](https://en.wikipedia.org/wiki/XGBoost) begins developing XGBoost as a research project, focusing on system optimization and algorithmic enhancements for gradient boosting.
 
-**2016** — Tianqi Chen and Carlos Guestrin publish "XGBoost: A Scalable Tree Boosting System" at KDD, formally introducing the algorithm and its optimizations to the broader machine learning community.
+**2016** — Tianqi Chen and [Carlos Guestrin](https://en.wikipedia.org/wiki/Carlos_Guestrin) publish "XGBoost: A [Scalable Tree Boosting System](https://en.wikipedia.org/wiki/XGBoost)" at KDD, formally introducing the algorithm and its optimizations to the broader machine learning community.
 
 **2016** — XGBoost gains significant traction and becomes a dominant algorithm in Kaggle competitions and industry applications due to its superior performance and scalability.
 
@@ -84,7 +84,7 @@ $$
 
 ### Shrinkage and Column Subsampling
 
-XGBoost employs several regularization techniques beyond the L1/L2 regularization on leaf weights. Shrinkage, controlled by the learning rate $\eta$ (eta), scales down the contribution of each tree after it is learned, effectively reducing the influence of individual trees and preventing overfitting. The update rule becomes $\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$. Column subsampling (feature subsampling) is another technique where only a fraction of features are considered when building each tree, similar to Random Forests. This helps prevent overfitting and makes the algorithm faster, especially for high-dimensional data. XGBoost supports subsampling columns both per tree and per level (or split) within a tree.
+XGBoost employs several regularization techniques beyond the L1/L2 regularization on leaf weights. Shrinkage, controlled by the learning rate $\eta$ (eta), scales down the contribution of each tree after it is learned, effectively reducing the influence of individual trees and preventing overfitting. The update rule becomes $\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$. Column subsampling (feature subsampling) is another technique where only a fraction of features are considered when building each tree, similar to [Random Forests](https://en.wikipedia.org/wiki/Random_forest). This helps prevent overfitting and makes the algorithm faster, especially for high-dimensional data. XGBoost supports subsampling columns both per tree and per level (or split) within a tree.
 
 $$
 \hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)

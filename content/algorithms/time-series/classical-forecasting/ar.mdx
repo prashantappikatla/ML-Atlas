@@ -32,11 +32,11 @@ The Autoregressive (AR) model is a fundamental time-series forecasting method th
 
 **1927** — George Udny Yule introduced the autoregressive model to analyze sunspot data, establishing the concept of a series regressing on its own past values.
 
-**1938** — Herman Wold's decomposition theorem provided a theoretical foundation for stationary time series, showing that any stationary process can be represented as a sum of a deterministic part and a moving average process, which includes AR models as a special case.
+**1938** — [Herman Wold](https://en.wikipedia.org/wiki/Herman_Wold)'s decomposition theorem provided a theoretical foundation for stationary time series, showing that any stationary process can be represented as a sum of a deterministic part and a moving average process, which includes AR models as a special case.
 
 **1951** — The Yule-Walker equations were formalized, providing a method for estimating the parameters of an AR model from the sample autocovariance function.
 
-**1970** — George E.P. Box and Gwilym M. Jenkins popularized a systematic methodology for identifying, estimating, and validating time series models, including AR, ARMA, and [ARIMA](/algorithms/time-series/classical-forecasting/arima) models, in their influential book "Time Series Analysis: Forecasting and Control."
+**1970** — George E.P. Box and Gwilym M. Jenkins popularized a systematic methodology for identifying, estimating, and validating time series models, including AR, ARMA, and [ARIMA](/algorithms/time-series/classical-forecasting/arima) models, in their influential book "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control."
 
 **1976** — Hirotugu Akaike introduced the Akaike Information Criterion (AIC) for model selection, providing a principled way to choose the optimal order $p$ for an AR model.
 
@@ -73,7 +73,7 @@ $$
 
 The coefficients $\phi_i$ of an AR model can be estimated using several methods. One common approach for stationary series is the Yule-Walker equations, which relate the autoregressive coefficients to the autocovariance function of the series. For an AR($p$) model, these equations are:
 $$\gamma_k = \sum_{i=1}^{p} \phi_i \gamma_{k-i} \quad \text{for } k=1, 2, \dots, p$$
-where $\gamma_k$ is the autocovariance at lag $k$. These equations form a system of linear equations that can be solved for $\phi_i$. Alternatively, Ordinary Least Squares (OLS) can be used by treating the problem as a regression of $y_t$ on its lagged values $y_{t-1}, \dots, y_{t-p}$.
+where $\gamma_k$ is the autocovariance at lag $k$. These equations form a system of linear equations that can be solved for $\phi_i$. Alternatively, [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS) can be used by treating the problem as a regression of $y_t$ on its lagged values $y_{t-1}, \dots, y_{t-p}$.
 
 $$
 \gamma_k = \sum_{i=1}^{p} \phi_i \gamma_{k-i}

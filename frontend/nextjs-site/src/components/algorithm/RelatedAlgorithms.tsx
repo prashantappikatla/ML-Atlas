@@ -12,7 +12,10 @@ export function RelatedAlgorithms({ slugs, currentCategory }: RelatedAlgorithmsP
 
   const allSlugs = getAllAlgorithmSlugs()
 
-  const related = slugs.slice(0, 5).map((slug) => {
+  // Only render slugs that have a corresponding MDX file — prevents 404 links
+  const validSlugs = slugs.filter((slug) => allSlugs.some((s) => s.slug === slug))
+
+  const related = validSlugs.slice(0, 5).map((slug) => {
     const found = allSlugs.find((s) => s.slug === slug)
     return {
       slug,

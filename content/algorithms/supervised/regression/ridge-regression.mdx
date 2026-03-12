@@ -31,7 +31,7 @@ Ridge Regression is a [Linear Regression](/algorithms/supervised/regression/line
 
 ## History
 
-**1970** — Arthur Hoerl and Robert Kennard introduced Ridge Regression in their seminal paper "Ridge Regression: Biased Estimation for Nonorthogonal Problems," proposing it as a solution to multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression).
+**1970** — [Arthur Hoerl](https://en.wikipedia.org/wiki/Ridge_regression) and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduced Ridge Regression in their seminal paper "Ridge Regression: [Biased Estimation](https://en.wikipedia.org/wiki/Bias_of_an_estimator) for Nonorthogonal Problems," proposing it as a solution to multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression).
 
 **1970** — Hoerl and Kennard published a follow-up paper, "Ridge Regression: Applications to Nonorthogonal Problems," demonstrating practical applications and further solidifying the method's theoretical basis.
 
@@ -47,7 +47,7 @@ Ridge Regression is a [Linear Regression](/algorithms/supervised/regression/line
 
 ### OLS Limitations and Multicollinearity
 
-Ordinary Least Squares (OLS) aims to find the regression coefficients $\beta$ that minimize the sum of squared residuals. The OLS objective function is given by $J(\beta) = ||Y - X\beta||^2_2$. The closed-form solution for OLS coefficients is $\hat{\beta}_{OLS} = (X^T X)^{-1} X^T Y$. A significant limitation of OLS arises in the presence of multicollinearity, where independent variables are highly correlated. This can lead to an ill-conditioned or singular $X^T X$ matrix, resulting in unstable, high-variance coefficient estimates that are highly sensitive to small changes in the training data.
+[Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS) aims to find the regression coefficients $\beta$ that minimize the sum of squared residuals. The OLS objective function is given by $J(\beta) = ||Y - X\beta||^2_2$. The closed-form solution for OLS coefficients is $\hat{\beta}_{OLS} = (X^T X)^{-1} X^T Y$. A significant limitation of OLS arises in the presence of multicollinearity, where independent variables are highly correlated. This can lead to an ill-conditioned or singular $X^T X$ matrix, resulting in unstable, high-variance coefficient estimates that are highly sensitive to small changes in the training data.
 
 $$
 J(\beta) = ||Y - X\beta||^2_2

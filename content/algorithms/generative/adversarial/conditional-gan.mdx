@@ -24,11 +24,11 @@ related:
 
 ## Overview
 
-Conditional Generative Adversarial Networks (CGANs) extend the foundational GAN framework by incorporating auxiliary information, such as class labels or other data attributes, into both the generator and discriminator networks. This conditioning allows for directed data generation, enabling the model to produce samples that belong to specific categories or exhibit desired characteristics rather than generating samples from the entire data distribution. By providing control over the output, CGANs address a key limitation of unconditional GANs, which often produce diverse but unspecific outputs.
+Conditional [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network) (CGANs) extend the foundational GAN framework by incorporating auxiliary information, such as class labels or other data attributes, into both the generator and discriminator networks. This conditioning allows for directed data generation, enabling the model to produce samples that belong to specific categories or exhibit desired characteristics rather than generating samples from the entire data distribution. By providing control over the output, CGANs address a key limitation of unconditional GANs, which often produce diverse but unspecific outputs.
 
 ## History
 
-**2014** — Ian Goodfellow et al. introduced Generative Adversarial Networks (GANs), establishing the adversarial training paradigm for generative models.
+**2014** — [Ian Goodfellow](https://en.wikipedia.org/wiki/Ian_Goodfellow) et al. introduced Generative Adversarial Networks (GANs), establishing the adversarial training paradigm for generative models.
 
 **2014** — Mehdi Mirza and Simon Osindero published "Conditional Generative Adversarial Nets," proposing the first method to condition GANs on auxiliary information, enabling controlled data generation.
 
@@ -40,7 +40,7 @@ Conditional Generative Adversarial Networks (CGANs) extend the foundational GAN 
 
 ### Unconditional GAN Objective
 
-The original Generative Adversarial Network (GAN) framework involves a two-player min-max game between a generator $G$ and a discriminator $D$. The discriminator $D$ tries to distinguish between real data samples $x$ from the data distribution $p_{data}(x)$ and fake samples $G(z)$ generated from a noise distribution $p_z(z)$. The generator $G$ simultaneously tries to fool the discriminator by producing realistic samples. The objective function for the unconditional GAN is given by:
+The original [Generative Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network) (GAN) framework involves a two-player min-max game between a generator $G$ and a discriminator $D$. The discriminator $D$ tries to distinguish between real data samples $x$ from the data distribution $p_{data}(x)$ and fake samples $G(z)$ generated from a noise distribution $p_z(z)$. The generator $G$ simultaneously tries to fool the discriminator by producing realistic samples. The objective function for the unconditional GAN is given by:
 
 $$
 $$\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]$$

@@ -65,7 +65,7 @@ $$
 
 ### Ordinary Least Squares Optimization
 
-The objective is to find the coefficient vector $\mathbf{\theta}$ that minimizes the sum of squared residuals, which is the standard Ordinary Least Squares (OLS) criterion. Given a dataset of $N$ samples $(\mathbf{x}^{(i)}, y^{(i)})$, the cost function $J(\mathbf{\theta})$ is the Mean Squared Error (MSE).
+The objective is to find the coefficient vector $\mathbf{\theta}$ that minimizes the sum of squared residuals, which is the standard [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS) criterion. Given a dataset of $N$ samples $(\mathbf{x}^{(i)}, y^{(i)})$, the cost function $J(\mathbf{\theta})$ is the [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE).
 $$ J(\mathbf{\theta}) = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \hat{y}^{(i)})^2 = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - \mathbf{\theta}^T \phi(\mathbf{x}^{(i)}))^2 $$
 Minimizing this cost function with respect to $\mathbf{\theta}$ yields the optimal coefficients.
 

@@ -26,11 +26,11 @@ related:
 
 ## Overview
 
-Gamma Regression is a type of Generalized Linear Model (GLM) specifically designed to model positive, continuous, and often right-skewed response variables. It assumes that the response variable follows a Gamma distribution and uses a link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when the variance of the response variable is proportional to the square of its mean, a common characteristic of many real-world positive-valued datasets.
+Gamma Regression is a type of [Generalized Linear Model](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLM) specifically designed to model positive, continuous, and often right-skewed response variables. It assumes that the response variable follows a Gamma distribution and uses a link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when the variance of the response variable is proportional to the square of its mean, a common characteristic of many real-world positive-valued datasets.
 
 ## History
 
-**1970** — John Nelder and Robert Wedderburn published "Generalized Linear Models," laying the theoretical foundation for a broad class of statistical models, including Gamma Regression.
+**1970** — [John Nelder](https://en.wikipedia.org/wiki/John_Nelder) and [Robert Wedderburn](https://en.wikipedia.org/wiki/Generalized_linear_model) published "[Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model)," laying the theoretical foundation for a broad class of statistical models, including Gamma Regression.
 
 **1972** — P. McCullagh and J.A. Nelder further developed the theory and applications of GLMs in their influential book "Generalized Linear Models," solidifying the framework.
 
@@ -94,7 +94,7 @@ $$
 
 ### Parameter Estimation via MLE
 
-The model parameters $ \beta $ (regression coefficients) are typically estimated using Maximum Likelihood Estimation (MLE). This involves finding the values of $ \beta $ that maximize the likelihood function, which is the product of the Gamma probability density functions for all observed responses given the predictors. Since the likelihood equations are generally non-linear, an iterative optimization algorithm, such as Iteratively Reweighted Least Squares (IRLS), is commonly employed to find the optimal coefficients.
+The model parameters $ \beta $ (regression coefficients) are typically estimated using [Maximum Likelihood Estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) (MLE). This involves finding the values of $ \beta $ that maximize the likelihood function, which is the product of the Gamma probability density functions for all observed responses given the predictors. Since the likelihood equations are generally non-linear, an iterative optimization algorithm, such as [Iteratively Reweighted Least Squares](https://en.wikipedia.org/wiki/Iteratively_reweighted_least_squares) (IRLS), is commonly employed to find the optimal coefficients.
 
 ## Algorithm Steps
 

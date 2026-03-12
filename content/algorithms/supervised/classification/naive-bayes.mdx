@@ -32,7 +32,7 @@ Naive Bayes is a family of probabilistic classification algorithms rooted in Bay
 
 ## History
 
-**1763** — Thomas Bayes' seminal work, 'An Essay towards solving a Problem in the Doctrine of Chances,' was published posthumously, introducing what is now known as Bayes' Theorem.
+**1763** — [Thomas Bayes](https://en.wikipedia.org/wiki/Thomas_Bayes)' seminal work, 'An Essay towards solving a Problem in the Doctrine of Chances,' was published posthumously, introducing what is now known as Bayes' Theorem.
 
 **1950** — The broader application of Bayesian decision theory began to emerge in statistical pattern recognition and classification problems, laying the groundwork for probabilistic classifiers.
 
@@ -68,7 +68,7 @@ $$
 
 ### Parameter Estimation Methods
 
-The probabilities $P(C)$ and $P(x_i|C)$ are typically estimated using Maximum Likelihood Estimation (MLE) from the training data. For $P(C)$, it's simply the frequency of class $C$ in the training set: $P(C) = \frac{\text{count}(C)}{\text{total samples}}$. For $P(x_i|C)$, the estimation method depends on the nature of the feature $x_i$ (e.g., Gaussian for continuous, Multinomial for counts, Bernoulli for binary). Smoothing techniques, like Laplace smoothing, are often applied to prevent zero probabilities for unseen feature values.
+The probabilities $P(C)$ and $P(x_i|C)$ are typically estimated using [Maximum Likelihood Estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) (MLE) from the training data. For $P(C)$, it's simply the frequency of class $C$ in the training set: $P(C) = \frac{\text{count}(C)}{\text{total samples}}$. For $P(x_i|C)$, the estimation method depends on the nature of the feature $x_i$ (e.g., Gaussian for continuous, Multinomial for counts, Bernoulli for binary). Smoothing techniques, like Laplace smoothing, are often applied to prevent zero probabilities for unseen feature values.
 
 $$
 P(C) = \frac{\text{count}(C)}{\text{total samples}}

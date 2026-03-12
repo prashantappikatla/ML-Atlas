@@ -27,11 +27,11 @@ Decision Tree Regression models the relationship between input features and a co
 
 ## History
 
-**1984** — Leo Breiman, Jerome Friedman, Richard Olshen, and Charles Stone introduce Classification and Regression Trees (CART), a seminal work that formalized the use of decision trees for both classification and regression tasks.
+**1984** — [Leo Breiman](https://en.wikipedia.org/wiki/Leo_Breiman), [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman), [Richard Olshen](https://en.wikipedia.org/wiki/Classification_and_regression_tree), and [Charles Stone](https://en.wikipedia.org/wiki/Charles_J._Stone) introduce Classification and Regression Trees (CART), a seminal work that formalized the use of decision trees for both classification and regression tasks.
 
 **1993** — Quinlan's M5 algorithm is developed, specifically designed for regression tasks, improving upon CART's approach to handling continuous target variables by fitting linear models at the leaves.
 
-**2001** — Leo Breiman introduces Random Forests, an ensemble method that combines multiple decision trees to reduce variance and improve predictive accuracy, building directly on the principles of individual decision trees.
+**2001** — Leo Breiman introduces [Random Forests](https://en.wikipedia.org/wiki/Random_forest), an ensemble method that combines multiple decision trees to reduce variance and improve predictive accuracy, building directly on the principles of individual decision trees.
 
 ## Mathematical Intuition
 
@@ -41,7 +41,7 @@ The core idea of Decision Tree Regression is to recursively partition the featur
 
 ### Impurity Measure: Mean Squared Error
 
-For regression tasks, the impurity of a node is typically measured using the Mean Squared Error (MSE). For a given node $m$ representing a region $R_m$ with $N_m$ training samples, the predicted value $\hat{y}_m$ is the average of the target values of the samples in that region. The MSE for this node is then calculated as:$$MSE_m = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \hat{y}_m)^2$$The goal of splitting is to minimize the weighted average MSE of the resulting child nodes.
+For regression tasks, the impurity of a node is typically measured using the [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE). For a given node $m$ representing a region $R_m$ with $N_m$ training samples, the predicted value $\hat{y}_m$ is the average of the target values of the samples in that region. The MSE for this node is then calculated as:$$MSE_m = \frac{1}{N_m} \sum_{i \in R_m} (y_i - \hat{y}_m)^2$$The goal of splitting is to minimize the weighted average MSE of the resulting child nodes.
 
 $$
 \hat{y}_m = \frac{1}{N_m} \sum_{i \in R_m} y_i

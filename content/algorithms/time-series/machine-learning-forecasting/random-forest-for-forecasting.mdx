@@ -22,13 +22,13 @@ related: []
 
 ## Overview
 
-Random Forest for Forecasting adapts the ensemble learning method of Random Forest to predict future values in time series data. It constructs multiple decision trees during training, each trained on a bootstrapped sample of the training data and considering a random subset of features at each split. Predictions are then made by averaging the individual predictions of all trees, providing a robust and non-linear model for time-dependent patterns. This approach typically involves transforming the time series into a supervised learning problem using lagged observations as features.
+[Random Forest](https://en.wikipedia.org/wiki/Random_forest) for Forecasting adapts the ensemble learning method of Random Forest to predict future values in time series data. It constructs multiple decision trees during training, each trained on a bootstrapped sample of the training data and considering a random subset of features at each split. Predictions are then made by averaging the individual predictions of all trees, providing a robust and non-linear model for time-dependent patterns. This approach typically involves transforming the time series into a supervised learning problem using lagged observations as features.
 
 ## History
 
-**2001** — Leo Breiman introduced the Random Forest algorithm, combining bagging and random feature selection for improved accuracy and stability over single decision trees.
+**2001** — [Leo Breiman](https://en.wikipedia.org/wiki/Leo_Breiman) introduced the Random Forest algorithm, combining bagging and random feature selection for improved accuracy and stability over single decision trees.
 
-**2002** — Early research began exploring the application of ensemble methods, including Random Forests, to time series forecasting problems by transforming time series into a supervised learning problem using lagged features.
+**2002** — Early research began exploring the application of ensemble methods, including [Random Forests](https://en.wikipedia.org/wiki/Random_forest), to time series forecasting problems by transforming time series into a supervised learning problem using lagged features.
 
 **2005** — Random Forests gained increasing popularity in various forecasting tasks due to their ability to handle non-linear relationships and feature interactions without extensive data preprocessing.
 
@@ -38,7 +38,7 @@ Random Forest for Forecasting adapts the ensemble learning method of Random Fore
 
 ### Decision Tree Regression Fundamentals
 
-A single decision tree for regression partitions the feature space into a set of rectangular regions. For a given input $x$, the prediction is the average of the target values $y$ for all training samples falling into the same region as $x$. The partitioning is done recursively by selecting features and split points that minimize a loss function, typically Mean Squared Error (MSE). The prediction for an input $x$ is given by:
+A single decision tree for regression partitions the feature space into a set of rectangular regions. For a given input $x$, the prediction is the average of the target values $y$ for all training samples falling into the same region as $x$. The partitioning is done recursively by selecting features and split points that minimize a loss function, typically [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE). The prediction for an input $x$ is given by:
 $$ \hat{y}(x) = \sum_{m=1}^M c_m I(x \in R_m) $$
 where $R_m$ are the disjoint regions, $c_m$ is the average target value in region $R_m$, and $I(\cdot)$ is the indicator function.
 
@@ -48,7 +48,7 @@ $$
 
 ### Bagging for Ensemble Diversity
 
-Bagging (Bootstrap Aggregating) is a technique used to create multiple training datasets by sampling with replacement from the original dataset. Each of these bootstrap samples is used to train a separate decision tree. This process introduces diversity among the trees, as each tree sees a slightly different subset of the data, which helps to reduce variance and prevent overfitting. If $D = \{(x_i, y_i)\}_{i=1}^N$ is the original dataset, then for $k=1, \dots, B$ (number of trees), a bootstrap sample $D_k^*$ is drawn from $D$.
+Bagging ([Bootstrap Aggregating](https://en.wikipedia.org/wiki/Bootstrap_aggregating)) is a technique used to create multiple training datasets by sampling with replacement from the original dataset. Each of these bootstrap samples is used to train a separate decision tree. This process introduces diversity among the trees, as each tree sees a slightly different subset of the data, which helps to reduce variance and prevent overfitting. If $D = \{(x_i, y_i)\}_{i=1}^N$ is the original dataset, then for $k=1, \dots, B$ (number of trees), a bootstrap sample $D_k^*$ is drawn from $D$.
 
 $$
 D = \{(x_i, y_i)\}_{i=1}^N

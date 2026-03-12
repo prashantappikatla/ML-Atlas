@@ -30,7 +30,7 @@ RMSProp (Root Mean Square Propagation) is an adaptive learning rate optimization
 
 ## History
 
-**2012** — Introduced by Geoff Hinton in his Coursera lecture 'Neural Networks for Machine Learning' as an unpublished method, quickly gaining traction due to its empirical effectiveness.
+**2012** — Introduced by Geoff Hinton in his Coursera lecture '[Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)) for [Machine Learning](https://en.wikipedia.org/wiki/Machine_learning)' as an unpublished method, quickly gaining traction due to its empirical effectiveness.
 
 **2013** — Adopted by various deep learning frameworks and researchers, becoming a de facto standard optimizer before the widespread adoption of Adam.
 
@@ -42,7 +42,8 @@ RMSProp (Root Mean Square Propagation) is an adaptive learning rate optimization
 
 ### Exponential Moving Average of Gradients
 
-RMSProp computes an exponentially decaying average of the squared gradients for each parameter. This average, denoted as $s_t$, accumulates information about the magnitude of recent gradients, giving more weight to recent gradients and less to older ones. The decay rate $eta$ (often denoted as $ho$ or `decay`) controls the length of the memory, determining how quickly the average adapts to changes in gradient magnitudes.
+RMSProp computes an exponentially decaying average of the squared gradients for each parameter. This average, denoted as $s_t$, accumulates information about the magnitude of recent gradients, giving more weight to recent gradients and less to older ones. The decay rate $eta$ (often denoted as $
+ho$ or `decay`) controls the length of the memory, determining how quickly the average adapts to changes in gradient magnitudes.
 
 $$
 s_t = \beta s_{t-1} + (1 - \beta) g_t^2

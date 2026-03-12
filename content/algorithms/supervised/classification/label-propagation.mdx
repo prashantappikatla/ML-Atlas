@@ -43,7 +43,7 @@ Label Propagation is a semi-supervised learning algorithm designed to classify u
 
 ### Graph Construction and Similarity
 
-The algorithm begins by constructing a similarity graph $G=(V, E)$, where $V$ is the set of all labeled and unlabeled data points, and $E$ represents the edges between them. The weight $w_{ij}$ of an edge between nodes $i$ and $j$ quantifies their similarity. A common choice for computing similarity is the Radial Basis Function (RBF) kernel:
+The algorithm begins by constructing a similarity graph $G=(V, E)$, where $V$ is the set of all labeled and unlabeled data points, and $E$ represents the edges between them. The weight $w_{ij}$ of an edge between nodes $i$ and $j$ quantifies their similarity. A common choice for computing similarity is the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel:
 $$w_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)$$
 where $x_i$ and $x_j$ are the feature vectors of points $i$ and $j$, and $\sigma$ is a bandwidth parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) (k-NN) graph can be constructed, where $w_{ij}=1$ if $j$ is among the $k$ nearest neighbors of $i$ (or vice-versa), and $0$ otherwise.
 

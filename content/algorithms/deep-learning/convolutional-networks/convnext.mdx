@@ -36,7 +36,7 @@ ConvNeXt modernizes standard Convolutional Neural Networks (CNNs) by incorporati
 
 **2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet)'s success at ImageNet Large Scale Visual Recognition Challenge (ILSVRC) established Convolutional Neural Networks as the dominant paradigm for computer vision.
 
-**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, introduced by Vaswani et al., revolutionized Natural Language Processing with its [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), demonstrating superior performance and scalability.
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, introduced by Vaswani et al., revolutionized [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) with its [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), demonstrating superior performance and scalability.
 
 **2020** — [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT) by Dosovitskiy et al. successfully applied the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture directly to image classification, challenging the long-standing dominance of CNNs in computer vision.
 
@@ -72,7 +72,7 @@ $$
 
 ### Activation and Normalization
 
-ConvNeXt simplifies the activation functions, primarily using GELU (Gaussian Error Linear Unit) throughout the network, replacing ReLU. For normalization, it replaces Batch Normalization with Layer Normalization, which is standard in Transformers. Layer Normalization operates independently on each sample across all channels, providing more stable training for larger batch sizes and better generalization, especially when combined with techniques like Layer Scale.
+ConvNeXt simplifies the activation functions, primarily using GELU (Gaussian Error Linear Unit) throughout the network, replacing ReLU. For normalization, it replaces [Batch Normalization](https://en.wikipedia.org/wiki/Batch_normalization) with Layer Normalization, which is standard in Transformers. Layer Normalization operates independently on each sample across all channels, providing more stable training for larger batch sizes and better generalization, especially when combined with techniques like Layer Scale.
 
 $$
 $$ \text{GELU}(x) = x \cdot \Phi(x) $$

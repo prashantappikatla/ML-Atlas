@@ -52,7 +52,7 @@ $$
 
 ### Bayesian Optimization Surrogate Model
 
-Traditional [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) models the objective function $f(x)$ using a probabilistic surrogate model, typically a Gaussian Process, to estimate the expected performance and uncertainty of hyperparameters $x$. BOHB, however, uses a non-parametric approach based on kernel density estimators (KDEs). It fits two KDEs: $p(\text{good}|x)$ for the top-performing configurations and $p(\text{bad}|x)$ for the lower-performing ones. These models are updated with observed performance data from the successive halving iterations.
+Traditional [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) models the objective function $f(x)$ using a probabilistic surrogate model, typically a [Gaussian Process](https://en.wikipedia.org/wiki/Gaussian_process), to estimate the expected performance and uncertainty of hyperparameters $x$. BOHB, however, uses a non-parametric approach based on kernel density estimators (KDEs). It fits two KDEs: $p(\text{good}|x)$ for the top-performing configurations and $p(\text{bad}|x)$ for the lower-performing ones. These models are updated with observed performance data from the successive halving iterations.
 
 $$
 p(\text{good}|x)

@@ -26,13 +26,13 @@ related:
 
 ## Overview
 
-Gaussian Process Regression (GPR) is a non-parametric Bayesian approach to regression that models the distribution over functions directly, rather than learning a fixed function. It defines a prior distribution over possible functions and updates it to a posterior distribution given observed data. This method provides not only point predictions but also a measure of uncertainty associated with those predictions, making it valuable for tasks requiring confidence intervals and risk assessment.
+[Gaussian Process](https://en.wikipedia.org/wiki/Gaussian_process) Regression (GPR) is a non-parametric Bayesian approach to regression that models the distribution over functions directly, rather than learning a fixed function. It defines a prior distribution over possible functions and updates it to a posterior distribution given observed data. This method provides not only point predictions but also a measure of uncertainty associated with those predictions, making it valuable for tasks requiring confidence intervals and risk assessment.
 
 ## History
 
-**1996** — Christopher K. I. Williams and Carl Edward Rasmussen published "Gaussian Processes for Regression," a seminal paper that formalized the modern approach to GPR and its application in machine learning.
+**1996** — Christopher K. I. Williams and [Carl Edward Rasmussen](https://en.wikipedia.org/wiki/Gaussian_process) published "[Gaussian Processes](https://en.wikipedia.org/wiki/Gaussian_process) for Regression," a seminal paper that formalized the modern approach to GPR and its application in machine learning.
 
-**2006** — Carl Edward Rasmussen and Christopher K. I. Williams co-authored the influential textbook "Gaussian Processes for Machine Learning," which became a standard reference and significantly boosted the algorithm's theoretical understanding and practical adoption.
+**2006** — Carl Edward Rasmussen and Christopher K. I. Williams co-authored the influential textbook "Gaussian Processes for [Machine Learning](https://en.wikipedia.org/wiki/Machine_learning)," which became a standard reference and significantly boosted the algorithm's theoretical understanding and practical adoption.
 
 **2010** — Research intensified on developing sparse and approximate Gaussian Process methods to overcome the cubic computational complexity for large datasets, enabling broader applicability.
 
@@ -48,7 +48,7 @@ $$
 
 ### Role of Kernel Functions
 
-The kernel function $k(\mathbf{x}, \mathbf{x}')$ quantifies the similarity between two input points $\mathbf{x}$ and $\mathbf{x}'$ and determines the smoothness, periodicity, and other properties of the functions drawn from the GP. A common choice is the Radial Basis Function (RBF) kernel, also known as the squared exponential kernel, which is infinitely differentiable and produces very smooth functions. Its form is given by:
+The kernel function $k(\mathbf{x}, \mathbf{x}')$ quantifies the similarity between two input points $\mathbf{x}$ and $\mathbf{x}'$ and determines the smoothness, periodicity, and other properties of the functions drawn from the GP. A common choice is the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel, also known as the squared exponential kernel, which is infinitely differentiable and produces very smooth functions. Its form is given by:
 
 $$
 k(\mathbf{x}, \mathbf{x}') = \sigma_f^2 \exp\left(-\frac{\|\mathbf{x} - \mathbf{x}'\|^2}{2l^2}\right)

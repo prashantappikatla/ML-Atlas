@@ -79,7 +79,7 @@ $$
 
 ### Parameter Estimation via MLE
 
-GARCH model parameters are typically estimated using Maximum Likelihood Estimation (MLE). Assuming the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$ follow a standard normal distribution, the log-likelihood function for a series of $T$ observations is:
+GARCH model parameters are typically estimated using [Maximum Likelihood Estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) (MLE). Assuming the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$ follow a standard normal distribution, the log-likelihood function for a series of $T$ observations is:
 $$L(\theta) = -\frac{T}{2} \log(2\pi) - \frac{1}{2} \sum_{t=1}^{T} (\log(h_t) + \frac{\epsilon_t^2}{h_t})$$
 where $\theta$ represents the vector of all model parameters ($\alpha_0, \alpha_i, \beta_j$, and any mean model parameters). Numerical optimization techniques are used to find the parameters that maximize this likelihood function.
 

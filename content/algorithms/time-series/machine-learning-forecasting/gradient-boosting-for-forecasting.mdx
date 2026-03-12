@@ -26,13 +26,13 @@ related:
 
 ## Overview
 
-Gradient Boosting for Forecasting is an ensemble machine learning technique that builds a strong predictive model by sequentially combining multiple weak learners, typically decision trees. Each new tree is trained to correct the errors of the preceding ensemble, iteratively minimizing a differentiable loss function. This method excels in capturing complex non-linear relationships and interactions within time-series data, making it highly effective for predicting future values.
+[Gradient Boosting](https://en.wikipedia.org/wiki/Gradient_boosting) for Forecasting is an ensemble machine learning technique that builds a strong predictive model by sequentially combining multiple weak learners, typically decision trees. Each new tree is trained to correct the errors of the preceding ensemble, iteratively minimizing a differentiable loss function. This method excels in capturing complex non-linear relationships and interactions within time-series data, making it highly effective for predicting future values.
 
 ## History
 
-**1999** — Jerome Friedman introduced the Gradient Boosting Machine (GBM), formalizing the concept of boosting by fitting new models to the negative gradient of the loss function.
+**1999** — [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman) introduced the [Gradient Boosting Machine](https://en.wikipedia.org/wiki/Gradient_boosting) (GBM), formalizing the concept of boosting by fitting new models to the negative gradient of the loss function.
 
-**2001** — Friedman published 'Greedy Function Approximation: A Gradient Boosting Machine,' providing a comprehensive framework and theoretical foundation for the algorithm.
+**2001** — Friedman published '[Greedy Function Approximation](https://en.wikipedia.org/wiki/Gradient_boosting): A Gradient Boosting Machine,' providing a comprehensive framework and theoretical foundation for the algorithm.
 
 **2014** — Chen and Guestrin released [XGBoost](/algorithms/supervised/regression/xgboost) (eXtreme Gradient Boosting), an optimized and scalable implementation that significantly improved performance and popularized gradient boosting in competitive machine learning.
 
@@ -44,7 +44,9 @@ Gradient Boosting for Forecasting is an ensemble machine learning technique that
 
 ### Ensemble Learning via Additive Models
 
-Gradient Boosting constructs an additive model $F_M(x)$ as a weighted sum of $M$ weak learners $h_m(x)$, typically decision trees. The model is built iteratively, where each new learner $h_m(x)$ is added to improve the overall prediction. The general form of the ensemble model at iteration $m$ is $F_m(x) = F_{m-1}(x) + ho_m h_m(x)$, where $F_0(x)$ is an initial constant prediction, and $ho_m$ is the weight or step size for the $m$-th learner.
+Gradient Boosting constructs an additive model $F_M(x)$ as a weighted sum of $M$ weak learners $h_m(x)$, typically decision trees. The model is built iteratively, where each new learner $h_m(x)$ is added to improve the overall prediction. The general form of the ensemble model at iteration $m$ is $F_m(x) = F_{m-1}(x) + 
+ho_m h_m(x)$, where $F_0(x)$ is an initial constant prediction, and $
+ho_m$ is the weight or step size for the $m$-th learner.
 
 $$
 F_M(x) = \sum_{m=1}^M \rho_m h_m(x)

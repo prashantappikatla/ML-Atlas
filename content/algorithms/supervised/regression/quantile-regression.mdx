@@ -23,11 +23,11 @@ related:
 
 ## Overview
 
-Quantile Regression models the relationship between predictors and specific conditional quantiles of the response variable, rather than just the conditional mean. This approach provides a more comprehensive understanding of the effect of covariates across the entire distribution of the dependent variable, making it robust to outliers and heteroscedasticity. Unlike Ordinary Least Squares, it allows for varying effects of predictors at different parts of the response distribution, offering insights into distributional changes. It is particularly useful when the interest lies beyond the average effect, focusing on lower or upper tails of the distribution.
+Quantile Regression models the relationship between predictors and specific conditional quantiles of the response variable, rather than just the conditional mean. This approach provides a more comprehensive understanding of the effect of covariates across the entire distribution of the dependent variable, making it robust to outliers and heteroscedasticity. Unlike [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares), it allows for varying effects of predictors at different parts of the response distribution, offering insights into distributional changes. It is particularly useful when the interest lies beyond the average effect, focusing on lower or upper tails of the distribution.
 
 ## History
 
-**1978** — Roger Koenker and Gilbert Bassett introduce Quantile Regression in their seminal paper 'Regression Quantiles,' extending the concept of least squares to conditional quantiles.
+**1978** — [Roger Koenker](https://en.wikipedia.org/wiki/Roger_Koenker) and [Gilbert Bassett](https://en.wikipedia.org/wiki/Quantile_regression) introduce Quantile Regression in their seminal paper 'Regression Quantiles,' extending the concept of least squares to conditional quantiles.
 
 **1987** — Koenker and Portnoy develop efficient algorithms for computing quantile regression estimates, leveraging linear programming techniques, which significantly advanced its practical applicability.
 
@@ -51,7 +51,7 @@ $$
 
 ### Pinball Loss Function
 
-The core of Quantile Regression lies in minimizing an asymmetric loss function, often called the 'pinball loss' or 'check function,' denoted $\rho_\tau(u)$. For a given quantile $\tau$, the loss function is defined as: $$ \rho_\tau(u) = u(\tau - I(u < 0)) $$ where $u$ is the residual ($y_i - x_i^T \beta_\tau$) and $I(\cdot)$ is the indicator function. This function penalizes under-prediction and over-prediction asymmetrically. Specifically, for positive residuals ($u > 0$), the penalty is $\tau u$, and for negative residuals ($u < 0$), the penalty is $(1-\tau)|u|$. The objective function for a linear quantile regression model $y_i = x_i^T \beta_\tau + \epsilon_i$ is to find the coefficient vector $\beta_\tau$ that minimizes the sum of these losses over all observations: $$ \min_{\beta_\tau} \sum_{i=1}^n \rho_\tau(y_i - x_i^T \beta_\tau) $$ When $\tau=0.5$, the pinball loss simplifies to the absolute error, making median regression equivalent to Least Absolute Deviations (LAD) regression.
+The core of Quantile Regression lies in minimizing an asymmetric loss function, often called the 'pinball loss' or 'check function,' denoted $\rho_\tau(u)$. For a given quantile $\tau$, the loss function is defined as: $$ \rho_\tau(u) = u(\tau - I(u < 0)) $$ where $u$ is the residual ($y_i - x_i^T \beta_\tau$) and $I(\cdot)$ is the indicator function. This function penalizes under-prediction and over-prediction asymmetrically. Specifically, for positive residuals ($u > 0$), the penalty is $\tau u$, and for negative residuals ($u < 0$), the penalty is $(1-\tau)|u|$. The objective function for a linear quantile regression model $y_i = x_i^T \beta_\tau + \epsilon_i$ is to find the coefficient vector $\beta_\tau$ that minimizes the sum of these losses over all observations: $$ \min_{\beta_\tau} \sum_{i=1}^n \rho_\tau(y_i - x_i^T \beta_\tau) $$ When $\tau=0.5$, the pinball loss simplifies to the absolute error, making median regression equivalent to [Least Absolute Deviations](https://en.wikipedia.org/wiki/Least_absolute_deviations) (LAD) regression.
 
 $$
 \rho_\tau(u) = u(\tau - I(u < 0))

@@ -26,13 +26,13 @@ related:
 
 ## Overview
 
-Incremental Principal Component Analysis (Incremental PCA) is a variant of PCA designed to handle datasets that are too large to fit into memory. It achieves this by processing data in mini-batches, iteratively updating the principal components and singular values without requiring the entire dataset to be loaded at once. This makes it particularly suitable for online learning scenarios, streaming data, and very large datasets where traditional batch PCA is infeasible due to memory constraints.
+Incremental [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) (Incremental PCA) is a variant of PCA designed to handle datasets that are too large to fit into memory. It achieves this by processing data in mini-batches, iteratively updating the principal components and singular values without requiring the entire dataset to be loaded at once. This makes it particularly suitable for online learning scenarios, streaming data, and very large datasets where traditional batch PCA is infeasible due to memory constraints.
 
 ## History
 
-**1901** — Karl Pearson introduces the concept of principal components in his work on lines and planes of closest fit to systems of points.
+**1901** — [Karl Pearson](https://en.wikipedia.org/wiki/Karl_Pearson) introduces the concept of principal components in his work on lines and planes of closest fit to systems of points.
 
-**1933** — Harold Hotelling further develops PCA as a statistical method for analyzing sets of statistical variables.
+**1933** — [Harold Hotelling](https://en.wikipedia.org/wiki/Harold_Hotelling) further develops PCA as a statistical method for analyzing sets of statistical variables.
 
 **1989** — Terence Sanger proposes an online algorithm for PCA based on a Hebbian learning rule, demonstrating early concepts of incremental updates.
 
@@ -44,7 +44,7 @@ Incremental Principal Component Analysis (Incremental PCA) is a variant of PCA d
 
 ### PCA: Projecting Data onto Components
 
-Principal Component Analysis (PCA) aims to reduce the dimensionality of a dataset by transforming it into a new coordinate system such that the greatest variance by any projection of the data lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. Given a mean-centered data matrix $X \in \mathbb{R}^{N \times D}$, where $N$ is the number of samples and $D$ is the number of features, standard PCA typically involves computing the Singular Value Decomposition (SVD) of $X$:
+Principal Component Analysis (PCA) aims to reduce the dimensionality of a dataset by transforming it into a new coordinate system such that the greatest variance by any projection of the data lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. Given a mean-centered data matrix $X \in \mathbb{R}^{N \times D}$, where $N$ is the number of samples and $D$ is the number of features, standard PCA typically involves computing the [Singular Value Decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) (SVD) of $X$:
 $$X = U \Sigma V^T$$
 Here, $U \in \mathbb{R}^{N \times D}$ and $V \in \mathbb{R}^{D \times D}$ are orthogonal matrices, and $\Sigma \in \mathbb{R}^{D \times D}$ is a diagonal matrix containing the singular values. The columns of $V$ are the principal components, ordered by the magnitude of their corresponding singular values in $\Sigma$. Projecting $X$ onto its first $k$ principal components yields $X_k = X V_k$, where $V_k$ consists of the first $k$ columns of $V$. The variance captured by each component is proportional to the square of its singular value.
 

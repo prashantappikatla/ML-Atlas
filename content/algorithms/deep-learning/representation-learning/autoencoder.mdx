@@ -32,15 +32,15 @@ Autoencoders are a type of artificial neural network trained to learn an efficie
 
 ## History
 
-**1986** — David Rumelhart, Geoffrey Hinton, and Ronald Williams introduced the backpropagation algorithm, which enabled the training of multi-layer neural networks, laying the groundwork for autoencoders.
+**1986** — [David Rumelhart](https://en.wikipedia.org/wiki/David_Rumelhart), [Geoffrey Hinton](https://en.wikipedia.org/wiki/Geoffrey_Hinton), and Ronald Williams introduced the backpropagation algorithm, which enabled the training of multi-layer neural networks, laying the groundwork for autoencoders.
 
 **2006** — Geoffrey Hinton and Ruslan Salakhutdinov demonstrated that deep autoencoders could be effectively pre-trained layer-wise using Restricted Boltzmann Machines, significantly improving performance on dimensionality reduction and feature learning tasks.
 
-**2008** — Pascal Vincent, Hugo Larochelle, Yoshua Bengio, and Pierre-Antoine Manzagol introduced Denoising Autoencoders, which learn robust representations by reconstructing a clean input from a corrupted version.
+**2008** — Pascal Vincent, Hugo Larochelle, [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio), and Pierre-Antoine Manzagol introduced Denoising Autoencoders, which learn robust representations by reconstructing a clean input from a corrupted version.
 
 **2011** — Samy Bengio, Pascal Vincent, and Yoshua Bengio introduced Contractive Autoencoders, which penalize the sensitivity of the learned representation to small changes in the input, encouraging robust feature extraction.
 
-**2013** — Diederik P. Kingma and Max Welling introduced Variational Autoencoders (VAEs), a generative model that learns a probabilistic mapping from input to a continuous latent space, enabling sampling of new data.
+**2013** — Diederik P. Kingma and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduced Variational Autoencoders (VAEs), a generative model that learns a probabilistic mapping from input to a continuous latent space, enabling sampling of new data.
 
 ## Mathematical Intuition
 
@@ -60,7 +60,7 @@ $$
 
 ### Reconstruction Loss Minimization
 
-The training objective of an autoencoder is to minimize the reconstruction error between the input $x$ and its reconstruction $\hat{x}$. For continuous input data, the Mean Squared Error (MSE) is commonly used as the loss function $L$:
+The training objective of an autoencoder is to minimize the reconstruction error between the input $x$ and its reconstruction $\hat{x}$. For continuous input data, the [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE) is commonly used as the loss function $L$:
 $$L(x, \hat{x}) = ||x - \hat{x}||^2 = \sum_{i=1}^D (x_i - \hat{x}_i)^2$$
 For binary or categorical data, cross-entropy loss is often preferred. The network parameters (weights and biases of both encoder and decoder) are optimized using gradient descent to minimize this loss function.
 $$L(x, \hat{x}) = -\sum_{i=1}^D [x_i \log(\hat{x}_i) + (1 - x_i) \log(1 - \hat{x}_i)]$$

@@ -27,13 +27,13 @@ related:
 
 ## Overview
 
-Principal Component Analysis (PCA) is a linear dimensionality reduction technique that transforms data into a new coordinate system such that the greatest variance by any projection lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. It aims to identify the directions, or principal components, along which the data varies the most, effectively decorrelating the features and reducing the number of dimensions while retaining as much variance as possible.
+[Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) (PCA) is a linear dimensionality reduction technique that transforms data into a new coordinate system such that the greatest variance by any projection lies on the first coordinate (called the first principal component), the second greatest variance on the second coordinate, and so on. It aims to identify the directions, or principal components, along which the data varies the most, effectively decorrelating the features and reducing the number of dimensions while retaining as much variance as possible.
 
 ## History
 
-**1901** — Karl Pearson formally introduced PCA in "On Lines and Planes of Closest Fit to Systems of Points in Space," laying the mathematical foundation for finding orthogonal components that maximize variance.
+**1901** — [Karl Pearson](https://en.wikipedia.org/wiki/Karl_Pearson) formally introduced PCA in "On Lines and Planes of Closest Fit to Systems of Points in Space," laying the mathematical foundation for finding orthogonal components that maximize variance.
 
-**1933** — Harold Hotelling independently developed a similar method, which he called "principal components," in the context of [Factor Analysis](/algorithms/unsupervised/dimensionality-reduction/factor-analysis), further popularizing the technique in psychometrics.
+**1933** — [Harold Hotelling](https://en.wikipedia.org/wiki/Harold_Hotelling) independently developed a similar method, which he called "principal components," in the context of [Factor Analysis](/algorithms/unsupervised/dimensionality-reduction/factor-analysis), further popularizing the technique in psychometrics.
 
 **1960** — With the advent of computers, numerical methods for eigenvalue decomposition became more efficient, making PCA practical for larger datasets and broader applications.
 
@@ -70,7 +70,7 @@ $$
 
 ### Singular Value Decomposition Equivalence
 
-PCA can also be efficiently computed using Singular Value Decomposition (SVD). For a centered data matrix $X$ (of shape $N \times D$), its SVD is $X = U \Sigma V^T$, where $U$ is an $N \times N$ orthogonal matrix, $\Sigma$ is an $N \times D$ rectangular diagonal matrix of singular values, and $V$ is a $D \times D$ orthogonal matrix. The columns of $V$ are the right singular vectors, which are identical to the eigenvectors of $X^T X$ (and thus the principal components of $X$). The singular values in $\Sigma$ are related to the eigenvalues of $X^T X$ by $\sigma_i^2 = (N-1)\lambda_i$. Projecting the data onto the principal components is achieved by computing $X V_k$, where $V_k$ contains the first $k$ columns of $V$.
+PCA can also be efficiently computed using [Singular Value Decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) (SVD). For a centered data matrix $X$ (of shape $N \times D$), its SVD is $X = U \Sigma V^T$, where $U$ is an $N \times N$ orthogonal matrix, $\Sigma$ is an $N \times D$ rectangular diagonal matrix of singular values, and $V$ is a $D \times D$ orthogonal matrix. The columns of $V$ are the right singular vectors, which are identical to the eigenvectors of $X^T X$ (and thus the principal components of $X$). The singular values in $\Sigma$ are related to the eigenvalues of $X^T X$ by $\sigma_i^2 = (N-1)\lambda_i$. Projecting the data onto the principal components is achieved by computing $X V_k$, where $V_k$ contains the first $k$ columns of $V$.
 $$ X = U \Sigma V^T $$
 $$ X^T X = (U \Sigma V^T)^T (U \Sigma V^T) = V \Sigma^T U^T U \Sigma V^T = V \Sigma^T \Sigma V^T $$
 Comparing $X^T X = V \Sigma^T \Sigma V^T$ with the eigenvalue decomposition $C = V \Lambda V^T$ (where $\Lambda$ is a diagonal matrix of eigenvalues), we see that the columns of $V$ are the eigenvectors and the diagonal elements of $\Sigma^T \Sigma$ are proportional to the eigenvalues.

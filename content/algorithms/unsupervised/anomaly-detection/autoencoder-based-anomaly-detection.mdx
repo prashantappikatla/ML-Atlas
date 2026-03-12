@@ -83,7 +83,7 @@ $$
 
 ### Reconstruction Error as Anomaly Score
 
-The core idea for anomaly detection is that an [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) trained on normal data will reconstruct normal instances with low error, while anomalous instances, which deviate from the learned patterns, will result in high reconstruction error. A common measure for this error is the Mean Squared Error (MSE) or Mean Absolute Error (MAE) between the input $x$ and its reconstruction $\hat{x}$. This error directly serves as the anomaly score.
+The core idea for anomaly detection is that an [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) trained on normal data will reconstruct normal instances with low error, while anomalous instances, which deviate from the learned patterns, will result in high reconstruction error. A common measure for this error is the [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE) or Mean Absolute Error (MAE) between the input $x$ and its reconstruction $\hat{x}$. This error directly serves as the anomaly score.
 $$ L(x, \hat{x}) = ||x - \hat{x}||^2 $$
 
 $$
