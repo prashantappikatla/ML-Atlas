@@ -1,0 +1,173 @@
+---
+title: "Contextual Bandits"
+slug: "contextual-bandits"
+category: "reinforcement"
+subcategory: "bandits"
+year: 1985
+author: "Bandit literature"
+paper: "Bandit literature"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["adaptive-algorithms", "exploration-exploitation", "multi-armed-bandits", "online-learning", "personalization", "recommendation-systems", "reinforcement-learning", "sequential-decision-making"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "epsilon-greedy"
+  - "ridge-regression"
+  - "thompson-sampling"
+---
+
+## Overview
+
+Contextual Bandits extend the multi-armed bandit problem by incorporating side information, known as context, to inform action selection. At each step, an agent observes a context, chooses an action (arm), and receives a reward, aiming to maximize cumulative reward over time. This framework is distinctive for its ability to personalize decisions by leveraging features of the current situation, balancing the need to explore new actions with exploiting known good ones.
+
+## History
+
+**1985** — The concept of incorporating side information into sequential decision-making problems begins to emerge in theoretical computer science and statistics literature, laying the groundwork for contextual bandits.
+
+**1990** — Early theoretical work on online learning with expert advice and prediction with expert advice provides foundational algorithms and regret bounds relevant to contextual bandit settings.
+
+**2010** — Li et al. introduce LinUCB (Linear Upper Confidence Bound), a highly influential algorithm that models rewards as a linear function of context and action, demonstrating strong empirical performance in real-world applications like news recommendation.
+
+**2012** — Contextual [Thompson Sampling](/algorithms/reinforcement/bandits/thompson-sampling) gains traction, applying Bayesian principles to contextual bandits by sampling from posterior distributions over reward functions to guide exploration.
+
+**2016** — The rise of deep learning leads to the development of Neural Contextual Bandits, which use neural networks to model complex, non-linear relationships between context, actions, and rewards.
+
+## Mathematical Intuition
+
+### Problem Formulation and Goal
+
+At each time step $t$, an agent observes a context vector $x_t \in \mathbb{R}^d$. Based on $x_t$, the agent chooses an action $a_t \in \{1, \dots, K\}$ from $K$ available arms. After choosing $a_t$, the agent receives a reward $r_{t,a_t}$ and observes no rewards for the unchosen arms. The objective is to learn a policy $\pi: \mathcal{X} \to \mathcal{A}$ that maps contexts to actions, maximizing the cumulative expected reward $\sum_{t=1}^T E[r_{t,a_t}]$ over a time horizon $T$. This is often framed as minimizing regret, which is the difference between the cumulative reward of an optimal policy and the agent's policy.
+$$ R_T = \sum_{t=1}^T (r_{t,a_t^*} - r_{t,a_t}) $$
+where $a_t^*$ is the optimal action at time $t$ given context $x_t$.
+
+$$
+R_T = \sum_{t=1}^T (r_{t,a_t^*} - r_{t,a_t})
+$$
+
+### Explore-Exploit Dilemma with Context
+
+Contextual bandits inherently face the explore-exploit dilemma: should the agent choose an action that has yielded high rewards in similar past contexts (exploitation), or try a less-known action to gather more information about its potential rewards (exploration)? The context $x_t$ provides crucial information to make this decision more informed. Algorithms must balance these two objectives to achieve low regret. For instance, an action that performs well in one context might perform poorly in another, necessitating context-aware exploration.
+
+### Linear Reward Models
+
+Many effective contextual bandit algorithms, such as LinUCB, assume that the expected reward for an action $a$ given context $x_t$ can be modeled as a linear function: $E[r_{t,a} | x_t] = x_t^T \theta_a$. Here, $\theta_a \in \mathbb{R}^d$ is an unknown parameter vector specific to arm $a$. The algorithm's task is to estimate these $\theta_a$ vectors for all arms. Using [Ridge Regression](/algorithms/supervised/regression/ridge-regression), the estimate $\hat{\theta}_a$ for arm $a$ can be found by minimizing:
+$$ \min_{\theta_a} \sum_{s=1}^{t-1} (x_s^T \theta_a - r_{s,a})^2 + \lambda ||\theta_a||_2^2 $$
+where the sum is over past observations where arm $a$ was chosen, and $\lambda$ is a regularization parameter.
+
+$$
+E[r_{t,a} | x_t] = x_t^T \theta_a
+$$
+
+$$
+\min_{\theta_a} \sum_{s=1}^{t-1} (x_s^T \theta_a - r_{s,a})^2 + \lambda ||\theta_a||_2^2
+$$
+
+### Upper Confidence Bound Principle
+
+The UCB principle extends to contextual bandits by constructing confidence intervals around the estimated expected rewards. For an arm $a$ and context $x_t$, the algorithm estimates the expected reward $\hat{\mu}_{t,a} = x_t^T \hat{\theta}_a$ and adds an exploration bonus proportional to the uncertainty. The action chosen is $a_t = \arg\max_a (\hat{\mu}_{t,a} + \alpha \cdot \text{uncertainty}_{t,a})$. In LinUCB, the uncertainty term is related to the inverse covariance matrix of the observed contexts for arm $a$, specifically $x_t^T A_a^{-1} x_t$, where $A_a = \lambda I + \sum_{s: a_s=a} x_s x_s^T$. The chosen action $a_t$ is:
+$$ a_t = \arg\max_{a \in \{1, \dots, K\}} \left( x_t^T \hat{\theta}_a + \alpha \sqrt{x_t^T A_a^{-1} x_t} \right) $$
+This ensures that arms with higher estimated rewards or higher uncertainty (less explored) are prioritized.
+
+$$
+a_t = \arg\max_{a \in \{1, \dots, K\}} \left( x_t^T \hat{\theta}_a + \alpha \sqrt{x_t^T A_a^{-1} x_t} \right)
+$$
+
+## Algorithm Steps
+
+1. Initialize parameters for each arm $a \in \{1, \dots, K\}$, typically including a matrix $A_a = \lambda I$ (where $I$ is the identity matrix and $\lambda$ is a regularization parameter) and a vector $b_a = \mathbf{0}$.
+2. For each time step $t=1, \dots, T$:
+3. Observe the current context vector $x_t \in \mathbb{R}^d$.
+4. For each arm $a$, calculate the estimated parameter vector $\hat{\theta}_a = A_a^{-1} b_a$.
+5. For each arm $a$, calculate its predicted reward and exploration bonus; for example, using LinUCB, compute $p_{t,a} = x_t^T \hat{\theta}_a + \alpha \sqrt{x_t^T A_a^{-1} x_t}$.
+6. Select the arm $a_t$ that maximizes $p_{t,a}$: $a_t = \arg\max_{a} p_{t,a}$.
+7. Execute action $a_t$ and observe the scalar reward $r_{t,a_t}$.
+8. Update the parameters for the chosen arm $a_t$: $A_{a_t} \leftarrow A_{a_t} + x_t x_t^T$ and $b_{a_t} \leftarrow b_{a_t} + r_{t,a_t} x_t$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_actions` | `int` | `None` | > 0 | The number of distinct actions or "arms" available to the agent. |
+| `n_features` | `int` | `None` | > 0 | The dimensionality of the context vector $x_t$ observed at each time step. |
+| `alpha` | `float` | `1.0` | > 0 | Exploration parameter for UCB-type algorithms, controlling the balance between exploration and exploitation. Higher values encourage more exploration. |
+| `epsilon` | `float` | `0.1` | [0.0, 1.0] | The probability of choosing a random action for epsilon-greedy strategies, promoting exploration. |
+| `lambda_reg` | `float` | `1.0` | > 0 | Regularization parameter (e.g., Ridge regularization) applied to the linear model coefficients to prevent overfitting. |
+| `learning_rate` | `float` | `0.01` | > 0 | The step size used for updating model parameters in gradient-based contextual bandit algorithms. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Contextual bandits effectively personalize decision-making by leveraging specific features of the current situation.
+- They provide a principled way to balance exploration (gathering new information) and exploitation (using known good options) in dynamic environments.
+- Many algorithms, like LinUCB, are computationally efficient and can scale to large numbers of actions and high-dimensional contexts.
+- They are well-suited for online learning scenarios where data arrives sequentially and decisions must be made in real-time.
+- Contextual bandits can adapt quickly to changes in user preferences or environmental dynamics due to their online learning nature.
+
+## Weaknesses
+
+- The performance of contextual bandits heavily relies on the quality and relevance of the provided context features.
+- Modeling complex, non-linear relationships between context, actions, and rewards can be challenging without advanced techniques like neural networks.
+- Regret bounds often depend on assumptions about the reward distribution or the linearity of the reward function, which may not hold in practice.
+- Cold-start problems can arise for new arms or contexts, where insufficient data exists to make informed exploration-exploitation decisions.
+- The choice of exploration strategy and its parameters (e.g., $\alpha$ in UCB) can significantly impact performance and requires careful tuning.
+
+## Use Cases
+
+### Recommender Systems
+
+Personalizing content recommendations (e.g., news articles, products, movies) to individual users based on their past behavior and current context.
+
+### Online Advertising
+
+Selecting the most relevant ad to display to a user based on their demographics, browsing history, and the current webpage content.
+
+### Clinical Trials
+
+Dynamically assigning patients to different treatment arms based on their individual characteristics to optimize treatment efficacy and learn about drug responses.
+
+### Dynamic Pricing
+
+Adjusting prices for products or services in real-time based on demand, inventory levels, and customer segments.
+
+### Website Optimization
+
+Personalizing website layouts, call-to-action buttons, or content blocks for different user segments to maximize engagement or conversion rates.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Contextual Bandits from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Contextual Bandits does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Contextual Bandits Lab" />
+
+## References
+
+- Bandit literature (1985). Bandit literature.

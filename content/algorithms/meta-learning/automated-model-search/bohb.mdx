@@ -1,0 +1,166 @@
+---
+title: "BOHB"
+slug: "bohb"
+category: "meta-learning"
+subcategory: "automated-model-search"
+year: 2018
+author: "Falkner et al."
+paper: "Falkner et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["automated-machine-learning", "bayesian-optimization", "black-box-optimization", "deep-learning", "hyperparameter-optimization", "meta-learning", "resource-allocation", "successive-halving"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-optimization"
+  - "hyperband"
+  - "random-search"
+  - "transformer"
+---
+
+## Overview
+
+[Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband) (BOHB) is a robust and efficient hyperparameter optimization algorithm that combines the strengths of [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) with the aggressive resource allocation strategy of [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband). It addresses the challenge of tuning complex machine learning models, particularly deep neural networks, by adaptively allocating computational resources to promising configurations while pruning poorly performing ones early. BOHB leverages a kernel density estimator to propose new configurations, guiding the search more effectively than [Random Search](/algorithms/meta-learning/automated-model-search/random-search), and integrates this with [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband)'s successive halving to accelerate the process.
+
+## History
+
+**2012** — [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) gained significant traction for hyperparameter tuning with works like Snoek et al.'s "Practical [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) of Machine Learning Algorithms," demonstrating its effectiveness for complex models.
+
+**2017** — Li et al. introduced [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband), a novel algorithm that uses successive halving to efficiently allocate resources and prune poor configurations, often outperforming [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) on some benchmarks by focusing on early stopping.
+
+**2018** — Falkner et al. published "BOHB: Robust and Efficient Hyperparameter Optimization at Scale," proposing the integration of [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) with [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband) to combine their respective advantages, leading to more robust and efficient search.
+
+## Mathematical Intuition
+
+### Successive Halving Resource Allocation
+
+[Hyperband](/algorithms/meta-learning/automated-model-search/hyperband)'s core idea, which BOHB adopts, is to run multiple configurations for a small budget, then keep the top $1/\eta$ configurations and run them for $\eta$ times the budget, repeating this process. This is done across several "brackets" (or iterations) with varying initial budgets. For a given bracket, if we start with $n_0$ configurations and an initial budget $r_{min}$, after $k$ rounds of successive halving, we will have $n_k = n_0 / \eta^k$ configurations, each evaluated with a budget of $r_k = r_{min} \cdot \eta^k$. This aggressive pruning strategy quickly eliminates unpromising candidates.
+
+$$
+n_k = n_0 / \eta^k
+$$
+
+$$
+r_k = r_{min} \cdot \eta^k
+$$
+
+### Bayesian Optimization Surrogate Model
+
+Traditional [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) models the objective function $f(x)$ using a probabilistic surrogate model, typically a Gaussian Process, to estimate the expected performance and uncertainty of hyperparameters $x$. BOHB, however, uses a non-parametric approach based on kernel density estimators (KDEs). It fits two KDEs: $p(\text{good}|x)$ for the top-performing configurations and $p(\text{bad}|x)$ for the lower-performing ones. These models are updated with observed performance data from the successive halving iterations.
+
+$$
+p(\text{good}|x)
+$$
+
+$$
+p(\text{bad}|x)
+$$
+
+### Acquisition Function for Sampling
+
+To propose new configurations, BOHB employs an acquisition function derived from the ratio of the two KDEs. Specifically, it samples new configurations $x$ from $p(\text{good}|x)$ and then selects those that maximize the ratio $L(x) = p(\text{good}|x) / p(\text{bad}|x)$. This strategy prioritizes regions in the hyperparameter space where good configurations are more likely relative to bad ones, effectively balancing exploration and exploitation. The sampling process is designed to find configurations that are similar to the best ones found so far, but also explore new, potentially better regions.
+
+$$
+L(x) = p(\text{good}|x) / p(\text{bad}|x)
+$$
+
+## Algorithm Steps
+
+1. Initialize a set of random configurations for the first successive halving bracket to ensure initial exploration of the hyperparameter space.
+2. For each successive halving bracket $s$ (from $s_{max}$ down to $0$):
+3.   a. Sample $n_s$ configurations. For initial iterations or a specified fraction, these are sampled randomly. Otherwise, they are sampled from the Bayesian Optimization component's acquisition function.
+4.   b. Evaluate these $n_s$ configurations on a small initial budget $r_{min} \cdot \eta^{s_{max}-s}$.
+5.   c. Iteratively prune configurations: for $k=0, \dots, s-1$:
+6.     i. Keep the top $1/\eta$ configurations based on their observed performance.
+7.     ii. Increase the budget for these selected configurations by a factor of $\eta$.
+8.     iii. Re-evaluate and update their performance with the increased budget.
+9. After each successive halving iteration, update the Bayesian Optimization's kernel density estimators (KDEs) using the observed performance of all evaluated configurations, distinguishing between good and bad performers.
+10. When new configurations are needed for subsequent brackets, sample them from the ratio of the KDEs, prioritizing regions in the hyperparameter space that have shown good performance.
+11. Repeat the entire process until the maximum number of iterations or the total computational budget is exhausted.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_budget` | `float` | `1.0` | float > 0 | Minimum budget (e.g., epochs, data fraction) to allocate to a configuration in a successive halving bracket. |
+| `max_budget` | `float` | `100.0` | float > 0 | Maximum budget to allocate to a configuration, defining the upper limit of resources for the best candidates. |
+| `eta` | `float` | `3.0` | float > 1 | Reduction factor for successive halving; determines how many configurations are discarded and by what factor the budget is increased in each step. |
+| `num_brackets` | `int` | `3` | int >= 1 | Number of successive halving brackets to run, influencing the diversity of initial budgets and the total search space explored. |
+| `min_bandwidth_factor` | `float` | `0.0` | float >= 0 | A factor that controls the minimum bandwidth of the kernel density estimators, influencing the balance between exploration and exploitation in the Bayesian Optimization component. |
+| `random_fraction` | `float` | `0.33` | 0.0 <= float <= 1.0 | Fraction of configurations to sample randomly instead of from the BO model, ensuring initial exploration and preventing premature convergence. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- BOHB efficiently explores the hyperparameter space by combining the global search capabilities of Bayesian Optimization with the aggressive pruning of Hyperband.
+- It is robust to noisy evaluations and can handle high-dimensional hyperparameter spaces more effectively than pure grid or random search.
+- The algorithm is highly parallelizable, allowing for efficient utilization of multiple computational resources across different configurations.
+- BOHB adaptively allocates resources, focusing more computational budget on promising configurations and quickly discarding poor ones, leading to faster convergence.
+- It often converges to good hyperparameter configurations faster than either Bayesian Optimization or Hyperband alone, especially for complex models like deep neural networks.
+
+## Weaknesses
+
+- BOHB's performance can be sensitive to the choice of the initial random configurations and the parameters of the successive halving schedule, requiring careful tuning of its own meta-parameters.
+- The overhead of maintaining and updating the kernel density estimators can be computationally intensive for very large hyperparameter spaces or extremely frequent updates.
+- Like other sequential model-based optimization methods, BOHB can struggle with highly multimodal or discontinuous objective functions, potentially getting stuck in local optima.
+- The interpretation of the surrogate model (KDEs) is less intuitive than Gaussian Processes, potentially making debugging or understanding the search process more challenging for practitioners.
+
+## Use Cases
+
+### Deep Learning
+
+Optimizing hyperparameters for neural networks, including learning rates, batch sizes, optimizer choices, and network architectures, to achieve state-of-the-art performance.
+
+### Automated Machine Learning (AutoML)
+
+Automatically finding optimal model architectures and hyperparameters for various ML tasks, reducing the need for manual expert intervention.
+
+### Reinforcement Learning
+
+Tuning parameters for agents, such as learning rates, discount factors, and network architectures in deep reinforcement learning environments.
+
+### Scientific Computing
+
+Optimizing parameters for complex simulations or scientific models where evaluations are costly and require efficient resource allocation.
+
+### Natural Language Processing
+
+Finding optimal configurations for large language models or specific NLP tasks, such as fine-tuning [Transformer](/algorithms/deep-learning/transformers/transformer) models for text classification or generation.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement BOHB from scratch
+```
+
+### Using scikit-learn
+
+```python
+# BOHB does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="BOHB Lab" />
+
+## References
+
+- Falkner et al. (2018). Falkner et al..

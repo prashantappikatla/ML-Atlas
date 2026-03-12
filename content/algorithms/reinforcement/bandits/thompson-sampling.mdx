@@ -1,0 +1,157 @@
+---
+title: "Thompson Sampling"
+slug: "thompson-sampling"
+category: "reinforcement"
+subcategory: "bandits"
+year: 1933
+author: "Thompson"
+paper: "Thompson"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bayesian-inference", "exploration-exploitation", "multi-armed-bandit", "online-learning", "probabilistic-method", "reinforcement-learning", "sequential-decision-making"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-optimization"
+  - "contextual-bandits"
+  - "epsilon-greedy"
+---
+
+## Overview
+
+Thompson Sampling is a Bayesian algorithm designed to solve the multi-armed bandit problem, a classic dilemma in sequential decision-making under uncertainty. It operates by maintaining a probability distribution over the expected reward for each available action (arm) and selecting an arm based on samples drawn from these posterior distributions. This method inherently balances exploration of uncertain options with exploitation of seemingly optimal choices, making it effective in online learning scenarios. Its strength lies in its empirical performance and theoretical guarantees for regret minimization.
+
+## History
+
+**1933** — William R. Thompson introduced the core idea of sampling from posterior distributions to guide sequential decision-making in his paper 'On the likelihood that one unknown probability exceeds another in view of some samples'.
+
+**1980** — The method was largely overlooked for several decades in favor of frequentist approaches, but saw renewed interest with the rise of computational power and Bayesian methods.
+
+**2011** — Olivier Chapelle and Lihong Li published 'An Empirical Evaluation of Thompson Sampling' which demonstrated its strong empirical performance in online advertising, sparking widespread industry adoption.
+
+**2012** — Shipra Agrawal and Navin Goyal provided theoretical regret bounds for Thompson Sampling in 'Analysis of Thompson Sampling for the Multi-armed Bandit Problem', solidifying its academic standing.
+
+**2014** — Daniel Russo and Benjamin Van Roy further advanced the theoretical understanding with 'Learning to Optimize via Thompson Sampling', establishing its near-optimal performance in various settings.
+
+## Mathematical Intuition
+
+### Bayesian Multi-Armed Bandits
+
+Thompson Sampling frames the multi-armed bandit problem within a Bayesian framework. For each arm $k \in \{1, \dots, K\}$, we assume its true reward probability (or mean reward) $\theta_k$ is an unknown parameter. Instead of estimating a point value for $\theta_k$, we maintain a probability distribution $P(\theta_k | \text{history})$ that reflects our belief about $\theta_k$ given past observations. This posterior distribution is updated after each play of arm $k$ and observation of its reward, following Bayes' theorem:
+
+$$
+$$ P(\theta_k | \text{history}) \propto P(\text{history} | \theta_k) P(\theta_k) $$
+$$
+
+### Beta-Bernoulli Conjugate Prior
+
+A common setup for binary rewards (e.g., click/no-click) is to model the reward probability $\theta_k$ for each arm $k$ using a Beta distribution, which is the conjugate prior for the Bernoulli likelihood function. Initially, for each arm $k$, we assume a prior distribution $\text{Beta}(\alpha_k, \beta_k)$. If arm $k$ is played $n_k$ times, yielding $s_k$ successes and $f_k$ failures ($n_k = s_k + f_k$), the posterior distribution becomes:
+
+$$
+$$ P(\theta_k | s_k, f_k) = \text{Beta}(\alpha_k + s_k, \beta_k + f_k) $$
+$$
+
+### Probability Matching Principle
+
+The core idea of Thompson Sampling is to 'probability match'. At each time step, for each arm $k$, a sample $\tilde{\theta}_k$ is drawn from its current posterior distribution $P(\theta_k | \text{history})$. The arm with the highest sampled value, $k^* = \arg\max_k \tilde{\theta}_k$, is then chosen. This means that the probability of choosing an arm $k$ is equal to the probability that arm $k$ is the optimal arm, given the current beliefs:
+
+$$
+$$ P(\text{choose arm } k) = P(\theta_k = \max_{j} \theta_j | \text{history}) $$
+$$
+
+## Algorithm Steps
+
+1. Initialize parameters for each arm $k \in \{1, \dots, K\}$: for a Beta-Bernoulli model, set initial success counts $\alpha_k$ and failure counts $\beta_k$ (e.g., $\alpha_k = 1, \beta_k = 1$ for a uniform prior).
+2. For each time step $t = 1, 2, \dots$:
+3. For each arm $k$, draw a sample $\tilde{\theta}_k$ from its current posterior distribution (e.g., $\tilde{\theta}_k \sim \text{Beta}(\alpha_k, \beta_k)$).
+4. Select the arm $k^*$ that yielded the highest sampled value: $k^* = \arg\max_k \tilde{\theta}_k$.
+5. Play arm $k^*$ and observe the reward $r_t$ (e.g., 1 for success, 0 for failure).
+6. Update the parameters for the chosen arm $k^*$: if the reward $r_t$ is a success, increment $\alpha_{k^*}$ by 1; if it is a failure, increment $\beta_{k^*}$ by 1.
+7. Repeat from step 3.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha_prior` | `float` | `1.0` | > 0 | The initial pseudo-count of successes (or positive observations) for each arm, used to define the Beta prior distribution. |
+| `beta_prior` | `float` | `1.0` | > 0 | The initial pseudo-count of failures (or negative observations) for each arm, used to define the Beta prior distribution. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It inherently balances exploration and exploitation effectively, often outperforming simpler heuristics like epsilon-greedy.
+- The algorithm is computationally efficient, requiring only sampling from simple distributions and parameter updates.
+- It adapts well to non-stationary environments where the optimal arm might change over time, as its posterior distributions naturally reflect recent observations.
+- Thompson Sampling is simple to implement for many common reward distributions, especially with conjugate priors.
+- It provides a natural measure of uncertainty through its posterior distributions, which can be valuable for decision-making.
+
+## Weaknesses
+
+- The performance can be sensitive to the choice of the initial prior distribution, especially with limited data.
+- It requires assuming a specific parametric form for the reward distribution (e.g., Bernoulli, Gaussian), which might not always hold true.
+- Scaling to very large action spaces or high-dimensional contextual information can be challenging without approximations or extensions.
+- The theoretical guarantees (regret bounds) can be more complex to derive compared to some frequentist methods like UCB.
+
+## Use Cases
+
+### Online Advertising
+
+Used to dynamically select which ad to display to a user to maximize click-through rates or conversions, by treating each ad variant as an arm.
+
+### A/B Testing
+
+Optimizes the allocation of traffic to different website versions or product features to quickly identify the best performing variant while minimizing losses from suboptimal choices.
+
+### Clinical Trials
+
+Helps in adaptively assigning patients to different treatment arms to maximize the number of patients receiving the most effective treatment while still gathering data on less-known options.
+
+### Recommendation Systems
+
+Selects which items to recommend to users in real-time, learning user preferences and optimizing engagement or purchase rates.
+
+### Dynamic Pricing
+
+Determines the optimal price for a product or service by treating different price points as arms, aiming to maximize revenue or profit.
+
+### Network Routing
+
+Chooses the best path for data packets in a network, learning which routes are most efficient or least congested over time.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Thompson Sampling from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Thompson Sampling does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Thompson Sampling Lab" />
+
+## References
+
+- Thompson (1933). Thompson.

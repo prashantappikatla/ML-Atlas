@@ -1,0 +1,180 @@
+---
+title: "Q-Learning"
+slug: "q-learning"
+category: "reinforcement"
+subcategory: "model-free-value-methods"
+year: 1989
+author: "Watkins"
+paper: "Watkins"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bellman-equation", "discrete-actions", "discrete-states", "model-free", "off-policy", "reinforcement-learning", "temporal-difference", "value-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "double-q-learning"
+  - "monte-carlo-control"
+  - "policy-iteration"
+  - "sarsa"
+  - "value-iteration"
+---
+
+## Overview
+
+Q-Learning is a model-free, off-policy reinforcement learning algorithm that enables an agent to learn an optimal action-selection policy. It achieves this by iteratively estimating the maximum expected future rewards for taking a specific action in a given state, known as Q-values. This method directly learns the optimal Q-function without requiring an explicit model of the environment's dynamics, making it highly adaptable to various sequential decision-making problems.
+
+## History
+
+**1989** — Christopher J.C.H. Watkins introduced Q-Learning in his Ph.D. thesis, laying the foundation for model-free reinforcement learning.
+
+**1992** — Watkins and Peter Dayan published a paper providing a convergence proof for Q-Learning under certain conditions, solidifying its theoretical basis.
+
+**1998** — The textbook "Reinforcement Learning: An Introduction" by Richard S. Sutton and Andrew G. Barto extensively covered Q-Learning, significantly contributing to its widespread adoption and understanding.
+
+**2013** — DeepMind introduced Deep Q-Networks (DQN), combining Q-Learning with deep neural networks, which enabled the algorithm to tackle problems with high-dimensional state spaces like Atari games.
+
+## Mathematical Intuition
+
+### Q-Value Definition
+
+The Q-value, denoted as $Q(s, a)$, represents the expected cumulative discounted future reward an agent can receive by taking action $a$ in state $s$ and subsequently following an optimal policy. It quantifies the "goodness" of taking a particular action in a particular state.
+$$Q(s, a) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + ... | S_t=s, A_t=a]$$
+where $R_t$ is the reward at time $t$, and $\gamma \in [0, 1]$ is the discount factor.
+
+$$
+Q(s, a) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + ... | S_t=s, A_t=a]
+$$
+
+### Bellman Optimality Equation
+
+The optimal Q-value, $Q^*(s, a)$, satisfies the Bellman optimality equation, which states that the optimal value for a state-action pair is the immediate reward plus the discounted optimal value of the next state. This equation forms the basis for finding the optimal policy.
+$$Q^*(s, a) = E[R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') | S_t=s, A_t=a]$$
+Here, $S_{t+1}$ is the next state reached after taking action $A_t=a$ in state $S_t=s$.
+
+$$
+Q^*(s, a) = E[R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') | S_t=s, A_t=a]
+$$
+
+### Q-Learning Update Rule
+
+Q-Learning iteratively updates the Q-values using a temporal difference (TD) learning approach. The update rule adjusts the current Q-value towards the target value, which is derived from the Bellman optimality equation, using a learning rate $\alpha$.
+$$Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a') - Q(S_t, A_t)]$$
+The term $R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a')$ is the target Q-value, and the difference between the target and current Q-value is the TD error.
+
+$$
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a') - Q(S_t, A_t)]
+$$
+
+### Exploration-Exploitation Trade-off
+
+To ensure the agent discovers optimal actions, it must balance exploring new actions with exploiting known good actions. The $\epsilon$-greedy policy is commonly used, where with probability $\epsilon$, the agent chooses a random action (exploration), and with probability $1-\epsilon$, it chooses the action with the highest Q-value (exploitation).
+$$\text{Choose } A_t = \begin{cases} \text{random action} & \text{with probability } \epsilon \\ \arg\max_{a'} Q(S_t, a') & \text{with probability } 1-\epsilon \end{cases}$$
+Typically, $\epsilon$ is decayed over time to favor exploitation as learning progresses.
+
+$$
+\text{Choose } A_t = \begin{cases} \text{random action} & \text{with probability } \epsilon \\ \arg\max_{a'} Q(S_t, a') & \text{with probability } 1-\epsilon \end{cases}
+$$
+
+## Algorithm Steps
+
+1. Initialize the Q-table with arbitrary values, often zeros, for all state-action pairs.
+2. Set hyperparameters: learning rate $\alpha$, discount factor $\gamma$, and exploration rate $\epsilon$.
+3. For each episode, initialize the starting state $S$.
+4. While the current state $S$ is not a terminal state:
+5. Select an action $A$ from state $S$ using an $\epsilon$-greedy policy based on the current Q-table.
+6. Execute action $A$, observe the immediate reward $R$ and the next state $S'$.
+7. Update the Q-value for the state-action pair $(S, A)$ using the Q-Learning update rule: $Q(S, A) \leftarrow Q(S, A) + \alpha [R + \gamma \max_{a'} Q(S', a') - Q(S, A)]$.
+8. Set $S \leftarrow S'$ and repeat until the episode ends or a maximum number of steps is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.1` | [0.0, 1.0] | The step size parameter that determines the extent to which the newly acquired information overrides the old information. |
+| `discount_factor` | `float` | `0.99` | [0.0, 1.0] | The discount factor ($\gamma$) that determines the importance of future rewards. A value of 0 makes the agent "myopic" by only considering immediate rewards, while a value close to 1 makes it strive for long-term high rewards. |
+| `epsilon` | `float` | `1.0` | [0.0, 1.0] | The initial probability of choosing a random action (exploration) in the $\epsilon$-greedy policy. This value typically decays over time. |
+| `epsilon_decay_rate` | `float` | `0.001` | [0.0, 1.0] | The rate at which the $\epsilon$ value decreases over episodes, encouraging the agent to shift from exploration to exploitation. |
+| `min_epsilon` | `float` | `0.01` | [0.0, 1.0] | The minimum value that $\epsilon$ can decay to, ensuring some level of continued exploration. |
+| `n_episodes` | `int` | `10000` | integer > 0 | The total number of training episodes to run the Q-Learning algorithm. |
+| `initial_q_value` | `float or "random"` | `0.0` | any float or 'random' | The initial value used to populate the Q-table for all state-action pairs. Can be a fixed number or "random". |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Q-Learning is a model-free algorithm, meaning it does not require an explicit model of the environment's dynamics to learn an optimal policy.
+- It is an off-policy algorithm, allowing it to learn the optimal policy by observing actions taken from any behavior policy, including exploratory ones.
+- Under certain conditions, such as a finite Markov Decision Process and sufficient exploration, Q-Learning is guaranteed to converge to the optimal Q-values.
+- The algorithm is relatively simple to implement and understand for problems with discrete and manageable state and action spaces.
+- It can effectively learn optimal policies even in environments with stochastic transitions and rewards.
+
+## Weaknesses
+
+- Q-Learning suffers from the curse of dimensionality, making it impractical for problems with very large or continuous state and action spaces.
+- Direct application requires discrete state and action spaces; continuous spaces necessitate discretization or function approximation methods.
+- The convergence speed can be slow, especially in complex environments or when the reward signal is sparse.
+- Its performance is highly sensitive to the choice and tuning of hyperparameters such as the learning rate, discount factor, and exploration rate.
+- The algorithm can struggle with non-stationary environments where the optimal policy changes over time.
+
+## Use Cases
+
+### Robotics
+
+Training robots to perform tasks like navigation, object manipulation, or grasping in simulated or real-world environments.
+
+### Game Playing
+
+Developing AI agents to play board games such as Chess or Go, or simple video games like Atari titles.
+
+### Resource Management
+
+Optimizing resource allocation in cloud computing, network routing, or energy management systems.
+
+### Finance
+
+Creating automated trading strategies, portfolio optimization, or risk management systems.
+
+### Traffic Control
+
+Designing intelligent traffic light systems to minimize congestion and travel times in urban areas.
+
+### Industrial Automation
+
+Optimizing manufacturing processes, scheduling tasks, or controlling machinery.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Q-Learning from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Q-Learning does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Q-Learning Lab" />
+
+## References
+
+- Watkins (1989). Watkins.

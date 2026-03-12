@@ -1,0 +1,187 @@
+---
+title: "DDPG"
+slug: "ddpg"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2016
+author: "Lillicrap et al."
+paper: "Lillicrap et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["actor-critic", "continuous-control", "deep-learning", "deep-q-networks", "model-free", "off-policy", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "deterministic-policy-gradient"
+  - "q-learning"
+  - "soft-actor-critic"
+---
+
+## Overview
+
+Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DDPG) is an off-policy, model-free reinforcement learning algorithm designed for environments with continuous action spaces. It combines the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework with insights from Deep Q-Networks (DQN), such as experience replay and target networks, to stabilize learning. DDPG learns a deterministic policy that maps states directly to actions, while a critic network estimates the action-value function for these actions.
+
+## History
+
+**2013** — Deep Q-Networks (DQN) by Mnih et al. introduced experience replay and target networks, foundational techniques for stabilizing deep reinforcement learning.
+
+**2014** — The [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DPG) theorem was introduced by Silver et al., providing a theoretical basis for policy gradient methods in continuous action spaces.
+
+**2016** — Lillicrap et al. published 'Continuous Control with Deep Reinforcement Learning,' introducing DDPG, which adapted DQN's stability features to the DPG framework for continuous control tasks.
+
+**2018** — Twin Delayed DDPG (TD3) by Fujimoto et al. was introduced as an improvement over DDPG, addressing its overestimation bias and sensitivity to hyperparameters.
+
+## Mathematical Intuition
+
+### Actor-Critic Architecture
+
+DDPG employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, consisting of two main neural networks: an actor network $\mu(s|\theta^{\mu})$ and a critic network $Q(s,a|\theta^Q)$. The actor learns a deterministic policy that maps states $s$ to actions $a$, while the critic learns to estimate the action-value function $Q(s,a)$, representing the expected return from taking action $a$ in state $s$ and subsequently following the actor's policy. Both networks have corresponding target networks, $\mu'(s|\theta^{\mu'})$ and $Q'(s,a|\theta^{Q'})$, which are slowly updated copies of the main networks to provide stable targets for learning.
+
+$$
+\mu(s|\theta^{\mu})
+$$
+
+$$
+Q(s,a|\theta^Q)
+$$
+
+$$
+\mu'(s|\theta^{\mu'})
+$$
+
+$$
+Q'(s,a|\theta^{Q'})
+$$
+
+### Deterministic Policy Gradient
+
+The actor network is updated using the [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) theorem. This theorem states that the gradient of the expected return $J$ with respect to the actor's parameters $\theta^{\mu}$ can be approximated by the expected value of the critic's action-value gradient with respect to the action, multiplied by the actor's policy gradient. This allows the actor to move its policy in the direction that maximizes the Q-value estimated by the critic.
+
+$$
+\nabla_{\theta^{\mu}} J \approx E_{s_t \sim \rho^{\beta}}[\nabla_a Q(s,a)|_{s=s_t, a=\mu(s_t)} \nabla_{\theta^{\mu}} \mu(s_t)]
+$$
+
+### Critic Network Update
+
+The critic network $Q(s,a|\theta^Q)$ is updated using a temporal difference (TD) learning approach, similar to [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning). For each transition $(s_t, a_t, r_t, s_{t+1})$, a target Q-value $y_t$ is computed using the reward $r_t$ and the Q-value of the next state-action pair, where the next action is determined by the target actor network $\mu'$. The critic's parameters $\theta^Q$ are then updated by minimizing the mean-squared Bellman error between the predicted $Q(s_t, a_t)$ and the target $y_t$.
+
+$$
+y_t = r_t + \gamma Q'(s_{t+1}, \mu'(s_{t+1}|\theta^{\mu'})|\theta^{Q'})
+$$
+
+$$
+L(\theta^Q) = E_{(s,a,r,s',d) \sim B}[(Q(s,a|\theta^Q) - y)^2]
+$$
+
+### Target Networks and Exploration
+
+To stabilize training, DDPG utilizes target networks, which are soft copies of the main actor and critic networks. Their parameters are updated slowly towards the main network parameters using a soft update rule: $\theta' \leftarrow \tau \theta + (1 - \tau) \theta'$. This prevents the Q-value targets from changing too rapidly. For exploration in continuous action spaces, DDPG typically adds an exploration noise (e.g., Ornstein-Uhlenbeck process or Gaussian noise) to the actions sampled from the actor's policy during training.
+
+$$
+\theta' \leftarrow \tau \theta + (1 - \tau) \theta'
+$$
+
+## Algorithm Steps
+
+1. Initialize actor network $\mu(s|\theta^{\mu})$, critic network $Q(s,a|\theta^Q)$, and their corresponding target networks $\mu'(s|\theta^{\mu'})$ and $Q'(s,a|\theta^{Q'})$ with random weights.
+2. Initialize an experience replay buffer $B$ and an exploration noise process $N$.
+3. For each training episode, observe an initial state $s_t$.
+4. For each time step $t$ in the episode:
+5. Select action $a_t = \mu(s_t|\theta^{\mu}) + N_t$ (where $N_t$ is exploration noise) and execute it in the environment, observing reward $r_t$ and next state $s_{t+1}$.
+6. Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer $B$.
+7. Sample a random mini-batch of $N$ transitions $(s_j, a_j, r_j, s'_{j})$ from $B$.
+8. Compute target Q-values for each sampled transition: $y_j = r_j + \gamma Q'(s'_{j}, \mu'(s'_{j}|\theta^{\mu'})|\theta^{Q'})$.
+9. Update the critic network by minimizing the loss $L(\theta^Q) = \frac{1}{N} \sum_j (y_j - Q(s_j, a_j|\theta^Q))^2$ using gradient descent.
+10. Update the actor network using the sampled policy gradient: $\nabla_{\theta^{\mu}} J \approx \frac{1}{N} \sum_j [\nabla_a Q(s,a)|_{s=s_j, a=\mu(s_j)} \nabla_{\theta^{\mu}} \mu(s_j)]$.
+11. Perform soft updates for the target networks: $\theta^{Q'} \leftarrow \tau \theta^Q + (1 - \tau) \theta^{Q'}$ and $\theta^{\mu'} \leftarrow \tau \theta^{\mu} + (1 - \tau) \theta^{\mu'}$.
+12. Set $s_t = s_{t+1}$ and repeat until the episode terminates.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `actor_lr` | `float` | `1e-4` | (0, 1) | Learning rate for the actor network's optimizer. |
+| `critic_lr` | `float` | `1e-3` | (0, 1) | Learning rate for the critic network's optimizer. |
+| `gamma` | `float` | `0.99` | (0, 1] | Discount factor for future rewards, balancing immediate vs. long-term returns. |
+| `tau` | `float` | `0.005` | (0, 1) | Soft update coefficient for target networks. A smaller value means slower updates. |
+| `buffer_size` | `int` | `1e6` | >= 1 | Maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `256` | >= 1 | Number of transitions sampled from the replay buffer for each training update. |
+| `exploration_noise_std` | `float` | `0.1` | >= 0 | Standard deviation of the Gaussian or Ornstein-Uhlenbeck noise added to actions for exploration. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- DDPG is well-suited for continuous action spaces, where discrete action methods struggle with high dimensionality.
+- It is an off-policy algorithm, allowing it to reuse past experiences stored in a replay buffer, which improves sample efficiency.
+- The use of target networks and experience replay significantly stabilizes the training process compared to basic policy gradient methods.
+- DDPG can learn complex policies directly from high-dimensional state inputs, such as raw pixel data, when combined with deep neural networks.
+- It is a model-free algorithm, meaning it does not require prior knowledge or a learned model of the environment dynamics.
+
+## Weaknesses
+
+- DDPG can be highly sensitive to hyperparameters, requiring extensive tuning for optimal performance.
+- The algorithm is prone to overestimation of Q-values, which can lead to suboptimal policies.
+- Effective exploration in continuous action spaces can be challenging, and the choice of noise process significantly impacts learning.
+- It can suffer from instability and convergence issues, especially in environments with sparse rewards or long horizons.
+- DDPG's deterministic policy can limit its ability to explore effectively compared to stochastic policy methods.
+
+## Use Cases
+
+### Robotics
+
+Controlling robotic arms for manipulation tasks, bipedal locomotion, or drone navigation, where actions like joint torques or velocities are continuous.
+
+### Autonomous Driving
+
+Learning continuous control policies for steering, acceleration, and braking in self-driving vehicles to navigate complex traffic scenarios.
+
+### Resource Management
+
+Optimizing continuous resource allocation, such as power distribution in smart grids or cooling systems in data centers.
+
+### Financial Trading
+
+Developing automated trading strategies that involve continuous actions like adjusting portfolio weights or order sizes.
+
+### Game Playing
+
+Training agents to play games with continuous action spaces, such as racing games or physics-based simulations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement DDPG from scratch
+```
+
+### Using scikit-learn
+
+```python
+# DDPG does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="DDPG Lab" />
+
+## References
+
+- Lillicrap et al. (2016). Lillicrap et al..

@@ -1,0 +1,206 @@
+---
+title: "TD3"
+slug: "td3"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2018
+author: "Fujimoto et al."
+paper: "Fujimoto et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["actor-critic", "continuous-control", "deep-learning", "deep-reinforcement-learning", "model-free", "off-policy", "q-learning", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "deterministic-policy-gradient"
+  - "double-dqn"
+  - "double-q-learning"
+  - "q-learning"
+  - "soft-actor-critic"
+---
+
+## Overview
+
+Twin Delayed Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (TD3) is an off-policy, model-free reinforcement learning algorithm designed for continuous action spaces. It addresses the overestimation bias commonly found in value-based methods by employing a clipped [Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)](/algorithms/reinforcement/model-free-value-methods/double-[Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)) approach with twin Q-networks. TD3 further enhances stability and performance through delayed policy updates and target policy smoothing, making it a robust choice for complex control tasks.
+
+## History
+
+**2015** — Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DDPG) is introduced by Lillicrap et al., extending DQN to continuous action spaces and laying foundational work for [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods in this domain.
+
+**2016** — [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn) is introduced by Van Hasselt et al., addressing overestimation in DQN by decoupling action selection and evaluation, a concept that influences later algorithms like TD3.
+
+**2018** — [Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)](/algorithms/reinforcement/policy-gradient/soft-[Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)) (SAC) is introduced by Haarnoja et al., an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) algorithm that optimizes a stochastic policy with an entropy regularization term, offering an alternative approach to continuous control.
+
+**2018** — Twin Delayed Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (TD3) is introduced by Fujimoto et al., building upon DDPG to mitigate Q-value overestimation and improve stability through several key innovations.
+
+## Mathematical Intuition
+
+### Actor-Critic Architecture
+
+TD3 operates within an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework, where an actor network, $\pi_\phi(s)$, maps states to actions, and a critic network, $Q_\theta(s, a)$, estimates the action-value function. The actor's goal is to maximize the expected return, while the critic learns to accurately predict the value of state-action pairs.
+$$ \pi_\phi(s): \mathcal{S} \to \mathcal{A} $$
+$$ Q_\theta(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R} $$
+
+$$
+\pi_\phi(s): \mathcal{S} \to \mathcal{A}
+$$
+
+$$
+Q_\theta(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R}
+$$
+
+### Twin Q-Networks and Clipped Double Q-learning
+
+To combat the overestimation bias of Q-values, TD3 employs two separate Q-networks, $Q_{\theta_1}$ and $Q_{\theta_2}$, and their corresponding target networks, $Q'_{\theta'_1}$ and $Q'_{\theta'_2}$. The target Q-value for the critic update is computed by taking the minimum of the two target Q-values, effectively clipping the overestimation.
+$$ y = r + \gamma \min(Q'_{\theta'_1}(s', a'), Q'_{\theta'_2}(s', a')) $$
+where $a' = \pi'_{\phi'}(s') + \epsilon$ and $\epsilon \sim \text{clip}(\mathcal{N}(0, \sigma), -c, c)$.
+The critic networks are updated by minimizing the squared TD error:
+$$ L(\theta_i) = \mathbb{E}_{(s, a, r, s') \sim \mathcal{D}} [(Q_{\theta_i}(s, a) - y)^2] $$
+
+$$
+y = r + \gamma \min(Q'_{\theta'_1}(s', a'), Q'_{\theta'_2}(s', a'))
+$$
+
+$$
+a' = \pi'_{\phi'}(s') + \epsilon
+$$
+
+$$
+\epsilon \sim \text{clip}(\mathcal{N}(0, \sigma), -c, c)
+$$
+
+$$
+L(\theta_i) = \mathbb{E}_{(s, a, r, s') \sim \mathcal{D}} [(Q_{\theta_i}(s, a) - y)^2]
+$$
+
+### Delayed Policy Updates
+
+TD3 updates the policy (actor) network less frequently than the Q-networks (critics). This delay ensures that the Q-networks have converged to a more accurate estimate of the value function before the policy is updated, leading to more stable learning. The actor is updated by maximizing the output of one of the Q-networks (e.g., $Q_{\theta_1}$), typically every $d$ steps.
+$$ L(\phi) = -\mathbb{E}_{s \sim \mathcal{D}} [Q_{\theta_1}(s, \pi_\phi(s))] $$
+
+$$
+L(\phi) = -\mathbb{E}_{s \sim \mathcal{D}} [Q_{\theta_1}(s, \pi_\phi(s))]
+$$
+
+### Target Policy Smoothing
+
+To prevent the policy from exploiting errors in the Q-function, TD3 introduces target policy smoothing. This involves adding clipped random noise to the target actions used in the Bellman backup. This smoothing makes the value function estimate more robust to small changes in action, encouraging the policy to learn a smoother, more robust mapping from states to actions.
+$$ a' = \pi'_{\phi'}(s') + \text{clip}(\mathcal{N}(0, \sigma), -c, c) $$
+where $\sigma$ is the standard deviation of the noise and $c$ is the clipping limit.
+
+$$
+a' = \pi'_{\phi'}(s') + \text{clip}(\mathcal{N}(0, \sigma), -c, c)
+$$
+
+## Algorithm Steps
+
+1. Initialize actor network $\pi_\phi$, critic networks $Q_{\theta_1}, Q_{\theta_2}$, and their respective target networks $\pi'_{\phi'}, Q'_{\theta'_1}, Q'_{\theta'_2}$ with random weights.
+2. Initialize replay buffer $\mathcal{D}$.
+3. For each training step:
+4. Select action $a = \pi_\phi(s) + \epsilon$ where $\epsilon \sim \mathcal{N}(0, \text{exploration_noise})$ for exploration, and execute $a$ in the environment.
+5. Observe reward $r$ and next state $s'$, and store transition $(s, a, r, s')$ in $\mathcal{D}$.
+6. Sample a mini-batch of transitions $(s, a, r, s')$ from $\mathcal{D}$.
+7. Compute target actions for the next state: $a' = \pi'_{\phi'}(s') + \text{clip}(\mathcal{N}(0, \text{policy_noise}), -\text{noise_clip}, \text{noise_clip})$.
+8. Compute target Q-values: $y = r + \text{gamma} \min(Q'_{\theta'_1}(s', a'), Q'_{\theta'_2}(s', a'))$.
+9. Update critic networks $Q_{\theta_1}$ and $Q_{\theta_2}$ by minimizing the loss $L(\theta_i) = (Q_{\theta_i}(s, a) - y)^2$ using gradient descent.
+10. If it's time for a delayed policy update (e.g., every `policy_delay` steps):
+11. Update actor network $\pi_\phi$ by performing gradient ascent on $Q_{\theta_1}(s, \pi_\phi(s))$.
+12. Update target networks using soft updates: $\theta' \leftarrow \text{tau} \theta + (1 - \text{tau}) \theta'$ for all target networks.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `gamma` | `float` | `0.99` | (0, 1] | Discount factor for future rewards, determining the importance of future rewards. |
+| `tau` | `float` | `0.005` | (0, 1) | Soft update coefficient for target networks, controlling the rate at which target networks track the main networks. |
+| `policy_noise` | `float` | `0.2` | >= 0 | Standard deviation of noise added to target policy actions for smoothing, making the value function more robust. |
+| `noise_clip` | `float` | `0.5` | >= 0 | Range to clip target policy noise, limiting the magnitude of noise added to target actions. |
+| `policy_delay` | `int` | `2` | >= 1 | Number of critic updates per policy update, ensuring critics are more stable before the actor is updated. |
+| `buffer_size` | `int` | `1000000` | > 0 | Maximum size of the replay buffer, storing past experiences for off-policy learning. |
+| `batch_size` | `int` | `256` | > 0 | Number of transitions sampled from the replay buffer for each update. |
+| `actor_lr` | `float` | `0.0003` | > 0 | Learning rate for the actor network's optimizer. |
+| `critic_lr` | `float` | `0.0003` | > 0 | Learning rate for the critic networks' optimizers. |
+| `exploration_noise` | `float` | `0.1` | >= 0 | Standard deviation of Gaussian noise added to actions for exploration during training. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Effectively mitigates Q-value overestimation bias, leading to more stable and reliable learning.
+- Achieves state-of-the-art performance on many continuous control tasks.
+- The use of target policy smoothing helps in learning more robust policies.
+- Delayed policy updates contribute to improved stability by ensuring critic networks are more accurate.
+- Off-policy nature allows for efficient use of experience replay, improving sample efficiency compared to on-policy methods.
+- Relatively straightforward to implement compared to some other advanced RL algorithms.
+
+## Weaknesses
+
+- Requires careful tuning of multiple hyperparameters, which can be time-consuming.
+- Can still be sample inefficient on very complex tasks, requiring a large amount of interaction with the environment.
+- Primarily designed for continuous action spaces and requires significant modification for discrete action spaces.
+- Performance can be sensitive to the choice of exploration noise and target policy smoothing parameters.
+- The twin Q-networks and target networks increase computational overhead and memory requirements compared to simpler algorithms.
+
+## Use Cases
+
+### Robotics
+
+Controlling robotic manipulators for tasks like grasping, locomotion, and object manipulation in complex environments.
+
+### Autonomous Driving
+
+Developing policies for vehicle control, path planning, and navigation in dynamic and uncertain road conditions.
+
+### Game Playing
+
+Training agents to play games with continuous action spaces, such as car racing simulators or physics-based games.
+
+### Resource Management
+
+Optimizing resource allocation and scheduling in data centers, energy grids, or industrial processes to maximize efficiency.
+
+### Financial Trading
+
+Developing automated trading strategies that make continuous decisions on asset allocation or order execution in financial markets.
+
+### Chemical Process Control
+
+Optimizing parameters in chemical reactions or manufacturing processes to maximize yield, purity, or minimize waste.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement TD3 from scratch
+```
+
+### Using scikit-learn
+
+```python
+# TD3 does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="TD3 Lab" />
+
+## References
+
+- Fujimoto et al. (2018). Fujimoto et al..

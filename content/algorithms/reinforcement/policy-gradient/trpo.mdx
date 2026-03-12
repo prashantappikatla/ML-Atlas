@@ -1,0 +1,194 @@
+---
+title: "TRPO"
+slug: "trpo"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2015
+author: "Schulman et al."
+paper: "Schulman et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["continuous-control", "deep-learning", "on-policy", "policy-gradient", "reinforcement-learning", "robotics", "stable-learning", "trust-region"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "reinforce"
+---
+
+## Overview
+
+Trust Region Policy Optimization (TRPO) is a policy gradient method designed to ensure stable and monotonic improvement in reinforcement learning by restricting policy updates within a "trust region." It addresses the instability of vanilla policy gradient methods by imposing a Kullback-Leibler (KL) divergence constraint between the new and old policies. TRPO optimizes a surrogate objective function while ensuring that the new policy does not deviate too far from the old one, thereby preventing catastrophic policy collapse. This approach provides a strong theoretical guarantee for policy improvement, making it robust for complex control tasks.
+
+## History
+
+**2015** — John Schulman, Sergey Levine, Philipp Moritz, Michael Jordan, and Pieter Abbeel introduced Trust Region Policy Optimization (TRPO) in their paper "Trust Region Policy Optimization," providing a robust method for stable policy improvement.
+
+**2016** — TRPO gained significant attention for its strong performance in continuous control tasks, becoming a foundational algorithm for many subsequent advancements in deep reinforcement learning, particularly in robotics and simulated environments.
+
+**2017** — Proximal Policy Optimization (PPO), a simpler and more computationally efficient variant of TRPO, was introduced by John Schulman et al., largely superseding TRPO in practical applications due to its comparable performance and ease of implementation.
+
+## Mathematical Intuition
+
+### Policy Gradient Foundation
+
+Reinforcement learning aims to find an optimal policy $\pi_\theta(a|s)$ that maximizes the expected cumulative reward. Policy gradient methods directly optimize the policy parameters $\theta$ by estimating the gradient of the expected return $J(\theta) = E_{\tau \sim \pi_\theta}[R(\tau)]$. The basic policy gradient theorem states that the gradient can be expressed as:
+$$ \nabla J(\theta) = E_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t|s_t) A^{\pi_\theta}(s_t, a_t) \right] $$
+where $A^{\pi_\theta}(s_t, a_t)$ is the advantage function, representing how much better an action $a_t$ is than the average action at state $s_t$. Vanilla policy gradient methods often suffer from instability due to large policy updates.
+
+$$
+J(\theta) = E_{\tau \sim \pi_\theta}[R(\tau)]
+$$
+
+$$
+\nabla J(\theta) = E_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t|s_t) A^{\pi_\theta}(s_t, a_t) \right]
+$$
+
+$$
+A^{\pi_\theta}(s_t, a_t)
+$$
+
+### Trust Region Constraint
+
+TRPO addresses the instability of large policy updates by ensuring that each update does not drastically change the policy. This is achieved by defining a "trust region" around the current policy. Instead of directly taking a gradient step, TRPO seeks to maximize a surrogate objective function subject to a constraint on how much the new policy $\pi_{\theta_{new}}$ can deviate from the old policy $\pi_{\theta_{old}}$. This constraint prevents the policy from moving into regions where the local approximation of the objective function is no longer valid, thereby guaranteeing monotonic improvement.
+
+$$
+\pi_{\theta_{new}}
+$$
+
+$$
+\pi_{\theta_{old}}
+$$
+
+### Kullback-Leibler Divergence
+
+The deviation between the new and old policies is typically measured using the average Kullback-Leibler (KL) divergence. The KL divergence $D_{KL}(\pi_{\theta_{old}} || \pi_{\theta_{new}})$ quantifies the information gain when going from $\pi_{\theta_{old}}$ to $\pi_{\theta_{new}}$. TRPO imposes a hard constraint on this divergence:
+$$ E_{s \sim \rho^{\pi_{\theta_{old}}}} [D_{KL}(\pi_{\theta_{old}}(\cdot|s) || \pi_{\theta_{new}}(\cdot|s))] \le \delta $$
+where $\rho^{\pi_{\theta_{old}}}$ is the discounted visitation distribution of states under the old policy, and $\delta$ is a small positive constant defining the size of the trust region. This ensures that the new policy remains "close" to the old one, preventing overly aggressive updates.
+
+$$
+D_{KL}(\pi_{\theta_{old}} || \pi_{\theta_{new}})
+$$
+
+$$
+E_{s \sim \rho^{\pi_{\theta_{old}}}} [D_{KL}(\pi_{\theta_{old}}(\cdot|s) || \pi_{\theta_{new}}(\cdot|s))] \le \delta
+$$
+
+$$
+\rho^{\pi_{\theta_{old}}}
+$$
+
+### Surrogate Objective Function
+
+TRPO optimizes a surrogate objective function that approximates the expected return. For a new policy $\tilde{\pi}$ and an old policy $\pi$, the objective is:
+$$ L(\theta_{new}) = E_{s_t, a_t \sim \pi_{\theta_{old}}} \left[ \frac{\pi_{\theta_{new}}(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)} A^{\pi_{\theta_{old}}}(s_t, a_t) \right] $$
+This objective is maximized subject to the KL divergence constraint. The optimization problem is typically solved using a conjugate gradient algorithm to find the search direction, followed by a line search to find the optimal step size that satisfies the KL constraint and ensures improvement.
+
+$$
+L(\theta_{new}) = E_{s_t, a_t \sim \pi_{\theta_{old}}} \left[ \frac{\pi_{\theta_{new}}(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)} A^{\pi_{\theta_{old}}}(s_t, a_t) \right]
+$$
+
+## Algorithm Steps
+
+1. Initialize policy parameters $\theta$ and value function parameters $\phi$ randomly.
+2. For each iteration, collect a set of trajectories by running the current policy $\pi_\theta$ in the environment.
+3. Estimate the advantage function $A_t$ for each state-action pair in the collected trajectories, typically using Generalized Advantage Estimation (GAE).
+4. Compute the gradient of the surrogate objective function with respect to the policy parameters $\theta$.
+5. Compute the Fisher information matrix-vector product for the KL divergence constraint.
+6. Use the conjugate gradient algorithm to find the search direction $\Delta\theta$ that approximates the natural gradient.
+7. Perform a line search along the search direction $\Delta\theta$ to find the largest step size $\alpha$ such that the KL divergence constraint $E_{s \sim \rho^{\pi_{\theta_{old}}}} [D_{KL}(\pi_{\theta_{old}}(\cdot|s) || \pi_{\theta_{new}}(\cdot|s))] \le \delta$ is satisfied and the surrogate objective is improved.
+8. Update the policy parameters: $\theta_{new} = \theta_{old} + \alpha \Delta\theta$.
+9. Update the value function parameters $\phi$ by minimizing the mean-squared error between the estimated value function and the actual returns (or GAE targets) using several steps of a gradient descent optimizer.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `gamma` | `float` | `0.99` | [0, 1] | Discount factor for future rewards, determining the importance of future rewards relative to immediate ones. |
+| `gae_lambda` | `float` | `0.95` | [0, 1] | Factor for trade-off between bias and variance in Generalized Advantage Estimation (GAE), used for more stable advantage estimates. |
+| `max_kl` | `float` | `0.01` | > 0 | Maximum allowed KL divergence between the old and new policies per update, defining the size of the trust region. |
+| `cg_damping` | `float` | `0.1` | > 0 | Damping coefficient for the conjugate gradient algorithm, used to improve numerical stability during the natural gradient computation. |
+| `cg_iters` | `int` | `10` | > 0 | Number of iterations for the conjugate gradient algorithm to estimate the natural gradient direction. |
+| `ent_coef` | `float` | `0.0` | >= 0 | Coefficient for the entropy bonus, added to the objective to encourage exploration by penalizing deterministic policies. |
+| `vf_iters` | `int` | `80` | > 0 | Number of gradient descent steps to update the value function per policy update, ensuring the value function accurately estimates returns. |
+| `vf_lr` | `float` | `1e-3` | > 0 | Learning rate for the value function optimizer, controlling the step size for value function updates. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- TRPO guarantees monotonic policy improvement under certain conditions, leading to stable training.
+- It is highly effective in continuous control tasks where large action spaces are common.
+- The use of a trust region prevents catastrophic policy collapse often seen in vanilla policy gradient methods.
+- TRPO is relatively sample-efficient compared to some off-policy methods, as it reuses samples for multiple gradient updates within an iteration.
+- It provides a strong theoretical foundation for stable policy optimization in reinforcement learning.
+
+## Weaknesses
+
+- TRPO is computationally expensive due to the need to compute the Fisher information matrix-vector product and solve a constrained optimization problem using conjugate gradient.
+- Its implementation is complex, requiring careful handling of the KL divergence constraint and line search.
+- The algorithm can be sensitive to the choice of the maximum KL divergence parameter $\delta$.
+- TRPO is an on-policy algorithm, meaning it requires new samples from the environment for each policy update, which can be slow in real-world applications.
+- It can struggle with very high-dimensional observation spaces if the policy network architecture is not carefully designed.
+
+## Use Cases
+
+### Robotics
+
+Training robots for complex manipulation tasks, locomotion, and navigation in dynamic environments, leveraging its stability for physical systems.
+
+### Autonomous Driving
+
+Developing policies for vehicle control, path planning, and decision-making in various traffic scenarios, where safety and stability are paramount.
+
+### Game Playing
+
+Creating agents that can learn to play complex video games with continuous action spaces, such as those in the Atari or MuJoCo environments, achieving human-level or superhuman performance.
+
+### Resource Management
+
+Optimizing resource allocation and scheduling in data centers or industrial processes to maximize efficiency and minimize costs.
+
+### Financial Trading
+
+Developing automated trading strategies that can adapt to market conditions and optimize returns, though its on-policy nature can be a limitation for high-frequency trading.
+
+### Chemical Process Control
+
+Learning optimal control policies for complex chemical reactions to improve yield, safety, and energy efficiency in industrial settings.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement TRPO from scratch
+```
+
+### Using scikit-learn
+
+```python
+# TRPO does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="TRPO Lab" />
+
+## References
+
+- Schulman et al. (2015). Schulman et al..

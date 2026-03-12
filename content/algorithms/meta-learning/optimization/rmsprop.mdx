@@ -1,0 +1,157 @@
+---
+title: "RMSProp"
+slug: "rmsprop"
+category: "meta-learning"
+subcategory: "optimization"
+year: 2012
+author: "Hinton lecture notes"
+paper: "Hinton lecture notes"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["adaptive-learning-rate", "deep-learning", "gradient-descent", "meta-learning", "neural-networks", "optimization", "stochastic-optimization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adagrad"
+  - "adam"
+  - "stochastic-gradient-descent"
+  - "transformer"
+---
+
+## Overview
+
+RMSProp (Root Mean Square Propagation) is an adaptive learning rate optimization algorithm designed to address the challenges of vanishing and exploding gradients in deep neural networks. It maintains an exponentially decaying average of squared past gradients for each parameter, using this average to normalize the learning rate. This normalization helps to stabilize training, allowing for larger learning rates in directions with small gradients and smaller learning rates in directions with large gradients, thereby accelerating convergence.
+
+## History
+
+**2012** — Introduced by Geoff Hinton in his Coursera lecture 'Neural Networks for Machine Learning' as an unpublished method, quickly gaining traction due to its empirical effectiveness.
+
+**2013** — Adopted by various deep learning frameworks and researchers, becoming a de facto standard optimizer before the widespread adoption of Adam.
+
+**2014** — Integrated into popular deep learning libraries like Caffe and Theano, solidifying its role as a foundational adaptive optimizer.
+
+**2015** — Its principles, particularly the use of an exponentially decaying average of squared gradients, significantly influenced the development of more advanced adaptive optimizers like Adam.
+
+## Mathematical Intuition
+
+### Exponential Moving Average of Gradients
+
+RMSProp computes an exponentially decaying average of the squared gradients for each parameter. This average, denoted as $s_t$, accumulates information about the magnitude of recent gradients, giving more weight to recent gradients and less to older ones. The decay rate $eta$ (often denoted as $ho$ or `decay`) controls the length of the memory, determining how quickly the average adapts to changes in gradient magnitudes.
+
+$$
+s_t = \beta s_{t-1} + (1 - \beta) g_t^2
+$$
+
+### Adaptive Learning Rate Scaling
+
+The core idea of RMSProp is to normalize the learning rate for each parameter by dividing it by the square root of its corresponding exponentially decaying average of squared gradients. This ensures that parameters with consistently large gradients receive smaller updates, while those with small gradients can take larger steps. A small constant $\epsilon$ is added to the denominator to prevent division by zero and ensure numerical stability.
+
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{s_t + \epsilon}} g_t
+$$
+
+### Bias Correction for Initialization
+
+When the exponential moving average $s_t$ is initialized to zero, it can be biased towards zero during the initial training steps, especially when $\beta$ is close to 1. An optional bias correction can be applied to $\hat{s}_t$ to counteract this initial bias, making the updates more accurate from the start, particularly in the early stages of training.
+
+$$
+\hat{s}_t = \frac{s_t}{1 - \beta^t}
+$$
+
+## Algorithm Steps
+
+1. Initialize model parameters $\theta$ randomly and the exponential moving average of squared gradients $s$ to zero.
+2. Set hyperparameters: learning rate $\eta$, decay rate $\beta$ (or $\rho$), and a small constant $\epsilon$.
+3. For each training iteration $t$ (or mini-batch):
+4. Compute the gradient $g_t$ of the loss function with respect to the parameters $\theta_t$.
+5. Update the exponentially decaying average of squared gradients: $s_t = \beta s_{t-1} + (1 - \beta) g_t^2$.
+6. Optionally, apply bias correction to $s_t$: $\hat{s}_t = \frac{s_t}{1 - \beta^t}$.
+7. Update the parameters: $\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{s_t + \epsilon}} g_t$ (or using $\hat{s}_t$ if bias correction is applied).
+8. Repeat until convergence or a predefined number of iterations are reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.001` | positive float | The initial step size for parameter updates. This value is adaptively scaled for each parameter. |
+| `rho` | `float` | `0.9` | 0.0 to 1.0 | The decay rate for the exponentially decaying average of squared gradients. Higher values mean a longer memory. |
+| `epsilon` | `float` | `1e-07` | positive float | A small constant added to the denominator of the update rule to prevent division by zero and ensure numerical stability. |
+| `momentum` | `float` | `0.0` | 0.0 to 1.0 | Momentum factor, if the specific RMSProp implementation includes it. It accelerates gradients in the relevant direction and dampens oscillations. |
+| `centered` | `boolean` | `False` | True, False | If True, gradients are normalized by the variance of the gradients; otherwise, by the uncentered second moment. Centered RMSProp uses the moving average of the gradients themselves to estimate the variance. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- It effectively addresses the vanishing and exploding gradient problems by adaptively scaling learning rates for each parameter.
+- RMSProp generally converges faster than optimizers with fixed learning rates like Stochastic Gradient Descent (SGD) in deep learning tasks.
+- It is less sensitive to the initial learning rate compared to SGD, simplifying hyperparameter tuning to some extent.
+- The algorithm performs well in non-convex optimization landscapes, which are common in deep neural network training.
+- It provides a per-parameter learning rate, allowing different parameters to update at different speeds based on their gradient history.
+
+## Weaknesses
+
+- RMSProp can still get stuck in local minima or saddle points, as it does not inherently incorporate momentum to escape such regions.
+- The decay rate hyperparameter $\beta$ (or $\rho$) can be sensitive and requires careful tuning for optimal performance across different tasks.
+- It does not guarantee convergence to a global optimum, especially in highly non-convex functions with complex landscapes.
+- The adaptive learning rates can sometimes lead to oscillations around the minimum if the hyperparameters are not properly tuned.
+- Without momentum, it might struggle with highly noisy gradients or sparse data compared to optimizers like Adam.
+
+## Use Cases
+
+### Computer Vision
+
+Training Convolutional Neural Networks (CNNs) for tasks such as image classification, object detection, and semantic segmentation.
+
+### Natural Language Processing
+
+Optimizing Recurrent Neural Networks (RNNs), LSTMs, GRUs, and [Transformer](/algorithms/deep-learning/transformers/transformer) models for tasks like machine translation, text generation, and sentiment analysis.
+
+### Speech Recognition
+
+Training deep learning models for acoustic modeling, speech synthesis, and speaker identification systems.
+
+### Reinforcement Learning
+
+Used as an optimizer for policy networks and value networks in various reinforcement learning algorithms, such as A2C and PPO.
+
+### Time Series Forecasting
+
+Optimizing recurrent architectures like LSTMs and GRUs for predicting future values in sequential data, such as stock prices or sensor readings.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement RMSProp from scratch
+```
+
+### Using scikit-learn
+
+```python
+# RMSProp does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="RMSProp Lab" />
+
+## References
+
+- Hinton lecture notes (2012). Hinton lecture notes.

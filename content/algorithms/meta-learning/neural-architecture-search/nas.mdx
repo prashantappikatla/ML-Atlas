@@ -1,0 +1,268 @@
+---
+title: "NAS"
+slug: "nas"
+category: "meta-learning"
+subcategory: "neural-architecture-search"
+year: 2017
+author: "Zoph & Le"
+paper: "Zoph & Le"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["architecture-search", "automation", "computer-vision", "deep-learning", "meta-learning", "natural-language-processing", "neural-networks", "optimization", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "recurrent-neural-network"
+  - "reinforce"
+  - "transformer"
+---
+
+## Overview
+
+Neural Architecture Search (NAS) automates the design of neural network architectures, a task traditionally performed by human experts. It employs meta-learning techniques, often framed as a reinforcement learning problem, to efficiently explore a vast search space of possible network configurations. The goal is to discover architectures that achieve high performance on a target task while potentially optimizing for other criteria like latency or memory footprint. This approach significantly reduces the manual effort and domain expertise required for designing state-of-the-art deep learning models.
+
+## History
+
+**2017** — Zoph and Le introduce the seminal work on NAS, using a [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) controller and reinforcement learning to generate neural network architectures, demonstrating competitive performance on image classification tasks.
+
+**2018** — Pham et al. propose Efficient Neural Architecture Search (ENAS), which significantly reduces computational cost by forcing all child models to share parameters, allowing the controller to learn a better architecture more efficiently.
+
+**2019** — Liu et al. introduce Differentiable Architecture Search (DARTS), which relaxes the search space to be continuous, enabling the architecture to be optimized using gradient descent, leading to faster search times.
+
+**2019** — Cai et al. present ProxylessNAS, a method that directly searches for architectures on the target task and hardware without proxies, by binarizing architecture parameters and optimizing them with gradient descent.
+
+## Mathematical Intuition
+
+### Search Space and Controller Policy
+
+The core idea of NAS is to define a search space $\mathcal{A}$ of possible neural network architectures. A controller, often a [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN), learns a policy $\pi(a|\theta)$ to sample an architecture $a \in \mathcal{A}$, where $\theta$ are the parameters of the controller. The architecture $a$ is typically represented as a sequence of operations or connections.
+$$ \pi(a|\theta) = P(a_1, a_2, \dots, a_L | \theta) = \prod_{i=1}^L P(a_i | a_{<i}, \theta) $$
+where $a_i$ represents an architectural choice at step $i$, and $L$ is the length of the architecture description.
+
+$$
+\mathcal{A}
+$$
+
+$$
+\pi(a|\theta)
+$$
+
+$$
+a \in \mathcal{A}
+$$
+
+$$
+\theta
+$$
+
+$$
+\pi(a|\theta) = P(a_1, a_2, \dots, a_L | \theta) = \prod_{i=1}^L P(a_i | a_{<i}, \theta)
+$$
+
+$$
+a_i
+$$
+
+$$
+L
+$$
+
+### Reward Signal from Performance
+
+Once an architecture $a$ is sampled by the controller, a "child network" is constructed according to $a$. This child network is then trained on the target dataset (or a subset) and evaluated on a validation set. The performance metric (e.g., validation accuracy, F1-score) serves as a reward signal $R(a)$ for the controller. This reward guides the controller to generate better architectures over time.
+$$ R(a) = \text{Performance}(M_a, D_{val}) $$
+where $M_a$ is the child network defined by architecture $a$, and $D_{val}$ is the validation dataset.
+
+$$
+a
+$$
+
+$$
+R(a)
+$$
+
+$$
+R(a) = \text{Performance}(M_a, D_{val})
+$$
+
+$$
+M_a
+$$
+
+$$
+D_{val}
+$$
+
+### Reinforcement Learning for Optimization
+
+The problem of finding an optimal architecture can be formulated as a reinforcement learning task. The controller is the agent, an architecture $a$ is an action, and the validation performance $R(a)$ is the reward. The objective is to maximize the expected reward:
+$$ J(\theta) = E_{a \sim \pi(a|\theta)}[R(a)] $$
+The controller's parameters $\theta$ are updated using policy gradient methods, such as [REINFORCE](/algorithms/reinforcement/policy-gradient/reinforce). The gradient of the objective function with respect to $\theta$ is given by:
+$$ \nabla_\theta J(\theta) = E_{a \sim \pi(a|\theta)}[\nabla_\theta \log \pi(a|\theta) R(a)] $$
+In practice, a baseline $b$ is often used to reduce variance:
+$$ \nabla_\theta J(\theta) \approx \frac{1}{M} \sum_{j=1}^M \nabla_\theta \log \pi(a_j|\theta) (R(a_j) - b) $$
+where $M$ is the number of sampled architectures in a batch.
+
+$$
+a
+$$
+
+$$
+R(a)
+$$
+
+$$
+J(\theta) = E_{a \sim \pi(a|\theta)}[R(a)]
+$$
+
+$$
+\theta
+$$
+
+$$
+\nabla_\theta J(\theta) = E_{a \sim \pi(a|\theta)}[\nabla_\theta \log \pi(a|\theta) R(a)]
+$$
+
+$$
+b
+$$
+
+$$
+\nabla_\theta J(\theta) \approx \frac{1}{M} \sum_{j=1}^M \nabla_\theta \log \pi(a_j|\theta) (R(a_j) - b)
+$$
+
+$$
+M
+$$
+
+### Gradient-Based Architecture Search
+
+More recent methods, like DARTS, relax the discrete architectural choices into continuous variables. This allows the search space to be differentiable, enabling the use of gradient descent to optimize the architecture parameters directly. An architecture is represented by a mixture of operations, and the weights for these operations are learned.
+$$ \bar{o}^{(i,j)}(x) = \sum_{k=1}^{|\mathcal{O}|} \frac{\exp(\alpha_k^{(i,j)})}{\sum_{k'=1}^{|\mathcal{O}|} \exp(\alpha_{k'}^{(i,j)})} o_k(x) $$
+where $\alpha_k^{(i,j)}$ are architecture parameters representing the weight of operation $o_k$ between nodes $i$ and $j$. These $\alpha$ parameters are optimized alongside the network weights using a bi-level optimization scheme.
+
+$$
+\bar{o}^{(i,j)}(x) = \sum_{k=1}^{|\mathcal{O}|} \frac{\exp(\alpha_k^{(i,j)})}{\sum_{k'=1}^{|\mathcal{O}|} \exp(\alpha_{k'}^{(i,j)})} o_k(x)
+$$
+
+$$
+\alpha_k^{(i,j)}
+$$
+
+$$
+o_k
+$$
+
+$$
+i
+$$
+
+$$
+j
+$$
+
+## Algorithm Steps
+
+1. Define the search space, specifying the types of operations (e.g., convolutions, pooling, skip connections) and how they can be combined to form a neural network architecture.
+2. Initialize a controller (e.g., an RNN or a set of learnable architecture parameters) that is capable of generating architectural descriptions within the defined search space.
+3. For a specified number of search iterations, the controller samples a candidate neural network architecture $a$ from its current policy $\pi(a|\theta)$.
+4. A child network $M_a$ is constructed based on the sampled architecture $a$.
+5. The child network $M_a$ is trained for a limited number of epochs on the training dataset.
+6. The trained child network $M_a$ is evaluated on a separate validation dataset to obtain a reward signal $R(a)$, typically its accuracy or another performance metric.
+7. The controller's parameters $\theta$ are updated using a policy gradient method (e.g., REINFORCE) to maximize the expected reward $J(\theta)$, encouraging the controller to generate architectures with higher validation performance.
+8. Repeat steps 3-7 until a stopping criterion is met (e.g., maximum iterations, convergence of controller).
+9. The best performing architecture found during the search is then fully trained from scratch on the entire training dataset and evaluated on a test set.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `search_space_type` | `str` | `cell-based` | ['macro', 'cell-based', 'operation-based'] | Defines the structure of the search space, e.g., 'macro' for full network architectures, 'cell-based' for repeating architectural motifs, or 'operation-based' for direct operation selection. |
+| `controller_type` | `str` | `rnn` | ['rnn', 'evolutionary', 'gradient-based'] | The type of controller used to explore the search space, such as a 'rnn' (Recurrent Neural Network) for sequential generation, 'evolutionary' for population-based search, or 'gradient-based' for differentiable search. |
+| `controller_learning_rate` | `float` | `0.00035` | positive float | The learning rate for optimizing the controller's parameters, typically used in RL-based or gradient-based NAS methods. |
+| `child_network_epochs` | `int` | `100` | integer > 0 | The number of epochs to train each sampled child network for evaluation during the search phase. A smaller number reduces search time but might yield less accurate rewards. |
+| `num_search_iterations` | `int` | `1000` | integer > 0 | The total number of iterations or steps the architecture search process will run, where each iteration typically involves sampling and evaluating one or more child networks. |
+| `reward_metric` | `str` | `validation_accuracy` | ['validation_accuracy', 'validation_f1', 'validation_loss', 'latency', 'flops'] | The performance metric used to quantify the reward for a sampled architecture, guiding the controller towards better designs. |
+| `num_samples_per_iteration` | `int` | `1` | integer > 0 | The number of child network architectures sampled and evaluated in each search iteration. Higher values can stabilize training but increase computational cost. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Automates the labor-intensive and expert-dependent process of neural network architecture design.
+- Can discover novel and highly performant architectures that human experts might not conceive.
+- Potentially leads to state-of-the-art models for specific tasks, often outperforming manually designed ones.
+- Reduces the need for extensive domain expertise in neural network design for new problems.
+- Can optimize architectures for multiple objectives simultaneously, such as accuracy, latency, and memory usage.
+- Offers a systematic and reproducible way to explore the vast space of neural network designs.
+
+## Weaknesses
+
+- Requires immense computational resources, often involving thousands of GPU hours, making it inaccessible for many researchers and practitioners.
+- The search process can be very slow, taking days or weeks to find a good architecture even with advanced methods.
+- The discovered architectures can be complex and difficult to interpret or modify, hindering understanding and debugging.
+- May converge to local optima within the vast search space, potentially missing globally optimal architectures.
+- The performance of the discovered architecture is highly dependent on the defined search space and the chosen search strategy.
+
+## Use Cases
+
+### Computer Vision
+
+Discovering highly accurate and efficient convolutional neural network architectures for image classification, object detection, and semantic segmentation tasks.
+
+### Natural Language Processing
+
+Automating the design of recurrent or [Transformer](/algorithms/deep-learning/transformers/transformer)-based architectures for tasks like machine translation, text classification, and language modeling.
+
+### Medical Imaging
+
+Developing specialized neural networks for disease diagnosis, tumor detection, and medical image segmentation, often with constraints on model size or inference speed.
+
+### Autonomous Driving
+
+Optimizing perception and prediction network architectures for real-time processing of sensor data in self-driving vehicles, balancing accuracy and computational efficiency.
+
+### Drug Discovery
+
+Designing novel graph neural network architectures to predict molecular properties or interactions for new drug candidates, accelerating the discovery process.
+
+### Financial Forecasting
+
+Creating customized time series models for predicting stock prices, market trends, or other financial indicators, adapting to complex temporal patterns.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement NAS from scratch
+```
+
+### Using scikit-learn
+
+```python
+# NAS does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="NAS Lab" />
+
+## References
+
+- Zoph & Le (2017). Zoph & Le.

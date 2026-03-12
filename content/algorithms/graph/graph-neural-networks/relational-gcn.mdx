@@ -1,0 +1,184 @@
+---
+title: "Relational GCN"
+slug: "relational-gcn"
+category: "graph"
+subcategory: "graph-neural-networks"
+year: 2018
+author: "Schlichtkrull et al."
+paper: "Schlichtkrull et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["deep-learning", "graph-embedding", "graph-neural-networks", "knowledge-graphs", "link-prediction", "message-passing", "node-classification", "relational-graphs"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "deepwalk"
+  - "graphsage"
+---
+
+## Overview
+
+Relational Graph Convolutional Networks (R-GCNs) extend the concept of Graph Convolutional Networks to handle multi-relational graphs, where edges can have different types and directions. It addresses the challenge of modeling diverse relationships by employing relation-specific weight matrices for message passing. This architecture enables the learning of distinct representations for nodes based on the varied types of connections they share within a complex graph structure.
+
+## History
+
+**2013** — [DeepWalk](/algorithms/graph/graph-embeddings/deepwalk), introduced by Perozzi et al., pioneered the idea of learning latent representations of nodes in networks using random walks and neural networks.
+
+**2016** — Thomas Kipf and Max Welling introduced Graph Convolutional Networks (GCNs), providing a foundational spectral-based approach to message passing that significantly advanced the field of graph neural networks.
+
+**2018** — Michael Schlichtkrull and colleagues introduced Relational Graph Convolutional Networks (R-GCNs), specifically designed to handle multi-relational graphs by assigning unique transformation matrices to each relation type.
+
+**2018** — The seminal paper by Schlichtkrull et al. also demonstrated the effectiveness of R-GCNs for knowledge graph completion tasks, highlighting their utility beyond simple node classification.
+
+## Mathematical Intuition
+
+### Graph Convolution Layer
+
+The core of many Graph Neural Networks is the message passing scheme, where a node's representation is updated by aggregating information from its neighbors. For a standard GCN, the update rule for node $v$ in layer $l+1$ is often given by:
+$$h_v^{(l+1)} = \sigma \left( \sum_{u \in \mathcal{N}(v) \cup \{v\}} \frac{1}{\sqrt{|\mathcal{N}(u)||\mathcal{N}(v)|}} W^{(l)} h_u^{(l)} \right)$$
+where $h_v^{(l)}$ is the feature vector of node $v$ at layer $l$, $\mathcal{N}(v)$ are the neighbors of $v$, $W^{(l)}$ is a learnable weight matrix, and $\sigma$ is an activation function. This formulation assumes a single type of edge.
+
+### Relational Message Passing
+
+R-GCN extends this by introducing relation-specific weight matrices. For a graph with $R$ distinct relation types, the update rule for node $v$ in layer $l+1$ becomes:
+$$h_v^{(l+1)} = \sigma \left( \sum_{r \in \mathcal{R}} \sum_{u \in \mathcal{N}_r(v)} \frac{1}{c_{v,r}} W_r^{(l)} h_u^{(l)} + W_0^{(l)} h_v^{(l)} \right)$$
+Here, $\mathcal{N}_r(v)$ denotes the set of neighbors of node $v$ under relation $r$, $W_r^{(l)}$ is a learnable weight matrix specific to relation $r$, $W_0^{(l)}$ is a self-loop transformation, and $c_{v,r}$ is a normalization constant (e.g., $|\mathcal{N}_r(v)|$). This allows the model to learn distinct transformations for different types of connections.
+
+$$
+h_v^{(l+1)} = \sigma \left( \sum_{r \in \mathcal{R}} \sum_{u \in \mathcal{N}_r(v)} \frac{1}{c_{v,r}} W_r^{(l)} h_u^{(l)} + W_0^{(l)} h_v^{(l)} \right)
+$$
+
+### Parameter Regularization Strategies
+
+A significant challenge with the relational message passing scheme is the potential for an explosion in the number of parameters, especially when the number of relation types $R$ is large. To mitigate this, R-GCN proposes two regularization strategies:
+1.  Basis Decomposition: Each relation-specific weight matrix $W_r^{(l)}$ is expressed as a linear combination of a fixed set of $B$ basis transformations $V_b^{(l)}$:
+    $$W_r^{(l)} = \sum_{b=1}^{B} a_{rb}^{(l)} V_b^{(l)}$$
+    where $a_{rb}^{(l)}$ are relation-specific scalar coefficients and $V_b^{(l)}$ are shared basis matrices. This reduces the number of parameters from $R \times d_{in} \times d_{out}$ to $R \times B + B \times d_{in} \times d_{out}$.
+2.  Block-Diagonal Decomposition: Each $W_r^{(l)}$ is composed of a direct sum of $B$ block-diagonal matrices:
+    $$W_r^{(l)} = \bigoplus_{b=1}^{B} W_{rb}^{(l)}$$
+    where $W_{rb}^{(l)}$ are smaller, relation-specific block matrices. This reduces parameters by enforcing a block-diagonal structure, effectively partitioning the feature space.
+
+$$
+W_r^{(l)} = \sum_{b=1}^{B} a_{rb}^{(l)} V_b^{(l)}
+$$
+
+$$
+W_r^{(l)} = \bigoplus_{b=1}^{B} W_{rb}^{(l)}
+$$
+
+### Combined Layer Update
+
+Combining the relational message passing with a regularization strategy (e.g., basis decomposition), the full R-GCN layer update for node $v$ can be written as:
+$$h_v^{(l+1)} = \sigma \left( \sum_{r \in \mathcal{R}} \sum_{u \in \mathcal{N}_r(v)} \frac{1}{c_{v,r}} \left( \sum_{b=1}^{B} a_{rb}^{(l)} V_b^{(l)} \right) h_u^{(l)} + W_0^{(l)} h_v^{(l)} \right)$$
+This equation demonstrates how information from different relation types is aggregated and transformed, with parameter sharing enforced by the basis decomposition, before being passed through a non-linear activation function.
+
+$$
+h_v^{(l+1)} = \sigma \left( \sum_{r \in \mathcal{R}} \sum_{u \in \mathcal{N}_r(v)} \frac{1}{c_{v,r}} \left( \sum_{b=1}^{B} a_{rb}^{(l)} V_b^{(l)} \right) h_u^{(l)} + W_0^{(l)} h_v^{(l)} \right)
+$$
+
+## Algorithm Steps
+
+1. Initialize learnable parameters, including relation-specific weight matrices $W_r^{(l)}$ (or their basis/block components) and self-loop weights $W_0^{(l)}$ for each layer $l$.
+2. For each R-GCN layer, iterate through all nodes $v$ in the graph.
+3. For each node $v$, aggregate messages from its neighbors $u$ for each relation type $r \in \mathcal{R}$. Each message is computed as $W_r^{(l)} h_u^{(l)}$, where $h_u^{(l)}$ is the feature vector of neighbor $u$ from the previous layer.
+4. Normalize the aggregated messages for each relation type, typically by dividing by $c_{v,r} = |\mathcal{N}_r(v)|$.
+5. Sum the normalized, relation-specific aggregated messages and add the transformed self-loop feature $W_0^{(l)} h_v^{(l)}$.
+6. Apply a non-linear activation function $\sigma$ (e.g., ReLU) to the result to obtain the updated node representation $h_v^{(l+1)}$.
+7. Stack multiple R-GCN layers to capture higher-order neighborhood information.
+8. Define a task-specific loss function (e.g., cross-entropy for node classification, negative sampling for link prediction) based on the final node representations.
+9. Train the network using an optimization algorithm (e.g., Adam) to minimize the loss function via backpropagation, updating all learnable parameters.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `int` | `2` | >= 1 | The number of R-GCN layers to stack in the network. |
+| `hidden_channels` | `int` | `64` | >= 1 | The dimensionality of the hidden feature representations in each R-GCN layer. |
+| `num_relations` | `int` | `` | >= 1 | The total number of distinct relation types present in the graph. This must be provided. |
+| `num_bases` | `int` | `None` | >= 1 or None | The number of basis transformations to use for basis decomposition. If None, no basis decomposition is applied. |
+| `num_blocks` | `int` | `None` | >= 1 or None | The number of blocks to use for block-diagonal decomposition. If None, no block-diagonal decomposition is applied. |
+| `dropout` | `float` | `0.0` | [0.0, 1.0) | The dropout probability applied to the hidden representations between layers. |
+| `activation` | `str` | `relu` | ['relu', 'tanh', 'leaky_relu', 'sigmoid'] | The non-linear activation function to apply after each R-GCN layer (e.g., 'relu', 'tanh'). |
+| `self_loop` | `bool` | `True` | True, False | Whether to include a self-loop transformation in the aggregation for each node. |
+| `norm_type` | `str` | `sum` | ['sum', 'gcn', 'none'] | The type of normalization constant $c_{v,r}$ to use for message aggregation (e.g., 'sum', 'gcn'). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- R-GCN effectively models multi-relational graphs by learning distinct transformations for each relation type, capturing richer structural information.
+- The parameter regularization techniques (basis and block-diagonal decomposition) significantly reduce the number of learnable parameters, making the model scalable to graphs with many relation types.
+- It is highly effective for tasks on knowledge graphs, such as link prediction and entity classification, where diverse relationships are paramount.
+- The message passing framework allows for inductive learning, enabling generalization to unseen nodes in the same graph or entirely new graphs.
+- R-GCN provides interpretable relation-specific transformations, which can offer insights into the roles of different edge types.
+
+## Weaknesses
+
+- Despite regularization, the number of parameters can still be substantial for graphs with an extremely large number of relation types or very high-dimensional node features.
+- The computational cost can be high for very large graphs due to the need to aggregate messages across all neighbors and relation types.
+- Like other GNNs, R-GCN can suffer from over-smoothing, where node representations become indistinguishable after many layers, limiting the effective depth of the network.
+- The choice of normalization constant $c_{v,r}$ can impact performance and requires careful consideration.
+- R-GCN's performance is sensitive to hyperparameter tuning, including the number of layers, hidden dimensions, and regularization parameters.
+
+## Use Cases
+
+### Knowledge Graph Completion
+
+R-GCN is widely used to predict missing links (relations) or entities in knowledge graphs, inferring new facts from existing ones.
+
+### Node Classification
+
+It can classify nodes in multi-relational graphs, such as categorizing entities in a knowledge graph or users in a social network based on their diverse connections.
+
+### Recommender Systems
+
+R-GCN can model user-item interaction graphs with various relation types (e.g., "bought," "viewed," "rated"), improving recommendation accuracy.
+
+### Drug Discovery
+
+In bioinformatics, R-GCNs can model molecular graphs where atoms are nodes and bonds are relations, predicting molecular properties or drug-target interactions.
+
+### Social Network Analysis
+
+It can analyze complex social networks with different types of relationships (e.g., "friend," "family," "colleague") to identify communities or predict user behavior.
+
+### Semantic Web
+
+R-GCNs can process RDF graphs, which are inherently multi-relational, to perform reasoning tasks or enhance semantic search.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Relational GCN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Relational GCN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Relational GCN Lab" />
+
+## References
+
+- Schlichtkrull et al. (2018). Schlichtkrull et al..

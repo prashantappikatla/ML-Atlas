@@ -1,0 +1,159 @@
+---
+title: "Reptile"
+slug: "reptile"
+category: "meta-learning"
+subcategory: "meta-learning"
+year: 2018
+author: "Nichol et al."
+paper: "Nichol et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: false
+  graph: false
+tags: ["adaptation", "deep-learning", "few-shot-learning", "first-order", "gradient-based", "initialization", "meta-learning", "model-agnostic"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+Reptile is a simple, gradient-based meta-learning algorithm designed to find a good initialization for model parameters that can quickly adapt to new tasks with limited data. It operates by repeatedly sampling tasks, performing several gradient descent steps on each task, and then updating the meta-parameters towards the average of the adapted parameters. This iterative process aims to learn a set of parameters that are close to the optimal parameters for many different tasks, facilitating rapid adaptation.
+
+## History
+
+**2018** — Nichol, Achiam, and Schulman introduced Reptile in their paper "On First-Order Meta-Learning Algorithms," presenting it as a simpler, first-order alternative to Model-Agnostic Meta-Learning (MAML).
+
+**2018** — The seminal paper demonstrated Reptile's effectiveness on few-shot image classification and reinforcement learning tasks, showcasing its competitive performance with reduced computational complexity.
+
+**2019** — Subsequent research began to explore the theoretical properties and convergence guarantees of first-order meta-learning methods, including Reptile, providing deeper insights into its mechanics.
+
+**2020** — Applications of Reptile expanded to various domains beyond its initial demonstrations, including few-shot object detection, natural language processing, and other areas requiring rapid model adaptation.
+
+## Mathematical Intuition
+
+### Meta-Learning Objective
+
+The core objective of meta-learning, which Reptile addresses, is to learn initial model parameters $\phi$ that can quickly adapt to new, unseen tasks $T_i$ drawn from a distribution $p(T)$. This is often formulated as minimizing the expected loss over tasks after adaptation: $$E_{T \sim p(T)}[L_{T}(U_T(\phi))]$$ where $U_T(\phi)$ represents the parameters adapted for task $T$ starting from $\phi$. Reptile approximates this by seeking a $\phi$ such that a few gradient steps on a new task lead to good performance.
+
+$$
+E_{T \sim p(T)}[L_{T}(U_T(\phi))]
+$$
+
+### Inner Loop Adaptation
+
+For each sampled task $T_i$, the algorithm performs an inner loop adaptation. Starting with the current meta-parameters $\phi$, task-specific parameters $\theta_i$ are updated by performing $k$ steps of gradient descent on the task's training data. The update rule for each step $j$ is: $$\theta_i^{(j+1)} = \theta_i^{(j)} - \alpha \nabla_{\theta_i^{(j)}} L_{T_i}(\theta_i^{(j)})$$ where $\theta_i^{(0)} = \phi$ and $\alpha$ is the inner-loop learning rate. The adapted parameters after $k$ steps are denoted as $\theta_i^* = \theta_i^{(k)}$.
+
+$$
+\theta_i^{(j+1)} = \theta_i^{(j)} - \alpha \nabla_{\theta_i^{(j)}} L_{T_i}(\theta_i^{(j)})
+$$
+
+### Outer Loop Meta-Update
+
+After adapting to a batch of tasks, the meta-parameters $\phi$ are updated in the outer loop. Reptile's distinctive update rule moves $\phi$ towards the adapted parameters $\theta_i^*$ for each task. Specifically, if a batch of $N$ tasks is sampled, the meta-update is: $$\phi \leftarrow \phi + \beta \frac{1}{N} \sum_{i=1}^{N} (\theta_i^* - \phi)$$ where $\beta$ is the outer-loop meta-learning rate. This update can be interpreted as a first-order approximation of the MAML objective, effectively moving the initial parameters closer to the average of the task-specific optimal parameters.
+
+$$
+\phi \leftarrow \phi + \beta \frac{1}{N} \sum_{i=1}^{N} (\theta_i^* - \phi)
+$$
+
+## Algorithm Steps
+
+1. Initialize the meta-parameters $\phi$ of the model to be meta-trained.
+2. Repeat for a specified number of meta-training iterations:
+3. Sample a batch of $N$ tasks $T_1, T_2, ..., T_N$ from the task distribution $p(T)$.
+4. For each sampled task $T_i$ in the batch:
+5.   Initialize task-specific parameters $\theta_i$ with the current meta-parameters $\phi$.
+6.   Perform $k$ gradient descent steps on task $T_i$ using its training data and an inner-loop learning rate $\alpha$ to update $\theta_i$, resulting in adapted parameters $\theta_i^*$.
+7. Update the meta-parameters $\phi$ by moving them towards the average of the adapted parameters: $\phi \leftarrow \phi + \beta \frac{1}{N} \sum_{i=1}^{N} (\theta_i^* - \phi)$, where $\beta$ is the outer-loop learning rate.
+8. Return the final meta-parameters $\phi$ after all meta-training iterations are complete.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `meta_batch_size` | `int` | `10` | integer > 0 | Number of tasks sampled and processed in parallel during each meta-training iteration. |
+| `inner_lr` | `float` | `0.01` | float > 0 | Learning rate used for the inner-loop optimization (task-specific adaptation steps). |
+| `outer_lr` | `float` | `0.001` | float > 0 | Learning rate used for the outer-loop meta-update, controlling how much the meta-parameters are adjusted. |
+| `inner_steps` | `int` | `5` | integer > 0 | Number of gradient descent steps performed in the inner loop for each task to adapt the model. |
+| `meta_iterations` | `int` | `10000` | integer > 0 | Total number of meta-training iterations (outer loop updates) to perform. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Reptile is computationally efficient compared to second-order meta-learning methods like MAML, as it avoids computing second derivatives.
+- It is relatively simple to implement, requiring only minor modifications to standard optimization procedures.
+- Reptile can achieve competitive performance on various few-shot learning benchmarks, particularly in image classification.
+- The algorithm is robust to the choice of inner-loop optimizer and can be applied with standard gradient descent.
+- It learns a generalizable initialization that allows for rapid adaptation to new, unseen tasks with limited data.
+- The first-order nature of its update makes it scalable to large models and datasets.
+
+## Weaknesses
+
+- Reptile's first-order approximation may lead to slower convergence or less optimal meta-parameters compared to second-order methods in some complex scenarios.
+- The performance can be sensitive to the choice of hyperparameters, such as the inner-loop learning rate and the number of inner-loop steps.
+- It assumes that tasks share a common underlying structure that can be effectively captured by a single good initialization.
+- The algorithm's effectiveness can degrade if the tasks in the meta-training set are not sufficiently diverse or representative of future tasks.
+- It may struggle with tasks that require significant structural changes to the model rather than just fine-tuning parameters.
+
+## Use Cases
+
+### Few-shot Image Classification
+
+Training models to classify new object categories with only a handful of examples per class, crucial in domains with limited annotated data.
+
+### Low-Resource Natural Language Processing
+
+Enabling models to perform tasks like sentiment analysis or named entity recognition for languages or domains with very limited labeled text data.
+
+### Reinforcement Learning
+
+Learning a policy initialization that allows agents to quickly adapt to new environments or reward functions with minimal interaction.
+
+### Personalized Recommendation Systems
+
+Adapting user preference models to new users or items with minimal interaction data, improving cold-start recommendations.
+
+### Medical Imaging
+
+Adapting diagnostic models to rare diseases or new imaging modalities where only a few patient examples are available.
+
+### Robotics
+
+Enabling robots to quickly learn new manipulation skills or adapt to novel objects and environments with limited demonstrations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Reptile from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Reptile does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Reptile Lab" />
+
+## References
+
+- Nichol et al. (2018). Nichol et al..

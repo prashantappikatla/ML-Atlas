@@ -1,0 +1,177 @@
+---
+title: "MuZero"
+slug: "muzero"
+category: "reinforcement"
+subcategory: "model-based-rl"
+year: 2019
+author: "Schrittwieser et al."
+paper: "Schrittwieser et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: false
+  graph: false
+tags: ["deep-learning", "game-ai", "latent-model", "model-based-rl", "monte-carlo-tree-search", "policy-optimization", "reinforcement-learning", "self-play"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+MuZero is a reinforcement learning algorithm that achieves superhuman performance in complex environments by learning a model of the environment's dynamics and rewards without explicit knowledge of its rules. It combines a learned latent state representation with a Monte Carlo Tree Search (MCTS) planning procedure. Distinctively, MuZero learns to predict only the information relevant for planning: the immediate reward, the value of the state, and the policy, rather than predicting the full next observation.
+
+## History
+
+**2016** — DeepMind's AlphaGo defeated a professional Go player, demonstrating the power of combining Monte Carlo Tree Search with deep neural networks.
+
+**2017** — AlphaGo Zero was introduced, learning to play Go from scratch through self-play without any human data or handcrafted features, relying solely on MCTS and deep learning.
+
+**2018** — AlphaZero generalized AlphaGo Zero to master multiple perfect information games (Go, Chess, Shogi) using a single algorithm, further solidifying the self-play MCTS paradigm.
+
+**2019** — DeepMind introduced MuZero, extending the AlphaZero approach to environments where the rules are unknown, such as Atari games, by learning an internal model of the environment's dynamics.
+
+## Mathematical Intuition
+
+### Latent State and Prediction
+
+MuZero learns three core neural networks: a representation function $g$, a dynamics function $h$, and a prediction function $f$. The representation function $g(o_t)$ maps a raw observation $o_t$ to a latent state $s_t$. The dynamics function $h(s_t, a_t)$ takes a latent state $s_t$ and an action $a_t$ to predict the immediate reward $r_{t+1}$ and the next latent state $s_{t+1}$. The prediction function $f(s_t)$ outputs a value $v_t$ (expected return) and a policy $p_t$ (action probabilities) for a given latent state $s_t$. These functions are trained to predict only what is necessary for planning, rather than the full next observation.
+
+$$
+s_t = g(o_t)
+$$
+
+$$
+(r_{t+1}, s_{t+1}) = h(s_t, a_t)
+$$
+
+$$
+(v_t, p_t) = f(s_t)
+$$
+
+### Monte Carlo Tree Search
+
+MuZero employs Monte Carlo Tree Search (MCTS) to plan actions. During MCTS, the learned dynamics function $h$ is used to simulate future trajectories in the latent space, and the prediction function $f$ evaluates leaf nodes. Each node in the search tree stores visit counts $N(s,a)$, total action value $W(s,a)$, and mean action value $Q(s,a)$. Actions are selected using an Upper Confidence Bound (UCB) formula, often $Q(s,a) + c_{puct} P(s,a) \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)}$, where $P(s,a)$ is the prior probability from the policy network $p_t$. After simulations, the MCTS outputs an improved policy $\pi_t$ and a target value $z_t$ for the current state.
+
+$$
+Q(s,a) + c_{puct} P(s,a) \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)}
+$$
+
+### Combined Loss Function
+
+The neural networks are trained end-to-end using a combined loss function that minimizes the difference between the network predictions and the MCTS-generated targets. For a given state $s_k$ unrolled $k$ steps from the initial observation, the loss consists of three components: a value loss $L_v$, a policy loss $L_p$, and a reward loss $L_r$. The value loss is a mean squared error $(v_k - z_k)^2$, where $z_k$ is the MCTS target value. The policy loss is a cross-entropy loss $- \pi_k \log(p_k)$, where $\pi_k$ is the MCTS policy. The reward loss is a mean squared error $(r_k - u_k)^2$, where $u_k$ is the predicted reward. The total loss is a sum over these components, potentially with regularization terms.
+
+$$
+L_v = (v_k - z_k)^2
+$$
+
+$$
+L_p = - \pi_k \log(p_k)
+$$
+
+$$
+L_r = (r_k - u_k)^2
+$$
+
+$$
+L = \sum_{k=0}^{K} (L_v(s_k) + L_p(s_k) + L_r(s_k))
+$$
+
+## Algorithm Steps
+
+1. Initialize the representation network $g$, dynamics network $h$, and prediction network $f$ with random weights.
+2. For a specified number of self-play games, generate experience by starting a new game from an initial observation $o_0$.
+3. At each step $t$ in a game, transform the current observation $o_t$ into a latent state $s_t = g(o_t)$.
+4. Perform Monte Carlo Tree Search (MCTS) starting from $s_t$, using the dynamics network $h$ for transitions and the prediction network $f$ for evaluation, to produce an MCTS policy $\pi_t$ and target value $z_t$.
+5. Select an action $a_t$ from the MCTS policy distribution $\pi_t$ and execute it in the environment to get the next observation $o_{t+1}$ and reward $r_{t+1}$.
+6. Store the experience tuple $(o_t, a_t, r_{t+1}, \pi_t, z_t)$ in a replay buffer.
+7. For a specified number of training iterations, sample a batch of experience tuples from the replay buffer.
+8. For each sampled experience, unroll $K$ steps in the latent space, computing predicted values $v_k$, policies $p_k$, and rewards $u_k$ using $f$ and $h$, and calculate the combined loss against the MCTS targets $z_k$, $\pi_k$, and actual rewards $r_k$.
+9. Update the weights of networks $g, h, f$ using an optimizer (e.g., Adam) to minimize the total loss.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_simulations` | `integer` | `800` | positive integer | The number of Monte Carlo Tree Search simulations performed for each action selection during self-play. |
+| `num_unroll_steps` | `integer` | `5` | positive integer | The number of steps to unroll the dynamics and prediction networks for value and reward prediction during training. |
+| `batch_size` | `integer` | `256` | positive integer | The number of experience tuples sampled from the replay buffer for each training step. |
+| `learning_rate` | `float` | `0.0001` | 0.0 to 1.0 | The learning rate for the optimizer used to update the neural network weights. |
+| `c_puct` | `float` | `1.0` | positive float | The exploration constant used in the UCB formula for MCTS action selection, balancing exploration and exploitation. |
+| `discount` | `float` | `0.997` | 0.0 to 1.0 | The discount factor applied to future rewards when calculating target values. |
+| `num_training_steps` | `integer` | `1000000` | positive integer | The total number of training iterations (gradient updates) to perform. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- MuZero can learn to master complex environments without requiring explicit knowledge of their rules or dynamics.
+- It achieves superhuman performance across a diverse range of challenging domains, including board games and Atari games.
+- The algorithm learns a compact, task-relevant latent model, making it efficient in terms of what it needs to predict.
+- Its combination of MCTS with learned models allows for sophisticated lookahead planning in environments with high-dimensional observations.
+- MuZero's self-play training paradigm enables continuous improvement without relying on human expert data.
+
+## Weaknesses
+
+- Training MuZero requires significant computational resources, including powerful GPUs and extensive training time.
+- The algorithm demands vast amounts of self-play data, which can be time-consuming to generate.
+- Hyperparameter tuning can be complex and sensitive, requiring careful adjustment for optimal performance in new environments.
+- The learned latent model can be difficult to interpret, making it challenging to understand the algorithm's internal reasoning.
+- Performance is highly dependent on the quality and stability of the learned representation and dynamics models.
+
+## Use Cases
+
+### Game Playing
+
+Mastering complex board games like Go, Chess, and Shogi, as well as video games such as Atari, by learning optimal strategies through self-play.
+
+### Robotics
+
+Developing control policies for robotic agents in simulated environments where the exact physics model might be unknown or too complex to hand-engineer.
+
+### Resource Management
+
+Optimizing complex systems like data center cooling or energy grids by learning predictive models and planning optimal actions without explicit system equations.
+
+### Drug Discovery
+
+Simulating molecular interactions and designing novel molecules by learning the underlying dynamics and evaluating potential candidates.
+
+### Autonomous Driving
+
+Planning optimal driving trajectories and decision-making in complex, dynamic traffic scenarios where predicting future states is crucial but difficult.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MuZero from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MuZero does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MuZero Lab" />
+
+## References
+
+- Schrittwieser et al. (2019). Schrittwieser et al..

@@ -1,0 +1,185 @@
+---
+title: "Stochastic Gradient Descent"
+slug: "stochastic-gradient-descent"
+category: "meta-learning"
+subcategory: "optimization"
+year: 1951
+author: "Robbins & Monro"
+paper: "Robbins & Monro"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["deep-learning", "gradient-descent", "iterative", "large-scale", "meta-learning", "online-learning", "optimization", "stochastic"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adagrad"
+  - "adam"
+  - "logistic-regression"
+  - "rmsprop"
+  - "word2vec"
+---
+
+## Overview
+
+Stochastic Gradient Descent (SGD) is an iterative optimization algorithm widely used to train machine learning models, particularly neural networks. It addresses the computational inefficiency of traditional Gradient Descent by estimating the gradient of the loss function using only a single training example or a small mini-batch at each step. This stochastic approximation allows for faster updates and makes it suitable for large datasets and online learning scenarios.
+
+## History
+
+**1951** — Herbert Robbins and Sutton Monro introduced the concept of stochastic approximation, laying the theoretical foundation for algorithms that learn from noisy, sequential observations, which is the core idea behind SGD.
+
+**1952** — Jack Kiefer and Jacob Wolfowitz extended the work of Robbins and Monro, providing a method for finding the maximum of a regression function when observations are noisy, further solidifying the theoretical basis for stochastic optimization.
+
+**1986** — The backpropagation algorithm, which relies on gradient descent, gained prominence for training neural networks. For large datasets, this implicitly involved using stochastic or mini-batch gradient descent to make training feasible.
+
+**2000** — Leon Bottou published work on large-scale machine learning, emphasizing the efficiency of SGD for training models on massive datasets, highlighting its practical advantages over batch methods.
+
+**2012** — The rise of deep learning, fueled by large datasets and powerful GPUs, saw SGD and its variants (like Adam, [RMSProp](/algorithms/meta-learning/optimization/rmsprop)) become the de facto standard optimization algorithms for training complex neural network architectures.
+
+## Mathematical Intuition
+
+### Loss Function and Gradient
+
+In supervised learning, the goal is to minimize a loss function $J(\theta)$ that quantifies the error of a model's predictions with respect to its parameters $\theta$. Gradient Descent aims to find the minimum of this function by iteratively moving in the direction opposite to the gradient. The loss function for a dataset with $N$ samples is typically an average over individual sample losses $J_i(\theta)$:$$J(\theta) = \frac{1}{N} \sum_{i=1}^{N} J_i(\theta)$$The gradient of this loss function with respect to $\theta$ is: $$\nabla J(\theta) = \frac{1}{N} \sum_{i=1}^{N} \nabla J_i(\theta)$$
+
+$$
+J(\theta) = \frac{1}{N} \sum_{i=1}^{N} J_i(\theta)
+$$
+
+$$
+\nabla J(\theta) = \frac{1}{N} \sum_{i=1}^{N} \nabla J_i(\theta)
+$$
+
+### Computational Cost of Full Gradient
+
+Calculating the full gradient $\nabla J(\theta)$ requires summing the gradients over all $N$ training examples. For very large datasets, $N$ can be millions or billions, making this computation extremely expensive and slow for each parameter update. This is the primary bottleneck that Stochastic Gradient Descent addresses.
+
+### Stochastic Gradient Approximation
+
+Instead of computing the gradient over the entire dataset, SGD approximates the full gradient using the gradient of the loss for a single randomly chosen training example $i$, or more commonly, a small mini-batch of $B$ examples. For a single example, the stochastic gradient is $\nabla J_i(\theta)$. For a mini-batch, it's $\frac{1}{B} \sum_{j \in \text{batch}} \nabla J_j(\theta)$. This approximation is noisy but computationally much cheaper.
+
+$$
+\nabla J_i(\theta)
+$$
+
+$$
+\frac{1}{B} \sum_{j \in \text{batch}} \nabla J_j(\theta)
+$$
+
+### SGD Parameter Update Rule
+
+The parameter update rule for SGD at iteration $t$ is given by: $$\theta_{t+1} = \theta_t - \eta_t \nabla J_i(\theta_t)$$where $\theta_t$ are the current parameters, $\eta_t$ is the learning rate (which can decay over time), and $\nabla J_i(\theta_t)$ is the gradient of the loss function with respect to the parameters, calculated for a single randomly selected training example $i$ (or a mini-batch). The learning rate $\eta_t$ controls the step size of the update.
+
+$$
+\theta_{t+1} = \theta_t - \eta_t \nabla J_i(\theta_t)
+$$
+
+## Algorithm Steps
+
+1. Initialize model parameters $\theta$ randomly.
+2. Set a learning rate $\eta$ and optionally a learning rate schedule.
+3. Iterate for a predefined number of epochs (passes over the entire dataset) or until convergence:
+4. Shuffle the training dataset to ensure randomness in example selection.
+5. For each training example $(x_i, y_i)$ (or mini-batch) in the shuffled dataset:
+6. Compute the model's prediction $\hat{y}_i$ for $x_i$.
+7. Calculate the loss $J_i(\theta)$ based on $(y_i, \hat{y}_i)$.
+8. Compute the gradient of the loss with respect to the parameters: $\nabla J_i(\theta)$.
+9. Update the parameters using the rule: $\theta \leftarrow \theta - \eta \nabla J_i(\theta)$.
+10. Adjust the learning rate $\eta$ according to the schedule, if applicable.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `loss` | `str` | `'hinge'` | 'hinge', 'log_loss', 'modified_huber', 'squared_error', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive', 'perceptron', 'squared_hinge' | The loss function to be used. Common choices include 'hinge' for SVM, 'log' for logistic regression, 'squared_error' for linear regression, and 'perceptron' for perceptron. |
+| `penalty` | `str` | `'l2'` | 'l2', 'l1', 'elasticnet', None | The type of regularization penalty to apply to the model parameters. |
+| `alpha` | `float` | `0.0001` | $\ge 0.0$ | Constant that multiplies the regularization term. Higher values mean stronger regularization. |
+| `l1_ratio` | `float` | `0.15` | $[0.0, 1.0]$ | The Elastic Net mixing parameter, with $0 \le \text{l1_ratio} \le 1$. An l1_ratio of 0 corresponds to L2 penalty, 1 to L1 penalty, and values in between for Elastic Net. |
+| `fit_intercept` | `bool` | `true` | true, false | Whether the intercept should be estimated or not. If false, the data is assumed to be already centered. |
+| `max_iter` | `int` | `1000` | $> 0$ | The maximum number of passes over the training data (epochs). |
+| `tol` | `float` | `0.001` | $> 0.0$ | The stopping criterion. The training will stop when the loss improves by less than `tol` for `n_iter_no_change` consecutive epochs. |
+| `eta0` | `float` | `0.0` | $> 0.0$ or $0.0$ | The initial learning rate for the 'constant', 'invscaling', or 'adaptive' schedules. If set to 0.0, the learning rate is automatically determined by 'optimal' schedule. |
+| `learning_rate` | `str` | `'optimal'` | 'constant', 'optimal', 'invscaling', 'adaptive' | The learning rate schedule. 'constant' uses a fixed `eta0`. 'optimal' uses a schedule based on the number of samples. 'invscaling' decreases the learning rate by $1/t^{\text{power_t}}$. 'adaptive' keeps the learning rate constant as long as the training loss keeps decreasing. |
+| `power_t` | `float` | `0.5` | $> 0.0$ | The exponent for inverse scaling learning rate. Used when `learning_rate` is 'invscaling'. |
+| `shuffle` | `bool` | `true` | true, false | Whether to shuffle the training data after each epoch. This is important to prevent cycles and ensure randomness. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- SGD is computationally efficient, especially for large datasets, as it performs updates more frequently than batch gradient descent.
+- It can escape shallow local minima due to the inherent noise in its gradient estimates, potentially leading to better generalization.
+- SGD is well-suited for online learning scenarios where data arrives sequentially and models need to be updated continuously.
+- Its simplicity and low memory requirements make it a foundational optimizer for deep learning models.
+- The frequent updates can lead to faster convergence in terms of wall-clock time for many practical applications.
+- It is highly scalable and can be parallelized across multiple processing units for mini-batch computations.
+
+## Weaknesses
+
+- The noisy gradient estimates can cause the optimization path to be erratic, making it difficult to converge to the exact minimum.
+- Choosing an appropriate learning rate is crucial and often requires careful tuning, as a too-high rate can lead to divergence, and a too-low rate can lead to slow convergence.
+- SGD can get stuck in saddle points or poor local minima if the learning rate is not properly managed.
+- It typically requires more iterations (epochs) than batch gradient descent to converge to a good solution.
+- The performance can be sensitive to the order of training examples, especially without proper shuffling.
+
+## Use Cases
+
+### Deep Learning
+
+Training large neural networks for tasks like image classification, natural language processing, and speech recognition, where datasets are massive.
+
+### Online Learning
+
+Updating models in real-time as new data streams in, such as recommendation systems or fraud detection.
+
+### Large-scale Regression
+
+Fitting linear or [Logistic Regression](/algorithms/supervised/classification/logistic-regression) models to datasets with millions of samples and features, where batch methods are too slow.
+
+### Natural Language Processing
+
+Training word embeddings (e.g., [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec)) and sequence models (e.g., RNNs, Transformers) on vast text corpora.
+
+### Computer Vision
+
+Optimizing convolutional neural networks (CNNs) for object detection, image segmentation, and facial recognition.
+
+### Reinforcement Learning
+
+Updating policy networks or value functions in agents that learn from interactions with an environment.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Stochastic Gradient Descent from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Stochastic Gradient Descent does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Stochastic Gradient Descent Lab" />
+
+## References
+
+- Robbins & Monro (1951). Robbins & Monro.

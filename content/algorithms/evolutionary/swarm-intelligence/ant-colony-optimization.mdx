@@ -1,0 +1,168 @@
+---
+title: "Ant Colony Optimization"
+slug: "ant-colony-optimization"
+category: "evolutionary"
+subcategory: "swarm-intelligence"
+year: 1992
+author: "Dorigo"
+paper: "Dorigo"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["combinatorial-optimization", "evolutionary-algorithm", "graph-algorithms", "heuristics", "metaheuristic", "optimization", "pathfinding", "swarm-intelligence"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "genetic-algorithm"
+  - "particle-swarm-optimization"
+---
+
+## Overview
+
+Ant Colony Optimization (ACO) is a probabilistic metaheuristic inspired by the foraging behavior of real ants, which find the shortest path between their nest and a food source. It is primarily used to solve combinatorial optimization problems by iteratively constructing solutions based on artificial pheromone trails and heuristic information. The algorithm leverages a population of "ants" that explore the solution space, depositing pheromones on promising paths, which in turn guides subsequent ants towards better solutions.
+
+## History
+
+**1992** — Marco Dorigo introduces the Ant System, the first Ant Colony Optimization algorithm, in his PhD thesis.
+
+**1996** — Dorigo, Maniezzo, and Colorni publish "Ant System: Optimization by a Colony of Cooperating Agents," formally introducing the Ant System to the wider scientific community.
+
+**1997** — Gambardella and Dorigo propose Ant Colony System (ACS), an improved variant of the Ant System, featuring a different pheromone update rule and a more aggressive search strategy.
+
+**2000** — Stützle and Hoos introduce MAX-MIN Ant System (MMAS), which limits the pheromone values to an interval and only allows the best ant to deposit pheromone, enhancing exploration and preventing premature convergence.
+
+**2004** — Dorigo and Stützle publish "Ant Colony Optimization," a comprehensive book summarizing the state-of-the-art in ACO research and applications.
+
+## Mathematical Intuition
+
+### Pheromone Trail Update
+
+The pheromone trail on an edge $(i, j)$ at time $t+1$ is updated by considering evaporation and deposition. Evaporation prevents premature convergence and allows exploration of new paths, while deposition reinforces good paths found by ants. The general update rule is given by: $$ \tau_{ij}(t+1) = (1 - \rho) \tau_{ij}(t) + \sum_{k=1}^m \Delta \tau_{ij}^k(t) $$ Here, $\tau_{ij}(t)$ is the pheromone intensity on edge $(i, j)$ at time $t$, $\rho \in (0, 1]$ is the pheromone evaporation rate, $m$ is the number of ants, and $\Delta \tau_{ij}^k(t)$ is the amount of pheromone deposited by ant $k$ on edge $(i, j)$. For the original Ant System, $\Delta \tau_{ij}^k(t)$ is typically defined as: $$ \Delta \tau_{ij}^k(t) = \begin{cases} Q / L_k & \text{if ant } k \text{ used edge } (i, j) \text{ in its tour} \\ 0 & \text{otherwise} \end{cases} $$ where $Q$ is a constant and $L_k$ is the length (cost) of the tour constructed by ant $k$.
+
+$$
+\tau_{ij}(t+1) = (1 - \rho) \tau_{ij}(t) + \sum_{k=1}^m \Delta \tau_{ij}^k(t)
+$$
+
+$$
+\Delta \tau_{ij}^k(t) = \begin{cases} Q / L_k & \text{if ant } k \text{ used edge } (i, j) \text{ in its tour} \\ 0 & \text{otherwise} \end{cases}
+$$
+
+### Probabilistic Path Selection
+
+An ant $k$ at node $i$ chooses the next node $j$ from its set of allowed neighbors (nodes not yet visited in its current tour) based on a probabilistic rule. This rule balances the influence of pheromone trails and problem-specific heuristic information. The probability $P_{ij}^k$ that ant $k$ moves from node $i$ to node $j$ is given by: $$ P_{ij}^k = \frac{(\tau_{ij}^\alpha) (\eta_{ij}^\beta)}{\sum_{l \in \text{allowed}_k} (\tau_{il}^\alpha) (\eta_{il}^\beta)} \quad \text{if } j \in \text{allowed}_k $$ $$ P_{ij}^k = 0 \quad \text{if } j \notin \text{allowed}_k $$ Here, $\tau_{ij}$ is the pheromone intensity on edge $(i, j)$, and $\eta_{ij}$ is the heuristic information (e.g., $1/d_{ij}$ for distance $d_{ij}$). The parameters $\alpha \ge 0$ and $\beta \ge 0$ control the relative importance of pheromone trail and heuristic information, respectively.
+
+$$
+P_{ij}^k = \frac{(\tau_{ij}^\alpha) (\eta_{ij}^\beta)}{\sum_{l \in \text{allowed}_k} (\tau_{il}^\alpha) (\eta_{il}^\beta)} \quad \text{if } j \in \text{allowed}_k
+$$
+
+$$
+P_{ij}^k = 0 \quad \text{if } j \notin \text{allowed}_k
+$$
+
+### Heuristic Information Role
+
+The heuristic information, $\eta_{ij}$, provides problem-specific guidance to the ants, often representing the desirability or "goodness" of choosing edge $(i, j)$. For problems like the Traveling Salesperson Problem (TSP), $\eta_{ij}$ is commonly set as the inverse of the distance between node $i$ and node $j$, i.e., $\eta_{ij} = 1/d_{ij}$. This encourages ants to choose shorter edges, which are generally part of shorter tours. The heuristic information helps to guide the search towards promising regions of the solution space, especially in the early stages when pheromone trails are relatively uniform.
+
+$$
+\eta_{ij} = 1/d_{ij}
+$$
+
+## Algorithm Steps
+
+1. Initialize pheromone trails $\tau_{ij}$ on all edges $(i, j)$ to a small positive constant value, and place $m$ ants at randomly chosen or specified starting nodes.
+2. Each ant $k$ iteratively constructs a complete solution (e.g., a tour) by moving from its current node $i$ to a next node $j$ selected probabilistically based on the pheromone intensity $\tau_{ij}$ and heuristic information $\eta_{ij}$.
+3. Once all $m$ ants have completed their solutions, evaluate the quality (e.g., length or cost) of each solution $L_k$.
+4. Update the pheromone trails: first, evaporate a fraction of the existing pheromone on all edges using the rate $\rho$, then deposit new pheromone $\Delta \tau_{ij}^k$ on the edges used by the ants, typically proportional to the quality of their solutions.
+5. Clear the memory of visited nodes for each ant and repeat from step 2 until a termination criterion is met, such as a maximum number of iterations or a satisfactory solution quality.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_ants` | `integer` | `typically 10-50` | integer > 0 | The number of artificial ants that construct solutions in each iteration. |
+| `num_iterations` | `integer` | `typically 100-1000` | integer > 0 | The total number of iterations or cycles the algorithm will run. |
+| `alpha` | `float` | `1.0` | float >= 0.0 | The exponent controlling the influence of the pheromone trail $\tau_{ij}$ on path selection. |
+| `beta` | `float` | `2.0` | float >= 0.0 | The exponent controlling the influence of the heuristic information $\eta_{ij}$ on path selection. |
+| `rho` | `float` | `0.1` | 0.0 < float <= 1.0 | The pheromone evaporation rate, a value between 0 and 1, determining how much pheromone evaporates in each iteration. |
+| `Q` | `float` | `1.0` | float > 0.0 | A constant representing the total amount of pheromone deposited by an ant on its chosen path. |
+| `initial_pheromone` | `float` | `0.001` | float > 0.0 | The initial pheromone value assigned to all edges at the start of the algorithm. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- Ant Colony Optimization is highly effective for solving complex combinatorial optimization problems, such as the Traveling Salesperson Problem and Vehicle Routing Problem.
+- The algorithm exhibits robustness to dynamic changes in the problem structure, as ants can adapt their paths based on updated heuristic information or pheromone trails.
+- Its inherent parallelism allows for efficient computation, as multiple ants can explore the solution space simultaneously and independently.
+- ACO is less prone to getting trapped in local optima compared to purely greedy algorithms due to its probabilistic decision-making and exploration capabilities.
+- It can discover high-quality solutions for problems where traditional exact methods are computationally intractable.
+
+## Weaknesses
+
+- Ant Colony Optimization can be computationally expensive, especially for very large problem instances, due to the iterative nature and the need to simulate many ants.
+- The performance of ACO is highly sensitive to the proper tuning of its various parameters, which often requires extensive experimentation and problem-specific knowledge.
+- The convergence speed of ACO can be slow, requiring a significant number of iterations to find optimal or near-optimal solutions.
+- The algorithm's effectiveness heavily relies on the quality and design of the problem-specific heuristic information, which may not always be straightforward to define.
+- ACO is primarily designed for discrete optimization problems and requires significant adaptation or transformation for continuous optimization tasks.
+
+## Use Cases
+
+### Logistics
+
+Optimizing routes for delivery vehicles (Vehicle Routing Problem) and finding the shortest path for sales representatives (Traveling Salesperson Problem).
+
+### Telecommunications
+
+Determining optimal routing paths in communication networks to minimize latency or maximize throughput.
+
+### Manufacturing
+
+Scheduling jobs on machines in a production line to minimize completion time or maximize resource utilization.
+
+### Bioinformatics
+
+Solving problems like protein folding, DNA sequencing, and phylogenetic tree reconstruction.
+
+### Robotics
+
+Planning collision-free paths for autonomous robots in complex environments.
+
+### Resource Allocation
+
+Allocating limited resources to various tasks or projects to achieve optimal outcomes.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Ant Colony Optimization from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Ant Colony Optimization does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Ant Colony Optimization Lab" />
+
+## References
+
+- Dorigo (1992). Dorigo.

@@ -1,0 +1,191 @@
+---
+title: "Soft Actor-Critic"
+slug: "soft-actor-critic"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2018
+author: "Haarnoja et al."
+paper: "Haarnoja et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: true
+  graph: false
+tags: ["actor-critic", "continuous-control", "deep-reinforcement-learning", "maximum-entropy", "off-policy", "reinforcement-learning", "sample-efficient", "stochastic-policy"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "q-learning"
+  - "reinforce"
+---
+
+## Overview
+
+Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (SAC) is an off-policy deep reinforcement learning algorithm designed for continuous control tasks. It distinguishes itself by optimizing a stochastic policy within a maximum entropy framework, encouraging exploration and robustness. This approach leads to improved sample efficiency and more stable learning compared to many other [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods. SAC is particularly effective in environments requiring fine-grained control and adaptability.
+
+## History
+
+**2018** — Tuomas Haarnoja, Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Kumar Krishna Agrawal, Yan Duan, Henry Zhu, Abhishek Gupta, Pieter Abbeel, and Sergey Levine introduced Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic), combining maximum entropy reinforcement learning with an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture.
+
+**2018** — The original SAC paper demonstrated its effectiveness on challenging continuous control benchmarks, showcasing its superior sample efficiency and performance compared to prior state-of-the-art methods like DDPG and TD3.
+
+**2018** — A key innovation of SAC was the automatic tuning of the temperature parameter $\alpha$, which controls the trade-off between maximizing reward and maximizing entropy, simplifying hyperparameter tuning and improving robustness.
+
+## Mathematical Intuition
+
+### Maximum Entropy Objective
+
+The core idea of SAC is to maximize not just the expected return, but also the entropy of the policy. This encourages exploration and leads to more robust policies. The objective function is:
+$$J(\pi) = E_{(s_t, a_t) \sim \rho_\pi} [r(s_t, a_t) + \alpha H(\pi(\cdot|s_t))]$$
+where $r(s_t, a_t)$ is the reward, $H(\pi(\cdot|s_t)) = E_{a_t \sim \pi(\cdot|s_t)}[-\log \pi(a_t|s_t)]$ is the entropy of the policy at state $s_t$, and $\alpha > 0$ is the temperature parameter that determines the relative importance of the entropy term.
+
+$$
+J(\pi) = E_{(s_t, a_t) \sim \rho_\pi} [r(s_t, a_t) + \alpha H(\pi(\cdot|s_t))]
+$$
+
+$$
+H(\pi(\cdot|s_t)) = E_{a_t \sim \pi(\cdot|s_t)}[-\log \pi(a_t|s_t)]
+$$
+
+### Soft Q-function and Value Function
+
+In the maximum entropy framework, the standard Bellman equations are modified to include the entropy term. The soft Q-function $Q_\pi(s,a)$ and soft value function $V_\pi(s)$ are defined as:
+$$Q_\pi(s,a) = r(s,a) + E_{s' \sim P} [V_\pi(s')]$$
+$$V_\pi(s) = E_{a \sim \pi} [Q_\pi(s,a) - \alpha \log \pi(a|s)]$$
+The soft Bellman operator for the Q-function is used to train the critic networks, aiming to minimize the squared error between the predicted Q-values and the target Q-values.
+
+$$
+Q_\pi(s,a) = r(s,a) + E_{s' \sim P} [V_\pi(s')]
+$$
+
+$$
+V_\pi(s) = E_{a \sim \pi} [Q_\pi(s,a) - \alpha \log \pi(a|s)]
+$$
+
+### Policy Improvement with Entropy
+
+The policy is updated to maximize the expected soft Q-value while also maximizing its entropy. The optimal policy $\pi^*(a|s)$ in the maximum entropy framework can be expressed in terms of the soft Q-function:
+$$\pi_{new}(a|s) \propto \exp \left( \frac{1}{\alpha} Q_{old}(s,a) \right)$$
+In practice, SAC uses a reparameterization trick to sample actions from a Gaussian policy and optimizes the policy network by minimizing a loss function derived from this expression, which encourages actions with higher soft Q-values and higher entropy.
+
+$$
+\pi_{new}(a|s) \propto \exp \left( \frac{1}{\alpha} Q_{old}(s,a) \right)
+$$
+
+### Temperature Parameter Auto-tuning
+
+The temperature parameter $\alpha$ is crucial for balancing exploration and exploitation. Instead of fixing $\alpha$, SAC can automatically adjust it to maintain a target entropy for the policy. This is achieved by optimizing $\alpha$ to satisfy a constraint on the policy's entropy:
+$$J(\alpha) = E_{s_t \sim D, a_t \sim \pi_t} [-\alpha (\log \pi_t(a_t|s_t) + \bar{H})]$$
+where $\bar{H}$ is the target entropy. This makes SAC less sensitive to the choice of $\alpha$ and improves its robustness and performance across different environments.
+
+$$
+J(\alpha) = E_{s_t \sim D, a_t \sim \pi_t} [-\alpha (\log \pi_t(a_t|s_t) + \bar{H})]
+$$
+
+## Algorithm Steps
+
+1. Initialize two Q-networks $Q_{\theta_1}, Q_{\theta_2}$, a policy network $\pi_\phi$, and two target Q-networks $Q_{\theta_1^{target}}, Q_{\theta_2^{target}}$ with parameters $\theta_1, \theta_2, \phi, \theta_1^{target}, \theta_2^{target}$ respectively. Initialize the temperature parameter $\alpha$ (or its log-transform $\log \alpha$).
+2. Initialize an experience replay buffer $D$.
+3. For each training iteration, collect an experience tuple $(s_t, a_t, r_t, s_{t+1}, d_t)$ by sampling an action $a_t \sim \pi_\phi(\cdot|s_t)$ and interacting with the environment, then store it in $D$.
+4. Sample a mini-batch of $N$ transitions $(s, a, r, s', d)$ from the replay buffer $D$.
+5. Compute the target Q-values for the critic networks: $a' \sim \pi_\phi(\cdot|s')$, then $V_{target}(s') = \min(Q_{\theta_1^{target}}(s', a'), Q_{\theta_2^{target}}(s', a')) - \alpha \log \pi_\phi(a'|s')$. The target Q-value is $y = r + \gamma (1-d) V_{target}(s')$.
+6. Update the Q-network parameters $\theta_1, \theta_2$ by minimizing the squared Bellman error: $L_Q(\theta_i) = E_{(s,a,r,s',d) \sim D} [(Q_{\theta_i}(s,a) - y)^2]$ for $i \in \{1,2\}$.
+7. Update the policy network parameter $\phi$ by minimizing the policy loss: $L_\pi(\phi) = E_{s \sim D, a \sim \pi_\phi(\cdot|s)} [\alpha \log \pi_\phi(a|s) - \min(Q_{\theta_1}(s,a), Q_{\theta_2}(s,a))]$.
+8. If auto-tuning $\alpha$, update $\alpha$ (or $\log \alpha$) by minimizing the temperature loss: $L_\alpha(\alpha) = E_{s \sim D, a \sim \pi_\phi(\cdot|s)} [-\alpha (\log \pi_\phi(a|s) + \bar{H})]$, where $\bar{H}$ is the target entropy.
+9. Update the target Q-network parameters using a soft update: $\theta_i^{target} \leftarrow \tau \theta_i + (1-\tau) \theta_i^{target}$ for $i \in \{1,2\}$.
+10. Repeat from step 3 until convergence or maximum iterations.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `gamma` | `float` | `0.99` | [0, 1] | Discount factor for future rewards, determining the importance of future rewards relative to immediate ones. |
+| `tau` | `float` | `0.005` | [0, 1] | Soft update coefficient for target networks, controlling the rate at which target network weights track the main network weights. |
+| `learning_rate_actor` | `float` | `3e-4` | > 0 | Learning rate for the policy (actor) network, dictating the step size for policy parameter updates. |
+| `learning_rate_critic` | `float` | `3e-4` | > 0 | Learning rate for the Q-value (critic) networks, dictating the step size for Q-function parameter updates. |
+| `learning_rate_alpha` | `float` | `3e-4` | > 0 | Learning rate for the temperature parameter $\alpha$ (if auto-tuning), controlling its adaptation speed. |
+| `buffer_size` | `int` | `1000000` | > 0 | Maximum size of the experience replay buffer, storing past transitions for off-policy learning. |
+| `batch_size` | `int` | `256` | > 0 | Number of samples to draw from the replay buffer for each training update. |
+| `reward_scale` | `float` | `1.0` | > 0 | Scaling factor for rewards, which can help stabilize training by normalizing reward magnitudes. |
+| `target_entropy` | `float or "auto"` | `auto` | float or 'auto' | Target entropy for the policy. If 'auto', it's typically set to $-\text{action_dim}$, encouraging a certain level of exploration. |
+| `n_steps` | `int` | `1` | > 0 | Number of environment steps to collect before performing a gradient update, often 1 for standard SAC. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- SAC achieves high sample efficiency due to its off-policy nature and the use of an experience replay buffer.
+- The maximum entropy objective encourages broad exploration and leads to more robust policies that are less prone to premature convergence.
+- It is well-suited for continuous action spaces, making it effective in robotics and other complex control problems.
+- The automatic tuning of the temperature parameter $\alpha$ reduces the burden of hyperparameter tuning and improves stability.
+- The use of two Q-networks and clipped double Q-learning helps mitigate overestimation bias, contributing to more stable training.
+- SAC often learns policies that are more adaptable and perform well even when environmental conditions change slightly.
+
+## Weaknesses
+
+- SAC involves training multiple neural networks (two Q-networks, one policy network, and potentially a temperature network), increasing computational complexity and memory requirements.
+- Despite auto-tuning, the initial range or learning rate for the temperature parameter $\alpha$ can still require careful selection for optimal performance.
+- The algorithm can be sensitive to the choice of network architectures and other hyperparameters like learning rates and reward scaling.
+- Like many deep RL algorithms, SAC can still struggle with very sparse reward environments or extremely long-horizon tasks.
+- Debugging and understanding the behavior of SAC can be challenging due to the intricate interplay of multiple loss functions and networks.
+
+## Use Cases
+
+### Robotics
+
+Used for learning complex manipulation tasks, locomotion, and dexterous control in simulated and real-world robots, leveraging its ability to handle continuous action spaces.
+
+### Autonomous Driving
+
+Applied to continuous control problems such as vehicle trajectory planning, lane keeping, and adaptive cruise control, where smooth and robust actions are critical.
+
+### Financial Trading
+
+Employed for optimal execution strategies, portfolio management, and dynamic asset allocation in continuous action spaces, aiming for robust and adaptive trading policies.
+
+### Game Playing
+
+Utilized in games with continuous action spaces, such as physics-based simulations or real-time strategy games requiring fine-grained control and adaptive strategies.
+
+### Resource Management
+
+Applied to optimize energy consumption in data centers or manage complex industrial processes with continuous control inputs, seeking efficient and stable operation.
+
+### Chemical Process Control
+
+Used to optimize parameters in chemical reactions or manufacturing processes that involve continuous adjustments, leading to improved yield and efficiency.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Soft Actor-Critic from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Soft Actor-Critic does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Soft Actor-Critic Lab" />
+
+## References
+
+- Haarnoja et al. (2018). Haarnoja et al..

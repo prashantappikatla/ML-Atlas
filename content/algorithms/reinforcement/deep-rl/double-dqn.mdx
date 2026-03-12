@@ -1,0 +1,191 @@
+---
+title: "Double DQN"
+slug: "double-dqn"
+category: "reinforcement"
+subcategory: "deep-rl"
+year: 2015
+author: "van Hasselt et al."
+paper: "van Hasselt et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-learning", "deep-reinforcement-learning", "neural-networks", "off-policy", "overestimation-bias", "q-learning", "stability", "value-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "double-q-learning"
+  - "dueling-dqn"
+  - "prioritized-experience-replay"
+  - "q-learning"
+  - "sarsa"
+---
+
+## Overview
+
+Double DQN addresses the overestimation bias inherent in standard Deep Q-Networks (DQN) by decoupling the action selection and action evaluation processes. It achieves this by using the online Q-network to select the greedy action and the target Q-network to evaluate that action, leading to more accurate Q-value estimates. This modification helps mitigate the problem where the maximum operator in the Bellman equation tends to select overestimated actions, thereby improving learning stability and performance.
+
+## History
+
+**1989** — Chris Watkins and Peter Dayan introduced [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), a model-free reinforcement learning algorithm for finding an optimal action-selection policy.
+
+**2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., combining [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks and experience replay to learn directly from high-dimensional sensory inputs.
+
+**2015** — Hado van Hasselt, Arthur Guez, and David Silver published "Deep Reinforcement Learning with [Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)](/algorithms/reinforcement/model-free-value-methods/double-[Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning))," proposing Double DQN to reduce overestimation bias in DQN.
+
+**2016** — Schaul et al. introduced [Prioritized Experience Replay](/algorithms/reinforcement/deep-rl/prioritized-experience-replay), a technique often combined with DQN and Double DQN to improve sample efficiency by replaying more significant transitions.
+
+**2017** — Hessel et al. presented Rainbow DQN, an agent that combines several independent improvements to DQN, including Double DQN, achieving state-of-the-art performance.
+
+## Mathematical Intuition
+
+### Q-learning Bellman Optimality Equation
+
+The optimal action-value function $Q^*(s, a)$ satisfies the Bellman optimality equation, which forms the basis for [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning). In [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), the update rule for $Q(s, a)$ is designed to iteratively converge to this optimal function.
+$$Q^*(s, a) = E[R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') | S_t=s, A_t=a]$$
+The standard [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) update rule is:
+$$Q(s, a) \leftarrow Q(s, a) + \alpha [R + \gamma \max_{a'} Q(s', a') - Q(s, a)]$$
+
+$$
+Q^*(s, a) = E[R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') | S_t=s, A_t=a]
+$$
+
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha [R + \gamma \max_{a'} Q(s', a') - Q(s, a)]
+$$
+
+### DQN Target Q-value Calculation
+
+Deep Q-Networks (DQN) approximate the Q-function using a deep neural network $Q(s, a; \theta)$. To stabilize training, DQN employs a separate target network $Q(s, a; \theta^-)$ with periodically updated weights $\theta^-$. The target Q-value for the Bellman update in DQN is calculated as:
+$$Y_t^{DQN} = R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a'; \theta^-)$$
+The network is then trained by minimizing the squared Bellman error:
+$$L(\theta) = E[(Y_t^{DQN} - Q(S_t, A_t; \theta))^2]$$
+
+$$
+Y_t^{DQN} = R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a'; \theta^-)
+$$
+
+$$
+L(\theta) = E[(Y_t^{DQN} - Q(S_t, A_t; \theta))^2]
+$$
+
+### Overestimation Bias in DQN
+
+The $\max$ operator in the DQN target Q-value calculation, $\max_{a'} Q(S_{t+1}, a'; \theta^-)$, inherently tends to select and evaluate overestimated Q-values. This bias arises because the maximum of several noisy estimates is statistically more likely to be an overestimate than an underestimate, especially when the Q-values are approximated by a neural network. This overestimation can lead to suboptimal policies by consistently favoring actions whose values are erroneously inflated.
+
+### Double DQN Target Q-value
+
+Double DQN addresses the overestimation bias by decoupling the action selection from its evaluation. It uses the online network $Q(s, a; \theta)$ to select the greedy action and the target network $Q(s, a; \theta^-)$ to evaluate that selected action. The Double DQN target Q-value is defined as:
+$$Y_t^{DDQN} = R_{t+1} + \gamma Q(S_{t+1}, \arg\max_{a'} Q(S_{t+1}, a'; \theta), \theta^-)$$
+Here, $\arg\max_{a'} Q(S_{t+1}, a'; \theta)$ selects the action based on the current online network, and $Q(S_{t+1}, \cdot, \theta^-)$ evaluates its value using the more stable target network. This separation significantly reduces the overestimation bias.
+
+$$
+Y_t^{DDQN} = R_{t+1} + \gamma Q(S_{t+1}, \arg\max_{a'} Q(S_{t+1}, a'; \theta), \theta^-)
+$$
+
+## Algorithm Steps
+
+1. Initialize the online Q-network $Q(s, a; \theta)$ with random weights $\theta$ and the target Q-network $Q(s, a; \theta^-)$ with weights $\theta^- = \theta$.
+2. Initialize an empty experience replay buffer $D$ with a specified maximum capacity.
+3. For each episode, observe the initial state $S_t$ and then for each time step $t$:
+4. Select an action $A_t$ using an $\epsilon$-greedy policy based on the current online Q-network $Q(S_t, a; \theta)$.
+5. Execute action $A_t$ in the environment, observe the reward $R_{t+1}$ and the next state $S_{t+1}$.
+6. Store the transition $(S_t, A_t, R_{t+1}, S_{t+1})$ in the replay buffer $D$.
+7. Sample a mini-batch of transitions $(s_j, a_j, r_j, s'_j)$ from the replay buffer $D$.
+8. Compute the target Q-value $Y_j$ for each sampled transition using the Double DQN formula: $Y_j = r_j + \gamma Q(s'_j, \arg\max_{a'} Q(s'_j, a'; \theta), \theta^-)$ if $s'_j$ is not a terminal state, otherwise $Y_j = r_j$.
+9. Update the online network weights $\theta$ by performing a gradient descent step on the loss $L(\theta) = (Y_j - Q(s_j, a_j; \theta))^2$.
+10. Periodically update the target network weights $\theta^-$ by copying the online network weights: $\theta^- \leftarrow \theta$ (e.g., every $C$ steps).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0001` | (0.0, 1.0] | Controls the step size during gradient descent updates for the online Q-network. |
+| `gamma` | `float` | `0.99` | (0.0, 1.0) | Discount factor for future rewards, determining the present value of future rewards. |
+| `replay_buffer_size` | `int` | `100000` | [1, inf) | Maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `32` | [1, inf) | Number of transitions sampled from the replay buffer for each training step. |
+| `target_update_frequency` | `int` | `10000` | [1, inf) | Number of training steps after which the target network weights are updated from the online network. |
+| `epsilon_start` | `float` | `1.0` | [0.0, 1.0] | Initial value of epsilon for the epsilon-greedy policy, controlling exploration. |
+| `epsilon_end` | `float` | `0.01` | [0.0, 1.0] | Final value of epsilon after decay, determining the minimum exploration rate. |
+| `epsilon_decay_steps` | `int` | `100000` | [1, inf) | Number of steps over which epsilon decays from `epsilon_start` to `epsilon_end`. |
+| `network_architecture` | `list[int]` | `[64, 64]` | empty or list of positive integers | Defines the hidden layer sizes of the Q-network, e.g., `[64, 64]` for two hidden layers with 64 units each. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Significantly reduces the overestimation bias of Q-values inherent in standard DQN, leading to more accurate value estimates.
+- Improves the stability and reliability of the learning process, making it less prone to divergence.
+- Often achieves higher performance and learns better policies compared to vanilla DQN across various tasks.
+- The modification is relatively simple to implement, requiring only a change in the target Q-value calculation.
+- Can be combined with other DQN improvements, such as Prioritized Experience Replay, for further performance gains.
+
+## Weaknesses
+
+- Still suffers from sample inefficiency, requiring a large number of interactions with the environment to learn effectively.
+- Sensitive to hyperparameter choices, which can require extensive tuning for optimal performance.
+- The use of a replay buffer and target network adds computational and memory overhead compared to simpler RL algorithms.
+- Does not inherently address other limitations of DQN, such as the inability to handle continuous action spaces directly.
+- The decoupling of action selection and evaluation does not completely eliminate all forms of overestimation, though it significantly mitigates the primary source.
+
+## Use Cases
+
+### Game Playing
+
+Training agents to play complex video games like Atari, where it can achieve human-level or superhuman performance by learning optimal strategies.
+
+### Robotics
+
+Developing control policies for robotic manipulators to perform tasks such as grasping, navigation, or object manipulation in dynamic environments.
+
+### Recommendation Systems
+
+Optimizing sequences of recommendations to maximize user engagement or long-term satisfaction by learning from user interactions.
+
+### Autonomous Driving
+
+Learning optimal driving policies for tasks like lane keeping, merging, or navigating intersections in simulated environments to enhance safety and efficiency.
+
+### Resource Management
+
+Optimizing resource allocation in data centers or communication networks to improve efficiency, reduce latency, and enhance overall system performance.
+
+### Financial Trading
+
+Developing agents that learn optimal trading strategies based on market data to maximize returns and manage risk in complex financial markets.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Double DQN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Double DQN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Double DQN Lab" />
+
+## References
+
+- van Hasselt et al. (2015). van Hasselt et al..

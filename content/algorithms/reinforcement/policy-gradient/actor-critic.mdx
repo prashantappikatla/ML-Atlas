@@ -1,0 +1,207 @@
+---
+title: "Actor-Critic"
+slug: "actor-critic"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 1998
+author: "Konda & Tsitsiklis"
+paper: "Konda & Tsitsiklis"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["actor-critic", "continuous-actions", "deep-learning", "model-free", "on-policy", "policy-gradient", "reinforcement-learning", "value-function"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "q-learning"
+  - "reinforce"
+  - "stochastic-gradient-descent"
+---
+
+## Overview
+
+Actor-Critic algorithms represent a class of reinforcement learning methods that combine aspects of policy-based and value-based approaches. They employ two distinct components: an "actor" that learns a policy to select actions, and a "critic" that evaluates the quality of the actor's actions by estimating the value function. This synergistic interaction allows Actor-Critic methods to leverage the stability of value-based methods with the ability of policy-based methods to handle continuous action spaces, often leading to more efficient and stable learning.
+
+## History
+
+**1983** — Barto, Sutton, and Anderson introduced one of the earliest forms of Actor-Critic architecture for the pole-balancing problem, demonstrating its potential for control tasks.
+
+**1998** — V. R. Konda and J. N. Tsitsiklis published a seminal paper, "Actor-Critic Algorithms," providing a formal theoretical foundation and convergence analysis for these methods in both continuous and discrete time.
+
+**1999** — The Actor-Critic framework was popularized and extensively discussed in Sutton and Barto's influential textbook, "Reinforcement Learning: An Introduction," solidifying its place in the field.
+
+**2016** — Mnih et al. introduced Asynchronous Advantage Actor-Critic (A3C), a highly efficient and robust variant that enabled parallel training and achieved state-of-the-art performance on various Atari games.
+
+**2017** — Schulman et al. proposed Proximal Policy Optimization (PPO), an advanced policy gradient method that can be viewed as an Actor-Critic algorithm, known for its strong performance and stability across many tasks.
+
+## Mathematical Intuition
+
+### Actor and Critic Roles
+
+Actor-Critic methods maintain two parameterized function approximators: an actor and a critic. The actor, parameterized by $\theta$, learns a policy $\pi_\theta(a|s)$ that maps states to a probability distribution over actions. The critic, parameterized by $w$, learns a state-value function $V_w(s)$ or an action-value function $Q_w(s,a)$, which estimates the expected return from a given state or state-action pair.
+
+$$
+\pi_\theta(a|s)
+$$
+
+$$
+V_w(s)
+$$
+
+$$
+Q_w(s,a)
+$$
+
+### Policy Gradient Theorem
+
+The actor's objective is to maximize the expected return $J(\theta) = E_{\pi_\theta}[\sum_{t=0}^\infty \gamma^t r_t]$. The policy gradient theorem provides a way to compute the gradient of this objective with respect to the policy parameters $\theta$:$$ \nabla_\theta J(\theta) = E_{\pi_\theta}[\nabla_\theta \log \pi_\theta(a|s) Q^{\pi_\theta}(s,a)] $$The term $Q^{\pi_\theta}(s,a)$ represents the true action-value function under policy $\pi_\theta$. In Actor-Critic, the critic provides an estimate for this value.
+
+$$
+J(\theta) = E_{\pi_\theta}[\sum_{t=0}^\infty \gamma^t r_t]
+$$
+
+$$
+\nabla_\theta J(\theta) = E_{\pi_\theta}[\nabla_\theta \log \pi_\theta(a|s) Q^{\pi_\theta}(s,a)]
+$$
+
+$$
+Q^{\pi_\theta}(s,a)
+$$
+
+### Advantage Function Estimation
+
+To reduce variance in the policy gradient estimate, the advantage function $A^{\pi_\theta}(s,a) = Q^{\pi_\theta}(s,a) - V^{\pi_\theta}(s)$ is often used. The critic estimates $V_w(s)$, and the action-value $Q^{\pi_\theta}(s,a)$ can be approximated using the observed reward $r_t$ and the critic's estimate of the next state's value $V_w(s_{t+1})$. The temporal difference (TD) error, $\delta_t = r_t + \gamma V_w(s_{t+1}) - V_w(s_t)$, serves as a common estimate for the advantage function.
+
+$$
+A^{\pi_\theta}(s,a) = Q^{\pi_\theta}(s,a) - V^{\pi_\theta}(s)
+$$
+
+$$
+\delta_t = r_t + \gamma V_w(s_{t+1}) - V_w(s_t)
+$$
+
+### Actor and Critic Updates
+
+The actor's parameters $\theta$ are updated in the direction of the policy gradient, using the critic's estimate of the advantage (e.g., the TD error $\delta_t$):$$ \theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t $$The critic's parameters $w$ are updated to minimize the squared TD error, typically via [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent), to improve its value function estimate:$$ w \leftarrow w + \alpha_w \delta_t \nabla_w V_w(s_t) $$Here, $\alpha_\theta$ and $\alpha_w$ are the learning rates for the actor and critic, respectively.
+
+$$
+\theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t
+$$
+
+$$
+w \leftarrow w + \alpha_w \delta_t \nabla_w V_w(s_t)
+$$
+
+$$
+\alpha_\theta
+$$
+
+$$
+\alpha_w
+$$
+
+## Algorithm Steps
+
+1. Initialize the actor's policy network parameters $\theta$ and the critic's value network parameters $w$ randomly.
+2. Choose learning rates $\alpha_\theta$, $\alpha_w$, and a discount factor $\gamma$.
+3. For each episode, observe an initial state $s_0$ from the environment.
+4. For each time step $t$ within the episode:
+5. Sample an action $a_t$ from the actor's policy $\pi_\theta(a_t|s_t)$.
+6. Execute action $a_t$ in the environment, observe reward $r_{t+1}$ and next state $s_{t+1}$.
+7. Compute the Temporal Difference (TD) error $\delta_t = r_{t+1} + \gamma V_w(s_{t+1}) - V_w(s_t)$. If $s_{t+1}$ is a terminal state, $V_w(s_{t+1})$ is 0.
+8. Update the critic's parameters $w$ using gradient descent to minimize the squared TD error: $w \leftarrow w + \alpha_w \delta_t \nabla_w V_w(s_t)$.
+9. Update the actor's parameters $\theta$ using the TD error as an advantage estimate: $\theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t$.
+10. Set $s_t \leftarrow s_{t+1}$ and repeat until the episode terminates.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate_actor` | `float` | `0.0001` | > 0 | The learning rate used for updating the actor's policy network parameters. |
+| `learning_rate_critic` | `float` | `0.001` | > 0 | The learning rate used for updating the critic's value network parameters. |
+| `gamma` | `float` | `0.99` | [0, 1) | The discount factor applied to future rewards, determining the importance of immediate versus long-term rewards. |
+| `n_steps` | `int` | `1` | >= 1 | The number of steps to look ahead for computing the TD target, often used in N-step TD methods (e.g., 1 for TD(0)). |
+| `entropy_coef` | `float` | `0.01` | >= 0 | Coefficient for the entropy bonus added to the actor's loss, encouraging exploration by penalizing deterministic policies. |
+| `max_grad_norm` | `float` | `0.5` | >= 0 | The maximum norm for gradient clipping, used to prevent exploding gradients during network updates. |
+| `hidden_layer_sizes_actor` | `tuple` | `(64, 64)` | tuple of positive integers | A tuple specifying the number of neurons in each hidden layer of the actor's neural network. |
+| `hidden_layer_sizes_critic` | `tuple` | `(64, 64)` | tuple of positive integers | A tuple specifying the number of neurons in each hidden layer of the critic's neural network. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Actor-Critic methods often achieve lower variance in policy gradient estimates compared to pure policy gradient methods by using the critic's value function as a baseline.
+- They are capable of learning optimal policies in continuous action spaces, which is a significant advantage over many value-based methods.
+- The critic provides a more stable and informative learning signal for the actor, potentially leading to faster convergence and improved sample efficiency.
+- The separation of policy and value functions allows for more flexible network architectures and optimization techniques for each component.
+- Many advanced and state-of-the-art reinforcement learning algorithms are built upon the Actor-Critic framework, demonstrating its robustness and adaptability.
+
+## Weaknesses
+
+- Actor-Critic algorithms can be highly sensitive to hyperparameter tuning, particularly the learning rates for both the actor and the critic networks.
+- The convergence and stability of the algorithm are heavily dependent on the critic's ability to accurately estimate the value function, which can be challenging.
+- They can suffer from instability if the critic's value estimates are poor or if the policy changes too rapidly, leading to oscillations or divergence.
+- Maintaining and updating two separate function approximators (actor and critic) can increase computational complexity compared to simpler methods.
+- The choice of function approximators and their architectures significantly impacts performance, requiring careful design and experimentation.
+
+## Use Cases
+
+### Robotics
+
+Training robots to perform complex manipulation tasks, such as grasping objects or navigating intricate environments, by learning continuous control policies.
+
+### Game Playing
+
+Developing AI agents that can play various video games, including those with high-dimensional state and action spaces, often achieving superhuman performance.
+
+### Resource Management
+
+Optimizing resource allocation in complex systems like data centers, communication networks, or energy grids to maximize efficiency and minimize costs.
+
+### Autonomous Driving
+
+Learning optimal control policies for self-driving cars, enabling them to make decisions in dynamic traffic scenarios and navigate safely.
+
+### Financial Trading
+
+Creating intelligent agents that can make optimal buy/sell decisions in dynamic and uncertain financial markets to maximize returns.
+
+### Industrial Control
+
+Optimizing control strategies for industrial processes, such as chemical reactions or manufacturing lines, to improve efficiency and product quality.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Actor-Critic from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Actor-Critic does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Actor-Critic Lab" />
+
+## References
+
+- Konda & Tsitsiklis (1998). Konda & Tsitsiklis.

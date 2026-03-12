@@ -1,0 +1,193 @@
+---
+title: "A3C"
+slug: "a3c"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2016
+author: "Mnih et al."
+paper: "Mnih et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["actor-critic", "asynchronous", "deep-learning", "model-free", "multi-agent", "online-learning", "policy-gradient", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "q-learning"
+  - "reinforce"
+---
+
+## Overview
+
+A3C (Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)) is a model-free, online reinforcement learning algorithm that leverages parallel training to stabilize and accelerate learning in complex environments. It combines the strengths of policy-based and value-based methods through an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, where multiple agents explore different instances of the environment simultaneously. This asynchronous approach reduces correlation in the agents' experiences, leading to more robust and efficient learning compared to synchronous methods.
+
+## History
+
+**2016** — Mnih et al. from Google DeepMind introduced A3C in their seminal paper "Asynchronous Methods for Deep Reinforcement Learning," demonstrating its superior performance and stability on various Atari 2600 games and 3D environments.
+
+**2016** — The paper highlighted A3C's efficiency, showing it could achieve state-of-the-art results without the need for experience replay buffers, which were crucial for prior deep reinforcement learning algorithms like DQN.
+
+**2017** — A3C served as a foundational algorithm, inspiring subsequent asynchronous and distributed reinforcement learning methods, including A2C (Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)), a synchronous variant that often simplifies implementation.
+
+## Mathematical Intuition
+
+### Actor-Critic Architecture
+
+A3C employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework, where the "actor" learns a policy $\pi(a|s; \theta)$ to select actions, and the "critic" learns a state-value function $V(s; \phi)$ to estimate the expected return from a given state. These two components often share some neural network layers and are trained concurrently. The critic's value estimates help reduce the variance of the policy gradient updates, making learning more stable.
+
+$$
+$\pi(a|s; \theta)$
+$$
+
+$$
+$V(s; \phi)$
+$$
+
+### Advantage Function Estimation
+
+The core of the policy update relies on the advantage function $A(s, a)$, which measures how much better an action $a$ is compared to the average action from state $s$. In A3C, the advantage is often estimated using the TD error: $A(s_t, a_t) = R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi)$, where $R_t$ is the immediate reward and $\gamma$ is the discount factor. This estimation helps guide the actor towards actions that yield higher-than-expected returns.
+
+$$
+$A(s, a)$
+$$
+
+$$
+$A(s_t, a_t) = R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi)$
+$$
+
+$$
+$R_t$
+$$
+
+$$
+$\gamma$
+$$
+
+### Asynchronous Parallel Learning
+
+A3C's distinctive feature is its asynchronous nature. Multiple parallel agents, each with its own copy of the environment, interact and collect experiences independently. After a certain number of steps or when a terminal state is reached, each agent computes gradients locally and asynchronously sends them to update a global shared network. This parallel exploration and decentralized updating decorrelates the training data, improving stability and speeding up learning by avoiding the need for an experience replay buffer.
+
+### Policy and Value Loss
+
+The global network parameters $\theta$ (for policy) and $\phi$ (for value) are updated using gradients derived from a combined loss function. The policy loss aims to maximize the expected return, often incorporating an entropy bonus to encourage exploration: $$L_p(\theta) = -\log \pi(a_t|s_t; \theta) A(s_t, a_t) - \beta H(\pi(s_t; \theta))$$ where $H$ is the entropy and $\beta$ is the entropy coefficient. The value loss minimizes the squared error between the estimated value and the target value: $$L_v(\phi) = (R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi))^2$$ These losses are combined and optimized using an algorithm like Adam.
+
+$$
+$L_p(\theta) = -\log \pi(a_t|s_t; \theta) A(s_t, a_t) - \beta H(\pi(s_t; \theta))$
+$$
+
+$$
+$H(\pi(s_t; \theta))$
+$$
+
+$$
+$\beta$
+$$
+
+$$
+$L_v(\phi) = (R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi))^2$
+$$
+
+## Algorithm Steps
+
+1. Initialize a global neural network with policy parameters $\theta$ and value parameters $\phi$, and create multiple worker agents, each with its own local copy of the network.
+2. Each worker agent independently interacts with its own instance of the environment for a maximum of $T_{max}$ steps or until a terminal state is reached.
+3. During interaction, each worker stores its experiences, including states $s_t$, actions $a_t$, and rewards $r_t$.
+4. After collecting experiences, each worker calculates the returns $R_t$ and advantage estimates $A(s_t, a_t)$ for its trajectory.
+5. Each worker computes gradients for the policy and value networks with respect to its local parameters, using the collected experiences and the advantage estimates.
+6. The worker then asynchronously sends these gradients to update the global network parameters $\theta$ and $\phi$ using an optimizer like Adam.
+7. After updating the global network, the worker's local network parameters are synchronized with the updated global parameters.
+8. The worker repeats the process from step 2, continuing to explore its environment and contribute to the global learning process.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0001` | (0, 1) | The step size for the optimizer used to update the global network parameters. |
+| `n_steps` | `int` | `5` | (1, inf) | The number of steps each worker agent takes in its environment before computing gradients and updating the global network. |
+| `gamma` | `float` | `0.99` | (0, 1) | The discount factor for future rewards, determining the importance of future rewards. |
+| `value_loss_coef` | `float` | `0.5` | (0, inf) | Coefficient for the value function loss in the total loss function, balancing its contribution. |
+| `entropy_coef` | `float` | `0.01` | (0, inf) | Coefficient for the entropy bonus in the policy loss, encouraging exploration by penalizing deterministic policies. |
+| `max_grad_norm` | `float` | `0.5` | (0, inf) | The maximum norm for the gradients, used for gradient clipping to prevent exploding gradients during updates. |
+| `num_workers` | `int` | `16` | (1, inf) | The number of parallel worker agents to run simultaneously, contributing to asynchronous updates. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- A3C's asynchronous updates decorrelate training data, leading to more stable and efficient learning compared to synchronous methods.
+- It does not require an experience replay buffer, simplifying implementation and reducing memory requirements compared to off-policy algorithms like DQN.
+- The parallel exploration by multiple agents allows for more diverse sampling of the environment, which can prevent agents from getting stuck in local optima.
+- The actor-critic architecture effectively combines the benefits of policy-based methods (direct policy learning) and value-based methods (variance reduction).
+- A3C is generally robust to hyperparameter choices and can achieve strong performance across a variety of continuous and discrete control tasks.
+- The entropy bonus in the policy loss encourages exploration, which is crucial for discovering optimal policies in complex environments.
+
+## Weaknesses
+
+- Implementing A3C can be more complex than single-agent algorithms due to the need for managing multiple parallel agents and asynchronous updates.
+- Its performance can be sensitive to the number of parallel workers and the computational resources available, as too few workers may not provide sufficient decorrelation.
+- A3C's asynchronous nature can make debugging and reproducibility challenging compared to synchronous algorithms.
+- While it avoids an experience replay buffer, it still requires significant computational resources for training deep neural networks across multiple agents.
+- The choice of learning rates for the actor and critic, as well as the entropy regularization coefficient, can significantly impact training stability and final performance.
+
+## Use Cases
+
+### Robotics
+
+Training robots to perform complex manipulation tasks or navigate dynamic environments by learning optimal control policies through interaction.
+
+### Game Playing
+
+Developing AI agents that can learn to play various video games, from Atari to more complex 3D environments, by maximizing in-game rewards.
+
+### Resource Management
+
+Optimizing resource allocation in data centers or communication networks by learning policies that minimize latency or maximize throughput.
+
+### Autonomous Driving
+
+Training components of self-driving car systems, such as path planning or decision-making modules, to react safely and efficiently to road conditions.
+
+### Financial Trading
+
+Developing automated trading strategies that learn to make buy/sell decisions based on market data to maximize returns and manage risk.
+
+### Industrial Control
+
+Optimizing control policies for industrial processes, such as chemical reactions or manufacturing lines, to improve efficiency and reduce waste.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement A3C from scratch
+```
+
+### Using scikit-learn
+
+```python
+# A3C does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="A3C Lab" />
+
+## References
+
+- Mnih et al. (2016). Mnih et al..

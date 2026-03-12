@@ -1,0 +1,179 @@
+---
+title: "GAT"
+slug: "gat"
+category: "graph"
+subcategory: "graph-neural-networks"
+year: 2018
+author: "Veli_kovi_ et al."
+paper: "Veli_kovi_ et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["attention", "deep-learning", "graph-neural-networks", "graph-representation-learning", "inductive-learning", "message-passing", "node-classification"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "graphsage"
+  - "transformer"
+---
+
+## Overview
+
+Graph Attention Networks (GATs) are a class of Graph Neural Networks that leverage the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) to learn varying importance weights for different neighbors of a node. This allows GATs to dynamically assign different levels of influence to neighboring nodes when computing a node's new representation, addressing limitations of prior GNNs that treat all neighbors equally. GATs are inherently inductive, capable of generalizing to unseen graph structures. Their core innovation lies in applying self-attention to the graph structure, enabling them to focus on the most relevant parts of a node's neighborhood.
+
+## History
+
+**2018** — Petar Veličković, Guillem Cucurull, Arantxa Casanova, Adriana Romero, Pietro Liò, and Yoshua Bengio introduced Graph Attention Networks (GATs) in their seminal paper, 'Graph Attention Networks'. This work proposed using masked self-attention layers to aggregate features from neighbors, allowing for different weights to be assigned to different nodes in a neighborhood.
+
+**2018** — The introduction of GATs marked a significant advancement in Graph Neural Networks, demonstrating competitive or superior performance on transductive and inductive node classification tasks compared to previous methods like Graph Convolutional Networks (GCNs) and [GraphSAGE](/algorithms/graph/graph-embeddings/graphsage).
+
+**2019** — Subsequent research and implementations in popular deep learning frameworks like PyTorch Geometric and DGL made GATs widely accessible, fostering their adoption and further development in various graph-based applications.
+
+**2020** — Extensions and variants of GATs, such as GATv2 and Heterogeneous GATs, were proposed to address specific limitations or expand their applicability to more complex graph structures and tasks, demonstrating the foundational impact of the original GAT architecture.
+
+## Mathematical Intuition
+
+### Attention Coefficient Calculation
+
+For each node $i$, GAT computes attention coefficients $e_{ij}$ between node $i$ and its neighbors $j \in \mathcal{N}_i$, including itself. This coefficient indicates the importance of node $j$'s features to node $i$. First, input node features $\vec{h}_i$ are transformed by a shared linear projection $\mathbf{W}$. Then, a shared [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) $a$ (a single-layer feedforward neural network) is applied to the concatenated transformed features of node $i$ and node $j$. The raw attention score is given by: $$e_{ij} = a(\mathbf{W}\vec{h}_i, \mathbf{W}\vec{h}_j)$$ The [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) $a$ is typically a LeakyReLU activated linear transformation, for example, $a(\vec{x}, \vec{y}) = \text{LeakyReLU}(\vec{a}^T[\vec{x} \parallel \vec{y}])$, where $\vec{a}$ is a learnable weight vector and $\parallel$ denotes concatenation.
+
+$$
+e_{ij} = a(\mathbf{W}\vec{h}_i, \mathbf{W}\vec{h}_j)
+$$
+
+$$
+a(\vec{x}, \vec{y}) = \text{LeakyReLU}(\vec{a}^T[\vec{x} \parallel \vec{y}])
+$$
+
+### Normalized Attention Weights
+
+To make attention coefficients comparable across different nodes and easily interpretable as weights, they are normalized using the softmax function over all neighbors of node $i$ (including $i$ itself). This ensures that the sum of attention weights for a node's neighborhood equals 1. The normalized attention coefficient $\alpha_{ij}$ is calculated as: $$\alpha_{ij} = \text{softmax}_j(e_{ij}) = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i \cup \{i\}} \exp(e_{ik})}$$ These $\alpha_{ij}$ values represent the learned importance of node $j$'s features when aggregating information for node $i$.
+
+$$
+\alpha_{ij} = \text{softmax}_j(e_{ij}) = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i \cup \{i\}} \exp(e_{ik})}
+$$
+
+### Node Feature Aggregation
+
+Once the normalized attention weights $\alpha_{ij}$ are computed, they are used to aggregate the transformed features of neighbors. For each node $i$, its new feature representation $\vec{h}'_i$ is computed as a weighted sum of its neighbors' transformed features, followed by an activation function $\sigma$ (e.g., ELU). This aggregation step effectively combines information from the local neighborhood, emphasizing more relevant neighbors based on the learned attention weights: $$\vec{h}'_i = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij} \mathbf{W}\vec{h}_j\right)$$ This process is applied independently for each node in the graph, allowing for parallel computation.
+
+$$
+\vec{h}'_i = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij} \mathbf{W}\vec{h}_j\right)
+$$
+
+### Multi-head Attention
+
+To stabilize the learning process and enhance the model's expressive power, GAT employs multi-head attention, similar to Transformers. This involves performing the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) $K$ times independently, each with its own set of learnable parameters ($\mathbf{W}^{(k)}$ and $\vec{a}^{(k)}$). The outputs from these $K$ attention heads are then combined. For intermediate layers, the outputs are typically concatenated: $$\vec{h}'_i = \parallel_{k=1}^K \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(k)} \mathbf{W}^{(k)}\vec{h}_j\right)$$ For the final layer of the GAT, it is common to average the outputs of the $K$ heads to produce the final feature representation: $$\vec{h}'_i = \sigma\left(\frac{1}{K}\sum_{k=1}^K \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(k)} \mathbf{W}^{(k)}\vec{h}_j\right)$$ Multi-head attention allows the model to capture different types of relationships or attend to different aspects of the neighborhood information.
+
+$$
+\vec{h}'_i = \parallel_{k=1}^K \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(k)} \mathbf{W}^{(k)}\vec{h}_j\right)
+$$
+
+$$
+\vec{h}'_i = \sigma\left(\frac{1}{K}\sum_{k=1}^K \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(k)} \mathbf{W}^{(k)}\vec{h}_j\right)
+$$
+
+## Algorithm Steps
+
+1. Initialize node features $\vec{h}_i$ for all nodes $i$ in the graph and randomly initialize learnable weight matrices $\mathbf{W}^{(k)}$ and attention vectors $\vec{a}^{(k)}$ for each of the $K$ attention heads.
+2. For each attention head $k=1, \dots, K$: Linearly transform the input features of all nodes using the head-specific weight matrix $\mathbf{W}^{(k)}$, resulting in $\mathbf{W}^{(k)}\vec{h}_i$.
+3. For each node $i$ and its neighbor $j \in \mathcal{N}_i \cup \{i\}$: Compute the unnormalized attention coefficient $e_{ij}^{(k)}$ by applying the shared attention mechanism $a^{(k)}$ to the concatenated transformed features of node $i$ and node $j$, i.e., $e_{ij}^{(k)} = a^{(k)}(\mathbf{W}^{(k)}\vec{h}_i, \mathbf{W}^{(k)}\vec{h}_j)$.
+4. Normalize the attention coefficients for each node $i$ across all its neighbors using the softmax function to obtain $\alpha_{ij}^{(k)} = \text{softmax}_j(e_{ij}^{(k)})$.
+5. Aggregate the transformed features of neighbors for each node $i$ using the normalized attention weights: $\vec{h}'_i^{(k)} = \sigma\left(\sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(k)} \mathbf{W}^{(k)}\vec{h}_j\right)$, where $\sigma$ is an activation function (e.g., ELU).
+6. Combine the outputs from all $K$ attention heads: For intermediate layers, concatenate the outputs $\parallel_{k=1}^K \vec{h}'_i^{(k)}$. For the final layer, average the outputs $\frac{1}{K}\sum_{k=1}^K \vec{h}'_i^{(k)}$.
+7. Apply a final non-linear activation (if not already applied in the aggregation step) and potentially a dropout layer to the combined output features.
+8. Repeat these steps for multiple GAT layers, stacking them to learn higher-level representations, and finally pass the output of the last layer to a task-specific prediction head (e.g., a softmax layer for classification).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `out_channels` | `int` | `None` | integer > 0 | The number of output features (channels) for each node after the GAT layer. This determines the dimensionality of the learned node embeddings. |
+| `heads` | `int` | `1` | integer > 0 | The number of attention heads to use in the multi-head attention mechanism. More heads can capture diverse relationships but increase computational cost. |
+| `dropout` | `float` | `0.0` | 0.0 to 1.0 | Dropout probability applied to the normalized attention coefficients during training to prevent overfitting. |
+| `negative_slope` | `float` | `0.2` | float > 0.0 | Negative slope of the LeakyReLU activation function used in the attention mechanism. Controls the slope for negative inputs. |
+| `concat` | `bool` | `True` | True, False | If True, the outputs of the different attention heads are concatenated. If False, they are averaged. Concatenation is typical for intermediate layers, averaging for the final layer. |
+| `add_self_loops` | `bool` | `True` | True, False | If True, self-loops are added to the adjacency matrix, allowing a node to attend to its own features. This is standard practice in GATs. |
+| `bias` | `bool` | `True` | True, False | If True, a learnable bias vector is added to the output of the linear transformation before aggregation. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- GATs are inherently inductive, meaning they can generalize to unseen graph structures and nodes without requiring re-training, unlike transductive methods.
+- The attention mechanism allows GATs to assign different importance to different neighbors, providing a more flexible and expressive aggregation scheme than methods that treat all neighbors equally.
+- Multi-head attention enhances the model's capacity to capture diverse relationships within the neighborhood and stabilizes the learning process.
+- The attention weights can offer some level of interpretability, indicating which neighbors are most influential for a node's representation.
+- GATs are robust to varying neighborhood sizes and structures, as the attention mechanism adapts dynamically.
+- They achieve state-of-the-art performance on various node-level and graph-level tasks across different benchmark datasets.
+
+## Weaknesses
+
+- The computational complexity of GATs can be high, especially for dense graphs or graphs with high-degree nodes, due to the pairwise attention calculation between a node and all its neighbors.
+- Memory consumption can be substantial for large graphs, as attention scores for all edges need to be computed and stored.
+- Similar to other GNNs, GATs can suffer from over-smoothing in very deep architectures, where node representations become indistinguishable.
+- The performance of GATs can be sensitive to the choice of hyperparameters, particularly the number of attention heads and the dropout rate.
+- While attention weights offer some interpretability, understanding the full reasoning behind complex multi-layer, multi-head GAT decisions can still be challenging.
+
+## Use Cases
+
+### Social Networks
+
+Used for node classification tasks such as identifying communities, predicting user attributes, or detecting anomalous behavior by leveraging connections between users.
+
+### Drug Discovery
+
+Applied to molecular graphs for tasks like predicting molecular properties, drug-target interaction prediction, or de novo drug design, where atoms are nodes and bonds are edges.
+
+### Recommender Systems
+
+Employed in graph-based recommender systems to model user-item interactions, enabling more personalized recommendations by understanding complex relationships in interaction graphs.
+
+### Citation Networks
+
+Used for node classification (e.g., classifying research papers by topic) and link prediction (e.g., predicting future citations) by modeling papers as nodes and citations as edges.
+
+### Traffic Prediction
+
+Applied to road networks to predict traffic flow or congestion, where road segments are nodes and their connectivity forms edges, allowing the model to capture spatial dependencies.
+
+### Knowledge Graphs
+
+Utilized for tasks such as link prediction (completing missing facts) or entity classification within large knowledge graphs, where entities are nodes and relations are edges.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GAT from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GAT does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GAT Lab" />
+
+## References
+
+- Veli_kovi_ et al. (2018). Veli_kovi_ et al..

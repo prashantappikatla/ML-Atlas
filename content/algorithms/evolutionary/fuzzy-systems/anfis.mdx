@@ -1,0 +1,194 @@
+---
+title: "ANFIS"
+slug: "anfis"
+category: "evolutionary"
+subcategory: "fuzzy-systems"
+year: 1993
+author: "Jang"
+paper: "Jang"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["adaptive-systems", "classification", "fuzzy-logic", "hybrid-systems", "interpretability", "neural-networks", "nonlinear-modeling", "regression"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "fuzzy-inference-system"
+  - "genetic-algorithm"
+  - "radial-basis-function-network"
+  - "support-vector-machine"
+---
+
+## Overview
+
+ANFIS, or Adaptive Neuro-[Fuzzy Inference System](/algorithms/evolutionary/fuzzy-systems/fuzzy-inference-system), is a hybrid intelligent system that integrates the learning capabilities of artificial neural networks with the human-like reasoning of fuzzy inference systems. It constructs a [Fuzzy Inference System](/algorithms/evolutionary/fuzzy-systems/fuzzy-inference-system) (FIS) whose membership function parameters are tuned using a neural network learning algorithm. This architecture allows ANFIS to approximate nonlinear functions and model complex systems by leveraging both numerical data and linguistic knowledge.
+
+## History
+
+**1965** — Lotfi A. Zadeh introduces the concept of fuzzy sets, laying the foundation for fuzzy logic and fuzzy inference systems.
+
+**1973** — Zadeh proposes fuzzy logic as a formal system for approximate reasoning, expanding its theoretical framework.
+
+**1985** — Takagi and Sugeno introduce the Takagi-Sugeno fuzzy model, which uses linear functions of the input variables in the consequent part of fuzzy rules, making it suitable for control and modeling.
+
+**1990** — Jang and Sun develop early neuro-fuzzy systems, exploring the integration of neural networks and fuzzy logic.
+
+**1993** — Jyh-Shing Roger Jang introduces the Adaptive Neuro-[Fuzzy Inference System](/algorithms/evolutionary/fuzzy-systems/fuzzy-inference-system) (ANFIS), a seminal work that combines the learning power of neural networks with the interpretability of fuzzy logic.
+
+**1997** — Jang, Sun, and Mizutani publish "Neuro-Fuzzy and Soft Computing," a comprehensive textbook that further popularizes ANFIS and related hybrid intelligent systems.
+
+## Mathematical Intuition
+
+### Takagi-Sugeno Fuzzy Model
+
+ANFIS typically implements a first-order Takagi-Sugeno [Fuzzy Inference System](/algorithms/evolutionary/fuzzy-systems/fuzzy-inference-system). For a system with two inputs $x$ and $y$ and one output $f$, a typical rule set might be:
+Rule 1: IF $x$ is $A_1$ AND $y$ is $B_1$, THEN $f_1 = p_1 x + q_1 y + r_1$
+Rule 2: IF $x$ is $A_2$ AND $y$ is $B_2$, THEN $f_2 = p_2 x + q_2 y + r_2$
+Here, $A_i$ and $B_i$ are fuzzy sets, and $p_i, q_i, r_i$ are linear parameters.
+
+$$
+\text{Rule } i: \text{IF } x \text{ is } A_i \text{ AND } y \text{ is } B_i, \text{ THEN } f_i = p_i x + q_i y + r_i
+$$
+
+### Fuzzification and Rule Firing
+
+In the first layer, input variables are fuzzified using membership functions (MFs). For an input $x$, its degree of membership to fuzzy set $A_i$ is $\mu_{A_i}(x)$. Common MFs include Gaussian, triangular, or generalized bell functions. The firing strength $w_i$ for each rule is calculated by multiplying the membership degrees of its antecedents, often using the product operator:
+$$w_i = \mu_{A_i}(x) \times \mu_{B_i}(y)$$
+These firing strengths are then normalized in the third layer:
+$$\bar{w}_i = \frac{w_i}{\sum_{k=1}^N w_k}$$
+
+$$
+\mu_{A_i}(x)
+$$
+
+$$
+w_i = \mu_{A_i}(x) \times \mu_{B_i}(y)
+$$
+
+$$
+\bar{w}_i = \frac{w_i}{\sum_{k=1}^N w_k}
+$$
+
+### Consequent Parameter Calculation
+
+In the fourth layer, each rule's output is computed by multiplying the normalized firing strength $\bar{w}_i$ by its consequent function $f_i$:
+$$O_i = \bar{w}_i f_i = \bar{w}_i (p_i x + q_i y + r_i)$$
+The consequent parameters $p_i, q_i, r_i$ are determined during the training phase using a least squares estimator, given the premise parameters are fixed.
+
+$$
+O_i = \bar{w}_i f_i = \bar{w}_i (p_i x + q_i y + r_i)
+$$
+
+### Defuzzification and Output
+
+The final output of the ANFIS model is the sum of all rule outputs, representing the defuzzification step:
+$$F = \sum_{i=1}^N O_i = \sum_{i=1}^N \bar{w}_i f_i$$
+This output is a weighted average of the individual rule outputs, where the weights are the normalized firing strengths.
+
+$$
+F = \sum_{i=1}^N O_i = \sum_{i=1}^N \bar{w}_i f_i
+$$
+
+## Algorithm Steps
+
+1. Initialize the ANFIS structure, including the number of membership functions for each input, their types (e.g., Gaussian, triangular), and initial parameters for these functions.
+2. Perform a forward pass: For each input data point, calculate the membership degrees for all fuzzy sets in the first layer.
+3. Calculate the firing strength of each fuzzy rule by applying a fuzzy AND operator (e.g., product or minimum) to the membership degrees of its antecedents.
+4. Normalize the firing strengths of all rules by dividing each rule's firing strength by the sum of all firing strengths.
+5. In the fourth layer, calculate the output of each rule by multiplying its normalized firing strength by its consequent polynomial function $f_i = p_i x + q_i y + r_i$.
+6. In the final layer, sum all rule outputs to obtain the overall ANFIS output $F$.
+7. During the backward pass, update the consequent parameters ($p_i, q_i, r_i$) using a least squares estimator, given the premise parameters are fixed.
+8. Update the premise parameters (parameters of the membership functions) using a gradient descent algorithm (backpropagation) to minimize the error between the ANFIS output and the target output. Repeat steps 2-8 for a specified number of epochs or until convergence.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_inputs` | `integer` | `None` | integer > 0 | The number of input features to the ANFIS model. |
+| `num_mfs_per_input` | `integer` | `2` | integer > 0 | The number of membership functions to use for each input variable. |
+| `mf_type` | `string` | `gaussian` | ['gaussian', 'triangular', 'gbell'] | The type of membership function to use for fuzzification (e.g., 'gaussian', 'triangular', 'gbell'). |
+| `output_mf_type` | `string` | `linear` | ['constant', 'linear'] | The type of output membership function or consequent model (e.g., 'constant' for Mamdani, 'linear' for Takagi-Sugeno). |
+| `epochs` | `integer` | `100` | integer > 0 | The number of training epochs (iterations) for the hybrid learning algorithm. |
+| `learning_rate` | `float` | `0.01` | float > 0.0 | The learning rate for the gradient descent optimization of premise parameters. |
+| `error_tolerance` | `float` | `1e-5` | float >= 0.0 | The minimum error threshold to stop training if the error falls below this value. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- ANFIS offers high interpretability due to its fuzzy rule-based structure, allowing users to understand the reasoning behind its predictions.
+- It can effectively model complex nonlinear relationships in data, making it suitable for a wide range of regression and classification tasks.
+- The hybrid learning algorithm combines the advantages of gradient descent and least squares, leading to efficient and robust parameter tuning.
+- ANFIS can integrate both numerical data and linguistic knowledge, providing a flexible framework for system modeling.
+- It demonstrates strong generalization capabilities on unseen data when properly trained, especially for interpolation within the training data range.
+- The modular structure of ANFIS allows for easier modification and extension of fuzzy rules and membership functions.
+
+## Weaknesses
+
+- The number of fuzzy rules grows exponentially with the number of input variables, leading to a "curse of dimensionality" and making ANFIS computationally expensive for high-dimensional data.
+- Determining the optimal number and type of membership functions and fuzzy rules often requires domain expertise or extensive trial-and-error.
+- ANFIS can be prone to local optima during the gradient descent phase of premise parameter tuning, potentially hindering global optimization.
+- Its performance can degrade significantly when extrapolating beyond the range of the training data, as fuzzy rules are typically defined within observed input spaces.
+- The training process can be slow for large datasets due to the iterative nature of the hybrid learning algorithm.
+
+## Use Cases
+
+### Control Systems
+
+Used in industrial process control, such as temperature control, motor speed regulation, and chemical process optimization, due to its ability to handle nonlinear dynamics.
+
+### Financial Forecasting
+
+Applied for predicting stock prices, exchange rates, and market trends by modeling complex, non-linear financial time series data.
+
+### Medical Diagnosis
+
+Utilized in decision support systems for diagnosing diseases, predicting patient outcomes, and analyzing medical images by integrating expert knowledge and patient data.
+
+### Environmental Modeling
+
+Employed for predicting air pollution levels, water quality, and weather patterns, where complex interactions between multiple variables exist.
+
+### Robotics
+
+Used for path planning, obstacle avoidance, and robot arm control, enabling robots to adapt to uncertain and dynamic environments.
+
+### Pattern Recognition
+
+Applied in tasks like handwriting recognition, speech recognition, and image classification, where fuzzy boundaries between classes are common.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement ANFIS from scratch
+```
+
+### Using scikit-learn
+
+```python
+# ANFIS does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="ANFIS Lab" />
+
+## References
+
+- Jang (1993). Jang.

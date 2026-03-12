@@ -1,0 +1,173 @@
+---
+title: "Dyna-Q"
+slug: "dyna-q"
+category: "reinforcement"
+subcategory: "model-based-rl"
+year: 1990
+author: "Sutton"
+paper: "Sutton"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["discrete-actions", "discrete-states", "model-based-rl", "planning", "q-learning", "reinforcement-learning", "sutton", "tabular-rl"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "policy-iteration"
+  - "q-learning"
+  - "sarsa"
+  - "value-iteration"
+---
+
+## Overview
+
+Dyna-Q is a model-based reinforcement learning architecture that integrates planning and learning to accelerate policy improvement. It achieves this by simultaneously learning a Q-function from real experiences and using a learned environmental model to generate simulated experiences for additional Q-function updates. This combination allows the agent to learn from both direct interaction with the environment and from "imagined" interactions, leading to more efficient learning, especially in environments where real experience is costly or slow.
+
+## History
+
+**1990** — Richard S. Sutton introduced the Dyna architecture in his paper "Integrated Architectures for Learning, Planning, and Reacting: A Dyna Approach," laying the groundwork for combining model-free learning with model-based planning.
+
+**1991** — Sutton and Barto's seminal book "Reinforcement Learning: An Introduction" further popularized Dyna-Q as a foundational algorithm for integrating planning and learning.
+
+**2000** — The concept of Dyna-Q inspired the development of Dyna-2, which introduced the idea of learning multiple models or using a more sophisticated model representation.
+
+**2005** — Research into more sophisticated model learning techniques, such as those based on neural networks, began to extend the applicability of Dyna-style architectures to continuous and high-dimensional state spaces.
+
+## Mathematical Intuition
+
+### Q-Learning Foundation
+
+Dyna-Q builds upon the [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) update rule, which iteratively estimates the optimal action-value function $Q(s, a)$. The update for a real experience $(s, a, r, s')$ is given by:
+$$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]$$
+Here, $\alpha$ is the learning rate, $\gamma$ is the discount factor, $r$ is the immediate reward, and $s'$ is the next state.
+
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]
+$$
+
+### Environmental Model Learning
+
+The algorithm learns a model of the environment, typically consisting of a state-transition function $P(s'|s, a)$ and a reward function $R(s, a)$. For deterministic environments, this model simply stores the observed next state $s'$ and reward $r$ for each $(s, a)$ pair encountered. When the agent takes action $a$ in state $s$ and observes next state $s'$ and reward $r$, it updates its model:
+$$Model(s, a) \leftarrow (s', r)$$
+This model can then be used to simulate experiences.
+
+$$
+Model(s, a) \leftarrow (s', r)
+$$
+
+### Planning with Simulated Experiences
+
+After each real interaction with the environment, Dyna-Q performs $N$ planning steps. In each planning step, a previously experienced state-action pair $(s_{plan}, a_{plan})$ is chosen from memory, and the learned model is used to predict the next state $s'_{plan}$ and reward $r_{plan}$. This simulated experience $(s_{plan}, a_{plan}, r_{plan}, s'_{plan})$ is then used to update the Q-function using the same [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) update rule as for real experiences:
+$$Q(s_{plan}, a_{plan}) \leftarrow Q(s_{plan}, a_{plan}) + \alpha [r_{plan} + \gamma \max_{a'} Q(s'_{plan}, a') - Q(s_{plan}, a_{plan})]$$
+
+$$
+Q(s_{plan}, a_{plan}) \leftarrow Q(s_{plan}, a_{plan}) + \alpha [r_{plan} + \gamma \max_{a'} Q(s'_{plan}, a') - Q(s_{plan}, a_{plan})]
+$$
+
+### Integrated Learning Cycle
+
+Dyna-Q operates in a continuous cycle where the agent first selects an action based on its current Q-values (e.g., $\epsilon$-greedy) and interacts with the real environment, observing a reward and next state. It then updates its Q-function using this real experience (direct RL) and updates its internal model of the environment. Finally, it performs $N$ planning steps, using the learned model to generate simulated experiences and update its Q-function further, allowing for rapid propagation of value information.
+
+## Algorithm Steps
+
+1. 1. Initialize $Q(s, a)$ for all state-action pairs arbitrarily (e.g., to zero) and initialize the model $Model(s, a)$ as empty.
+2. 2. Loop for each episode:
+3. 3. Initialize current state $s$.
+4. 4. Loop for each step of the episode:
+5.    a. Select an action $a$ from state $s$ using an $\epsilon$-greedy policy based on $Q(s, a)$.
+6.    b. Take action $a$, observe reward $r$ and next state $s'$.
+7.    c. Update $Q(s, a)$ using the Q-learning update rule: $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]$.
+8.    d. Update the model: $Model(s, a) \leftarrow (s', r)$. Store $s$ and $a$ in a set of experienced state-action pairs.
+9.    e. Perform $N$ planning steps:
+10.       i. Randomly select a previously experienced state-action pair $(s_{plan}, a_{plan})$ from the set.
+11.       ii. Use the model to predict $r_{plan}$ and $s'_{plan}$ for $(s_{plan}, a_{plan})$.
+12.       iii. Update $Q(s_{plan}, a_{plan})$ using the Q-learning update rule with the simulated experience: $Q(s_{plan}, a_{plan}) \leftarrow Q(s_{plan}, a_{plan}) + \alpha [r_{plan} + \gamma \max_{a'} Q(s'_{plan}, a') - Q(s_{plan}, a_{plan})]$.
+13.    f. Set $s \leftarrow s'$.
+14. 5. Repeat until convergence or episode limit.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `0.1` | (0.0, 1.0] | Learning rate for Q-value updates, controlling how much new information overrides old information. |
+| `gamma` | `float` | `0.99` | [0.0, 1.0] | Discount factor for future rewards, determining the present value of future rewards. |
+| `epsilon` | `float` | `0.1` | [0.0, 1.0] | Probability of taking a random action (exploration) in the epsilon-greedy policy. |
+| `n_planning_steps` | `int` | `5` | [0, infinity) | The number of planning steps (simulated experiences) performed after each real environmental interaction. |
+| `n_episodes` | `int` | `1000` | [1, infinity) | The total number of episodes to run the learning process. |
+| `max_steps_per_episode` | `int` | `100` | [1, infinity) | The maximum number of steps allowed in a single episode before termination. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Dyna-Q significantly accelerates learning compared to purely model-free methods by leveraging simulated experiences.
+- It can learn effectively in environments where real-world interactions are expensive, slow, or dangerous.
+- The algorithm is relatively simple to implement, combining well-understood Q-learning with a straightforward model learning component.
+- It can adapt to changes in the environment, as both the Q-function and the model are continuously updated.
+- The planning steps allow for rapid propagation of value information across the state space, improving exploration and convergence.
+
+## Weaknesses
+
+- Dyna-Q's performance is highly dependent on the accuracy of the learned environmental model, which can be challenging in complex or stochastic environments.
+- The algorithm struggles in environments with large state and action spaces, as both the Q-table and the model become intractable to store and update.
+- The planning phase can be computationally expensive if the number of planning steps $N$ is large or if the state-action space is vast.
+- It assumes a discrete state and action space for effective model learning and Q-table updates.
+- The model learning component is often a simple lookup table, which is insufficient for generalizing to unseen states or for handling continuous spaces.
+
+## Use Cases
+
+### Robotics
+
+Training robots in simulated environments to learn control policies before deployment in the physical world, reducing wear and tear or risk.
+
+### Game AI
+
+Developing agents that can learn optimal strategies in games by simulating many moves and outcomes, enhancing strategic depth.
+
+### Inventory Management
+
+Optimizing stock levels and ordering policies by simulating demand and supply scenarios to minimize costs and stockouts.
+
+### Process Control
+
+Designing controllers for industrial processes where real-world experimentation is costly or risky, allowing for safe policy learning.
+
+### Resource Allocation
+
+Learning efficient allocation strategies for computational or network resources by modeling system responses to various configurations.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Dyna-Q from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Dyna-Q does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Dyna-Q Lab" />
+
+## References
+
+- Sutton (1990). Sutton.

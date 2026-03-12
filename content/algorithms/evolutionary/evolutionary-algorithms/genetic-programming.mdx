@@ -1,0 +1,165 @@
+---
+title: "Genetic Programming"
+slug: "genetic-programming"
+category: "evolutionary"
+subcategory: "evolutionary-algorithms"
+year: 1992
+author: "Koza"
+paper: "Koza"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["artificial-intelligence", "evolutionary-algorithm", "machine-learning", "meta-heuristic", "optimization", "program-synthesis", "symbolic-regression", "tree-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "differential-evolution"
+  - "genetic-algorithm"
+  - "particle-swarm-optimization"
+---
+
+## Overview
+
+Genetic Programming (GP) is an evolutionary computation technique that automatically generates computer programs to solve problems. It operates by evolving a population of programs, typically represented as tree structures, through processes inspired by natural selection and genetics. GP distinguishes itself by searching the space of computer programs directly, rather than optimizing parameters of a fixed program structure, enabling the discovery of novel and unexpected solutions. This approach allows it to tackle problems where the underlying functional form of the solution is unknown.
+
+## History
+
+**1992** — John Koza publishes "Genetic Programming: On the Programming of Computers by Means of Natural Selection," establishing the field and its core methodology.
+
+**1994** — Koza further expands on the methodology and applications in "Genetic Programming II: Automatic Discovery of Reusable Programs," detailing advanced techniques and applications.
+
+**1999** — Koza introduces the concept of Human-Competitive Results, demonstrating GP's ability to produce solutions comparable to or better than human-designed ones across various domains.
+
+**2008** — The field sees increased application in machine learning tasks, particularly symbolic regression and classification, benefiting from improved computational power and more accessible implementations.
+
+**2010** — Significant advancements in theoretical understanding and practical scalability lead to more robust and efficient GP systems, including specialized variants for different problem types.
+
+## Mathematical Intuition
+
+### Program Representation as Trees
+
+Programs in Genetic Programming are typically represented as syntax trees, where internal nodes are functions (e.g., arithmetic operations, logical operators) and leaf nodes are terminals (e.g., input variables, constants). For example, the expression $f(x, y) = (x + 2) \cdot y$ can be represented as a tree structure. The set of available functions and terminals defines the search space of possible programs, allowing for the construction of diverse computational structures.
+
+$$
+\text{Root: } \cdot \\ \text{Children: } +, y \\ \text{Children of } +: x, 2
+$$
+
+### Fitness Evaluation
+
+Each program in the population is evaluated based on how well it solves the given problem. A fitness function quantifies the program's performance, typically by measuring its accuracy or error on a training dataset. For a symbolic regression task, the fitness might be the negative of the mean squared error (MSE) between the program's output and the target values over a training dataset, where $N$ is the number of data points, $P(x_i)$ is the program's output for input $x_i$, and $y_i$ is the true target value. The objective is to maximize fitness, which corresponds to minimizing the error.
+
+$$
+\text{Fitness}(P) = - \frac{1}{N} \sum_{i=1}^{N} (P(x_i) - y_i)^2
+$$
+
+### Selection Mechanism
+
+Individuals (programs) are selected from the current population to become parents for the next generation based on their fitness. Common selection methods include tournament selection, where a small subset of individuals is randomly chosen and the fittest among them is selected, or roulette wheel selection, where individuals are chosen with a probability proportional to their fitness. This mechanism ensures that fitter programs have a higher chance of reproducing and passing on their genetic material.
+
+### Genetic Operators: Crossover and Mutation
+
+Crossover (or recombination) is a primary genetic operator where two parent programs exchange randomly selected subtrees to create two new offspring programs. This operation allows for the combination of beneficial program segments from different parents, exploring new program structures. Mutation introduces random changes into a program, typically by selecting a random node in a program tree and replacing the entire subtree rooted at that node with a newly generated random subtree. Mutation helps maintain diversity in the population and prevents premature convergence to local optima by introducing novel genetic material.
+
+## Algorithm Steps
+
+1. Initialize a population of random computer programs, typically represented as syntax trees, within specified depth limits using a predefined set of functions and terminals.
+2. Evaluate the fitness of each program in the current population by executing it and comparing its output to the desired behavior or target values.
+3. Select parent programs from the current population based on their fitness, giving preference to fitter individuals through methods like tournament selection.
+4. Apply genetic operators, primarily crossover and mutation, to the selected parents to create new offspring programs.
+5. Replace the current population with the new generation of offspring programs, potentially retaining some elite individuals from the previous generation.
+6. Repeat steps 2-5 for a specified number of generations or until a satisfactory fitness level is achieved or a termination condition is met.
+7. Return the fittest program found throughout the evolutionary process as the solution to the problem.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `population_size` | `int` | `500` | integer > 0 | The number of programs (individuals) in each generation of the evolutionary process. |
+| `generations` | `int` | `20` | integer > 0 | The total number of generations for which the population will be evolved. |
+| `crossover_rate` | `float` | `0.9` | 0.0 to 1.0 | The probability that two selected parent programs will undergo crossover to produce offspring. |
+| `mutation_rate` | `float` | `0.1` | 0.0 to 1.0 | The probability that an offspring program will undergo mutation after crossover. |
+| `function_set` | `list` | `['add', 'sub', 'mul', 'div']` | list of callable functions or strings representing functions | A list of functions (e.g., arithmetic, trigonometric, logical) that can be used as internal nodes in the program trees. |
+| `terminal_set` | `list` | `['x0', 'x1', 'constant']` | list of variable names or constant values | A list of terminals (e.g., input variables, constants) that can be used as leaf nodes in the program trees. |
+| `max_depth` | `int` | `17` | integer > 0 | The maximum depth of the program trees, used to control bloat and computational complexity. |
+| `elitism_rate` | `float` | `0.01` | 0.0 to 1.0 | The proportion of the fittest individuals from the current generation that are directly copied to the next generation without modification. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Genetic Programming can automatically discover novel and unexpected solutions without requiring explicit problem-specific programming, fostering innovation.
+- It performs automatic feature engineering and selection, as the evolved programs can combine raw inputs in complex and non-linear ways.
+- The resulting programs, especially smaller ones, can be highly interpretable, offering insights into the underlying data relationships and problem structure.
+- GP is well-suited for problems where the functional form of the solution is unknown or highly complex and non-linear, making it versatile.
+- It can handle a wide range of problem types, including symbolic regression, classification, control, and optimization, by adapting the fitness function.
+- GP can evolve programs that are robust to noisy data by finding generalizable patterns rather than overfitting specific instances.
+
+## Weaknesses
+
+- Genetic Programming is computationally very expensive, requiring significant processing power and time due to the evaluation of many complex programs over numerous generations.
+- It is prone to "bloat," where programs grow excessively large and complex without a corresponding increase in fitness, making them harder to interpret and slower to execute.
+- Defining an appropriate and effective fitness function can be challenging, especially for complex or ill-defined problems, directly impacting solution quality.
+- Hyperparameter tuning for GP (e.g., population size, mutation rate, function set) can be difficult and problem-dependent, often requiring extensive experimentation.
+- The stochastic nature of GP means that runs may not be reproducible, and finding the globally optimal solution is not guaranteed, only a good approximation.
+
+## Use Cases
+
+### Symbolic Regression
+
+Discovering mathematical expressions that fit a given dataset, useful in scientific modeling, data analysis, and formula derivation.
+
+### Control Systems
+
+Evolving control policies for dynamic systems, such as robotic control, autonomous vehicle navigation, or industrial process optimization.
+
+### Financial Modeling
+
+Developing predictive models for stock market trends, optimizing trading strategies, or identifying complex patterns in financial data.
+
+### Game Playing
+
+Generating strategies or AI agents for various games, from simple board games to complex video games, by evolving game-playing programs.
+
+### Circuit Design
+
+Automatically designing electronic circuits that meet specific performance criteria, such as filters or amplifiers, without human intervention.
+
+### Medical Diagnosis
+
+Creating diagnostic rules or predictive models based on patient data for disease detection, prognosis, or treatment recommendation.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Genetic Programming from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Genetic Programming does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Genetic Programming Lab" />
+
+## References
+
+- Koza (1992). Koza.

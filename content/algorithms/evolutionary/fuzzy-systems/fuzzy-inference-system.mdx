@@ -1,0 +1,175 @@
+---
+title: "Fuzzy Inference System"
+slug: "fuzzy-inference-system"
+category: "evolutionary"
+subcategory: "fuzzy-systems"
+year: 1973
+author: "Zadeh"
+paper: "Zadeh"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["control-systems", "expert-systems", "fuzzy-logic", "inference-system", "knowledge-representation", "linguistic-variables", "soft-computing", "uncertainty-modeling"]
+lab_url: ""
+lab_framework: ""
+related:
+[]
+---
+
+## Overview
+
+A Fuzzy Inference System (FIS) is a computational framework based on fuzzy set theory, fuzzy IF-THEN rules, and fuzzy reasoning. It maps a given input space to an output space using fuzzy logic, allowing for the representation and processing of human-like knowledge and imprecise information. FIS excels in modeling complex systems where a precise mathematical model is difficult to obtain, by leveraging linguistic variables and expert knowledge. This approach provides a robust and interpretable solution for decision-making under uncertainty.
+
+## History
+
+**1965** — Lotfi A. Zadeh introduced the concept of fuzzy sets in his seminal paper "Fuzzy Sets," extending classical set theory to allow elements to have degrees of membership.
+
+**1973** — Zadeh published "Outline of a New Approach to the Analysis of Complex Systems and Decision Processes," laying the groundwork for fuzzy logic and fuzzy algorithms, which are central to FIS.
+
+**1975** — E.H. Mamdani and S. Assilian developed one of the first successful applications of fuzzy logic control for a steam engine, demonstrating the practical utility of Fuzzy Inference Systems.
+
+**1985** — Takagi, Sugeno, and Kang introduced the Takagi-Sugeno-Kang (TSK) fuzzy model, which uses linear functions in the consequent part of fuzzy rules, simplifying the defuzzification process.
+
+**1990** — The first commercial fuzzy logic product, a fuzzy-controlled washing machine, was released in Japan, marking the beginning of widespread adoption of FIS in consumer electronics.
+
+## Mathematical Intuition
+
+### Fuzzy Sets and Membership
+
+Classical sets have crisp boundaries, where an element either belongs or does not belong. Fuzzy sets, introduced by Zadeh, allow elements to have partial membership, quantified by a membership function $\mu_A(x)$. This function maps each element $x$ in the universe of discourse $X$ to a real number in the interval $[0, 1]$, representing its degree of membership in fuzzy set $A$. For example, a fuzzy set "tall" might assign a membership of $0.8$ to a person $1.85m$ tall, indicating a high but not full degree of tallness.
+
+$$
+\mu_A: X \to [0, 1]
+$$
+
+### Fuzzy Logical Operators
+
+Fuzzy logic extends classical logical operators (AND, OR, NOT) to fuzzy sets using t-norms, t-conorms, and fuzzy complements. These operators combine membership degrees to evaluate the truth of fuzzy propositions. For instance, the fuzzy AND (intersection) is typically implemented using a t-norm operator $T(a, b)$, such as the minimum operator: $ \mu_{A \cap B}(x) = \min(\mu_A(x), \mu_B(x)) $. The fuzzy OR (union) is typically implemented using a t-conorm (or s-norm) operator $S(a, b)$, such as the maximum operator: $ \mu_{A \cup B}(x) = \max(\mu_A(x), \mu_B(x)) $. The fuzzy NOT (complement) is often $ \mu_{\neg A}(x) = 1 - \mu_A(x) $.
+
+$$
+\mu_{A \cap B}(x) = \min(\mu_A(x), \mu_B(x))
+$$
+
+$$
+\mu_{A \cup B}(x) = \max(\mu_A(x), \mu_B(x))
+$$
+
+$$
+\mu_{\neg A}(x) = 1 - \mu_A(x)
+$$
+
+### Fuzzy Rules and Inference
+
+Fuzzy Inference Systems operate based on a set of IF-THEN rules, often derived from expert knowledge. A typical rule has the form: "IF $x$ is $A$ AND $y$ is $B$ THEN $z$ is $C$," where $A$, $B$, and $C$ are fuzzy sets. The inference process involves two main steps: fuzzification and rule evaluation. Fuzzification converts crisp input values into fuzzy membership degrees using input membership functions. Rule evaluation then determines the firing strength of each rule by evaluating its antecedent using fuzzy operators. This firing strength is subsequently applied to the consequent to shape the output fuzzy set, for example, by clipping or scaling its membership function in Mamdani-type systems.
+
+### Defuzzification Methods
+
+After the fuzzy inference process, the output is typically a fuzzy set (or multiple fuzzy sets, one for each output variable). To obtain a crisp, actionable output value, a defuzzification method is applied. The most widely used method is the Centroid of Area (COA), which calculates the center of gravity of the aggregated output fuzzy set $C'$. The formula for COA is: $$ z^* = \frac{\int z \mu_{C'}(z) dz}{\int \mu_{C'}(z) dz} $$ Other common methods include Bisector of Area (BOA), which divides the area under the aggregated output fuzzy set into two equal halves, and Mean of Maxima (MOM), which averages the values in the output universe of discourse that have the maximum membership degree.
+
+$$
+z^* = \frac{\int z \mu_{C'}(z) dz}{\int \mu_{C'}(z) dz}
+$$
+
+## Algorithm Steps
+
+1. Define the input and output variables, along with their respective universes of discourse, which specify the range of possible values.
+2. Design fuzzy sets and their corresponding membership functions for each input and output variable, ensuring they cover the entire universe of discourse appropriately.
+3. Formulate a rule base consisting of IF-THEN fuzzy rules that map fuzzy inputs to fuzzy outputs, typically based on expert knowledge or data-driven methods.
+4. For a given crisp input, perform fuzzification by determining its degree of membership in each relevant input fuzzy set using the defined membership functions.
+5. Evaluate the antecedent (IF part) of each fuzzy rule using fuzzy logical operators (e.g., $\min$ for AND, $\max$ for OR) to compute the rule's firing strength.
+6. Apply the firing strength of each rule to its consequent (THEN part) to determine the fuzzy output for that rule, often by clipping or scaling the output membership function.
+7. Aggregate the fuzzy outputs from all active rules into a single composite output fuzzy set for each output variable, typically using a fuzzy union operator.
+8. Perform defuzzification on the aggregated output fuzzy set to convert it into a crisp, numerical output value that can be used for control or decision-making.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_inputs` | `integer` | `1` | >= 1 | The number of input variables the fuzzy inference system will process. |
+| `num_outputs` | `integer` | `1` | >= 1 | The number of output variables the fuzzy inference system will produce. |
+| `input_mf_types` | `list of strings` | `['trimf', 'gaussmf']` | ['trimf', 'trapmf', 'gaussmf', 'gbellmf', 'sigmf'] | A list specifying the types of membership functions (e.g., triangular, Gaussian) used for each input variable's fuzzy sets. |
+| `output_mf_types` | `list of strings` | `['trimf']` | ['trimf', 'trapmf', 'gaussmf', 'gbellmf', 'sigmf', 'constant', 'linear'] | A list specifying the types of membership functions (e.g., triangular, Gaussian) used for each output variable's fuzzy sets (Mamdani) or the type of consequent function (Sugeno). |
+| `fuzzy_operators` | `dict` | `{'and': 'min', 'or': 'max', 'implication': 'min', 'aggregation': 'max'}` | {'and': ['min', 'prod'], 'or': ['max', 'sum'], 'implication': ['min', 'prod'], 'aggregation': ['max', 'sum']} | Specifies the t-norm (AND), t-conorm (OR), implication, and aggregation operators used in the fuzzy inference process. |
+| `defuzzification_method` | `string` | `centroid` | ['centroid', 'bisector', 'mom', 'som', 'lom'] | The method used to convert the aggregated fuzzy output set into a crisp numerical value. |
+| `rule_base` | `list of dicts` | `[]` | user-defined | A collection of fuzzy IF-THEN rules defining the system's behavior. Each rule specifies antecedent conditions and consequent actions. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Fuzzy Inference Systems can effectively model complex, non-linear systems without requiring a precise mathematical model.
+- They are highly interpretable, as their decision-making process is based on human-like linguistic rules that are easy to understand and modify.
+- FIS can seamlessly integrate expert knowledge and heuristic rules, making them suitable for domains where human expertise is abundant but hard to formalize.
+- The systems are robust to noisy and imprecise input data, as they operate on degrees of membership rather than exact values.
+- They provide a natural framework for handling uncertainty and vagueness inherent in many real-world problems.
+- FIS can be implemented with relatively low computational cost compared to some complex adaptive control methods.
+
+## Weaknesses
+
+- Designing the membership functions and the rule base often relies heavily on heuristic methods and expert knowledge, which can be subjective and time-consuming.
+- The performance of an FIS is highly dependent on the quality and completeness of the expert knowledge encoded in its rules and membership functions.
+- Fuzzy Inference Systems can suffer from the "curse of dimensionality" as the number of input variables increases, leading to an exponential growth in the number of rules required.
+- There is no systematic learning algorithm for automatically optimizing the rule base and membership functions in a purely fuzzy system, though hybrid approaches like ANFIS address this.
+- Verifying and validating the correctness and completeness of a large fuzzy rule base can be challenging, especially for safety-critical applications.
+
+## Use Cases
+
+### Control Systems
+
+Used in consumer electronics like washing machines, air conditioners, and cameras, as well as industrial process control for temperature, pressure, and flow regulation.
+
+### Medical Diagnosis
+
+Applied in systems for diagnosing diseases, interpreting medical images, and assisting in treatment planning by handling imprecise symptoms and medical data.
+
+### Financial Forecasting
+
+Employed for predicting stock market trends, assessing credit risk, and managing investment portfolios by incorporating qualitative factors and expert opinions.
+
+### Robotics
+
+Utilized for path planning, obstacle avoidance, and motion control in autonomous robots, allowing for more human-like decision-making in uncertain environments.
+
+### Environmental Monitoring
+
+Applied in systems for predicting air pollution levels, managing water resources, and assessing ecological risks based on imprecise sensor data and environmental models.
+
+### Pattern Recognition
+
+Used in areas like handwriting recognition, speech recognition, and image processing where patterns can be ambiguous or partially defined, improving classification accuracy.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Fuzzy Inference System from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Fuzzy Inference System does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Fuzzy Inference System Lab" />
+
+## References
+
+- Zadeh (1973). Zadeh.

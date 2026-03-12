@@ -1,0 +1,194 @@
+---
+title: "Genetic Algorithm"
+slug: "genetic-algorithm"
+category: "evolutionary"
+subcategory: "evolutionary-algorithms"
+year: 1975
+author: "Holland"
+paper: "Holland"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bio-inspired", "evolutionary-algorithm", "global-optimization", "metaheuristic", "non-gradient", "optimization", "population-based", "search-algorithm"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "ant-colony-optimization"
+  - "differential-evolution"
+  - "genetic-programming"
+  - "particle-swarm-optimization"
+---
+
+## Overview
+
+Genetic Algorithms (GAs) are a class of metaheuristic optimization algorithms inspired by the process of natural selection and evolution. They are particularly effective for solving complex optimization and search problems where traditional gradient-based methods are infeasible or computationally expensive. GAs operate on a population of candidate solutions, iteratively improving them through processes analogous to biological evolution such as selection, crossover, and mutation.
+
+## History
+
+**1975** — John Holland published "Adaptation in Natural and Artificial Systems," laying the theoretical foundation for Genetic Algorithms and introducing the schema theorem.
+
+**1989** — David E. Goldberg published "Genetic Algorithms in Search, Optimization, and Machine Learning," which popularized GAs and made them accessible to a wider audience, leading to significant research and application.
+
+**1992** — John Koza introduced [Genetic Programming](/algorithms/evolutionary/evolutionary-algorithms/genetic-programming), an extension of GAs where the individuals in the population are computer programs, demonstrating their applicability to symbolic regression and program synthesis.
+
+**2000** — The early 2000s saw GAs increasingly applied to a diverse range of problems, including engineering design, financial modeling, and machine learning, often hybridized with other optimization techniques.
+
+**2010** — Continued advancements in parallel computing and hybrid approaches further solidified GAs as a robust tool for global optimization, particularly in scenarios with non-convex, high-dimensional, or noisy objective functions.
+
+## Mathematical Intuition
+
+### Representation and Fitness Function
+
+A Genetic Algorithm begins by encoding potential solutions into a fixed-length structure, often a binary string (chromosome), though real-valued or permutation representations are also common. Each chromosome represents a candidate solution to the optimization problem. The fitness function, $f(\mathbf{x})$, quantifies the quality of a solution $\mathbf{x}$, mapping the chromosome to a scalar value that indicates how "good" it is. The goal is typically to maximize this fitness value.
+
+$$
+$f(\mathbf{x})$
+$$
+
+### Selection Mechanisms
+
+Selection is the process of choosing individuals from the current population to create the next generation, based on their fitness. Fitter individuals have a higher probability of being selected. Common methods include Roulette Wheel Selection, where the probability of selection for an individual $i$ is $P_i = \frac{f_i}{\sum_{j=1}^{N} f_j}$, and Tournament Selection, where a subset of individuals is randomly chosen, and the fittest among them is selected.
+
+$$
+$P_i = \frac{f_i}{\sum_{j=1}^{N} f_j}$
+$$
+
+### Crossover (Recombination) Operators
+
+Crossover combines genetic material from two parent chromosomes to produce one or more offspring. This operation facilitates the exploration of the search space by exchanging beneficial traits. For binary strings, a common method is One-Point Crossover, where a random crossover point is chosen, and the segments after this point are swapped between parents. If parent chromosomes are $\mathbf{P}_1 = (p_{1,1}, ..., p_{1,k}, p_{1,k+1}, ..., p_{1,L})$ and $\mathbf{P}_2 = (p_{2,1}, ..., p_{2,k}, p_{2,k+1}, ..., p_{2,L})$, offspring $\mathbf{O}_1$ and $\mathbf{O}_2$ might be generated as:
+$$ \mathbf{O}_1 = (p_{1,1}, ..., p_{1,k}, p_{2,k+1}, ..., p_{2,L}) $$
+$$ \mathbf{O}_2 = (p_{2,1}, ..., p_{2,k}, p_{1,k+1}, ..., p_{1,L}) $$
+
+$$
+$\mathbf{P}_1 = (p_{1,1}, ..., p_{1,k}, p_{1,k+1}, ..., p_{1,L})$
+$$
+
+$$
+$\mathbf{P}_2 = (p_{2,1}, ..., p_{2,k}, p_{2,k+1}, ..., p_{2,L})$
+$$
+
+$$
+$$ \mathbf{O}_1 = (p_{1,1}, ..., p_{1,k}, p_{2,k+1}, ..., p_{2,L}) $$
+$$
+
+$$
+$$ \mathbf{O}_2 = (p_{2,1}, ..., p_{2,k}, p_{1,k+1}, ..., p_{1,L}) $$
+$$
+
+### Mutation Operators
+
+Mutation introduces small, random changes to individual chromosomes, maintaining genetic diversity and preventing premature convergence to local optima. For binary representations, bit-flip mutation is common, where each bit in a chromosome is flipped with a small probability $P_m$. If a gene $g_i$ is chosen for mutation, its value changes from $0 \to 1$ or $1 \to 0$.
+
+$$
+$P_m$
+$$
+
+$$
+$0 \to 1$
+$$
+
+$$
+$1 \to 0$
+$$
+
+## Algorithm Steps
+
+1. Initialize a population of candidate solutions (chromosomes) randomly.
+2. Evaluate the fitness of each individual in the current population using the defined fitness function.
+3. Select parent individuals from the current population based on their fitness, giving preference to fitter solutions.
+4. Apply crossover (recombination) to the selected parents with a certain probability to generate offspring.
+5. Apply mutation to the offspring with a small probability to introduce diversity.
+6. Form the new generation by replacing the old population with the new offspring, potentially incorporating elitism (preserving the best individuals).
+7. Repeat steps 2-6 for a predetermined number of generations or until a satisfactory solution is found or a convergence criterion is met.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `population_size` | `int` | `100` | integer > 0 | The number of individuals (candidate solutions) maintained in the population at each generation. |
+| `n_generations` | `int` | `100` | integer > 0 | The total number of evolutionary cycles (generations) to run the algorithm. |
+| `crossover_rate` | `float` | `0.8` | 0.0 to 1.0 | The probability that two selected parents will undergo crossover to produce offspring. |
+| `mutation_rate` | `float` | `0.01` | 0.0 to 1.0 | The probability that a gene in an offspring chromosome will be altered (mutated). |
+| `selection_method` | `str` | `tournament` | ['roulette_wheel', 'tournament', 'rank', 'stochastic_universal_sampling'] | The strategy used to select individuals from the current population to become parents for the next generation. |
+| `elitism_rate` | `float` | `0.05` | 0.0 to 1.0 | The proportion of the fittest individuals from the current generation that are directly carried over to the next generation without modification. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Genetic Algorithms are capable of exploring large and complex search spaces effectively, making them suitable for global optimization problems.
+- They are robust to noisy or discontinuous fitness functions and do not require derivative information, unlike gradient-based methods.
+- GAs can handle multi-objective optimization problems by incorporating multiple fitness criteria or using specialized selection mechanisms.
+- They are inherently parallelizable, allowing for efficient computation on multi-core processors or distributed systems.
+- Genetic Algorithms are less prone to getting stuck in local optima compared to many deterministic optimization techniques.
+- They are highly flexible and can be adapted to a wide variety of problem types by designing appropriate representations and fitness functions.
+
+## Weaknesses
+
+- Genetic Algorithms can be computationally expensive, especially for problems with large populations or many generations.
+- The choice of representation, fitness function, and genetic operators (crossover, mutation) is problem-dependent and often requires significant domain expertise and tuning.
+- GAs do not guarantee finding the global optimum, only a good approximation within a reasonable time frame.
+- Premature convergence to suboptimal solutions can occur if diversity is not adequately maintained through mutation or other mechanisms.
+- Evaluating the fitness function for each individual in every generation can be a bottleneck, particularly for complex simulations or expensive calculations.
+
+## Use Cases
+
+### Engineering Design
+
+Optimizing parameters for structural design, circuit design, or aerodynamic shapes to meet performance criteria and constraints.
+
+### Financial Modeling
+
+Portfolio optimization, stock market prediction, and the development of algorithmic trading strategies.
+
+### Logistics and Scheduling
+
+Solving complex routing problems like the Traveling Salesperson Problem or optimizing production schedules in manufacturing and supply chains.
+
+### Machine Learning
+
+Hyperparameter optimization for neural networks, feature selection, and the training of evolutionary neural networks.
+
+### Bioinformatics
+
+Sequence alignment, protein structure prediction, and the construction of phylogenetic trees.
+
+### Robotics
+
+Path planning for autonomous robots and optimizing control parameters for complex robotic systems.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Genetic Algorithm from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Genetic Algorithm does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Genetic Algorithm Lab" />
+
+## References
+
+- Holland (1975). Holland.

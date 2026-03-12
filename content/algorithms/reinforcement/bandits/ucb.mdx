@@ -1,0 +1,173 @@
+---
+title: "UCB"
+slug: "ucb"
+category: "reinforcement"
+subcategory: "bandits"
+year: 2002
+author: "Auer et al."
+paper: "Auer et al."
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["explore-exploit", "multi-armed-bandit", "online-learning", "optimal-algorithm", "regret-minimization", "reinforcement-learning", "sequential-decision-making", "stochastic-bandits"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "contextual-bandits"
+  - "epsilon-greedy"
+  - "thompson-sampling"
+---
+
+## Overview
+
+UCB (Upper Confidence Bound) is a class of algorithms designed to solve the multi-armed bandit problem, effectively balancing exploration of unknown options with exploitation of known good options. It operates on the principle of "optimism in the face of uncertainty," selecting the arm that maximizes an upper confidence bound on its expected reward. This approach ensures that arms with high uncertainty or high observed rewards are prioritized for selection, leading to provably low regret bounds. UCB algorithms are particularly well-suited for sequential decision-making in environments with unknown reward distributions.
+
+## History
+
+**1933** — W.R. Thompson introduces a Bayesian approach to the bandit problem, laying foundational ideas for the explore-exploit dilemma.
+
+**1952** — Herbert Robbins formally defines the multi-armed bandit problem, providing a mathematical framework for sequential decision-making under uncertainty.
+
+**1985** — T.L. Lai and Herbert Robbins establish lower bounds on the regret for multi-armed bandit problems, setting a benchmark for optimal algorithms.
+
+**2002** — Peter Auer, Nicolò Cesa-Bianchi, and Paul Fischer introduce UCB1, a provably optimal algorithm for the stochastic multi-armed bandit problem, demonstrating logarithmic regret.
+
+**2006** — Auer, Cesa-Bianchi, and Fischer publish "The Nonstochastic Multiarmed Bandit Problem," extending UCB principles to adversarial settings.
+
+**2008** — Lihong Li, Wei Chu, John Langford, and Robert E. Schapire introduce LinUCB, extending UCB to [Contextual Bandits](/algorithms/reinforcement/bandits/contextual-bandits) by incorporating linear models for reward prediction.
+
+## Mathematical Intuition
+
+### Multi-Armed Bandit Problem
+
+The multi-armed bandit (MAB) problem models sequential decision-making where an agent repeatedly chooses one action (arm) from a set of $K$ available actions. Each chosen arm $a_t$ at time $t$ yields a reward $r_t$ drawn from an unknown probability distribution specific to that arm. The objective is to maximize the cumulative reward over a sequence of $T$ trials, which necessitates balancing exploration (trying new arms to learn their rewards) and exploitation (choosing the arm currently believed to be best). The performance is often measured by regret, which is the difference between the cumulative reward of an optimal strategy (always choosing the best arm) and the algorithm's cumulative reward.
+
+$$
+R_T = \sum_{t=1}^T r_t
+$$
+
+$$
+Regret_T = T \mu^* - \sum_{t=1}^T r_t
+$$
+
+### Optimism in Uncertainty Principle
+
+UCB algorithms embody the principle of "optimism in the face of uncertainty." Instead of solely relying on the observed average reward, UCB augments this estimate with a confidence term that reflects the uncertainty about the arm's true expected reward. Arms that have been played fewer times or have shown high variance will have larger confidence bounds, making them more attractive for exploration. The algorithm selects the arm $a_t$ at time $t$ that maximizes this upper confidence bound.
+
+$$
+a_t = \arg\max_{j \in \{1, \dots, K\}} \left( \hat{\mu}_j + \text{confidence_term}_j \right)
+$$
+
+### UCB1 Index Calculation
+
+The UCB1 algorithm specifically defines the confidence term using Hoeffding's inequality. For each arm $j$, let $\hat{\mu}_j$ be its empirical mean reward and $N_j$ be the number of times it has been played. The total number of rounds is $t$. The UCB1 index for arm $j$ at round $t$ is given by: Here, $\hat{\mu}_j = \frac{1}{N_j} \sum_{s=1}^{t} r_s \cdot \mathbb{I}(a_s = j)$ is the average reward observed for arm $j$. The term $\sqrt{\frac{2 \ln t}{N_j}}$ is the exploration bonus. It increases with $t$ (encouraging exploration over time) and decreases with $N_j$ (reducing exploration for well-sampled arms).
+
+$$
+UCB_j(t) = \hat{\mu}_j + \sqrt{\frac{2 \ln t}{N_j}}
+$$
+
+### Logarithmic Regret Guarantees
+
+UCB1 provides strong theoretical guarantees on its performance. For a stochastic multi-armed bandit problem with $K$ arms and rewards in $[0, 1]$, the expected regret of UCB1 after $T$ rounds is bounded logarithmically. Specifically, Auer et al. (2002) showed that the expected regret is bounded by: where $\mu_j$ is the true mean reward of arm $j$, $\mu^*$ is the true mean reward of the optimal arm, and $\Delta_j = \mu^* - \mu_j$ is the gap between the optimal arm and arm $j$. This logarithmic regret bound is considered nearly optimal, demonstrating UCB1's efficiency in converging to the best arm.
+
+$$
+E[Regret_T] \le \sum_{j: \mu_j < \mu^*} \left( \frac{8 \ln T}{\Delta_j} \right) + \left( 1 + \frac{\pi^2}{3} \right) K
+$$
+
+## Algorithm Steps
+
+1. Initialize: For each arm $j \in \{1, \dots, K\}$, set its empirical mean reward $\hat{\mu}_j = 0$ and its play count $N_j = 0$.
+2. Initial Exploration: Play each arm $j$ once. Record the reward $r_j$ and update $\hat{\mu}_j = r_j$ and $N_j = 1$.
+3. Loop for $t = K+1, \dots, T$ (total number of rounds):
+4. Calculate UCB Index: For each arm $j$, compute its UCB index using the formula $UCB_j(t) = \hat{\mu}_j + \sqrt{\frac{2 \ln (t-1)}{N_j}}$.
+5. Select Arm: Choose the arm $a_t$ with the highest UCB index: $a_t = \arg\max_{j} UCB_j(t)$.
+6. Observe Reward: Play arm $a_t$ and receive reward $r_t$.
+7. Update Statistics: Increment $N_{a_t} \leftarrow N_{a_t} + 1$. Update the empirical mean reward for arm $a_t$: $\hat{\mu}_{a_t} \leftarrow \frac{\hat{\mu}_{a_t} \cdot (N_{a_t}-1) + r_t}{N_{a_t}}$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `initial_plays_per_arm` | `integer` | `1` | integer >= 1 | The number of times each arm is played initially to gather preliminary reward estimates before the UCB formula is applied. |
+| `reward_min` | `float` | `0.0` | float | The minimum possible reward value. This is used to normalize rewards if they are not inherently in the range [0,1], which is an assumption for the Hoeffding bound. |
+| `reward_max` | `float` | `1.0` | float, reward_max > reward_min | The maximum possible reward value. This is used to normalize rewards if they are not inherently in the range [0,1], which is an assumption for the Hoeffding bound. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- UCB1 offers strong theoretical guarantees, achieving logarithmic regret bounds that are nearly optimal for stochastic bandit problems.
+- It effectively balances exploration and exploitation without requiring manual tuning of an exploration parameter like epsilon-greedy.
+- The algorithm is relatively simple to implement and computationally efficient, making it suitable for real-time decision-making.
+- UCB is robust to different reward distributions, as long as they are bounded, due to its reliance on Hoeffding's inequality.
+- It naturally prioritizes arms that have been played less frequently, ensuring that all arms are eventually explored sufficiently.
+
+## Weaknesses
+
+- UCB1 assumes rewards are bounded and known, which may not always hold true in practice.
+- Its performance can be sensitive to the initial estimates of rewards, especially if the initial exploration phase is too short.
+- The basic UCB1 algorithm does not naturally handle contextual information, requiring extensions like LinUCB for such scenarios.
+- It can be slow to adapt to non-stationary environments where the true reward distributions of arms change over time.
+- UCB can be overly optimistic in the face of high uncertainty, potentially exploring suboptimal arms for longer than necessary in some practical settings.
+
+## Use Cases
+
+### Online Advertising
+
+Selecting which ad to display to a user to maximize click-through rates or conversions based on observed performance.
+
+### Website Optimization
+
+A/B testing different website layouts, button colors, or content variations to improve user engagement metrics.
+
+### Clinical Trials
+
+Dynamically allocating patients to different treatment arms based on observed success rates to maximize overall patient benefit and ethical considerations.
+
+### News Recommendation
+
+Choosing which news article to present to a user to maximize their reading time or satisfaction, adapting to user preferences.
+
+### Dynamic Pricing
+
+Adjusting prices for products or services in real-time to maximize revenue based on demand and conversion rates for different price points.
+
+### Resource Allocation
+
+Deciding which computing resource or server to use for a task to minimize latency or maximize throughput in a dynamic system.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement UCB from scratch
+```
+
+### Using scikit-learn
+
+```python
+# UCB does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="UCB Lab" />
+
+## References
+
+- Auer et al. (2002). Auer et al..

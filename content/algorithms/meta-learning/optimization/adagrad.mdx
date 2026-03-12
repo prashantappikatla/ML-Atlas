@@ -1,0 +1,151 @@
+---
+title: "AdaGrad"
+slug: "adagrad"
+category: "meta-learning"
+subcategory: "optimization"
+year: 2011
+author: "Duchi et al."
+paper: "Duchi et al."
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["adaptive-learning-rate", "deep-learning", "gradient-descent-variant", "online-learning", "optimization", "sparse-data", "stochastic-optimization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adam"
+  - "momentum"
+  - "rmsprop"
+  - "stochastic-gradient-descent"
+---
+
+## Overview
+
+AdaGrad (Adaptive Gradient Algorithm) is an optimization algorithm that adapts the learning rate for each parameter individually, rather than using a global learning rate for all parameters. It achieves this by scaling the learning rate inversely proportional to the square root of the sum of all historical squared gradients for that parameter. This adaptive approach allows for larger updates for infrequent features and smaller updates for frequent features, making it particularly effective for sparse data and online learning settings.
+
+## History
+
+**2011** — John Duchi, Elad Hazan, and Yoram Singer introduce AdaGrad in their seminal paper "Adaptive Subgradient Methods for Online Learning and Stochastic Optimization," laying the theoretical groundwork for per-parameter adaptive learning rates.
+
+**2012** — AdaGrad gains significant adoption within the deep learning community, particularly for training neural networks on tasks involving sparse data, such as natural language processing with large vocabularies.
+
+**2014** — Subsequent adaptive optimization algorithms like [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and Adam are developed, addressing AdaGrad's tendency for learning rates to decay too aggressively, but building upon its core concept of per-parameter adaptation.
+
+## Mathematical Intuition
+
+### Per-Parameter Learning Rates
+
+Unlike traditional gradient descent methods that apply a single global learning rate to all parameters, AdaGrad introduces the concept of a unique learning rate for each parameter $w_i$ at each time step $t$. This allows the optimizer to make larger updates for parameters associated with sparse or infrequent features and smaller updates for parameters associated with dense or frequent features, thereby improving convergence on certain problem types.
+
+### Accumulation of Squared Gradients
+
+The adaptivity of AdaGrad stems from accumulating the squares of past gradients for each parameter. Let $g_{t,i} = \nabla_{w_i} J(\theta_t)$ be the gradient of the objective function $J$ with respect to parameter $w_i$ at time step $t$. AdaGrad maintains an accumulator $s_i$ for each parameter $w_i$, which is updated at each step by adding the square of the current gradient component: $$s_i \leftarrow s_i + (g_{t,i})^2$$ This sum of squared gradients, $s_i$, effectively captures the historical magnitude of gradients for parameter $w_i$.
+
+$$
+g_{t,i} = \nabla_{w_i} J(\theta_t)
+$$
+
+$$
+s_i \leftarrow s_i + (g_{t,i})^2
+$$
+
+### AdaGrad Update Rule
+
+The update rule for each parameter $w_i$ at time $t+1$ is given by: $$w_{t+1,i} = w_{t,i} - \frac{\eta}{\sqrt{s_i + \epsilon}} \cdot g_{t,i}$$ Here, $\eta$ is a global initial learning rate, $s_i$ is the accumulated sum of squared gradients for parameter $w_i$ up to time $t$, and $\epsilon$ is a small constant (e.g., $10^{-8}$) added for numerical stability to prevent division by zero. The term $\frac{\eta}{\sqrt{s_i + \epsilon}}$ acts as the adaptive learning rate for parameter $w_i$. As $s_i$ grows, the effective learning rate for $w_i$ decreases, leading to progressively smaller updates.
+
+$$
+w_{t+1,i} = w_{t,i} - \frac{\eta}{\sqrt{s_i + \epsilon}} \cdot g_{t,i}
+$$
+
+## Algorithm Steps
+
+1. Initialize model parameters $w$ randomly.
+2. Initialize a global learning rate $\eta$ and a small constant $\epsilon$ (e.g., $10^{-8}$) for numerical stability.
+3. Initialize a per-parameter squared gradient accumulator $s_i = 0$ for all parameters $w_i$.
+4. For each training iteration $t$ (or mini-batch):
+5.   a. Compute the gradient of the objective function $J$ with respect to each parameter $w_i$, denoted as $g_{t,i} = \nabla_{w_i} J(w_t)$.
+6.   b. Update the squared gradient accumulator for each parameter: $s_i \leftarrow s_i + (g_{t,i})^2$.
+7.   c. Update each parameter $w_i$ using the AdaGrad rule: $w_{t+1,i} = w_{t,i} - \frac{\eta}{\sqrt{s_i + \epsilon}} \cdot g_{t,i}$.
+8. Repeat step 4 until convergence or a maximum number of iterations is reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.01` | positive float | The initial global learning rate that scales the adaptive per-parameter learning rates. |
+| `epsilon` | `float` | `1e-08` | positive float | A small constant added to the denominator for numerical stability to prevent division by zero. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- AdaGrad automatically adapts the learning rate for each parameter, eliminating the need for manual tuning of per-parameter learning rates.
+- It is particularly effective for sparse data, as it provides larger updates for infrequent features and smaller updates for frequent features.
+- The algorithm requires minimal hyperparameter tuning, primarily just the initial global learning rate.
+- Adaptive learning rates help to stabilize training by preventing oscillations in directions with consistently large gradients.
+- It can converge faster than standard Stochastic Gradient Descent on certain types of problems, especially those with sparse gradients.
+
+## Weaknesses
+
+- The learning rates can become aggressively small over time due to the continuous accumulation of squared gradients, potentially causing the model to stop learning prematurely.
+- It does not have a mechanism to decay the accumulated sum of squared gradients, meaning past gradients have an equal influence as recent gradients.
+- Its performance can degrade on non-convex optimization problems where the optimal learning rate might need to increase at later stages.
+- The initial global learning rate $\eta$ still needs to be chosen carefully, as a poor choice can still lead to suboptimal convergence.
+
+## Use Cases
+
+### Natural Language Processing
+
+Training word embeddings or neural networks for tasks like machine translation and sentiment analysis, where input features (words) are often sparse.
+
+### Recommender Systems
+
+Optimizing models that handle very high-dimensional and sparse user-item interaction matrices, where features are often infrequent.
+
+### Computer Vision
+
+Training convolutional neural networks, especially in early stages or for tasks with sparse feature activations, though often superseded by more advanced optimizers.
+
+### Online Learning
+
+Adapting to changing data distributions in real-time learning scenarios due to its per-parameter adaptation and suitability for streaming data.
+
+### Sparse Feature Learning
+
+Any machine learning task involving high-dimensional data with many zero or infrequent features, where it can provide more robust convergence.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement AdaGrad from scratch
+```
+
+### Using scikit-learn
+
+```python
+# AdaGrad does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="AdaGrad Lab" />
+
+## References
+
+- Duchi et al. (2011). Duchi et al..

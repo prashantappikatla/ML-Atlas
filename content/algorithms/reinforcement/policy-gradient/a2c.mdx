@@ -1,0 +1,188 @@
+---
+title: "A2C"
+slug: "a2c"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2016
+author: "Synchronous actor-critic"
+paper: "Synchronous actor-critic"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["actor-critic", "advantage-estimation", "deep-learning", "on-policy", "policy-gradient", "reinforcement-learning", "synchronous", "value-function"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "q-learning"
+  - "reinforce"
+  - "sarsa"
+---
+
+## Overview
+
+A2C, or Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic), is a synchronous, on-policy reinforcement learning algorithm that combines policy-based and value-based methods. It trains an actor network to learn a policy for action selection and a critic network to estimate the value function, using the advantage estimate to guide policy updates. This approach aims to stabilize and accelerate learning compared to pure policy gradient methods by reducing variance in gradient estimates. A2C is often considered a more efficient, synchronous variant of the Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) algorithm.
+
+## History
+
+**1999** — Richard S. Sutton and Andrew G. Barto formalized the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework in "Reinforcement Learning: An Introduction," laying the theoretical foundation for combining policy and value estimation.
+
+**2016** — DeepMind introduced Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) in their paper "Asynchronous Methods for Deep Reinforcement Learning," demonstrating significant performance improvements and stability using multiple parallel agents.
+
+**2016** — Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A2C) emerged as a synchronous variant of A3C, often discussed in the same context, aggregating gradients from multiple parallel environments before performing a single, synchronous update.
+
+## Mathematical Intuition
+
+### Actor-Critic Framework Overview
+
+The [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework decomposes the reinforcement learning problem into two interacting components: an actor and a critic. The actor is responsible for learning a policy $\pi_\theta(a|s)$ that maps states to actions, parameterized by $\theta$. The critic learns a value function $V_\phi(s)$ or $Q_\phi(s,a)$, parameterized by $\phi$, which estimates the expected return from a given state or state-action pair. The critic's role is to evaluate the actor's actions, providing a signal to guide the actor's policy updates.
+$$ \text{Actor: } \pi_\theta(a|s) $$
+$$ \text{Critic: } V_\phi(s) \text{ or } Q_\phi(s,a) $$
+
+$$
+\text{Actor: } \pi_\theta(a|s)
+$$
+
+$$
+\text{Critic: } V_\phi(s) \text{ or } Q_\phi(s,a)
+$$
+
+### Advantage Function Estimation
+
+A2C leverages the advantage function $A(s,a)$ to reduce the variance of policy gradient estimates. The advantage function measures how much better an action $a$ is compared to the average action taken in state $s$, as judged by the value function. It is typically defined as $A(s,a) = Q(s,a) - V(s)$. In practice, A2C often uses a generalized advantage estimate (GAE) or a simple N-step return to estimate $Q(s,a)$, such as $A(s_t, a_t) = r_t + \gamma V(s_{t+1}) - V(s_t)$, where $r_t$ is the reward at time $t$ and $\gamma$ is the discount factor.
+$$ A(s_t, a_t) = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t) $$
+
+$$
+A(s,a) = Q(s,a) - V(s)
+$$
+
+$$
+A(s_t, a_t) = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)
+$$
+
+### Policy and Value Loss Functions
+
+The actor's policy $\pi_\theta(a|s)$ is updated to maximize the expected advantage. The policy loss is typically formulated to minimize the negative expected advantage, weighted by the log-probability of the chosen action, encouraging actions with high advantage. The critic network $V_\phi(s)$ is updated to accurately predict the expected return by minimizing a mean-squared error (MSE) loss between the predicted value and a target value, often an N-step return $R_t$.
+$$ L_{policy}(\theta) = - \mathbb{E} \left[ \log \pi_\theta(a|s) A(s,a) \right] $$
+$$ L_{value}(\phi) = \mathbb{E} \left[ (R_t - V_\phi(s_t))^2 \right] $$
+
+$$
+L_{policy}(\theta) = - \mathbb{E} \left[ \log \pi_\theta(a|s) A(s,a) \right]
+$$
+
+$$
+L_{value}(\phi) = \mathbb{E} \left[ (R_t - V_\phi(s_t))^2 \right]
+$$
+
+### Entropy Regularization and Total Loss
+
+To encourage exploration and prevent premature convergence to suboptimal policies, an entropy bonus is often added to the policy loss, penalizing overly deterministic policies. The entropy loss $L_{entropy}(\theta)$ is typically subtracted from the total loss, effectively maximizing the entropy of the policy. The total loss for the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) update combines these components with coefficients $c_1$ and $c_2$ to balance their contributions.
+$$ L_{entropy}(\theta) = - \mathbb{E} \left[ H(\pi_\theta(\cdot|s)) \right] $$
+$$ L_{total} = L_{policy}(\theta) + c_1 L_{value}(\phi) + c_2 L_{entropy}(\theta) $$
+
+$$
+L_{entropy}(\theta) = - \mathbb{E} \left[ H(\pi_\theta(\cdot|s)) \right]
+$$
+
+$$
+L_{total} = L_{policy}(\theta) + c_1 L_{value}(\phi) + c_2 L_{entropy}(\theta)
+$$
+
+## Algorithm Steps
+
+1. Initialize the actor network $\pi_\theta(a|s)$ and critic network $V_\phi(s)$ with random weights.
+2. For each training iteration, run $N$ parallel environments for $T$ steps, collecting trajectories of $(s_t, a_t, r_t, s_{t+1})$.
+3. For each collected trajectory, compute the N-step returns $R_t$ and advantage estimates $A_t$ using the current critic network, typically $A_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$.
+4. Calculate the policy loss $L_{policy}$ for the actor network based on the collected actions and advantage estimates: $L_{policy} = - \sum_{t=0}^{T-1} \log \pi_\theta(a_t|s_t) A_t$.
+5. Calculate the value loss $L_{value}$ for the critic network based on the N-step returns and predicted values: $L_{value} = \sum_{t=0}^{T-1} (R_t - V_\phi(s_t))^2$.
+6. Calculate the entropy loss $L_{entropy}$ for the actor network to encourage exploration: $L_{entropy} = - \sum_{t=0}^{T-1} H(\pi_\theta(\cdot|s_t))$.
+7. Combine the losses into a total loss: $L_{total} = L_{policy} + c_1 L_{value} + c_2 L_{entropy}$, where $c_1$ and $c_2$ are hyperparameters.
+8. Perform a single gradient descent step on the total loss to update both actor and critic network parameters $\theta$ and $\phi$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate_actor` | `float` | `0.0007` | positive float | Learning rate for the actor (policy) network. |
+| `learning_rate_critic` | `float` | `0.0007` | positive float | Learning rate for the critic (value) network. |
+| `gamma` | `float` | `0.99` | 0.0 to 1.0 | Discount factor for future rewards, balancing immediate versus long-term returns. |
+| `gae_lambda` | `float` | `0.95` | 0.0 to 1.0 | Factor for trade-off between bias and variance in Generalized Advantage Estimation (GAE). |
+| `n_steps` | `int` | `5` | positive integer | The number of steps to run for each environment per update, defining the length of collected trajectories. |
+| `entropy_coef` | `float` | `0.01` | non-negative float | Weight of the entropy loss term in the total loss, encouraging exploration. |
+| `value_loss_coef` | `float` | `0.5` | non-negative float | Weight of the value function loss term in the total loss, controlling the critic's influence. |
+| `max_grad_norm` | `float` | `0.5` | positive float | Maximum value for the gradient clipping, used to prevent exploding gradients. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- A2C provides more stable and efficient learning compared to pure policy gradient methods by reducing variance in gradient estimates through the critic's value function.
+- The synchronous nature of A2C allows for efficient utilization of computational resources, especially on single-GPU systems, by aggregating gradients from multiple parallel environments.
+- It can handle both continuous and discrete action spaces, making it versatile for a wide range of reinforcement learning problems.
+- The use of an entropy bonus helps to encourage exploration, preventing the policy from converging prematurely to suboptimal local optima.
+- A2C is an on-policy algorithm, which means it directly optimizes the policy being executed, leading to more direct policy improvements.
+
+## Weaknesses
+
+- A2C is an on-policy algorithm, meaning it requires new data collection for each policy update, which can be sample inefficient compared to off-policy methods.
+- The performance of A2C can be sensitive to the choice of hyperparameters, such as learning rates, discount factor, and the coefficients for value and entropy losses.
+- Synchronous execution can lead to slower wall-clock time per update compared to asynchronous methods like A3C if the environments are slow or if there are many environments.
+- It can struggle with very long horizons or sparse reward environments, similar to other policy gradient methods, due to the credit assignment problem.
+
+## Use Cases
+
+### Robotics
+
+Training robots to perform complex manipulation tasks or navigate dynamic environments by learning optimal control policies for movement and interaction.
+
+### Game Playing
+
+Developing AI agents that can play video games, such as Atari games or more complex simulations, by learning optimal strategies and action sequences.
+
+### Resource Management
+
+Optimizing resource allocation in data centers, communication networks, or energy grids to improve efficiency, throughput, and overall system performance.
+
+### Financial Trading
+
+Designing automated trading agents that can make buy/sell decisions based on real-time market conditions to maximize returns or manage risk.
+
+### Autonomous Driving
+
+Training self-driving car agents to make decisions regarding acceleration, braking, and steering in various traffic scenarios to ensure safety and efficiency.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement A2C from scratch
+```
+
+### Using scikit-learn
+
+```python
+# A2C does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="A2C Lab" />
+
+## References
+
+- Synchronous actor-critic (2016). Synchronous actor-critic.

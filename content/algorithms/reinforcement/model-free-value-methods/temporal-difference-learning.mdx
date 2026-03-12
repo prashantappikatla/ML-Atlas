@@ -1,0 +1,225 @@
+---
+title: "Temporal Difference Learning"
+slug: "temporal-difference-learning"
+category: "reinforcement"
+subcategory: "model-free-value-methods"
+year: 1988
+author: "Sutton"
+paper: "Sutton"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["bootstrapping", "dynamic-programming", "model-free", "online-learning", "policy-evaluation", "reinforcement-learning", "sutton", "value-estimation"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "policy-iteration"
+  - "q-learning"
+  - "sarsa"
+  - "value-iteration"
+---
+
+## Overview
+
+Temporal Difference (TD) learning is a class of model-free reinforcement learning methods that learn to predict a future quantity that depends on future values, such as the value function of a policy. It combines ideas from Monte Carlo methods and dynamic programming, learning directly from experience without a model of the environment's dynamics, while bootstrapping its estimates. TD methods update value estimates based on other learned estimates, rather than waiting for a final outcome. This approach allows for online, incremental learning from sequential experience.
+
+## History
+
+**1988** — Richard S. Sutton introduced Temporal Difference learning in his seminal paper "Learning to Predict by the Methods of Temporal Differences," formalizing the core idea of updating predictions based on the difference between temporally successive predictions.
+
+**1992** — Sutton further developed TD($\lambda$) with eligibility traces, allowing for credit assignment over multiple time steps and bridging the gap between Monte Carlo and one-step TD methods.
+
+**1998** — The publication of "Reinforcement Learning: An Introduction" by Sutton and Barto widely popularized TD learning and its variants, establishing it as a foundational concept in the field.
+
+**2013** — Deep Q-Networks (DQN) by Mnih et al. demonstrated the successful integration of [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) (a TD control method) with deep neural networks, enabling TD methods to tackle high-dimensional state spaces like those in Atari games.
+
+## Mathematical Intuition
+
+### Value Functions and Bellman Equations
+
+Temporal Difference learning aims to estimate value functions, which quantify the desirability of being in a particular state or taking a particular action. The state-value function $V^\pi(s)$ for a policy $\pi$ is the expected return starting from state $s$ and following $\pi$. The action-value function $Q^\pi(s,a)$ is the expected return starting from state $s$, taking action $a$, and thereafter following $\pi$. These functions satisfy the Bellman expectation equations:
+$$V^\pi(s) = E_\pi \left[ R_{t+1} + \gamma V^\pi(S_{t+1}) \mid S_t = s \right]$$
+$$Q^\pi(s,a) = E_\pi \left[ R_{t+1} + \gamma Q^\pi(S_{t+1}, A_{t+1}) \mid S_t = s, A_t = a \right]$$
+where $R_{t+1}$ is the reward received at time $t+1$, $S_{t+1}$ is the next state, $A_{t+1}$ is the next action, and $\gamma \in [0,1]$ is the discount factor.
+
+$$
+V^\pi(s) = E_\pi \left[ R_{t+1} + \gamma V^\pi(S_{t+1}) \mid S_t = s \right]
+$$
+
+$$
+Q^\pi(s,a) = E_\pi \left[ R_{t+1} + \gamma Q^\pi(S_{t+1}, A_{t+1}) \mid S_t = s, A_t = a \right]
+$$
+
+$$
+R_{t+1}
+$$
+
+$$
+S_{t+1}
+$$
+
+$$
+A_{t+1}
+$$
+
+$$
+\gamma \in [0,1]
+$$
+
+### The Temporal Difference Error
+
+The core idea of TD learning is to update an estimate based on a difference between two successive estimates. For $V^\pi(s)$, the target for the update is $R_{t+1} + \gamma V(S_{t+1})$, which is an estimate of the true return. The TD error, $\delta_t$, quantifies the discrepancy between the current estimate $V(S_t)$ and this bootstrapped target:
+$$\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$$
+This error is used to drive the learning process, moving the current estimate closer to the target.
+
+$$
+\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
+$$
+
+$$
+V(S_t)
+$$
+
+$$
+R_{t+1} + \gamma V(S_{t+1})
+$$
+
+### TD(0) Value Function Update
+
+The simplest TD method, TD(0), updates the value function $V(S_t)$ after each time step using the TD error. The update rule for the value of state $S_t$ is:
+$$V(S_t) \leftarrow V(S_t) + \alpha \delta_t$$
+$$V(S_t) \leftarrow V(S_t) + \alpha [R_{t+1} + \gamma V(S_{t+1}) - V(S_t)]$$
+where $\alpha \in (0,1]$ is the learning rate, controlling the step size of the update. This update moves $V(S_t)$ a fraction of the way towards the bootstrapped estimate $R_{t+1} + \gamma V(S_{t+1})$.
+
+$$
+V(S_t) \leftarrow V(S_t) + \alpha \delta_t
+$$
+
+$$
+V(S_t) \leftarrow V(S_t) + \alpha [R_{t+1} + \gamma V(S_{t+1}) - V(S_t)]
+$$
+
+$$
+\alpha \in (0,1]
+$$
+
+### Eligibility Traces for TD($\lambda$)
+
+TD($\lambda$) extends TD(0) by incorporating eligibility traces, which provide a mechanism for credit assignment over multiple time steps. An eligibility trace $e_t(s)$ for state $s$ indicates how recently and frequently state $s$ has been visited. When a TD error occurs, it affects not only the current state's value but also the values of recently visited states, weighted by their eligibility traces. The update rule becomes:
+$$V(s) \leftarrow V(s) + \alpha \delta_t e_t(s)$$
+The eligibility trace for state $s$ is typically updated as $e_t(s) = \gamma \lambda e_{t-1}(s) + \mathbf{1}(S_t=s)$, where $\lambda \in [0,1]$ is the trace decay parameter.
+
+$$
+V(s) \leftarrow V(s) + \alpha \delta_t e_t(s)
+$$
+
+$$
+e_t(s) = \gamma \lambda e_{t-1}(s) + \mathbf{1}(S_t=s)
+$$
+
+$$
+\lambda \in [0,1]
+$$
+
+## Algorithm Steps
+
+1. Initialize a value function $V(s)$ for all states $s \in \mathcal{S}$ arbitrarily (e.g., to zero).
+2. For each episode:
+3. Initialize state $S_t$ (e.g., by sampling from initial states).
+4. For each step of the episode until $S_t$ is terminal:
+5. Take an action $A_t$ according to the policy $\pi$ being evaluated.
+6. Observe the reward $R_{t+1}$ and the next state $S_{t+1}$.
+7. Calculate the TD error: $\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$. If $S_{t+1}$ is terminal, $V(S_{t+1})$ is considered zero.
+8. Update the value function for state $S_t$: $V(S_t) \leftarrow V(S_t) + \alpha \delta_t$.
+9. Set $S_t \leftarrow S_{t+1}$ and repeat.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `0.1` | (0.0, 1.0] | The learning rate, controlling the step size at which the value function estimates are updated. |
+| `gamma` | `float` | `0.99` | [0.0, 1.0] | The discount factor, determining the present value of future rewards. A higher gamma gives more weight to future rewards. |
+| `lambda` | `float` | `0.9` | [0.0, 1.0] | The trace decay parameter for eligibility traces in TD($\lambda$), controlling how quickly the influence of past states decays. |
+| `n_episodes` | `int` | `1000` | [1, inf) | The total number of episodes to run for training the agent. |
+| `max_steps_per_episode` | `int` | `100` | [1, inf) | The maximum number of steps allowed within a single episode before it is terminated. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Temporal Difference learning is model-free, meaning it can learn optimal policies without requiring a complete model of the environment's dynamics.
+- It is an online learning method, allowing it to learn continuously from experience as it interacts with the environment.
+- TD methods leverage bootstrapping, updating value estimates based on other learned estimates, which can lead to faster convergence than Monte Carlo methods.
+- It can learn from incomplete episodes, making it suitable for continuing tasks where episodes may not have a natural end.
+- TD($\lambda$) provides a spectrum of methods that can balance bias and variance by considering multi-step returns, offering flexibility in learning.
+- TD methods are computationally efficient per step, as they only require a single step of lookahead to form their target.
+
+## Weaknesses
+
+- TD learning can be sensitive to the choice of hyperparameters, such as the learning rate $\alpha$ and discount factor $\gamma$, which can significantly impact convergence and performance.
+- The bootstrapping nature of TD methods can lead to bias, as they rely on potentially inaccurate initial estimates of future values.
+- TD methods often struggle with the exploration-exploitation dilemma, requiring careful strategies to ensure sufficient exploration of the state-action space.
+- Convergence can be slow in environments with very large state spaces or sparse rewards, especially for basic TD(0).
+- TD methods are primarily for value estimation; when used for control, they require an additional policy improvement step, which can be complex.
+
+## Use Cases
+
+### Robotics
+
+Training robots to perform complex tasks like grasping objects or navigating environments by learning optimal control policies.
+
+### Game Playing
+
+Developing AI agents that can learn to play board games (e.g., Backgammon, Chess) or video games by estimating the value of game states.
+
+### Resource Management
+
+Optimizing resource allocation in systems like data centers or communication networks to maximize efficiency or throughput.
+
+### Finance
+
+Developing trading strategies by learning to predict future stock prices or market trends based on historical data and current market conditions.
+
+### Healthcare
+
+Optimizing treatment plans for chronic diseases by learning the long-term effects of different interventions on patient outcomes.
+
+### Autonomous Driving
+
+Training self-driving cars to make decisions in real-time, such as lane changes or braking, by learning the value of different actions in various traffic scenarios.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Temporal Difference Learning from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Temporal Difference Learning does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Temporal Difference Learning Lab" />
+
+## References
+
+- Sutton (1988). Sutton.

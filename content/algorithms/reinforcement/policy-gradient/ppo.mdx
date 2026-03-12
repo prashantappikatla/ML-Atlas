@@ -1,0 +1,218 @@
+---
+title: "PPO"
+slug: "ppo"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2017
+author: "Schulman et al."
+paper: "Schulman et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["actor-critic", "continuous-control", "deep-learning", "discrete-control", "model-free", "on-policy", "policy-gradient", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "reinforce"
+  - "soft-actor-critic"
+---
+
+## Overview
+
+Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that optimizes a stochastic policy in an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework. It aims to achieve the data efficiency and reliable performance of Trust Region Policy Optimization (TRPO) while using only first-order optimization, making it simpler to implement and more computationally efficient. PPO constrains policy updates by introducing a clipped objective function, preventing large, destabilizing changes to the policy during training.
+
+## History
+
+**2015** — John Schulman et al. introduced Trust Region Policy Optimization (TRPO), a precursor to PPO, which used second-order optimization to ensure policy updates were not too large, improving stability.
+
+**2016** — Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) was introduced by Mnih et al., demonstrating the power of parallel training and [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods, influencing subsequent policy gradient algorithms.
+
+**2017** — John Schulman et al. published 'Proximal Policy Optimization Algorithms,' introducing PPO as a simpler, more general-purpose, and equally effective alternative to TRPO, quickly becoming a benchmark algorithm.
+
+**2018** — PPO was widely adopted in various deep reinforcement learning libraries and research, becoming a default choice for many continuous control tasks due to its balance of performance and ease of implementation.
+
+## Mathematical Intuition
+
+### Policy Gradient Objective
+
+Policy gradient methods aim to maximize the expected return by directly optimizing the policy parameters $\theta$. The basic policy gradient theorem states that the gradient of the expected return $J(\theta)$ can be expressed as: $$ \nabla J(\theta) = E_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t | s_t) A_t \right] $$ where $\pi_\theta(a_t | s_t)$ is the probability of taking action $a_t$ in state $s_t$ under policy $\pi_\theta$, and $A_t$ is the advantage function, representing how much better an action is than the average action in that state. PPO builds upon this by modifying the objective to ensure more stable updates.
+
+$$
+\nabla J(\theta) = E_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t | s_t) A_t \right]
+$$
+
+$$
+\pi_\theta(a_t | s_t)
+$$
+
+$$
+A_t
+$$
+
+### Advantage Estimation and GAE
+
+The advantage function $A_t$ is crucial for policy gradient methods. It is typically estimated using a critic network that learns the state-value function $V(s)$. A common estimate for the advantage is $A_t = r_t + \gamma V(s_{t+1}) - V(s_t)$, where $r_t$ is the reward and $\gamma$ is the discount factor. PPO often employs Generalized Advantage Estimation (GAE) to balance bias and variance in the advantage estimates. GAE introduces a parameter $\lambda \in [0, 1]$ to combine $k$-step returns: $$ \hat{A}_t^{GAE(\gamma, \lambda)} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l} $$ where $\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$ is the TD residual. This provides a more robust estimate of the advantage.
+
+$$
+A_t = r_t + \gamma V(s_{t+1}) - V(s_t)
+$$
+
+$$
+\hat{A}_t^{GAE(\gamma, \lambda)} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}
+$$
+
+$$
+\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)
+$$
+
+$$
+\gamma
+$$
+
+$$
+\lambda
+$$
+
+### PPO Clipped Objective Function
+
+PPO's core innovation is a clipped surrogate objective function that penalizes large policy changes. Let $r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{old}}(a_t | s_t)}$ be the ratio of the new policy's probability to the old policy's probability for action $a_t$ in state $s_t$. The PPO clipped objective is: $$ L^{CLIP}(\theta) = \hat{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t) \right] $$ Here, $\hat{E}_t$ denotes the empirical expectation over a batch of samples. The $\text{clip}$ function restricts the policy ratio $r_t(\theta)$ to be within $[1 - \epsilon, 1 + \epsilon]$, where $\epsilon$ is a small hyperparameter. This ensures that the policy does not deviate too much from the policy that was used to collect the data, providing a 'trust region' effect without complex second-order optimization.
+
+$$
+r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{old}}(a_t | s_t)}
+$$
+
+$$
+L^{CLIP}(\theta) = \hat{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t) \right]
+$$
+
+$$
+\hat{A}_t
+$$
+
+$$
+\epsilon
+$$
+
+### Combined Actor-Critic Loss
+
+PPO typically uses an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture where a policy network (actor) and a value network (critic) share parameters or are separate. The full objective function for PPO combines the clipped surrogate objective for the actor, a value function error term for the critic, and an entropy bonus to encourage exploration: $$ L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S[\pi_\theta](s) $$ where $L^{VF}(\theta)$ is the squared-error loss for the value function (e.g., $(V(s) - V_{target})^2$), $S[\pi_\theta](s)$ is the entropy of the policy, and $c_1, c_2$ are coefficients. This combined loss allows for end-to-end training of both actor and critic networks.
+
+$$
+L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S[\pi_\theta](s)
+$$
+
+$$
+L^{VF}(\theta)
+$$
+
+$$
+S[\pi_\theta](s)
+$$
+
+$$
+c_1
+$$
+
+$$
+c_2
+$$
+
+## Algorithm Steps
+
+1. Initialize policy parameters $\theta$ and value function parameters $\phi$.
+2. For each iteration, collect a set of trajectories (rollouts) by running the current policy $\pi_{\theta_{old}}$ in the environment for $N$ timesteps.
+3. For each timestep in the collected trajectories, compute the advantage estimates $\hat{A}_t$ using Generalized Advantage Estimation (GAE) based on the current value function $V_{\phi_{old}}$.
+4. Construct the PPO surrogate objective $L^{CLIP}(\theta)$ and the value function loss $L^{VF}(\phi)$ using the collected data and advantage estimates.
+5. Optimize the combined objective $L(\theta, \phi)$ for $K$ epochs using mini-batch stochastic gradient descent (e.g., Adam optimizer), updating both policy and value function parameters.
+6. Update the old policy parameters $\theta_{old}$ to the new policy parameters $\theta$ for the next iteration.
+7. Repeat steps 2-6 until convergence or maximum training steps are reached.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0003` | (0, 1] | The step size for the optimizer when updating network weights. |
+| `n_steps` | `int` | `2048` | >= 1 | The number of steps to run for each environment per update (i.e., rollout length). |
+| `batch_size` | `int` | `64` | >= 1 | The number of samples per mini-batch used for optimization. |
+| `gamma` | `float` | `0.99` | [0, 1] | The discount factor for future rewards. |
+| `gae_lambda` | `float` | `0.95` | [0, 1] | The parameter for Generalized Advantage Estimation (GAE) that balances bias and variance. |
+| `clip_range` | `float` | `0.2` | (0, 1] | The clipping parameter $\epsilon$ for the PPO objective function, controlling the maximum policy change. |
+| `ent_coef` | `float` | `0.01` | >= 0 | Coefficient for the entropy bonus term in the loss function, encouraging exploration. |
+| `vf_coef` | `float` | `0.5` | >= 0 | Coefficient for the value function loss term in the total loss. |
+| `n_epochs` | `int` | `10` | >= 1 | The number of epochs to optimize the surrogate objective on the collected data. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- PPO offers a good balance between sample efficiency and computational complexity, often outperforming simpler policy gradient methods.
+- The clipped objective function provides a stable training process by preventing excessively large policy updates, which can lead to catastrophic forgetting.
+- It is relatively easy to implement compared to Trust Region Policy Optimization (TRPO) because it uses first-order optimization methods.
+- PPO is a general-purpose algorithm that performs well across a wide range of continuous and discrete control tasks.
+- The algorithm's modularity allows for flexible integration with various neural network architectures for processing different observation types.
+
+## Weaknesses
+
+- PPO can be sensitive to hyperparameter tuning, and optimal performance often requires careful selection of parameters like the clipping range and learning rate.
+- While more sample efficient than vanilla policy gradients, PPO still requires a significant amount of interaction with the environment compared to off-policy methods.
+- The algorithm can sometimes get stuck in local optima, especially in environments with sparse rewards or complex dynamics.
+- The exploration-exploitation trade-off needs careful management, often relying on an entropy bonus which itself is a hyperparameter.
+
+## Use Cases
+
+### Robotics
+
+PPO is used for training robots to perform complex manipulation tasks, locomotion, and navigation in simulated and real-world environments.
+
+### Game Playing
+
+It has been successfully applied to train agents to play various video games, including Atari games, Mujoco environments, and complex strategy games, often achieving superhuman performance.
+
+### Autonomous Driving
+
+PPO can be used to train policies for vehicle control, path planning, and decision-making in simulated autonomous driving scenarios.
+
+### Resource Management
+
+In operational research, PPO can optimize resource allocation, scheduling, and inventory management in dynamic systems.
+
+### Financial Trading
+
+Researchers explore PPO for developing automated trading strategies that learn to maximize returns while managing risk in simulated markets.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement PPO from scratch
+```
+
+### Using scikit-learn
+
+```python
+# PPO does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="PPO Lab" />
+
+## References
+
+- Schulman et al. (2017). Schulman et al..

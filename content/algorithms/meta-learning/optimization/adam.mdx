@@ -1,0 +1,185 @@
+---
+title: "Adam"
+slug: "adam"
+category: "meta-learning"
+subcategory: "optimization"
+year: 2014
+author: "Kingma & Ba"
+paper: "Kingma & Ba"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["adaptive-learning-rate", "deep-learning", "gradient-descent", "meta-learning", "momentum", "neural-networks", "optimization", "stochastic-optimization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adagrad"
+  - "adamw"
+  - "momentum"
+  - "rmsprop"
+  - "stochastic-gradient-descent"
+  - "transformer"
+---
+
+## Overview
+
+Adam (Adaptive Moment Estimation) is an optimization algorithm widely used for training deep neural networks. It combines the advantages of [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and [AdaGrad](/algorithms/meta-learning/optimization/adagrad) by computing adaptive learning rates for each parameter based on estimates of first and second moments of the gradients. This method efficiently handles sparse gradients and noisy problems, often leading to faster convergence and better generalization performance compared to traditional [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). Its robust performance across various tasks has made it a default choice for many deep learning applications.
+
+## History
+
+**2012** — [AdaGrad](/algorithms/meta-learning/optimization/adagrad) was introduced by Duchi, Hazan, and Singer, proposing per-parameter adaptive learning rates based on the sum of squared past gradients.
+
+**2012** — [RMSProp](/algorithms/meta-learning/optimization/rmsprop) was proposed by Geoffrey Hinton in a lecture, addressing [AdaGrad](/algorithms/meta-learning/optimization/adagrad)'s rapidly diminishing learning rates by using an exponentially decaying average of squared gradients.
+
+**2013** — AdaDelta was introduced by Zeiler, further improving [AdaGrad](/algorithms/meta-learning/optimization/adagrad) by eliminating the need for a manually set global learning rate and using a ratio of exponentially decaying averages of squared gradients and squared parameter updates.
+
+**2014** — Adam was introduced by Diederik P. Kingma and Jimmy Ba, combining the benefits of adaptive learning rates (from [AdaGrad](/algorithms/meta-learning/optimization/adagrad)/[RMSProp](/algorithms/meta-learning/optimization/rmsprop)) with [Momentum](/algorithms/meta-learning/optimization/momentum), using exponential moving averages of both the first and second moments of gradients.
+
+**2015** — Nadam (Nesterov-accelerated Adaptive Moment Estimation) was proposed by Timothy Dozat, integrating Nesterov [Momentum](/algorithms/meta-learning/optimization/momentum) into the Adam optimization algorithm.
+
+**2017** — [AdamW](/algorithms/meta-learning/optimization/adamw) was introduced by Ilya Loshchilov and Frank Hutter, decoupling weight decay from the Adam update rule, which was shown to improve regularization and generalization performance.
+
+## Mathematical Intuition
+
+### Adaptive Learning Rates and Momentum
+
+Adam leverages adaptive learning rates, meaning the step size for each parameter is adjusted dynamically based on its historical gradients. It also incorporates [Momentum](/algorithms/meta-learning/optimization/momentum), which helps accelerate convergence in relevant directions and dampens oscillations. This combination aims to achieve efficient optimization across various loss landscapes by maintaining separate learning rates for each parameter.
+
+### First Moment Estimate (Mean)
+
+Adam maintains an exponentially decaying average of past gradients, known as the first moment estimate. This is analogous to [Momentum](/algorithms/meta-learning/optimization/momentum) in [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). For a gradient $g_t$ at time step $t$, the first moment vector $m_t$ is updated as:
+
+$$
+$$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
+$$
+
+### Second Moment Estimate (Variance)
+
+Adam also keeps an exponentially decaying average of past squared gradients, which serves as the second moment estimate. This provides an adaptive learning rate component similar to [RMSProp](/algorithms/meta-learning/optimization/rmsprop). The second moment vector $v_t$ is updated as:
+
+$$
+$$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+$$
+
+### Bias Correction and Parameter Update
+
+Since $m_t$ and $v_t$ are initialized as zero vectors, they are biased towards zero, especially during the initial time steps. Adam applies bias correction to these estimates to counteract this initial bias:
+
+$$
+$$ \hat{m}_t = \frac{m_t}{1 - \beta_1^t} $$
+$$
+
+$$
+$$ \hat{v}_t = \frac{v_t}{1 - \beta_2^t} $$
+$$
+
+$$
+Finally, the parameters $\theta_t$ are updated using the corrected moments, where $\alpha$ is the learning rate and $\epsilon$ is a small constant for numerical stability:
+$$
+
+$$
+$$ \theta_{t+1} = \theta_t - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} $$
+$$
+
+## Algorithm Steps
+
+1. Initialize parameters $\theta_0$, learning rate $\alpha$, decay rates $\beta_1, \beta_2$, and a small constant $\epsilon$.
+2. Initialize first moment vector $m_0 = 0$ and second moment vector $v_0 = 0$.
+3. For $t = 1, 2, \dots$ until convergence:
+4. Compute the gradient $g_t = \nabla_{\theta} J(\theta_{t-1})$ of the objective function $J$ with respect to the parameters $\theta_{t-1}$.
+5. Update the biased first moment estimate: $m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$.
+6. Update the biased second moment estimate: $v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$.
+7. Compute bias-corrected first moment estimate: $\hat{m}_t = m_t / (1 - \beta_1^t)$.
+8. Compute bias-corrected second moment estimate: $\hat{v}_t = v_t / (1 - \beta_2^t)$.
+9. Update parameters: $\theta_t = \theta_{t-1} - \alpha \hat{m}_t / (\sqrt{\hat{v}_t} + \epsilon)$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.001` | (0, inf) | The step size for parameter updates, controlling the magnitude of changes made to the model's weights. |
+| `beta_1` | `float` | `0.9` | [0, 1) | Exponential decay rate for the first moment estimates (mean of gradients), influencing the momentum component. |
+| `beta_2` | `float` | `0.999` | [0, 1) | Exponential decay rate for the second moment estimates (uncentered variance of gradients), influencing the adaptive learning rate component. |
+| `epsilon` | `float` | `1e-08` | (0, inf) | A small constant added to the denominator for numerical stability, preventing division by zero. |
+| `weight_decay` | `float` | `0.0` | [0, inf) | L2 regularization term applied to the weights, often decoupled from the Adam update in AdamW variants. |
+| `amsgrad` | `boolean` | `False` | True, False | Whether to apply the AMSGrad variant of Adam, which aims to prevent the effective learning rate from decreasing too rapidly. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Adam often converges faster than traditional SGD and other adaptive optimizers on complex deep learning tasks.
+- It automatically adjusts the learning rate for each parameter, reducing the need for extensive manual tuning.
+- The algorithm is robust to noisy gradients and sparse data, making it suitable for a wide range of problems.
+- Its combination of momentum and adaptive learning rates helps navigate flat regions and escape saddle points effectively.
+- Adam's bias correction mechanism ensures that moment estimates are accurate even in the initial training steps.
+- It generally requires less memory than some other adaptive methods like AdaGrad, as it only stores exponentially decaying averages.
+
+## Weaknesses
+
+- Adam can sometimes converge to a suboptimal solution, especially when the learning rate is not carefully decayed over time.
+- The generalization performance of Adam can sometimes be worse than SGD with momentum on certain tasks, particularly when training for a very long time.
+- The default hyperparameters, while generally robust, may not be optimal for all problems and can sometimes lead to poor performance.
+- Adam's adaptive learning rates can sometimes become too small, leading to premature convergence or slow progress in later stages of training.
+
+## Use Cases
+
+### Computer Vision
+
+Training convolutional neural networks (CNNs) for image classification, object detection, and segmentation tasks.
+
+### Natural Language Processing
+
+Optimizing recurrent neural networks (RNNs), LSTMs, and [Transformer](/algorithms/deep-learning/transformers/transformer) models for tasks like machine translation, text generation, and sentiment analysis.
+
+### Speech Recognition
+
+Training deep learning models for acoustic modeling and speech-to-text systems, where large datasets and complex architectures are common.
+
+### Reinforcement Learning
+
+Optimizing policy networks and value functions in various reinforcement learning algorithms, such as Deep Q-Networks (DQN) and Proximal Policy Optimization (PPO).
+
+### Generative Models
+
+Training generative adversarial networks (GANs) and variational autoencoders (VAEs) for tasks like image synthesis and data generation.
+
+### Recommender Systems
+
+Optimizing deep learning models used in personalized recommendation engines to learn complex user-item interactions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Adam from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Adam does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Adam Lab" />
+
+## References
+
+- Kingma & Ba (2014). Kingma & Ba.

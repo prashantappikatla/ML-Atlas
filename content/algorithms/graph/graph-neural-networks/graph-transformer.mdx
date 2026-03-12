@@ -1,0 +1,270 @@
+---
+title: "Graph Transformer"
+slug: "graph-transformer"
+category: "graph"
+subcategory: "graph-neural-networks"
+year: 2021
+author: "Graph transformer literature"
+paper: "Graph transformer literature"
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["attention-mechanism", "deep-learning", "graph-classification", "graph-neural-networks", "graph-representation-learning", "link-prediction", "node-embedding", "transformer-architecture"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "attention-mechanism"
+  - "laplacian-eigenmaps"
+  - "transformer"
+---
+
+## Overview
+
+Graph Transformers extend the powerful self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) of the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture to non-Euclidean graph-structured data. They aim to capture long-range dependencies and global structural information within graphs by treating nodes as tokens and computing attention scores based on their features and structural relationships. This approach allows for highly expressive graph representations, overcoming some limitations of traditional message-passing Graph Neural Networks in capturing global context.
+
+## History
+
+**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, based entirely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
+
+**2021** — Dwivedi et al. proposed a dedicated Graph [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, addressing the critical challenge of incorporating graph structure and positional information into the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism).
+
+**2022** — Chen et al. published "Do Transformers Really Perform Bad for Graph Representation?", providing a comprehensive analysis and demonstrating the competitive performance of properly designed Graph Transformers.
+
+## Mathematical Intuition
+
+### Graph Input Representation
+
+A graph $G = (V, E)$ is typically represented by its node features $X \in \mathbb{R}^{N \times d_x}$ and an adjacency matrix $A \in \{0, 1\}^{N \times N}$, where $N$ is the number of nodes and $d_x$ is the dimension of node features. For a Graph [Transformer](/algorithms/deep-learning/transformers/transformer), each node $v_i \in V$ is initially associated with an embedding $h_i^{(0)}$, often derived directly from its features $x_i$. 
+$$ h_i^{(0)} = \text{Linear}(x_i) $$
+This initial embedding serves as the input token for the [Transformer](/algorithms/deep-learning/transformers/transformer) layers.
+
+$$
+G = (V, E)
+$$
+
+$$
+X \in \mathbb{R}^{N \times d_x}
+$$
+
+$$
+A \in \{0, 1\}^{N \times N}
+$$
+
+$$
+N
+$$
+
+$$
+d_x
+$$
+
+$$
+v_i \in V
+$$
+
+$$
+h_i^{(0)}
+$$
+
+$$
+x_i
+$$
+
+$$
+h_i^{(0)} = \text{Linear}(x_i)
+$$
+
+### Graph Positional Encoding
+
+Unlike sequences, graphs lack an inherent ordering, necessitating explicit structural or positional encodings to inject graph topology into the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism). Common methods include [Laplacian Eigenmaps](/algorithms/unsupervised/dimensionality-reduction/laplacian-eigenmaps), Random Walk Positional Encoding (RWPE), or degree-based encodings. For instance, RWPE computes a vector for each node based on the probabilities of random walks of different lengths starting from that node. This encoding $P_i \in \mathbb{R}^{d_p}$ is then added to the node's feature embedding.
+$$ h_i' = h_i + P_i $$
+This ensures that the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) can distinguish nodes based on their structural roles and positions within the graph.
+
+$$
+P_i \in \mathbb{R}^{d_p}
+$$
+
+$$
+h_i' = h_i + P_i
+$$
+
+### Multi-Head Self-Attention for Graphs
+
+The core of the Graph [Transformer](/algorithms/deep-learning/transformers/transformer) is the multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), adapted for graphs. For each node $i$, query $Q_i$, key $K_i$, and value $V_i$ vectors are derived from its current embedding $h_i$. The attention score between node $i$ and node $j$ is computed as:
+$$ \alpha_{ij} = \frac{\exp(Q_i K_j^T / \sqrt{d_k})}{\sum_{k \in V} \exp(Q_i K_k^T / \sqrt{d_k})} $$
+This attention can be masked to only consider neighbors (local attention) or applied globally (global attention). The output for a single head is $\sum_{j \in V} \alpha_{ij} V_j$. Multi-head attention concatenates outputs from multiple heads, each learning different attention patterns, and projects them back to the original dimension.
+$$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_H) W^O $$
+
+$$
+i
+$$
+
+$$
+Q_i
+$$
+
+$$
+K_i
+$$
+
+$$
+V_i
+$$
+
+$$
+h_i
+$$
+
+$$
+j
+$$
+
+$$
+\alpha_{ij} = \frac{\exp(Q_i K_j^T / \sqrt{d_k})}{\sum_{k \in V} \exp(Q_i K_k^T / \sqrt{d_k})}
+$$
+
+$$
+\sum_{j \in V} \alpha_{ij} V_j
+$$
+
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_H) W^O
+$$
+
+### Feed-Forward and Normalization
+
+Following the multi-head attention, each node's representation passes through a position-wise feed-forward network (FFN), which consists of two linear transformations with a non-linear activation in between.
+$$ \text{FFN}(h) = \max(0, h W_1 + b_1) W_2 + b_2 $$
+Residual connections and layer normalization are applied around both the attention and FFN sub-layers to facilitate training deep networks. For a layer $l$, the output $h^{(l+1)}$ is computed as:
+$$ h' = \text{LayerNorm}(h^{(l)} + \text{MultiHead}(h^{(l)})) $$
+$$ h^{(l+1)} = \text{LayerNorm}(h' + \text{FFN}(h')) $$
+
+$$
+\text{FFN}(h) = \max(0, h W_1 + b_1) W_2 + b_2
+$$
+
+$$
+l
+$$
+
+$$
+h^{(l+1)}
+$$
+
+$$
+h' = \text{LayerNorm}(h^{(l)} + \text{MultiHead}(h^{(l)}))
+$$
+
+$$
+h^{(l+1)} = \text{LayerNorm}(h' + \text{FFN}(h'))
+$$
+
+## Algorithm Steps
+
+1. Initialize node embeddings by linearly projecting raw node features to a higher-dimensional space.
+2. Compute structural or positional encodings for each node, such as Laplacian Eigenvectors or Random Walk Positional Encodings, to inject graph topology.
+3. Add the computed positional encodings to the initial node embeddings.
+4. For each Transformer layer, apply multi-head self-attention:
+5. Linearly project node embeddings to obtain query, key, and value matrices.
+6. Compute attention scores between all pairs of nodes (or connected nodes), typically scaled by $\sqrt{d_k}$.
+7. Apply a softmax function to normalize attention scores.
+8. Compute a weighted sum of value vectors using the attention scores.
+9. Concatenate outputs from multiple attention heads and project them.
+10. Apply a residual connection and layer normalization after the multi-head self-attention output.
+11. Pass the normalized output through a position-wise feed-forward network.
+12. Apply another residual connection and layer normalization after the feed-forward network.
+13. Repeat steps 4-7 for the specified number of Transformer layers to obtain final node representations, which can then be used for downstream tasks.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `int` | `6` | >= 1 | Number of Transformer encoder layers. |
+| `d_model` | `int` | `512` | >= 1 | Dimensionality of the input and output embeddings for each Transformer layer. |
+| `num_heads` | `int` | `8` | >= 1 | Number of attention heads in the multi-head self-attention mechanism. |
+| `d_ff` | `int` | `2048` | >= 1 | Dimensionality of the inner layer of the position-wise feed-forward networks. |
+| `dropout_rate` | `float` | `0.1` | 0.0 to 1.0 | Dropout probability applied to the output of each sub-layer before residual connection. |
+| `attention_dropout_rate` | `float` | `0.1` | 0.0 to 1.0 | Dropout probability applied to the attention weights. |
+| `norm_first` | `bool` | `False` | True, False | If True, layer normalization is applied before attention and FFN; otherwise, after. |
+| `positional_encoding_type` | `str` | `laplacian_eigenvectors` | laplacian_eigenvectors, random_walk, degree | Type of positional or structural encoding to inject graph topology. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- Graph Transformers can capture long-range dependencies across the entire graph, which is challenging for local message-passing GNNs.
+- The self-attention mechanism allows for dynamic weighting of information from different nodes, adapting to diverse graph structures.
+- They are inherently permutation-invariant to node ordering, provided that appropriate positional or structural encodings are used.
+- The architecture is highly parallelizable, enabling efficient training on modern hardware, especially for graphs with many nodes.
+- Graph Transformers can learn highly expressive and context-aware node representations by integrating global structural information.
+- They can handle graphs of varying sizes and topologies without requiring fixed-size input structures.
+
+## Weaknesses
+
+- The computational complexity of global self-attention is quadratic with respect to the number of nodes, making it memory and time intensive for very large graphs.
+- Designing effective positional or structural encodings for graphs is a non-trivial task and crucial for the model's performance.
+- Graph Transformers may struggle with over-smoothing in very deep architectures, where node representations become indistinguishable.
+- Interpreting the attention weights in complex graph structures can be challenging, making model explainability difficult.
+- The large number of parameters can lead to overfitting on smaller datasets if not properly regularized.
+
+## Use Cases
+
+### Drug Discovery
+
+Predicting molecular properties or drug-target interactions by modeling molecules as graphs, where atoms are nodes and bonds are edges.
+
+### Social Network Analysis
+
+Identifying communities, predicting links, or classifying users based on their interactions and profiles within social graphs.
+
+### Recommender Systems
+
+Generating personalized recommendations by modeling user-item interaction graphs, capturing complex relationships.
+
+### Traffic Prediction
+
+Forecasting traffic flow or congestion on road networks by treating intersections as nodes and roads as edges.
+
+### Knowledge Graphs
+
+Performing link prediction, entity classification, or question answering by reasoning over structured knowledge represented as graphs.
+
+### Computer Vision
+
+Enhancing image understanding by modeling relationships between objects or regions in an image as a graph.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Graph Transformer from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Graph Transformer does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Graph Transformer Lab" />
+
+## References
+
+- Graph transformer literature (2021). Graph transformer literature.

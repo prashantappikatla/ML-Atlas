@@ -1,0 +1,194 @@
+---
+title: "Policy Iteration"
+slug: "policy-iteration"
+category: "reinforcement"
+subcategory: "dynamic-programming"
+year: 1957
+author: "Bellman"
+paper: "Bellman"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["bellman-equations", "discrete-actions", "discrete-states", "dynamic-programming", "model-based", "optimal-control", "policy-evaluation", "policy-improvement", "reinforcement-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "monte-carlo-control"
+  - "q-learning"
+  - "sarsa"
+  - "value-iteration"
+---
+
+## Overview
+
+Policy Iteration is a dynamic programming algorithm used to find an optimal policy for a given Markov Decision Process (MDP). It iteratively improves a policy by alternating between two steps: policy evaluation, which computes the value function for the current policy, and policy improvement, which updates the policy to be greedy with respect to the evaluated value function. This process guarantees convergence to an optimal policy and its corresponding optimal value function. It is a model-based method, requiring full knowledge of the environment's transition probabilities and reward function.
+
+## History
+
+**1957** — Richard Bellman introduced the concept of Dynamic Programming in his seminal work, laying the mathematical foundation for solving sequential decision-making problems.
+
+**1960** — Ronald Howard's "Dynamic Programming and Markov Processes" formalized Policy Iteration as a method for finding optimal policies in finite-state, finite-action MDPs.
+
+**1980** — The resurgence of interest in reinforcement learning further highlighted Policy Iteration as a fundamental model-based algorithm, influencing the development of model-free methods.
+
+## Mathematical Intuition
+
+### Markov Decision Process Fundamentals
+
+An MDP is defined by a tuple $(S, A, P, R, \gamma)$, where $S$ is the set of states, $A$ is the set of actions, $P(s'|s,a)$ is the transition probability from state $s$ to $s'$ when taking action $a$, $R(s,a,s')$ is the reward received, and $\gamma \in [0,1)$ is the discount factor. The objective is to find a policy $\pi(a|s)$ that maximizes the expected cumulative discounted reward.
+
+$$
+P(s'|s,a)
+$$
+
+$$
+R(s,a,s')
+$$
+
+$$
+\gamma \in [0,1)
+$$
+
+### Policy Evaluation: Value Function
+
+Policy evaluation computes the state-value function $V^\pi(s)$ for a given policy $\pi$. This function represents the expected return starting from state $s$ and following policy $\pi$ thereafter. It is defined by the Bellman expectation equation, which can be solved iteratively until $V^\pi(s)$ converges:
+$$ V^\pi(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V^\pi(s')) $$
+The iterative update is:
+$$ V_{k+1}(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V_k(s')) $$
+
+$$
+V^\pi(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V^\pi(s'))
+$$
+
+$$
+V_{k+1}(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V_k(s'))
+$$
+
+### Policy Improvement: Better Policy
+
+Once $V^\pi(s)$ is known, a new, improved policy $\pi'$ can be derived by acting greedily with respect to the action-value function $Q^\pi(s,a)$. The action-value function represents the expected return of taking action $a$ in state $s$ and then following policy $\pi$:
+$$ Q^\pi(s,a) = \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V^\pi(s')) $$
+The improved policy $\pi'$ selects the action that maximizes $Q^\pi(s,a)$ for each state $s$:
+$$ \pi'(s) = \arg\max_{a \in A} Q^\pi(s,a) $$
+If $\pi' = \pi$, then the policy is optimal.
+
+$$
+Q^\pi(s,a) = \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V^\pi(s'))
+$$
+
+$$
+\pi'(s) = \arg\max_{a \in A} Q^\pi(s,a)
+$$
+
+### Convergence to Optimal Policy
+
+Policy Iteration guarantees convergence to an optimal policy $\pi^*$ and its corresponding optimal value function $V^*(s)$. This is due to the Policy Improvement Theorem, which states that if $V^{\pi'}(s) \ge V^\pi(s)$ for all $s$, then $\pi'$ is a better or equally good policy. Since each policy improvement step produces a strictly better policy (unless the current policy is already optimal), and there are a finite number of policies in a finite MDP, the process must converge to an optimal policy.
+
+$$
+\pi^*
+$$
+
+$$
+V^*(s)
+$$
+
+$$
+V^{\pi'}(s) \ge V^\pi(s)
+$$
+
+## Algorithm Steps
+
+1. Initialize an arbitrary policy $\pi$ (e.g., random policy) and a value function $V(s)$ for all states $s$.
+2. **Policy Evaluation**: Repeat until $V(s)$ converges (i.e., changes by less than a small threshold $\theta$):
+3. For each state $s \in S$, calculate the new value $V_{new}(s)$ using the current policy $\pi$: $V_{new}(s) = \sum_{a \in A} \pi(a|s) \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V(s'))$.
+4. Update $V(s) \leftarrow V_{new}(s)$.
+5. **Policy Improvement**: Create a new policy $\pi'$ by making it greedy with respect to the current value function $V(s)$:
+6. For each state $s \in S$, calculate the action-value function $Q(s,a)$ for all actions $a \in A$: $Q(s,a) = \sum_{s' \in S} P(s'|s,a) (R(s,a,s') + \gamma V(s'))$.
+7. Set $\pi'(s) = \arg\max_{a \in A} Q(s,a)$.
+8. **Check for Convergence**: If $\pi' = \pi$, then the algorithm has converged to the optimal policy; terminate. Otherwise, set $\pi \leftarrow \pi'$ and return to the Policy Evaluation step.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `gamma` | `float` | `0.99` | [0.0, 1.0) | The discount factor, which determines the present value of future rewards. Must be in the range $[0, 1)$. |
+| `theta` | `float` | `1e-6` | (0.0, inf) | A small positive number used as a threshold for policy evaluation convergence, indicating the maximum allowed change in the value function. |
+| `max_iter_eval` | `int` | `1000` | [1, inf) | Maximum number of iterations for the policy evaluation step to prevent infinite loops in cases where convergence is slow or $\theta$ is too small. |
+| `max_iter_policy` | `int` | `100` | [1, inf) | Maximum number of policy improvement iterations. The algorithm typically converges in fewer iterations for finite MDPs. |
+| `env` | `object` | `None` |  | The Markov Decision Process environment, which must provide the state space, action space, transition probabilities, and reward function. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Policy Iteration is guaranteed to converge to the optimal policy and value function for finite Markov Decision Processes.
+- It provides the exact optimal policy, unlike approximation methods that might only find a near-optimal solution.
+- The algorithm can converge in fewer iterations than Value Iteration, especially when starting with a reasonably good initial policy.
+- It effectively handles stochastic environments where the outcomes of actions are probabilistic.
+- The policy improvement step is deterministic once the value function is accurately known.
+
+## Weaknesses
+
+- Policy Iteration requires a complete and accurate model of the environment, including all transition probabilities and reward functions.
+- It suffers from the curse of dimensionality, becoming computationally intractable for large state or action spaces.
+- Each iteration of policy evaluation can be computationally expensive, requiring a full sweep over all states until convergence.
+- The algorithm is not directly applicable to continuous state or action spaces without prior discretization, which can lead to loss of information.
+- In some cases, the total computation time can be slower than Value Iteration if the policy evaluation step takes many iterations to converge.
+
+## Use Cases
+
+### Robotics
+
+Planning optimal movement sequences for robots in discrete grid-world environments or simplified navigation tasks with known dynamics.
+
+### Game AI
+
+Developing optimal strategies for board games like chess or checkers, given a complete model of the game rules and outcomes.
+
+### Inventory Management
+
+Determining optimal ordering and stocking policies to minimize costs and meet demand in a known supply chain model.
+
+### Resource Allocation
+
+Optimizing the scheduling of tasks or allocation of limited resources in systems with well-defined states and transitions.
+
+### Healthcare
+
+Designing optimal treatment protocols for diseases with discrete states (e.g., disease stages) and known transition probabilities between states.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Policy Iteration from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Policy Iteration does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Policy Iteration Lab" />
+
+## References
+
+- Bellman (1957). Bellman.

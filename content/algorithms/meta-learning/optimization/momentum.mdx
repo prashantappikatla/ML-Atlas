@@ -1,0 +1,165 @@
+---
+title: "Momentum"
+slug: "momentum"
+category: "meta-learning"
+subcategory: "optimization"
+year: 1964
+author: "Polyak"
+paper: "Polyak"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["accelerated-gradient", "convex-optimization", "deep-learning", "gradient-descent", "neural-networks", "optimization", "parameter-update", "stochastic-optimization"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adagrad"
+  - "adam"
+  - "rmsprop"
+  - "stochastic-gradient-descent"
+  - "transformer"
+---
+
+## Overview
+
+Momentum is an optimization algorithm designed to accelerate gradient descent by accumulating a velocity of past gradients. It helps the optimizer navigate flat regions of the loss landscape and overcome shallow local minima more efficiently. By dampening oscillations and maintaining movement in consistent directions, Momentum often leads to faster convergence and improved training stability for deep learning models. This technique effectively adds inertia to the parameter updates, allowing the optimization process to 'roll' through small obstacles.
+
+## History
+
+**1964** — Boris Polyak introduced the 'heavy-ball method' in his paper 'Some methods of speeding up the convergence of iteration methods,' laying the theoretical groundwork for what is now known as momentum in optimization.
+
+**1986** — The widespread adoption of backpropagation for training neural networks, popularized by Rumelhart, Hinton, and Williams, brought renewed attention to optimization techniques like momentum for improving convergence.
+
+**1990** — Qian's paper 'On the momentum term in backpropagation learning' provided a detailed analysis of the momentum term's role in accelerating convergence and stabilizing learning in neural networks.
+
+**2013** — Sutskever et al. demonstrated the significant benefits of using a high momentum value (e.g., 0.9 or 0.99) with [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) for training very deep neural networks, showcasing its practical effectiveness in modern deep learning.
+
+## Mathematical Intuition
+
+### Standard Gradient Descent
+
+[Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD) updates parameters $\theta$ by moving in the opposite direction of the gradient of the loss function $L$ with respect to $\theta$, scaled by a learning rate $\eta$. This update rule can be expressed as:
+
+$$
+\theta_{t+1} = \theta_t - \eta \nabla L(\theta_t)
+$$
+
+### Introducing Velocity Accumulation
+
+Momentum introduces a 'velocity' term $v$ that accumulates a fraction of past gradients. At each step $t$, the current gradient $\nabla L(\theta_t)$ contributes to updating this velocity, which is then scaled by the learning rate $\eta$. A momentum coefficient $\beta$ (typically between 0 and 1) determines how much of the previous velocity is retained. The velocity update is:
+
+$$
+v_{t+1} = \beta v_t + \eta \nabla L(\theta_t)
+$$
+
+### Momentum Parameter Update
+
+Instead of directly subtracting the scaled gradient, the parameters are updated by subtracting the newly computed velocity vector. This means that if the gradient consistently points in the same direction, the velocity will grow, leading to larger steps. Conversely, if gradients oscillate, the velocity will tend to cancel out, dampening oscillations. The parameter update rule is:
+
+$$
+\theta_{t+1} = \theta_t - v_{t+1}
+$$
+
+### Effect of Momentum Coefficient
+
+The momentum coefficient $\beta$ acts like a 'friction' term. A higher $\beta$ value (e.g., 0.9 or 0.99) means more of the previous velocity is retained, allowing the optimizer to build up speed and traverse flat regions or small local minima more easily. A lower $\beta$ value makes the updates more responsive to the current gradient. This accumulation helps smooth out noisy gradients and accelerate convergence in relevant directions.
+
+## Algorithm Steps
+
+1. Initialize model parameters $\theta$ randomly.
+2. Initialize the velocity vector $v$ to zeros.
+3. Set the learning rate $\eta$ and momentum coefficient $\beta$ (e.g., $\eta=0.01$, $\beta=0.9$).
+4. For each training iteration (or epoch):
+5.   Compute the gradient of the loss function with respect to the parameters, $\nabla L(\theta)$.
+6.   Update the velocity vector: $v \leftarrow \beta v + \eta \nabla L(\theta)$.
+7.   Update the parameters: $\theta \leftarrow \theta - v$.
+8. Repeat until a stopping criterion is met (e.g., maximum iterations, convergence of loss).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.01` | (0, inf) | The step size multiplier for the gradient or velocity update at each iteration. A higher learning rate leads to larger steps. |
+| `momentum` | `float` | `0.9` | [0, 1) | The momentum factor, which determines how much of the previous velocity is retained and added to the current update. Higher values mean more inertia. |
+| `nesterov` | `boolean` | `False` | True, False | Whether to apply Nesterov Accelerated Gradient (NAG). NAG computes the gradient at a 'lookahead' position, often leading to slightly better convergence. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Momentum accelerates convergence, especially in directions with consistent gradients, by accumulating velocity from past updates.
+- It helps overcome shallow local minima and saddle points by maintaining momentum through flat regions of the loss landscape.
+- The algorithm dampens oscillations in directions with high curvature, leading to smoother and more stable convergence paths.
+- Momentum can allow for the use of slightly larger learning rates without divergence compared to plain Stochastic Gradient Descent.
+- It often improves training stability and generalization performance for deep neural networks across various tasks.
+- The accumulated velocity provides a form of memory, making the optimization less susceptible to noisy individual gradients.
+
+## Weaknesses
+
+- Momentum introduces an additional hyperparameter, the momentum coefficient $\beta$, which requires careful tuning for optimal performance.
+- If the momentum coefficient is too high or the learning rate is not appropriately decayed, the optimizer can overshoot optimal solutions.
+- It may still get stuck in very deep or sharp local minima, although it is less prone to this than plain SGD.
+- The algorithm requires storing an additional velocity vector for each parameter, slightly increasing memory footprint compared to basic SGD.
+- Its performance can be sensitive to the initial learning rate and momentum values, necessitating robust hyperparameter search strategies.
+
+## Use Cases
+
+### Computer Vision
+
+Widely used for training deep convolutional neural networks (CNNs) in tasks such as image classification, object detection, and semantic segmentation, where it helps accelerate convergence on large datasets.
+
+### Natural Language Processing
+
+Applied to optimize recurrent neural networks (RNNs), LSTMs, and [Transformer](/algorithms/deep-learning/transformers/transformer) models for tasks like machine translation, text generation, and sentiment analysis, improving training efficiency.
+
+### Speech Recognition
+
+Utilized in training acoustic models and sequence-to-sequence architectures for converting spoken language to text, contributing to faster and more stable learning.
+
+### Reinforcement Learning
+
+Employed to optimize policy networks and value functions in deep reinforcement learning agents, aiding in the exploration of complex state spaces and faster policy convergence.
+
+### Time Series Forecasting
+
+Used to train neural networks for predicting future values in time series data, where it can help navigate the complex loss landscapes often encountered with sequential data.
+
+### Generative Models
+
+Applied in the optimization of Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs), where stable training is crucial for generating high-quality samples.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Momentum from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Momentum does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Momentum Lab" />
+
+## References
+
+- Polyak (1964). Polyak.

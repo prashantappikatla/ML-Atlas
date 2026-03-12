@@ -1,0 +1,183 @@
+---
+title: "MAML"
+slug: "maml"
+category: "meta-learning"
+subcategory: "meta-learning"
+year: 2017
+author: "Finn et al."
+paper: "Finn et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["adaptation", "deep-learning", "few-shot-learning", "gradient-descent", "meta-learning", "model-agnostic", "optimization", "transfer-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "reptile"
+---
+
+## Overview
+
+Model-Agnostic Meta-Learning (MAML) is a meta-learning algorithm designed to learn an initial set of model parameters that can quickly adapt to new, unseen tasks with only a few gradient updates and limited training data. Its core innovation lies in optimizing for a model initialization that is highly sensitive to changes in task-specific loss functions, enabling rapid and efficient adaptation. This approach allows a single model to generalize across a distribution of tasks rather than specializing in one.
+
+## History
+
+**2017** — Chelsea Finn, Pieter Abbeel, and Sergey Levine introduce Model-Agnostic Meta-Learning (MAML) in their seminal paper "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks," establishing a powerful gradient-based meta-learning framework.
+
+**2018** — Alex Nichol and John Schulman propose [Reptile](/algorithms/meta-learning/meta-learning/reptile), a simpler first-order meta-learning algorithm that approximates MAML's objective, reducing computational complexity while maintaining strong performance.
+
+**2019** — Further research explores approximations to MAML, such as FOMAML (First-Order MAML), which avoids computing second-order derivatives to improve computational efficiency.
+
+**2020** — Studies begin to analyze the theoretical properties of MAML, including its convergence guarantees and generalization bounds, providing deeper insights into its effectiveness.
+
+**2021** — Extensions like ANIL (Almost No Inner Loop) are developed, demonstrating that much of MAML's adaptation capability can come from learning a good feature extractor, with only the final layer adapting per task.
+
+## Mathematical Intuition
+
+### Meta-Learning Objective Formulation
+
+MAML frames meta-learning as a bi-level optimization problem. The goal is to find an initial parameter vector $\theta$ such that a model initialized with $\theta$ can achieve maximal performance on new tasks after a small number of gradient steps. This is expressed as minimizing the expected loss over a distribution of tasks $p(\mathcal{T})$:
+$$ \min_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}) \right] $$
+where $\mathcal{L}_{\mathcal{T}_i}$ is the loss function for task $\mathcal{T}_i$, and $\theta_i'$ are the parameters adapted to task $\mathcal{T}_i$ from the initial $\theta$.
+
+$$
+\min_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}) \right]
+$$
+
+### Inner Loop Task Adaptation
+
+For each sampled task $\mathcal{T}_i$, the model's initial parameters $\theta$ are adapted to task-specific parameters $\theta_i'$ by performing one or more gradient descent steps using the training data $D_i^{train}$ from that task. A single gradient step adaptation is typically formulated as:
+$$ \theta_i' = \theta - \alpha \nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta}; D_i^{train}) $$
+Here, $\alpha$ is the task-specific learning rate (inner loop learning rate), and $\mathcal{L}_{\mathcal{T}_i}(f_{\theta}; D_i^{train})$ is the loss computed on the training data for task $\mathcal{T}_i$ using the current parameters $\theta$.
+
+$$
+\theta_i' = \theta - \alpha \nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta}; D_i^{train})
+$$
+
+### Outer Loop Meta-Update
+
+After adapting to several tasks, the initial parameters $\theta$ are updated based on the performance of the adapted models $\theta_i'$ on the test data $D_i^{test}$ for each task. This meta-update aims to improve the initial $\theta$ so that future adaptations are more effective. The meta-gradient is computed as:
+$$ \nabla_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test}) \right] $$
+The update rule for the meta-parameters $\theta$ is then:
+$$ \theta \leftarrow \theta - \beta \nabla_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test}) \right] $$
+where $\beta$ is the meta-learning rate (outer loop learning rate). This meta-gradient requires computing second-order derivatives because $\theta_i'$ is a function of $\theta$.
+
+$$
+\nabla_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test}) \right]
+$$
+
+$$
+\theta \leftarrow \theta - \beta \nabla_{\theta} \mathbb{E}_{\mathcal{T}_i \sim p(\mathcal{T})} \left[ \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test}) \right]
+$$
+
+### Second-Order Gradient Requirement
+
+The crucial aspect of MAML is that the meta-gradient $\nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test})$ involves differentiating through the inner loop's gradient update. Specifically, $\theta_i'$ depends on $\theta$, so the chain rule applies, leading to terms involving second derivatives of the inner loop loss with respect to $\theta$. This makes MAML computationally more expensive than first-order meta-learning methods.
+
+$$
+\nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test})
+$$
+
+## Algorithm Steps
+
+1. Initialize the model's meta-parameters $\theta$ randomly.
+2. For each meta-iteration, sample a batch of tasks $\mathcal{T}_i$ from the task distribution $p(\mathcal{T})$.
+3. For each sampled task $\mathcal{T}_i$:
+4.   a. Sample a support set $D_i^{train}$ and a query set $D_i^{test}$ from $\mathcal{T}_i$.
+5.   b. Perform one or more gradient descent steps on $D_i^{train}$ to adapt $\theta$ to task-specific parameters $\theta_i'$, using the inner loop learning rate $\alpha$. For a single step, $\theta_i' = \theta - \alpha \nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta}; D_i^{train})$.
+6.   c. Compute the loss $\mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test})$ on the query set $D_i^{test}$ using the adapted parameters $\theta_i'$.
+7. Compute the meta-gradient by summing the gradients of the query losses with respect to the initial parameters $\theta$ across all tasks in the batch, which requires computing second-order derivatives.
+8. Update the initial meta-parameters $\theta$ using an outer loop optimizer (e.g., Adam) with the meta-learning rate $\beta$ and the computed meta-gradient.
+9. Repeat steps 2-5 until convergence or a predefined number of meta-iterations.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `meta_lr` | `float` | `0.001` | positive float | The learning rate for the outer loop meta-update, controlling how quickly the initial parameters $\theta$ are updated. |
+| `inner_lr` | `float` | `0.01` | positive float | The learning rate for the inner loop task-specific adaptation, controlling how quickly $\theta$ adapts to $\theta_i'$. |
+| `num_inner_steps` | `int` | `1` | integer >= 1 | The number of gradient descent steps performed in the inner loop for each task adaptation. |
+| `meta_batch_size` | `int` | `16` | integer >= 1 | The number of tasks sampled from the task distribution for each meta-update step. |
+| `k_shot` | `int` | `5` | integer >= 1 | The number of support examples (training examples) provided for each class within a task during the inner loop adaptation. |
+| `query_size` | `int` | `15` | integer >= 1 | The number of query examples (test examples) used to evaluate the adapted model and compute the meta-gradient for each task. |
+| `first_order` | `boolean` | `False` | True, False | If True, approximates MAML by ignoring second-order derivatives, reducing computational cost (FOMAML). |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- MAML enables rapid adaptation to new tasks with very few training examples, making it highly effective in few-shot learning scenarios.
+- Its model-agnostic nature allows it to be applied to various model architectures and task types, including classification, regression, and reinforcement learning.
+- By learning a good initialization, MAML promotes better generalization across a distribution of tasks, rather than overfitting to a single task.
+- The algorithm is conceptually straightforward, optimizing directly for parameters that are sensitive to gradient-based adaptation.
+- It can leverage existing deep learning architectures and optimization techniques, integrating well into current ML workflows.
+
+## Weaknesses
+
+- MAML is computationally expensive due to the requirement of computing second-order derivatives for the meta-gradient update, which can be memory-intensive.
+- The algorithm can be sensitive to hyperparameter choices, particularly the inner and outer loop learning rates, requiring careful tuning.
+- It can suffer from vanishing or exploding gradients, especially when the inner loop involves many gradient steps or the task distribution is highly diverse.
+- The performance of MAML is highly dependent on the similarity between the meta-training tasks and the new, unseen tasks.
+- Implementing MAML requires specialized automatic differentiation libraries that can handle higher-order gradients, which can be complex.
+
+## Use Cases
+
+### Few-shot Image Classification
+
+Adapting a pre-trained model to classify new object categories with only a handful of labeled examples per class.
+
+### Reinforcement Learning
+
+Enabling agents to quickly learn new skills or adapt to new environments with minimal interaction experience.
+
+### Drug Discovery
+
+Rapidly fine-tuning predictive models for new molecular properties or drug targets using limited experimental data.
+
+### Robotics
+
+Allowing robots to quickly acquire new manipulation skills or adapt to novel objects and terrains in real-world scenarios.
+
+### Natural Language Processing
+
+Adapting language models to new domains, languages, or specific tasks (e.g., sentiment analysis for a new product) with few examples.
+
+### Personalized Recommendation Systems
+
+Quickly tailoring recommendation models to individual user preferences based on very few initial interactions.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement MAML from scratch
+```
+
+### Using scikit-learn
+
+```python
+# MAML does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="MAML Lab" />
+
+## References
+
+- Finn et al. (2017). Finn et al..

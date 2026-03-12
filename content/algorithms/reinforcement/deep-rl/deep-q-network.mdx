@@ -1,0 +1,300 @@
+---
+title: "Deep Q Network"
+slug: "deep-q-network"
+category: "reinforcement"
+subcategory: "deep-rl"
+year: 2015
+author: "Mnih et al."
+paper: "Mnih et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: false
+  timeseries: true
+  graph: false
+tags: ["atari-games", "deep-reinforcement-learning", "experience-replay", "model-free", "neural-networks", "off-policy", "q-learning", "target-network"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "double-dqn"
+  - "dueling-dqn"
+  - "prioritized-experience-replay"
+  - "q-learning"
+  - "sarsa"
+---
+
+## Overview
+
+Deep Q Network (DQN) is a model-free, off-policy reinforcement learning algorithm that combines [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks. It enables agents to learn optimal policies directly from high-dimensional sensory inputs, such as raw pixels, by approximating the action-value function. This approach was groundbreaking for achieving human-level performance across a wide range of complex control tasks, particularly in video games.
+
+## History
+
+**1989** — Chris Watkins introduced [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), a model-free reinforcement learning algorithm for finding an optimal policy.
+
+**1992** — Gerald Tesauro's TD-Gammon demonstrated the potential of neural networks in reinforcement learning by learning to play backgammon at an expert level.
+
+**2013** — DeepMind's Mnih et al. introduced the Deep Q-Network, combining [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks, experience replay, and a separate target network, showcasing its ability to play Atari games.
+
+**2015** — Mnih et al. published their seminal work in Nature, demonstrating that DQN could achieve human-level performance on many Atari 2600 games using only raw pixel inputs and game scores.
+
+**2016** — Hado van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn), which addresses the overestimation bias inherent in standard DQN by decoupling the selection and evaluation of actions.
+
+**2017** — Schaul et al. introduced [Prioritized Experience Replay](/algorithms/reinforcement/deep-rl/prioritized-experience-replay), improving DQN's sample efficiency by replaying more significant transitions more frequently.
+
+## Mathematical Intuition
+
+### Q-Learning Foundation
+
+The core idea of [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) is to learn an action-value function, $Q(s, a)$, which represents the expected return of taking action $a$ in state $s$ and then following an optimal policy thereafter. The optimal Q-value function, $Q^*(s, a)$, satisfies the Bellman optimality equation:
+$$Q^*(s, a) = E_{s' \sim P(\cdot|s,a)}[r + \gamma \max_{a'} Q^*(s', a')]$$
+Here, $r$ is the immediate reward, $\gamma \in [0, 1)$ is the discount factor, and $s'$ is the next state. In tabular [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), this function is stored in a table and updated iteratively.
+
+$$
+Q(s, a)
+$$
+
+$$
+Q^*(s, a)
+$$
+
+$$
+E_{s' \sim P(\cdot|s,a)}[r + \gamma \max_{a'} Q^*(s', a')]
+$$
+
+$$
+r
+$$
+
+$$
+\gamma
+$$
+
+$$
+s'
+$$
+
+$$
+a'
+$$
+
+### Deep Q-Networks
+
+DQN approximates the action-value function $Q(s, a; \theta)$ using a deep neural network with parameters $\theta$. The network takes the state $s$ as input and outputs a vector of Q-values, one for each possible action $a$. The goal is to train this network to minimize the difference between the predicted Q-values and the target Q-values. The loss function is typically a mean-squared error (MSE) between the current Q-value and the target Q-value:
+$$L(\theta) = E_{(s, a, r, s') \sim U(D)}[(r + \gamma \max_{a'} Q(s', a'; \theta^-) - Q(s, a; \theta))^2]$$
+Here, $\theta^-$ represents the parameters of a separate target network, and $U(D)$ denotes a uniform sample from the experience replay buffer $D$.
+
+$$
+Q(s, a; \theta)
+$$
+
+$$
+s
+$$
+
+$$
+a
+$$
+
+$$
+L(\theta)
+$$
+
+$$
+E_{(s, a, r, s') \sim U(D)}[(r + \gamma \max_{a'} Q(s', a'; \theta^-) - Q(s, a; \theta))^2]
+$$
+
+$$
+\theta
+$$
+
+$$
+\theta^-
+$$
+
+$$
+U(D)
+$$
+
+$$
+D
+$$
+
+$$
+r
+$$
+
+$$
+\gamma
+$$
+
+$$
+s'
+$$
+
+$$
+a'
+$$
+
+### Experience Replay
+
+To break the strong correlations between consecutive samples and improve data efficiency, DQN utilizes an experience replay buffer. Transitions $(s_t, a_t, r_t, s_{t+1}, \text{done}_t)$ are stored in a dataset $D = \{e_1, ..., e_N\}$. During training, mini-batches of transitions are sampled uniformly from $D$ and used to update the network. This allows the agent to learn from a diverse set of past experiences, reducing variance and improving stability.
+
+$$
+(s_t, a_t, r_t, s_{t+1}, \text{done}_t)
+$$
+
+$$
+D
+$$
+
+$$
+e_1
+$$
+
+$$
+e_N
+$$
+
+### Target Network for Stability
+
+A key innovation in DQN is the use of a separate target network, $Q(s, a; \theta^-)$, whose parameters $\theta^-$ are periodically updated to match the parameters of the main Q-network, $\theta$. This target network is used to compute the target Q-values $y_j = r_j + \gamma \max_{a'} Q(s'_j, a'; \theta^-)$ for the loss function. By keeping the target network fixed for several training steps, it provides a stable target for the main network to learn towards, preventing oscillations and divergence that can occur if the same network is used for both prediction and target calculation.
+
+$$
+Q(s, a; \theta^-)
+$$
+
+$$
+\theta^-
+$$
+
+$$
+\theta
+$$
+
+$$
+y_j = r_j + \gamma \max_{a'} Q(s'_j, a'; \theta^-)
+$$
+
+$$
+r_j
+$$
+
+$$
+\gamma
+$$
+
+$$
+s'_j
+$$
+
+$$
+a'
+$$
+
+## Algorithm Steps
+
+1. Initialize the main Q-network $Q(s, a; \theta)$ with random weights $\theta$ and a target Q-network $Q(s, a; \theta^-)$ with weights $\theta^- = \theta$.
+2. Initialize an empty experience replay buffer $D$ with a fixed capacity.
+3. For each episode, observe the initial state $s_t$.
+4. For each time step $t$ until the episode terminates, select an action $a_t$ using an $\epsilon$-greedy policy: with probability $\epsilon$, choose a random action; otherwise, choose $a_t = \arg\max_a Q(s_t, a; \theta)$.
+5. Execute action $a_t$ in the environment and observe reward $r_t$, next state $s_{t+1}$, and a terminal flag $\text{done}_t$.
+6. Store the transition $(s_t, a_t, r_t, s_{t+1}, \text{done}_t)$ in the replay buffer $D$.
+7. Sample a random mini-batch of $N$ transitions $(s_j, a_j, r_j, s'_j, \text{done}_j)$ from $D$.
+8. Compute the target Q-value $y_j$ for each transition in the mini-batch: if $\text{done}_j$ is true, $y_j = r_j$; otherwise, $y_j = r_j + \gamma \max_{a'} Q(s'_j, a'; \theta^-)$.
+9. Perform a gradient descent step on the main Q-network by minimizing the loss $L(\theta) = \frac{1}{N} \sum_{j=1}^N (y_j - Q(s_j, a_j; \theta))^2$.
+10. Periodically update the target network weights: $\theta^- \leftarrow \theta$ every $C$ steps.
+11. Set $s_t \leftarrow s_{t+1}$ for the next iteration.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0001` |  | Step size for the optimizer during gradient descent. |
+| `gamma` | `float` | `0.99` | [0, 1) | Discount factor for future rewards, balancing immediate vs. long-term rewards. |
+| `epsilon_start` | `float` | `1.0` | [0, 1] | Initial value of epsilon for the epsilon-greedy policy. |
+| `epsilon_end` | `float` | `0.01` | [0, 1] | Final value of epsilon after decay. |
+| `epsilon_decay_steps` | `int` | `100000` | > 0 | Number of steps over which epsilon decays from epsilon_start to epsilon_end. |
+| `replay_buffer_size` | `int` | `100000` | > 0 | Maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `32` | > 0 | Number of transitions sampled from the replay buffer for each training step. |
+| `target_update_frequency` | `int` | `10000` | > 0 | Frequency (in training steps) with which the target network weights are updated from the main network. |
+| `hidden_layer_sizes` | `tuple of int` | `(512, 256)` | > 0 for each layer | Sizes of the hidden layers in the neural network. |
+| `optimizer` | `string` | `Adam` | "Adam", "RMSprop", "SGD" | The optimization algorithm used for training the Q-network. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It can learn effective policies directly from high-dimensional raw sensory inputs, such as pixel data.
+- DQN achieves human-level performance on a wide range of complex control tasks without explicit feature engineering.
+- The use of an experience replay buffer decorrelates samples, improving training stability and data efficiency.
+- A separate target network provides stable learning targets, preventing oscillations and divergence during training.
+- As a model-free algorithm, it does not require prior knowledge of the environment's dynamics.
+- It is an off-policy algorithm, allowing it to learn from experiences generated by any behavior policy, not just the current one.
+
+## Weaknesses
+
+- DQN is known to suffer from overestimation bias, where it tends to overestimate the Q-values of actions.
+- It is highly sensitive to hyperparameter tuning, and finding optimal parameters can be challenging and time-consuming.
+- Training a DQN can be computationally intensive and require significant computational resources and time.
+- The algorithm struggles in environments with sparse or delayed rewards, as it can take a very long time to discover rewarding actions.
+- DQN is inherently limited to environments with discrete action spaces and cannot directly handle continuous actions.
+
+## Use Cases
+
+### Video Games
+
+Successfully playing classic Atari 2600 games from raw pixel inputs, often surpassing human performance.
+
+### Robotics
+
+Learning control policies for robotic manipulators to perform tasks like grasping or navigation in simulated and real-world environments.
+
+### Resource Management
+
+Optimizing energy consumption in large-scale data centers by intelligently controlling cooling systems.
+
+### Financial Trading
+
+Developing automated trading agents that learn to buy and sell assets based on market data to maximize returns.
+
+### Personalized Recommendations
+
+Optimizing the sequence of recommendations presented to users to maximize engagement or satisfaction over time.
+
+### Autonomous Driving
+
+Learning low-level control policies for vehicle maneuvers, such as lane keeping or obstacle avoidance, in simulated environments.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Deep Q Network from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Deep Q Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Deep Q Network Lab" />
+
+## References
+
+- Mnih et al. (2015). Mnih et al..

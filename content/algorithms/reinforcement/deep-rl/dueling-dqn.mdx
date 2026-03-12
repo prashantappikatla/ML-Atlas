@@ -1,0 +1,166 @@
+---
+title: "Dueling DQN"
+slug: "dueling-dqn"
+category: "reinforcement"
+subcategory: "deep-rl"
+year: 2016
+author: "Wang et al."
+paper: "Wang et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["atari-games", "deep-learning", "neural-networks", "off-policy", "q-learning", "reinforcement-learning", "value-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "double-dqn"
+  - "prioritized-experience-replay"
+  - "q-learning"
+  - "sarsa"
+---
+
+## Overview
+
+Dueling Deep Q-Networks (Dueling DQN) is an extension of the Deep Q-Network (DQN) architecture that aims to improve the estimation of Q-values by explicitly separating the representation of state value and action advantage. This architectural modification allows the network to learn the value of states independently of the actions, which can lead to more robust and efficient learning, particularly in environments where many actions have similar effects. By decomposing the Q-value into a state-value function and an advantage function, Dueling DQN can generalize learning across actions more effectively.
+
+## History
+
+**2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., demonstrating the ability of deep neural networks to learn control policies directly from high-dimensional sensory input (e.g., pixels) using [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) and experience replay.
+
+**2015** — Mnih et al. published an improved version of DQN in Nature, showcasing human-level performance on a wide range of Atari 2600 games, solidifying Deep Reinforcement Learning as a significant research area.
+
+**2015** — Van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn), an extension to DQN that addresses the problem of overestimation of Q-values by decoupling the selection and evaluation of actions, leading to more stable learning.
+
+**2016** — Wang et al. introduced Dueling DQN, a novel neural network architecture for model-free reinforcement learning that explicitly separates the estimation of state-value and action-advantage functions, improving learning efficiency and stability.
+
+## Mathematical Intuition
+
+### Q-Value Function
+
+In reinforcement learning, the optimal action-value function $Q^*(s, a)$ represents the maximum expected return achievable by starting in state $s$, taking action $a$, and then following the optimal policy thereafter. DQN-based algorithms aim to approximate this function using a deep neural network. The Bellman equation for the optimal Q-value is:
+
+$$
+$$Q^*(s, a) = E_{s' \sim \mathcal{P}(s'|s,a)} \left[ r + \gamma \max_{a'} Q^*(s', a') \right]$$
+$$
+
+### Value and Advantage Functions
+
+Dueling DQN decomposes the Q-value function into two separate components: the state-value function $V(s)$ and the advantage function $A(s, a)$. The state-value function $V(s)$ represents the expected return from state $s$ under a given policy, essentially how good it is to be in a particular state. The advantage function $A(s, a)$ quantifies the advantage of taking a specific action $a$ over the average action in state $s$. Formally, they are defined as:
+
+$$
+$$V^{\pi}(s) = E \left[ \sum_{t=0}^{\infty} \gamma^t R_{t+1} \mid S_t = s, A_t \sim \pi \right]$$
+$$
+
+$$
+$$A^{\pi}(s, a) = Q^{\pi}(s, a) - V^{\pi}(s)$$
+$$
+
+### Dueling Network Combination
+
+The Dueling DQN architecture combines the state-value and advantage streams to produce the Q-value. A naive combination $Q(s, a) = V(s) + A(s, a)$ can lead to identifiability issues, as $V(s)$ and $A(s, a)$ cannot be uniquely determined from $Q(s, a)$. To address this, the advantage function is typically normalized by subtracting the mean advantage over all actions for a given state. This ensures that the advantages are relative and helps stabilize training. The final Q-value estimate is given by:
+
+$$
+$$Q(s, a; \theta, \alpha, \beta) = V(s; \theta, \beta) + \left( A(s, a; \theta, \alpha) - \frac{1}{|\mathcal{A}|} \sum_{a' \in \mathcal{A}} A(s, a'; \theta, \alpha) \right)$$
+$$
+
+## Algorithm Steps
+
+1. Initialize the main Q-network $Q(s, a; \theta)$ and a target Q-network $Q_{target}(s, a; \theta^-)$ with random weights, where $\theta^-$ are copies of $\theta$. The Q-network has a shared convolutional/fully-connected base, followed by two separate streams for $V(s)$ and $A(s, a)$.
+2. Initialize an experience replay buffer $D$ to store transitions $(s, a, r, s', done)$.
+3. For each training episode, observe an initial state $s$.
+4. For each time step in the episode, with probability $\epsilon$, select a random action $a$ (exploration); otherwise, select action $a = \arg\max_{a'} Q(s, a'; \theta)$ (exploitation).
+5. Execute action $a$ in the environment, observe reward $r$, next state $s'$, and whether the episode is $done$.
+6. Store the transition $(s, a, r, s', done)$ in the replay buffer $D$.
+7. Sample a mini-batch of transitions $(s_j, a_j, r_j, s'_j, done_j)$ from $D$.
+8. Compute the target Q-values $y_j$ for each transition: $y_j = r_j$ if $done_j$ is true, otherwise $y_j = r_j + \gamma \max_{a'} Q_{target}(s'_j, a'; \theta^-)$. Note that the $\max$ is applied to the output of the target network's dueling architecture.
+9. Perform a gradient descent step on the loss function $L(\theta) = E_{(s,a,r,s',done) \sim D} \left[ (y - Q(s, a; \theta))^2 \right]$ with respect to the main Q-network parameters $\theta$.
+10. Periodically update the target network parameters: $\theta^- \leftarrow \theta$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `learning_rate` | `float` | `0.0001` | (0, 1) | The step size for the optimizer during gradient descent updates. |
+| `gamma` | `float` | `0.99` | [0, 1) | The discount factor for future rewards, balancing immediate versus long-term returns. |
+| `replay_buffer_size` | `int` | `100000` | >= 1 | The maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `32` | >= 1 | The number of transitions sampled from the replay buffer for each training step. |
+| `target_update_frequency` | `int` | `10000` | >= 1 | The frequency (in training steps) at which the target network parameters are updated from the main network. |
+| `epsilon_start` | `float` | `1.0` | [0, 1] | The initial value of epsilon for epsilon-greedy action selection. |
+| `epsilon_end` | `float` | `0.01` | [0, 1] | The final value of epsilon after decay. |
+| `epsilon_decay_steps` | `int` | `100000` | >= 1 | The number of steps over which epsilon decays from epsilon_start to epsilon_end. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- The dueling architecture allows the network to learn the value of states more accurately by separating it from the action advantages, improving generalization across actions.
+- It can learn effectively even when many actions do not affect the environment in a meaningful way, as the state-value stream can still learn about the state's goodness.
+- The separation of value and advantage streams can lead to faster convergence and more stable training compared to standard DQN.
+- It often achieves superior performance on tasks with complex action spaces or where the value of states is more critical than individual action choices.
+- The architecture inherently encourages the network to focus on estimating the state value, which can be beneficial in environments with redundant actions.
+
+## Weaknesses
+
+- Dueling DQN inherits the limitations of DQN, such as potential overestimation of Q-values, although it can be combined with Double DQN to mitigate this.
+- It can be sensitive to hyperparameter choices, requiring careful tuning for optimal performance.
+- Like other off-policy methods, it can suffer from sample inefficiency, requiring a large number of interactions with the environment.
+- The dueling architecture adds complexity to the network design and implementation compared to a standard single-stream Q-network.
+- The identifiability issue between value and advantage functions requires specific normalization techniques, which can sometimes be brittle.
+
+## Use Cases
+
+### Video Games
+
+Training agents to play Atari games and other complex video games, where the agent learns optimal policies directly from pixel inputs.
+
+### Robotics
+
+Developing control policies for robotic manipulators or autonomous vehicles, enabling them to navigate environments and perform tasks.
+
+### Resource Management
+
+Optimizing resource allocation in data centers, cloud computing, or energy grids by learning policies that maximize efficiency or minimize cost.
+
+### Financial Trading
+
+Designing automated trading agents that learn to make buy/sell decisions based on market data to maximize returns.
+
+### Personalized Recommendations
+
+Creating recommendation systems that learn user preferences and adapt recommendations over time to maximize user engagement.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Dueling DQN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Dueling DQN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Dueling DQN Lab" />
+
+## References
+
+- Wang et al. (2016). Wang et al..

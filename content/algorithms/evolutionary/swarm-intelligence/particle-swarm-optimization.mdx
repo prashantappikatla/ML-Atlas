@@ -1,0 +1,177 @@
+---
+title: "Particle Swarm Optimization"
+slug: "particle-swarm-optimization"
+category: "evolutionary"
+subcategory: "swarm-intelligence"
+year: 1995
+author: "Kennedy & Eberhart"
+paper: "Kennedy & Eberhart"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["continuous-optimization", "derivative-free", "evolutionary-algorithm", "global-optimization", "metaheuristic", "optimization", "population-based", "swarm-intelligence"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "ant-colony-optimization"
+  - "differential-evolution"
+  - "genetic-algorithm"
+---
+
+## Overview
+
+Particle Swarm Optimization (PSO) is a population-based metaheuristic optimization algorithm inspired by the social behavior of bird flocking or fish schooling. It searches for an optimal solution in a search space by iteratively improving candidate solutions, called particles, based on their own experience and the experience of the entire swarm. PSO is particularly effective for solving continuous, non-linear optimization problems where gradient information is unavailable or difficult to compute.
+
+## History
+
+**1995** — James Kennedy and Russell Eberhart introduce Particle Swarm Optimization, inspired by the social behavior of bird flocking and fish schooling, as a new computational intelligence technique for optimizing continuous nonlinear functions.
+
+**1998** — Yuhui Shi and Russell Eberhart introduce the inertia weight parameter $w$ to the PSO algorithm, which balances global and local exploration capabilities by controlling the impact of the previous velocity on the current velocity.
+
+**1999** — Maurice Clerc and James Kennedy propose the constriction factor approach, a method to ensure convergence of the PSO algorithm by dynamically adjusting the velocity update equation to prevent particle velocities from exploding.
+
+**2002** — J. J. Liang, A. K. Qin, P. N. Suganthan, and S. G. Chen introduce Comprehensive Learning Particle Swarm Optimizer (CLPSO), where each particle learns from a randomly selected subset of its personal best positions, enhancing diversity and preventing premature convergence.
+
+**2004** — Zhan et al. propose Adaptive Particle Swarm Optimization (APSO), which dynamically adjusts the inertia weight and acceleration coefficients based on the search status, improving the algorithm's ability to adapt to different optimization landscapes.
+
+## Mathematical Intuition
+
+### Particle State and Best Positions
+
+Each particle $i$ in the swarm maintains its current position $x_i$, its velocity $v_i$, and its personal best position $pbest_i$ found so far. The global best position $gbest$ is the best position found by any particle in the entire swarm. These vectors are typically $D$-dimensional, corresponding to the number of parameters being optimized.
+
+$$
+x_i = (x_{i1}, x_{i2}, ..., x_{iD})
+$$
+
+$$
+v_i = (v_{i1}, v_{i2}, ..., v_{iD})
+$$
+
+$$
+pbest_i = (pbest_{i1}, pbest_{i2}, ..., pbest_{iD})
+$$
+
+$$
+gbest = (gbest_1, gbest_2, ..., gbest_D)
+$$
+
+### Velocity Update Equation
+
+The velocity of each particle is updated based on three components: its previous velocity (inertia), its own best-found position (cognitive component), and the best-found position by the entire swarm (social component). The inertia weight $w$ controls the impact of the previous velocity, while $c_1$ and $c_2$ are acceleration coefficients that scale the cognitive and social influences, respectively. Random numbers $r_1$ and $r_2$ introduce stochasticity.
+
+$$
+v_{id}(t+1) = w \cdot v_{id}(t) + c_1 \cdot r_1 \cdot (pbest_{id}(t) - x_{id}(t)) + c_2 \cdot r_2 \cdot (gbest_d(t) - x_{id}(t))
+$$
+
+### Position Update
+
+After updating its velocity, each particle updates its position by adding the new velocity to its current position. This new position is then evaluated by the objective function. If the new position yields a better fitness value than the particle's current personal best, $pbest_i$ is updated. Similarly, if the new $pbest_i$ is better than the current global best, $gbest$ is updated.
+
+$$
+x_{id}(t+1) = x_{id}(t) + v_{id}(t+1)
+$$
+
+## Algorithm Steps
+
+1. Initialize a swarm of $N$ particles, each with a random position $x_i$ and velocity $v_i$ within the defined search space bounds.
+2. Evaluate the fitness of each particle's initial position $x_i$ using the objective function.
+3. Set each particle's personal best position $pbest_i$ to its current position $x_i$.
+4. Identify the particle with the best fitness among all $pbest_i$ and set its position as the global best position $gbest$.
+5. For each particle, update its velocity $v_i$ using the formula $v_{id}(t+1) = w \cdot v_{id}(t) + c_1 \cdot r_1 \cdot (pbest_{id}(t) - x_{id}(t)) + c_2 \cdot r_2 \cdot (gbest_d(t) - x_{id}(t))$.
+6. Update each particle's position $x_i$ by adding its new velocity: $x_{id}(t+1) = x_{id}(t) + v_{id}(t+1)$.
+7. Evaluate the fitness of each particle's new position $x_i$. If $f(x_i)$ is better than $f(pbest_i)$, update $pbest_i = x_i$.
+8. Update the global best position $gbest$ if any particle's new $pbest_i$ is better than the current $gbest$.
+9. Repeat steps 5-8 until a termination criterion is met, such as a maximum number of iterations or a satisfactory fitness value.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_particles` | `int` | `30` | integer > 0 | The number of particles in the swarm. A larger swarm generally increases exploration but also computational cost. |
+| `max_iter` | `int` | `100` | integer > 0 | The maximum number of iterations (generations) the optimization algorithm will run. |
+| `inertia_weight` | `float` | `0.5` | float >= 0 | The inertia weight ($w$) that controls the impact of the previous velocity on the current velocity. Higher values favor global exploration, lower values favor local exploitation. |
+| `cognitive_coeff` | `float` | `1.5` | float >= 0 | The cognitive acceleration coefficient ($c_1$) that scales the influence of a particle's personal best position. |
+| `social_coeff` | `float` | `1.5` | float >= 0 | The social acceleration coefficient ($c_2$) that scales the influence of the global best position found by the swarm. |
+| `bounds` | `list of tuples` | `None` | list of (float, float) tuples | A list of (min, max) tuples, one for each dimension, defining the search space for the particle positions. |
+| `velocity_clamp` | `float or None` | `None` | float > 0 or None | The maximum absolute velocity a particle can have in any dimension. Clamping velocities can prevent particles from flying out of the search space too quickly. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- PSO is relatively simple to implement and requires fewer hyperparameters compared to some other metaheuristic algorithms.
+- It is a derivative-free optimization method, making it suitable for problems where the objective function is non-differentiable, discontinuous, or noisy.
+- PSO is effective at exploring the search space and can often escape local optima due to its swarm intelligence mechanism.
+- It has good convergence speed for a wide range of continuous optimization problems.
+- The algorithm can be easily parallelized, allowing for faster computation on multi-core processors or distributed systems.
+
+## Weaknesses
+
+- PSO can suffer from premature convergence in some complex, high-dimensional problems, leading to suboptimal solutions.
+- The performance of PSO is sensitive to the choice of its hyperparameters, and optimal tuning can be problem-dependent.
+- It is primarily designed for continuous optimization problems and requires modifications or encoding schemes for discrete or combinatorial problems.
+- The algorithm may struggle with highly constrained optimization problems without specialized handling of constraints.
+- Convergence guarantees for PSO are not as strong or well-understood as for some gradient-based optimization methods.
+
+## Use Cases
+
+### Neural Network Training
+
+PSO can be used to optimize the weights and biases of neural networks, especially when gradient-based methods are challenging or when seeking to avoid local minima.
+
+### Hyperparameter Optimization
+
+It is frequently applied to tune the hyperparameters of machine learning models, such as learning rates, regularization strengths, or the number of layers in deep learning architectures.
+
+### Feature Selection
+
+PSO can identify optimal subsets of features for classification or regression tasks, aiming to improve model performance and reduce dimensionality.
+
+### Robotics and Control Systems
+
+Applications include path planning for autonomous robots, trajectory optimization, and tuning controller parameters to achieve desired system responses.
+
+### Power Systems Optimization
+
+PSO is used for optimizing power flow, scheduling generation units, and solving economic dispatch problems in electrical grids.
+
+### Image Processing
+
+It can be applied to tasks like image segmentation, feature extraction, and image registration by optimizing parameters of image processing algorithms.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Particle Swarm Optimization from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Particle Swarm Optimization does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Particle Swarm Optimization Lab" />
+
+## References
+
+- Kennedy & Eberhart (1995). Kennedy & Eberhart.

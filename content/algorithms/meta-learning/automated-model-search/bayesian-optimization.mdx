@@ -1,0 +1,189 @@
+---
+title: "Bayesian Optimization"
+slug: "bayesian-optimization"
+category: "meta-learning"
+subcategory: "automated-model-search"
+year: 1998
+author: "Jones et al."
+paper: "Jones et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["black-box-optimization", "expensive-functions", "gaussian-processes", "hyperparameter-tuning", "meta-learning", "optimization", "sequential-optimization", "surrogate-modeling"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "grid-search"
+  - "hyperband"
+  - "random-search"
+---
+
+## Overview
+
+Bayesian Optimization is a sequential strategy for global optimization of expensive, black-box functions that are typically noisy and lack analytical gradients. It constructs a probabilistic surrogate model of the objective function, often a Gaussian Process, and uses an acquisition function to determine the next most promising point to evaluate. This approach efficiently explores the search space by balancing exploration of uncertain regions and exploitation of known good regions, aiming to find the global optimum with a minimal number of function evaluations.
+
+## History
+
+**1998** — Jones, Schonlau, and Welch published "Efficient Global Optimization of Expensive Black-Box Functions," formally introducing the framework of using a surrogate model (Kriging/Gaussian Process) and an acquisition function (Expected Improvement) for global optimization.
+
+**2000** — Research expanded on various acquisition functions, including Probability of Improvement (PI) and Upper Confidence Bound (UCB), enhancing the flexibility and performance of the optimization process.
+
+**2012** — Snoek, Larochelle, and Adams' paper "Practical Bayesian Optimization of Machine Learning Algorithms" significantly popularized the method for hyperparameter optimization in machine learning, demonstrating its effectiveness on complex models.
+
+**2014** — The development of open-source libraries like Spearmint and GPyOpt made Bayesian Optimization more accessible to practitioners, fostering wider adoption in various fields.
+
+**2016** — Further advancements addressed challenges like high-dimensional search spaces and parallel evaluations, leading to more scalable and robust Bayesian Optimization algorithms.
+
+## Mathematical Intuition
+
+### Surrogate Model: Gaussian Process
+
+Bayesian Optimization models the unknown objective function $f(\mathbf{x})$ as a Gaussian Process (GP). A GP is a collection of random variables, any finite number of which have a joint Gaussian distribution. It is fully specified by its mean function $m(\mathbf{x})$ and covariance function $k(\mathbf{x}, \mathbf{x}')$, often called the kernel.
+$$f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))$$
+Given a set of observed points $\mathcal{D}_t = \{(\mathbf{x}_1, y_1), \dots, (\mathbf{x}_t, y_t)\}$, where $y_i = f(\mathbf{x}_i)$, the GP provides a posterior distribution over $f(\mathbf{x})$ for any unobserved point $\mathbf{x}$. This posterior is also Gaussian, characterized by a predictive mean $\mu_t(\mathbf{x})$ and variance $\sigma_t^2(\mathbf{x})$.
+$$\mu_t(\mathbf{x}) = \mathbf{k}_t(\mathbf{x})^T (\mathbf{K}_t + \sigma_n^2 \mathbf{I})^{-1} \mathbf{y}_t$$
+$$\sigma_t^2(\mathbf{x}) = k(\mathbf{x}, \mathbf{x}) - \mathbf{k}_t(\mathbf{x})^T (\mathbf{K}_t + \sigma_n^2 \mathbf{I})^{-1} \mathbf{k}_t(\mathbf{x})$$
+Here, $\mathbf{k}_t(\mathbf{x})$ is the vector of covariances between $\mathbf{x}$ and the observed points, $\mathbf{K}_t$ is the covariance matrix of the observed points, $\mathbf{y}_t$ is the vector of observed function values, and $\sigma_n^2$ is the noise variance. The predictive mean estimates the function value, while the predictive variance quantifies the uncertainty.
+
+$$
+f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))
+$$
+
+$$
+\mu_t(\mathbf{x}) = \mathbf{k}_t(\mathbf{x})^T (\mathbf{K}_t + \sigma_n^2 \mathbf{I})^{-1} \mathbf{y}_t
+$$
+
+$$
+\sigma_t^2(\mathbf{x}) = k(\mathbf{x}, \mathbf{x}) - \mathbf{k}_t(\mathbf{x})^T (\mathbf{K}_t + \sigma_n^2 \mathbf{I})^{-1} \mathbf{k}_t(\mathbf{x})
+$$
+
+### Acquisition Functions: Guiding Search
+
+Acquisition functions determine the next point $\mathbf{x}_{t+1}$ to evaluate by balancing exploration (sampling where uncertainty is high) and exploitation (sampling where the mean prediction is high). They are constructed using the GP's posterior mean $\mu_t(\mathbf{x})$ and variance $\sigma_t^2(\mathbf{x})$. Common acquisition functions include Expected Improvement (EI), Probability of Improvement (PI), and Upper Confidence Bound (UCB).
+Expected Improvement (EI) quantifies the expected gain from evaluating a point $\mathbf{x}$ relative to the current best observed value $f(\mathbf{x}^+)$.
+$$EI(\mathbf{x}) = E[\max(0, f(\mathbf{x}) - f(\mathbf{x}^+))]$$
+Assuming $f(\mathbf{x})$ follows a Gaussian distribution $\mathcal{N}(\mu_t(\mathbf{x}), \sigma_t^2(\mathbf{x}))$, the closed-form expression for EI is:
+$$EI(\mathbf{x}) = \sigma_t(\mathbf{x}) \left[ Z \Phi(Z) + \phi(Z) \right]$$
+where $Z = \frac{\mu_t(\mathbf{x}) - f(\mathbf{x}^+) - \xi}{\sigma_t(\mathbf{x})}$, $\Phi$ is the cumulative distribution function of the standard normal distribution, $\phi$ is its probability density function, and $\xi \ge 0$ is an exploration-exploitation trade-off parameter.
+
+$$
+EI(\mathbf{x}) = E[\max(0, f(\mathbf{x}) - f(\mathbf{x}^+))]
+$$
+
+$$
+EI(\mathbf{x}) = \sigma_t(\mathbf{x}) \left[ Z \Phi(Z) + \phi(Z) \right]
+$$
+
+$$
+Z = \frac{\mu_t(\mathbf{x}) - f(\mathbf{x}^+) - \xi}{\sigma_t(\mathbf{x})}
+$$
+
+### Optimization Loop
+
+The Bayesian Optimization process is iterative. At each step, the acquisition function is maximized to propose the next evaluation point. This maximization is typically performed using standard optimization techniques (e.g., L-BFGS-B, genetic algorithms) on the acquisition function itself, which is much cheaper to evaluate than the original black-box function. The chosen point $\mathbf{x}_{t+1}$ is then evaluated using the true objective function, yielding $y_{t+1}$. This new data point $(\mathbf{x}_{t+1}, y_{t+1})$ is added to the dataset $\mathcal{D}_t$, and the Gaussian Process model is updated. This cycle continues until a stopping criterion is met, such as a maximum number of iterations or a budget of function evaluations.
+
+## Algorithm Steps
+
+1. Define the search space for the black-box objective function $f(\mathbf{x})$ and choose a probabilistic surrogate model, typically a Gaussian Process, along with a suitable kernel function.
+2. Initialize the optimization by evaluating the objective function at a small number of randomly chosen points $\mathbf{x}_1, \dots, \mathbf{x}_N$, forming an initial dataset $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$.
+3. Iteratively repeat the following steps until a stopping criterion is met:
+4. a. Update the Gaussian Process surrogate model using the accumulated dataset $\mathcal{D}$ to obtain the posterior mean $\mu(\mathbf{x})$ and variance $\sigma^2(\mathbf{x})$ of the objective function.
+5. b. Select an acquisition function, such as Expected Improvement (EI), Probability of Improvement (PI), or Upper Confidence Bound (UCB), which balances exploration and exploitation.
+6. c. Find the point $\mathbf{x}^*$ in the search space that maximizes the acquisition function: $\mathbf{x}^* = \arg\max_{\mathbf{x}} A(\mathbf{x})$.
+7. d. Evaluate the true objective function at the chosen point $\mathbf{x}^*$ to obtain its value $y^* = f(\mathbf{x}^*)$.
+8. e. Add the new observation $(\mathbf{x}^*, y^*)$ to the dataset: $\mathcal{D} \leftarrow \mathcal{D} \cup \{(\mathbf{x}^*, y^*)\}$.
+9. Return the point $\mathbf{x}$ from the dataset $\mathcal{D}$ that yielded the best observed objective function value $y$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `dimensions` | `list or tuple` | `None` | list of (lower_bound, upper_bound) or list of categories | Defines the search space for the optimization, specifying the bounds and types (real, integer, categorical) for each hyperparameter. |
+| `base_estimator` | `str or sklearn.base.BaseEstimator` | `'GP'` | ['GP', 'RF', 'ET'] or a custom estimator | The surrogate model used to approximate the objective function. Common choices are Gaussian Process ('GP'), Random Forest ('RF'), or Extra Trees ('ET'). |
+| `n_calls` | `int` | `100` | int > 0 | The total number of evaluations of the objective function, including the initial random points. |
+| `n_initial_points` | `int` | `10` | int > 0 | The number of random points to sample before the Bayesian Optimization procedure begins. |
+| `acq_func` | `str` | `'GP_EI'` | ['GP_EI', 'GP_LCB', 'GP_PI', 'EI', 'LCB', 'PI'] | The acquisition function used to propose the next point to evaluate. Options include Expected Improvement ('GP_EI'), Lower Confidence Bound ('GP_LCB'), or Probability of Improvement ('GP_PI'). |
+| `kappa` | `float` | `1.96` | float >= 0 | Parameter for the Upper Confidence Bound (UCB) acquisition function, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
+| `xi` | `float` | `0.01` | float >= 0 | Parameter for Expected Improvement (EI) and Probability of Improvement (PI) acquisition functions, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
+| `random_state` | `int or numpy.random.RandomState` | `None` | int >= 0 | Seed for the random number generator for reproducible results. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- Requires significantly fewer function evaluations compared to grid search or random search, making it suitable for expensive objective functions.
+- Effectively handles noisy objective functions by modeling uncertainty through its probabilistic surrogate.
+- Capable of finding global optima by systematically balancing exploration of uncertain regions and exploitation of promising regions.
+- Can optimize functions without requiring gradient information, making it suitable for black-box optimization problems.
+- Provides a measure of uncertainty about the objective function, which can be valuable for decision-making.
+- Flexible in handling different types of search spaces, including continuous, discrete, and categorical variables, with appropriate encoding.
+
+## Weaknesses
+
+- Scalability issues arise in high-dimensional search spaces, as the performance of Gaussian Processes degrades with increasing dimensionality.
+- The computational cost of updating the Gaussian Process model and maximizing the acquisition function can be high, especially with many observed points.
+- The choice of kernel function for the Gaussian Process can significantly impact performance and requires domain knowledge or careful tuning.
+- Can be sensitive to the initial set of random evaluations, potentially leading to suboptimal results if the initial points are poorly chosen.
+- Parallelization is challenging due to its sequential nature, although some strategies exist to evaluate multiple points concurrently.
+
+## Use Cases
+
+### Machine Learning
+
+Optimizing hyperparameters of complex machine learning models (e.g., neural networks, SVMs, gradient boosting machines) to improve predictive performance.
+
+### Drug Discovery
+
+Accelerating the search for molecules with desired properties by optimizing chemical structures in a high-throughput screening context.
+
+### Robotics
+
+Tuning control parameters for robotic systems to achieve optimal performance in tasks like grasping, locomotion, or path planning.
+
+### Material Science
+
+Discovering new materials with specific characteristics by optimizing synthesis parameters or compositional ratios.
+
+### A/B Testing
+
+Efficiently finding optimal website layouts or marketing strategies by minimizing the number of experiments needed to identify the best variant.
+
+### Reinforcement Learning
+
+Optimizing reward functions or policy parameters in reinforcement learning agents to improve learning efficiency and task performance.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Bayesian Optimization from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Bayesian Optimization does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Bayesian Optimization Lab" />
+
+## References
+
+- Jones et al. (1998). Jones et al..

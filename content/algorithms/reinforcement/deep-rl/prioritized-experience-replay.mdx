@@ -1,0 +1,181 @@
+---
+title: "Prioritized Experience Replay"
+slug: "prioritized-experience-replay"
+category: "reinforcement"
+subcategory: "deep-rl"
+year: 2016
+author: "Schaul et al."
+paper: "Schaul et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: true
+  text: true
+  timeseries: true
+  graph: false
+tags: ["deep-q-network", "deep-reinforcement-learning", "experience-replay", "memory-management", "off-policy", "reinforcement-learning", "sample-efficiency"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "double-dqn"
+  - "dueling-dqn"
+  - "q-learning"
+---
+
+## Overview
+
+Prioritized Experience Replay (PER) is an enhancement to the standard experience replay mechanism in deep reinforcement learning, designed to improve sample efficiency and learning speed. Instead of uniformly sampling transitions from the replay buffer, PER prioritizes transitions based on their estimated importance, typically measured by the magnitude of their Temporal Difference (TD) error. This approach allows the agent to focus learning on more significant or surprising experiences, leading to faster convergence and better performance.
+
+## History
+
+**2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., pioneering the use of experience replay to stabilize training of deep neural networks in reinforcement learning.
+
+**2015** — [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn) was proposed by Van Hasselt et al., addressing overestimation bias in [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) and further improving the stability and performance of DQN.
+
+**2016** — Schaul et al. introduced Prioritized Experience Replay, presenting a novel method to sample transitions from the replay buffer non-uniformly, based on their TD error, significantly enhancing learning efficiency.
+
+**2017** — Hessel et al. introduced Rainbow DQN, an algorithm that combines several improvements to DQN, including Prioritized Experience Replay, demonstrating state-of-the-art performance across a range of Atari games.
+
+## Mathematical Intuition
+
+### Temporal Difference Error
+
+The core idea behind prioritizing experiences is that some transitions are more 'surprising' or 'informative' than others. This informativeness is quantified by the Temporal Difference (TD) error, which measures the discrepancy between the agent's current Q-value estimate and the target Q-value. A larger absolute TD error indicates that the agent's prediction was far from the observed outcome, suggesting a valuable learning opportunity. For a transition $(S_t, A_t, R_{t+1}, S_{t+1})$, the TD error $\delta_t$ is typically calculated as:
+
+$$
+$$\delta_t = R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a'; \theta^-) - Q(S_t, A_t; \theta)$$
+$$
+
+$$
+Where $R_{t+1}$ is the reward, $\gamma$ is the discount factor, $Q$ is the Q-function, $\theta$ are the current network parameters, and $\theta^-$ are the target network parameters.
+$$
+
+### Defining Prioritization Strategy
+
+PER assigns a priority $p_i$ to each stored transition $i$ in the replay buffer. The most common prioritization strategy is proportional prioritization, where the priority is directly related to the absolute TD error. To ensure that transitions with zero TD error still have a chance to be sampled and to prevent issues with initial zero errors, a small positive constant $\epsilon$ is added:
+
+$$
+$$p_i = |\delta_i| + \epsilon$$
+$$
+
+$$
+Alternatively, rank-based prioritization can be used, where transitions are ranked by their TD error magnitude, and priority is assigned based on rank.
+$$
+
+### Calculating Sampling Probability
+
+Once priorities are assigned, transitions are sampled from the replay buffer with a probability proportional to their priority. To control the degree of prioritization, an exponent $\alpha \in [0, 1]$ is introduced. When $\alpha = 0$, this reverts to uniform sampling. The sampling probability for transition $i$ is given by:
+
+$$
+$$P(i) = \frac{p_i^\alpha}{\sum_k p_k^\alpha}$$
+$$
+
+$$
+This ensures that transitions with higher priorities are sampled more frequently, allowing the agent to learn more effectively from significant experiences.
+$$
+
+### Importance Sampling Weights
+
+Prioritized sampling introduces a bias because the expected value of updates no longer matches the true expectation over the data distribution. To correct this bias, Importance Sampling (IS) weights are used. Each sampled transition $i$ is weighted by $w_i$ during the learning update. These weights are annealed with a parameter $\beta \in [0, 1]$ to gradually reduce the bias correction as learning progresses:
+
+$$
+$$w_i = \left(\frac{1}{N \cdot P(i)}\right)^\beta$$
+$$
+
+$$
+Where $N$ is the replay buffer size and $P(i)$ is the sampling probability. The weights are normalized by $\max_k w_k$ to prevent them from becoming too large and destabilizing learning. The IS weights are applied to the TD error when computing the loss function, e.g., for a squared error loss, the update becomes $w_i \cdot \delta_i^2$.
+$$
+
+## Algorithm Steps
+
+1. Initialize the replay buffer $D$ with a maximum capacity, initialize the Q-network $\theta$ and target Q-network $\theta^-$, and set hyperparameters $\alpha$, $\beta$, $\epsilon$.
+2. For each training step, the agent interacts with the environment, observing state $S_t$, taking action $A_t$, receiving reward $R_{t+1}$, and transitioning to state $S_{t+1}$.
+3. Calculate the TD error $\delta_t$ for the new transition $(S_t, A_t, R_{t+1}, S_{t+1})$ using the current Q-network and target Q-network.
+4. Store the new transition $(S_t, A_t, R_{t+1}, S_{t+1})$ in the replay buffer $D$ with a priority $p_t = |\delta_t| + \epsilon$. If the buffer is full, remove the oldest transition.
+5. Sample a mini-batch of $k$ transitions from the replay buffer $D$ according to their sampling probabilities $P(i) = \frac{p_i^\alpha}{\sum_j p_j^\alpha}$.
+6. For each sampled transition $i$, calculate its Importance Sampling (IS) weight $w_i = \left(\frac{1}{N \cdot P(i)}\right)^\beta$, normalizing by the maximum weight in the batch.
+7. Perform a gradient descent step on the Q-network $\theta$ using the sampled transitions, weighting the loss for each transition by its corresponding IS weight $w_i$.
+8. Update the priorities of the sampled transitions in the replay buffer with their new TD errors calculated after the Q-network update.
+9. Periodically update the target Q-network parameters $\theta^-$ by copying the current Q-network parameters $\theta$ (e.g., every $C$ steps).
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `buffer_size` | `int` | `1000000` | positive integer | The maximum number of transitions to store in the replay buffer. |
+| `alpha` | `float` | `0.6` | [0.0, 1.0] | The exponent used to determine the prioritization. A value of 0 corresponds to uniform sampling, while higher values give more weight to high-TD-error transitions. |
+| `beta` | `float` | `0.4` | [0.0, 1.0] | The exponent for importance sampling weights. It controls how much the bias correction is applied. It is typically annealed from an initial value (e.g., 0.4) to 1.0 during training. |
+| `epsilon` | `float` | `0.01` | positive float | A small positive constant added to the absolute TD error to ensure that transitions with zero TD error still have a non-zero probability of being sampled. |
+| `batch_size` | `int` | `32` | positive integer | The number of transitions sampled from the replay buffer for each learning update. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Prioritized Experience Replay significantly improves sample efficiency by focusing learning on more informative transitions, leading to faster convergence.
+- It can accelerate learning in environments with sparse rewards by ensuring that rare but high-reward experiences are revisited more frequently.
+- PER often leads to higher final performance compared to uniform experience replay, especially in complex tasks.
+- By prioritizing transitions with high TD errors, the agent can more quickly correct its mispredictions and improve its value function estimates.
+- The use of importance sampling weights helps to correct the bias introduced by non-uniform sampling, maintaining the theoretical guarantees of Q-learning.
+
+## Weaknesses
+
+- PER adds computational overhead due to the need to maintain and update priorities, as well as the more complex sampling process.
+- The hyperparameters $\alpha$ and $\beta$ can be sensitive and require careful tuning for optimal performance.
+- Over-prioritization of certain transitions can lead to overfitting or instability if the TD error is noisy or misleading.
+- Implementing PER requires a more complex data structure (e.g., a sum-tree or segment tree) for efficient priority-based sampling and updating.
+- The initial TD errors are often zero or small, requiring careful handling (e.g., adding $\epsilon$) to ensure all transitions have a chance to be sampled.
+
+## Use Cases
+
+### Robotics
+
+Used in robotic control tasks to improve the learning speed and efficiency of agents learning complex motor skills or navigation strategies in simulated or real-world environments.
+
+### Game Playing
+
+Widely applied in training agents for video games, such as Atari games, where it helps agents learn from critical game states and rare events more effectively.
+
+### Autonomous Driving
+
+Can be employed in training autonomous vehicles to learn from critical driving scenarios, such as near-misses or complex intersections, which are infrequent but highly informative.
+
+### Resource Management
+
+Applied in optimizing resource allocation or scheduling problems, where certain states or actions might have a disproportionately large impact on the system's performance.
+
+### Financial Trading
+
+Potentially used in algorithmic trading to learn from significant market events or rare profitable opportunities, improving the agent's ability to react to critical market dynamics.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Prioritized Experience Replay from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Prioritized Experience Replay does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Prioritized Experience Replay Lab" />
+
+## References
+
+- Schaul et al. (2016). Schaul et al..

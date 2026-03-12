@@ -1,0 +1,173 @@
+---
+title: "Hyperband"
+slug: "hyperband"
+category: "meta-learning"
+subcategory: "automated-model-search"
+year: 2016
+author: "Li et al."
+paper: "Li et al."
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["automated-ml", "bandit-algorithm", "efficiency", "hyperparameter-optimization", "meta-learning", "model-selection", "resource-allocation", "successive-halving"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-optimization"
+  - "grid-search"
+  - "lightgbm"
+  - "random-search"
+  - "xgboost"
+---
+
+## Overview
+
+Hyperband is an efficient hyperparameter optimization algorithm that adaptively allocates computational resources to a large number of hyperparameter configurations. It achieves this by combining [Random Search](/algorithms/meta-learning/automated-model-search/random-search) with successive halving, iteratively evaluating configurations with increasing resources and pruning poorly performing ones. This strategy allows it to quickly identify promising configurations while minimizing wasted computation on unpromising candidates.
+
+## History
+
+**2016** — L. Li, K. Jamieson, G. DeSalvo, A. Rostamizadeh, and A. Talwalkar introduced Hyperband in their paper "Hyperband: A Novel Bandit-Based Approach to Hyperparameter Optimization," proposing an efficient method for hyperparameter tuning by leveraging successive halving.
+
+**2017** — K. Jamieson and A. Talwalkar further explored the theoretical properties and practical implications of successive halving in "Non-stochastic Best Arm Identification and Hyperparameter Optimization," providing a deeper understanding of Hyperband's core component.
+
+**2018** — S. Falkner, A. Klein, and F. Hutter combined Hyperband with [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) to create BOHB ([Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) HyperBand), aiming to combine the best aspects of both approaches for improved performance and sample efficiency.
+
+## Mathematical Intuition
+
+### Successive Halving Principle
+
+Successive Halving (SH) is a core component of Hyperband. It operates by uniformly sampling a set of hyperparameter configurations and evaluating them with a small amount of resources (e.g., epochs for a neural network). After this initial evaluation, only the top $1/\eta$ configurations (based on performance) are promoted to the next stage, where they are evaluated with $\eta$ times more resources. This process of evaluating, ranking, and pruning continues until only one configuration remains or a maximum resource budget is reached. The goal is to quickly discard poor configurations and focus resources on more promising ones.
+$$ N_0 = N, \quad R_0 = r_{min} $$
+For $k=0, 1, \dots, \log_\eta(R_{max}/r_{min})$:
+$$ N_{k+1} = N_k / \eta, \quad R_{k+1} = R_k \cdot \eta $$
+where $N$ is the initial number of configurations, $r_{min}$ is the minimum resource, $R_{max}$ is the maximum resource, and $\eta$ is the halving factor.
+
+$$
+N_0 = N, \quad R_0 = r_{min}
+$$
+
+$$
+N_{k+1} = N_k / \eta, \quad R_{k+1} = R_k \cdot \eta
+$$
+
+### Hyperband Outer Loop Strategy
+
+Hyperband addresses a limitation of Successive Halving: SH requires a fixed initial number of configurations $N$ and maximum resources $R_{max}$, which can be suboptimal if the best configuration is found with few resources or if the optimal $N$ is unknown. Hyperband solves this by running multiple independent Successive Halving "brackets." Each bracket $s$ starts with a different initial number of configurations $n_s$ and a corresponding maximum resource budget $r_s$, such that the total budget for each bracket is approximately constant. This ensures that Hyperband explores a wide range of $(N, R_{max})$ trade-offs.
+The total budget $B$ is divided among $s_{max}+1$ brackets. For each bracket $s \in \{0, \dots, s_{max}\}$:
+$$ n_s = \lfloor (B/R_{max}) \cdot \frac{\eta^{s_{max}-s}}{s_{max}-s+1} \rfloor $$
+$$ r_s = R_{max} \cdot \eta^{-s} $$
+where $R_{max}$ is the maximum resource allocated to any single configuration, and $s_{max} = \lfloor \log_\eta(R_{max}) \rfloor$. The initial resource for a configuration in bracket $s$ is $r_{initial,s} = r_s / \eta^{s_{max}-s}$.
+
+$$
+n_s = \lfloor (B/R_{max}) \cdot \frac{\eta^{s_{max}-s}}{s_{max}-s+1} \rfloor
+$$
+
+$$
+r_s = R_{max} \cdot \eta^{-s}
+$$
+
+### Resource Allocation and Budget
+
+The efficiency of Hyperband stems from its adaptive resource allocation. Instead of spending equal resources on all configurations, it strategically prunes less promising ones early. The total budget $B$ (e.g., total epochs, total training time) is a critical parameter. The halving factor $\eta$ determines how aggressively configurations are pruned and how quickly resources are increased. A larger $\eta$ prunes more aggressively but might discard good configurations prematurely if they need more resources to show their potential. The number of brackets $s_{max}+1$ ensures a diverse exploration of initial configurations and resource allocations.
+The total budget for a single bracket $s$ is approximately:
+$$ B_s \approx n_s \cdot r_{initial,s} \cdot \sum_{i=0}^{s_{max}-s} \eta^i = n_s \cdot r_{initial,s} \cdot \frac{\eta^{s_{max}-s+1}-1}{\eta-1} $$
+This ensures that Hyperband explores various trade-offs between the number of configurations and the maximum resources allocated to each.
+
+$$
+B_s \approx n_s \cdot r_{initial,s} \cdot \sum_{i=0}^{s_{max}-s} \eta^i = n_s \cdot r_{initial,s} \cdot \frac{\eta^{s_{max}-s+1}-1}{\eta-1}
+$$
+
+## Algorithm Steps
+
+1. Define the maximum resource $R_{max}$ that can be allocated to a single configuration and the halving factor $\eta$.
+2. Determine the number of successive halving brackets, $s_{max} = \lfloor \log_\eta(R_{max}) \rfloor$.
+3. For each bracket $s$ from $s_{max}$ down to $0$: calculate the number of configurations $n_s$ to sample and the initial resource $r_{initial,s}$ for each configuration, ensuring an approximately equal total budget across brackets.
+4. Randomly sample $n_s$ unique hyperparameter configurations from the search space.
+5. Execute a Successive Halving routine for these $n_s$ configurations:
+6. For $i$ from $0$ to $s_{max}-s$: evaluate the current set of configurations using $r_{initial,s} \cdot \eta^i$ resources.
+7. Keep the top $1/\eta$ performing configurations and discard the rest; if only one configuration remains or the maximum resource $R_{max}$ is reached for a configuration, exit the inner loop.
+8. The hyperparameter configuration that yielded the best performance across all brackets and resource levels is selected as the optimal one.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `max_resources` | `int` | `81` | positive integer | The maximum amount of resources (e.g., epochs, iterations) that can be allocated to a single hyperparameter configuration. |
+| `eta` | `int` | `3` | integer >= 2 | The halving factor, determining how aggressively configurations are pruned and how quickly resources are increased in successive halving. |
+| `min_resources` | `int` | `1` | positive integer | The minimum amount of resources to allocate to a configuration in the first stage of any successive halving bracket. |
+| `random_state` | `int` | `None` | integer or None | Seed for the random number generator used for sampling configurations, ensuring reproducibility. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Hyperband is significantly more efficient than grid search or random search, especially when the evaluation of a configuration is computationally expensive.
+- It effectively prunes unpromising hyperparameter configurations early, saving computational resources and time.
+- The algorithm is highly parallelizable, as different brackets and configurations within a bracket can be evaluated independently.
+- It does not require assumptions about the smoothness or structure of the objective function, making it robust across various machine learning tasks.
+- Hyperband is less sensitive to the choice of initial hyperparameter values compared to Bayesian optimization methods.
+
+## Weaknesses
+
+- Hyperband requires a predefined maximum resource budget $R_{max}$ and a halving factor $\eta$, which can be challenging to set optimally without prior knowledge.
+- It does not learn from past evaluations to guide future sampling, unlike Bayesian optimization, which can be less efficient in very low-dimensional search spaces.
+- The algorithm might prematurely discard configurations that perform poorly with low resources but could excel with more resources.
+- Its performance can be suboptimal if the best configurations are those that require very few resources to converge.
+
+## Use Cases
+
+### Deep Learning
+
+Optimizing the learning rate, batch size, number of layers, and regularization parameters for neural networks in various applications.
+
+### Computer Vision
+
+Tuning hyperparameters for Convolutional Neural Networks (CNNs) used in image classification, object detection, and segmentation tasks.
+
+### Natural Language Processing
+
+Finding optimal configurations for Recurrent Neural Networks (RNNs), Transformers, or other language models for tasks like text classification or machine translation.
+
+### Reinforcement Learning
+
+Optimizing policy network architectures and training parameters for agents learning in complex environments.
+
+### General Machine Learning
+
+Efficiently tuning hyperparameters for traditional models like Gradient Boosting Machines (e.g., [XGBoost](/algorithms/supervised/regression/xgboost), [LightGBM](/algorithms/supervised/regression/lightgbm)) or Support Vector Machines.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Hyperband from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Hyperband does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Hyperband Lab" />
+
+## References
+
+- Li et al. (2016). Li et al..

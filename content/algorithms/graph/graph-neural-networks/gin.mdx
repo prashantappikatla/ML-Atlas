@@ -1,0 +1,160 @@
+---
+title: "GIN"
+slug: "gin"
+category: "graph"
+subcategory: "graph-neural-networks"
+year: 2019
+author: "Xu et al."
+paper: "Xu et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: false
+  image: false
+  text: false
+  timeseries: false
+  graph: true
+tags: ["deep-learning", "graph-classification", "graph-isomorphism", "graph-neural-networks", "inductive-learning", "message-passing", "node-classification", "representation-learning"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "graphsage"
+  - "perceptron"
+---
+
+## Overview
+
+Graph Isomorphism Network (GIN) is a powerful Graph Neural Network (GNN) designed to achieve maximum discriminative power among GNNs, theoretically matching the Weisfeiler-Lehman (WL) test of graph isomorphism. It addresses limitations of earlier GNNs in distinguishing between different graph structures by employing a specific aggregation scheme that preserves structural information. GIN's key innovation lies in its ability to learn an injective mapping from node neighborhoods, making it highly effective for tasks requiring fine-grained graph understanding.
+
+## History
+
+**2019** — Xu et al. introduce the Graph Isomorphism Network (GIN) in their paper "How Powerful are Graph Neural Networks?", demonstrating its theoretical equivalence to the Weisfeiler-Lehman test and strong empirical performance.
+
+**2019** — The seminal paper by Xu et al. quickly becomes highly influential, establishing a new benchmark for GNN discriminative power and inspiring further research into more expressive GNN architectures.
+
+**2020** — GIN is widely adopted in various graph learning benchmarks and integrated into popular GNN libraries like PyTorch Geometric and DGL, facilitating its use by researchers and practitioners.
+
+**2021** — Subsequent research begins to explore extensions and variations of GIN, such as incorporating attention mechanisms or adapting it for dynamic graphs, building upon its strong theoretical foundation.
+
+## Mathematical Intuition
+
+### Weisfeiler-Lehman Test Analogy
+
+GIN's design is inspired by the Weisfeiler-Lehman (WL) test, a powerful algorithm for distinguishing non-isomorphic graphs. The WL test iteratively updates node labels based on the sorted multiset of its neighbors' labels, then hashes these multisets to new unique labels. GIN aims to mimic this process by learning an injective mapping of multisets of neighbor features, with its core update rule resembling the WL test's iterative refinement of node representations.
+
+$$
+h_v^{(k)} = \text{MLP}^{(k)} \left( (1 + \epsilon^{(k)}) \cdot h_v^{(k-1)} + \sum_{u \in \mathcal{N}(v)} h_u^{(k-1)} \right)
+$$
+
+### Injective Aggregation Function
+
+The core of GIN's discriminative power comes from its aggregation function, which must be injective to map distinct multisets of neighbor features to distinct output values, similar to the WL test. GIN achieves this by using a sum aggregation combined with the node's own feature, passed through an MLP. The aggregation step for node $v$ at layer $k$ is defined as $a_v^{(k)} = \text{SUM} \left( \{h_u^{(k-1)} \mid u \in \mathcal{N}(v) \cup \{v\}\} \right)$, which can be rewritten to explicitly include the learnable parameter $\epsilon^{(k)}$. The sum aggregation is known to be injective for multisets under certain conditions, and $\epsilon^{(k)}$ allows the model to control the relative importance of the central node's feature versus its neighbors.
+
+$$
+a_v^{(k)} = \text{SUM} \left( \{h_u^{(k-1)} \mid u \in \mathcal{N}(v) \cup \{v\}\} \right)
+$$
+
+$$
+a_v^{(k)} = (1 + \epsilon^{(k)}) \cdot h_v^{(k-1)} + \sum_{u \in \mathcal{N}(v)} h_u^{(k-1)}
+$$
+
+### Node Feature Update
+
+After the aggregation, the combined feature vector $a_v^{(k)}$ is passed through a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) to transform it into the new node representation $h_v^{(k)}$. This non-linear transformation allows the model to learn complex patterns from the aggregated features. Each layer $k$ typically employs its own MLP, ensuring that the feature space can evolve throughout the network. The final node representations can then be used for node-level tasks, or pooled to form a graph-level representation for graph classification.
+
+$$
+h_v^{(k)} = \text{MLP}^{(k)} \left( a_v^{(k)} \right)
+$$
+
+## Algorithm Steps
+
+1. Initialize node features $h_v^{(0)}$ for all nodes $v$ in the graph, typically using initial node attributes or one-hot encodings.
+2. For each layer $k$ from $1$ to $L$: for each node $v$, aggregate features from its neighbors $\mathcal{N}(v)$ and itself using the sum aggregation: $a_v^{(k)} = (1 + \epsilon^{(k)}) \cdot h_v^{(k-1)} + \sum_{u \in \mathcal{N}(v)} h_u^{(k-1)}$.
+3. For each node $v$ at layer $k$, apply a multi-layer perceptron (MLP) to the aggregated feature: $h_v^{(k)} = \text{MLP}^{(k)} \left( a_v^{(k)} \right)$.
+4. After $L$ layers, obtain the final node representations $h_v^{(L)}$ for all nodes.
+5. For graph-level tasks, pool the final node representations into a single graph representation $h_G$: $h_G = \text{READOUT} \left( \{h_v^{(L)} \mid v \in V\} \right)$, where $\text{READOUT}$ can be sum, mean, or max pooling.
+6. Pass $h_G$ (for graph-level tasks) or $h_v^{(L)}$ (for node-level tasks) through a final classification or regression head.
+7. Compute the loss based on the task and perform backpropagation to update the weights of the MLPs and the learnable $\epsilon^{(k)}$ parameters.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `num_layers` | `integer` | `5` | 1 to 10 | The number of GIN layers in the network. |
+| `hidden_dim` | `integer` | `64` | 32 to 512 | The dimension of the hidden feature vectors in each GIN layer's MLP. |
+| `output_dim` | `integer` | `None` | 1 to N | The dimension of the final output features after the last GIN layer, typically matching the number of classes for classification. |
+| `mlp_layers` | `integer` | `2` | 1 to 3 | The number of linear layers within each GIN layer's Multi-Layer Perceptron (MLP). |
+| `learn_eps` | `boolean` | `true` | true, false | Whether to use a learnable $\epsilon$ parameter in the aggregation function, allowing adaptive weighting of central node features. |
+| `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | The dropout probability applied to the hidden features after each GIN layer's MLP. |
+| `activation` | `string` | `relu` | relu, leaky_relu, tanh, sigmoid | The activation function used within the MLPs of each GIN layer. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
+
+## Strengths
+
+- GIN achieves high discriminative power, theoretically matching the Weisfeiler-Lehman test, enabling it to distinguish between a wide range of non-isomorphic graphs.
+- The learnable $\epsilon$ parameter allows the model to adaptively weigh the importance of a node's own features versus its neighbors' features during aggregation.
+- Its simple sum aggregation combined with an MLP makes it computationally efficient compared to more complex attention-based GNNs while maintaining strong performance.
+- GIN's architecture is robust to different graph structures and can be applied to various graph-level and node-level prediction tasks.
+- The theoretical foundation provides a clear understanding of its capabilities and limitations regarding graph isomorphism.
+
+## Weaknesses
+
+- GIN's discriminative power is limited by the Weisfeiler-Lehman test, meaning it cannot distinguish between all non-isomorphic graphs that the WL test cannot differentiate.
+- Like many GNNs, GIN can suffer from over-smoothing in deep architectures, where node representations become indistinguishable after many layers.
+- The model's performance is highly dependent on the quality and expressiveness of the initial node features.
+- GIN does not inherently handle edge features or dynamic graphs without specific architectural modifications.
+- The learnable $\epsilon$ parameter, while beneficial, can sometimes lead to instability during training if not properly regularized.
+
+## Use Cases
+
+### Drug Discovery
+
+Predicting molecular properties or drug-target interactions by modeling molecules as graphs, where GIN can learn complex structural relationships.
+
+### Social Network Analysis
+
+Identifying communities, predicting links, or classifying users based on their connections and attributes in social graphs.
+
+### Material Science
+
+Discovering new materials with desired properties by analyzing crystal structures or molecular networks.
+
+### Recommender Systems
+
+Enhancing recommendation accuracy by modeling user-item interaction graphs, capturing higher-order relationships.
+
+### Bioinformatics
+
+Analyzing protein-protein interaction networks or gene regulatory networks to understand biological processes and disease mechanisms.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement GIN from scratch
+```
+
+### Using scikit-learn
+
+```python
+# GIN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="GIN Lab" />
+
+## References
+
+- Xu et al. (2019). Xu et al..

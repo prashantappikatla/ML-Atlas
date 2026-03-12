@@ -1,0 +1,163 @@
+---
+title: "Differential Evolution"
+slug: "differential-evolution"
+category: "evolutionary"
+subcategory: "evolutionary-algorithms"
+year: 1997
+author: "Storn & Price"
+paper: "Storn & Price"
+complexity: "medium"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: false
+  graph: false
+tags: ["continuous-optimization", "evolutionary-algorithm", "global-optimization", "metaheuristic", "numerical-optimization", "optimization", "population-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "ant-colony-optimization"
+  - "genetic-algorithm"
+  - "particle-swarm-optimization"
+  - "support-vector-machine"
+---
+
+## Overview
+
+Differential Evolution (DE) is a population-based metaheuristic optimization algorithm designed to find the global optimum of continuous functions. It operates by iteratively improving candidate solutions through mutation, crossover, and selection operations, leveraging vector differences to generate new candidate solutions. DE is particularly effective for non-linear, non-differentiable, and multi-modal objective functions, distinguishing itself through its self-adapting mutation mechanism.
+
+## History
+
+**1997** — Rainer Storn and Kenneth Price introduce Differential Evolution as a simple yet powerful optimization algorithm for continuous functions.
+
+**2005** — Price, Storn, and Lamp publish "Differential Evolution: A Practical Approach to Global Optimization," a seminal book detailing the algorithm and its applications.
+
+**2006** — Adaptive DE strategies begin to emerge, where control parameters like mutation factor and crossover probability are adjusted during the optimization process.
+
+**2010** — Hybridization of DE with other optimization techniques, such as local search or other metaheuristics, becomes a common approach to enhance performance and address specific problem characteristics.
+
+## Mathematical Intuition
+
+### Mutation: Generating Trial Vectors
+
+The core of Differential Evolution lies in its mutation strategy, which generates a "mutant vector" for each target vector. For a target vector $x_i$ at generation $G$, a mutant vector $v_i$ is created by taking three distinct random vectors $x_{r1}, x_{r2}, x_{r3}$ from the population and combining them using a differential weight $F$. The differential weight $F \in [0, 2]$ controls the amplification of the difference vector $(x_{r2} - x_{r3})$. This operation introduces diversity and explores the search space.
+
+$$
+v_i = x_{r1} + F \cdot (x_{r2} - x_{r3})
+$$
+
+### Crossover: Blending Solutions
+
+After mutation, a "trial vector" $u_i$ is formed by combining the mutant vector $v_i$ with the target vector $x_i$ through a crossover operation. This step aims to increase the potential diversity of the perturbed parameter vectors. For each dimension $j$, a random number is generated, and if it is less than or equal to the crossover probability $CR \in [0, 1]$, or if $j$ is a randomly chosen index to ensure at least one component comes from the mutant, the component from $v_i$ is chosen; otherwise, the component from $x_i$ is retained. The crossover probability $CR$ determines how many components of the trial vector are inherited from the mutant vector.
+
+$$
+u_{j,i} = \begin{cases} v_{j,i} & \text{if } \text{rand}(0,1) \le CR \text{ or } j = \text{rand\_index} \\ x_{j,i} & \text{otherwise} \end{cases}
+$$
+
+### Selection: Survival of the Fittest
+
+The final step is selection, where the trial vector $u_i$ competes against its corresponding target vector $x_i$ from the current population. For a minimization problem, if the objective function value of the trial vector $f(u_i)$ is better (smaller) than that of the target vector $f(x_i)$, the trial vector replaces the target vector in the next generation. Otherwise, the target vector is retained. This greedy selection ensures that the population either improves or stays the same, driving the search towards optimal solutions.
+
+$$
+x_i^{G+1} = \begin{cases} u_i & \text{if } f(u_i) \le f(x_i) \\ x_i & \text{otherwise} \end{cases}
+$$
+
+## Algorithm Steps
+
+1. Initialize a population of $NP$ candidate solutions (vectors) $x_i$ within the defined search space bounds, typically uniformly at random.
+2. For each generation, iterate through each target vector $x_i$ in the current population.
+3. For the current target vector $x_i$, select three distinct random vectors $x_{r1}, x_{r2}, x_{r3}$ from the population, ensuring none are $x_i$.
+4. Generate a mutant vector $v_i$ using the mutation strategy: $v_i = x_{r1} + F \cdot (x_{r2} - x_{r3})$, where $F$ is the mutation factor.
+5. Create a trial vector $u_i$ by performing a crossover operation between the mutant vector $v_i$ and the target vector $x_i$, using a crossover probability $CR$.
+6. Evaluate the objective function for the trial vector $f(u_i)$ and compare it with the objective function of the target vector $f(x_i)$.
+7. If $f(u_i)$ is better (e.g., smaller for minimization) than $f(x_i)$, replace $x_i$ with $u_i$ in the population for the next generation; otherwise, retain $x_i$.
+8. Repeat steps 2-7 until a termination criterion is met, such as a maximum number of generations or a satisfactory objective function value.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `bounds` | `list of tuple` | `None` | [(lower_bound_dim1, upper_bound_dim1), ..., (lower_bound_dimN, upper_bound_dimN)] | Defines the search space for each dimension of the problem, specified as a sequence of (min, max) pairs. |
+| `strategy` | `str` | `'best1bin'` | 'best1bin', 'best1exp', 'rand1bin', 'rand1exp', 'randtobest1bin', 'randtobest1exp', 'currenttobest1bin', 'currenttobest1exp', 'rand2bin', 'rand2exp', 'dither', 'vector_dither' | The mutation strategy to use, influencing how mutant vectors are generated from the population. |
+| `popsize` | `int` | `15` | integer > 0 | A multiplier for the population size. The total population size will be `popsize * len(bounds)`. |
+| `mutation` | `float or tuple` | `0.5` | [0, 2] | The mutation constant $F$, which controls the differential weight. Can be a single float or a (min, max) tuple for dithering. |
+| `recombination` | `float` | `0.7` | [0, 1] | The crossover probability $CR$, which controls the probability of a trial vector component being inherited from the mutant vector. |
+| `maxiter` | `int` | `1000` | integer > 0 | The maximum number of generations (iterations) to run the algorithm. |
+| `tol` | `float` | `0.01` | [0, 1] | Relative tolerance for convergence. The algorithm terminates if the population's best solution doesn't improve by `tol` for `n_iter_no_change` generations. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
+
+## Strengths
+
+- It is highly effective at finding global optima for complex, non-linear, and non-differentiable objective functions.
+- The algorithm requires relatively few control parameters, making it easier to set up compared to some other metaheuristics.
+- It exhibits good robustness to local optima due to its population-based approach and the differential mutation operator.
+- Differential Evolution is inherently parallelizable, allowing for efficient computation on multi-core processors or distributed systems.
+- It can handle objective functions with many local minima and plateaus effectively.
+- The algorithm does not require the objective function to be continuous or differentiable.
+
+## Weaknesses
+
+- Convergence speed can be slow for problems with very high dimensionality or when high precision is required.
+- Performance can be sensitive to the choice of control parameters ($F$, $CR$, `popsize`), although adaptive strategies mitigate this.
+- The computational cost can be significant for objective functions that are expensive to evaluate, as it requires evaluating many candidate solutions per generation.
+- It may struggle with constrained optimization problems unless specific handling mechanisms are incorporated.
+
+## Use Cases
+
+### Engineering Design
+
+Optimizing parameters for structural design, antenna design, or chemical process optimization to meet performance criteria and minimize costs.
+
+### Machine Learning
+
+Tuning hyperparameters of complex machine learning models, such as neural network architectures, [Support Vector Machine](/algorithms/supervised/classification/support-vector-machine) kernels, or ensemble model weights.
+
+### Signal Processing
+
+Designing optimal filters, identifying system parameters, or solving inverse problems in signal and image reconstruction and enhancement.
+
+### Financial Modeling
+
+Portfolio optimization, calibration of financial models, or parameter estimation for risk management and option pricing.
+
+### Operations Research
+
+Solving scheduling problems, vehicle routing problems, or resource allocation problems in logistics and manufacturing industries.
+
+### Bioinformatics
+
+Optimizing parameters for protein folding simulations, gene regulatory network inference, or drug discovery processes.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Differential Evolution from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Differential Evolution does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Differential Evolution Lab" />
+
+## References
+
+- Storn & Price (1997). Storn & Price.

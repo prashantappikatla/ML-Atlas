@@ -1,0 +1,198 @@
+---
+title: "AdamW"
+slug: "adamw"
+category: "meta-learning"
+subcategory: "optimization"
+year: 2017
+author: "Loshchilov & Hutter"
+paper: "Loshchilov & Hutter"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["adaptive-learning-rate", "deep-learning", "gradient-descent", "meta-learning", "neural-networks", "optimization", "regularization", "weight-decay"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "adagrad"
+  - "adam"
+  - "rmsprop"
+  - "stochastic-gradient-descent"
+  - "transformer"
+---
+
+## Overview
+
+AdamW is an optimization algorithm that extends the Adam optimizer by decoupling weight decay from the adaptive gradient updates. This modification addresses a known issue where standard L2 regularization, when combined with adaptive optimizers like Adam, can lead to suboptimal generalization performance. By applying weight decay directly to the weights rather than through the gradient, AdamW improves the regularization effect and often leads to better model generalization.
+
+## History
+
+**2014** — Diederik P. Kingma and Jimmy Ba introduced the Adam optimizer, combining the benefits of [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and [AdaGrad](/algorithms/meta-learning/optimization/adagrad) to provide adaptive learning rates for each parameter.
+
+**2017** — Ilya Loshchilov and Frank Hutter published 'Decoupled Weight Decay Regularization,' identifying a flaw in how L2 regularization interacts with adaptive optimizers and proposing AdamW as a solution.
+
+## Mathematical Intuition
+
+### Adam's Adaptive Learning Rates
+
+The Adam optimizer computes adaptive learning rates for each parameter by estimating the first moment (mean) and second moment (uncentered variance) of the gradients. These moment estimates are exponentially decaying averages of past gradients and squared gradients, respectively. Specifically, for a gradient $g_t$ at time step $t$, the biased first moment estimate $m_t$ and second moment estimate $v_t$ are updated as:
+$$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
+$$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+These estimates are then bias-corrected to account for their initialization at zero:
+$$\hat{m}_t = m_t / (1 - \beta_1^t)$$
+$$\hat{v}_t = v_t / (1 - \beta_2^t)$$
+The standard Adam parameter update rule is then given by:
+$$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
+
+$$
+m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
+$$
+
+$$
+v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+$$
+
+$$
+\hat{m}_t = m_t / (1 - \beta_1^t)
+$$
+
+$$
+\hat{v}_t = v_t / (1 - \beta_2^t)
+$$
+
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
+$$
+
+### L2 Regularization vs. Weight Decay
+
+L2 regularization is typically implemented by adding a penalty term to the loss function, $L_{total} = L_{data} + \frac{\lambda}{2} ||\theta||^2$. The gradient of this penalty term with respect to the parameters $\theta$ is $\lambda \theta$. When this gradient is incorporated into adaptive optimizers like Adam, it gets scaled by the inverse of the square root of the second moment estimate, $\frac{1}{\sqrt{\hat{v}_t} + \epsilon}$. This scaling means that parameters with large adaptive learning rates (i.e., small $\hat{v}_t$) will have their L2 regularization effect diminished. In contrast, traditional weight decay, as used with [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD), directly scales the weights: $\theta_{t+1} = (1 - \lambda \eta) \theta_t - \eta g_t$. This direct scaling ensures the regularization strength is consistent, but this equivalence to L2 regularization only holds for SGD.
+
+$$
+L_{total} = L_{data} + \frac{\lambda}{2} ||\theta||^2
+$$
+
+$$
+\lambda \theta
+$$
+
+$$
+\frac{1}{\sqrt{\hat{v}_t} + \epsilon}
+$$
+
+$$
+\theta_{t+1} = (1 - \lambda \eta) \theta_t - \eta g_t
+$$
+
+### Decoupled Weight Decay in AdamW
+
+AdamW addresses the issue of L2 regularization's interaction with adaptive learning rates by decoupling the weight decay from the gradient update. Instead of adding the L2 penalty to the loss function, AdamW applies the weight decay directly to the parameters after the adaptive gradient step. The gradient $g_t$ is computed solely from the data loss. The adaptive update is first calculated as in standard Adam:
+$$\Delta \theta_t = - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
+Then, a separate weight decay term is applied directly to the parameters, proportional to the current parameter values and the learning rate:
+$$\theta_{t+1} = \theta_t + \Delta \theta_t - \eta \lambda \theta_t$$
+This ensures that the weight decay term $\eta \lambda \theta_t$ is not scaled by the adaptive second moment estimate, preserving its intended regularization strength and leading to more effective generalization.
+
+$$
+\Delta \theta_t = - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+$$
+
+$$
+\theta_{t+1} = \theta_t + \Delta \theta_t - \eta \lambda \theta_t
+$$
+
+## Algorithm Steps
+
+1. Initialize parameters $\theta_0$, first moment vector $m_0 = 0$, second moment vector $v_0 = 0$, and iteration counter $t=0$.
+2. For each iteration $t=1, 2, \dots$:
+3. Increment iteration counter $t$.
+4. Compute the gradient $g_t$ of the loss function with respect to the current parameters $\theta_{t-1}$.
+5. Update biased first moment estimate: $m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$.
+6. Update biased second moment estimate: $v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$.
+7. Compute bias-corrected first moment estimate: $\hat{m}_t = m_t / (1 - \beta_1^t)$.
+8. Compute bias-corrected second moment estimate: $\hat{v}_t = v_t / (1 - \beta_2^t)$.
+9. Apply the adaptive gradient update: $\theta_{t}' = \theta_{t-1} - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$.
+10. Apply decoupled weight decay: $\theta_t = \theta_{t}' - \eta \lambda \theta_{t-1}$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `lr` | `float` | `0.001` | positive float | The learning rate, which controls the step size at each iteration. |
+| `betas` | `tuple of floats (beta1, beta2)` | `(0.9, 0.999)` | tuple of floats between 0 and 1 | Coefficients used for computing running averages of gradient and its square. |
+| `eps` | `float` | `1e-8` | positive float | Term added to the denominator to improve numerical stability and prevent division by zero. |
+| `weight_decay` | `float` | `0.01` | non-negative float | Weight decay (L2 penalty) coefficient, applied in a decoupled manner. |
+| `amsgrad` | `boolean` | `False` | True or False | Whether to use the AMSGrad variant of this algorithm, which attempts to improve convergence guarantees. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- AdamW often leads to better generalization performance compared to Adam with standard L2 regularization, especially in deep learning models.
+- It maintains the computational efficiency and adaptive learning rate benefits inherent to the Adam optimizer.
+- The decoupled weight decay provides a more robust and theoretically sound way to apply regularization in adaptive optimization settings.
+- AdamW can achieve state-of-the-art results across various deep learning tasks and architectures, making it a popular choice.
+- It helps to mitigate the problem of 'vanishing' or 'exploding' regularization effects that can occur with L2 regularization in adaptive optimizers.
+
+## Weaknesses
+
+- AdamW requires careful tuning of its hyperparameters, particularly the learning rate $\eta$ and the weight decay coefficient $\lambda$.
+- It can still be sensitive to the initial learning rate choice, similar to other adaptive gradient methods.
+- The theoretical convergence properties of AdamW, especially in non-convex optimization landscapes, are complex and not always fully guaranteed.
+- In some specific scenarios or with certain model architectures, simpler optimizers like SGD with momentum might still outperform AdamW.
+
+## Use Cases
+
+### Computer Vision
+
+AdamW is widely used for training deep convolutional neural networks in tasks such as image classification, object detection, and semantic segmentation, often leading to improved model accuracy.
+
+### Natural Language Processing
+
+It is a common optimizer for large language models, [Transformer](/algorithms/deep-learning/transformers/transformer) networks, and recurrent neural networks used in machine translation, text generation, and sentiment analysis.
+
+### Speech Recognition
+
+AdamW is applied to optimize deep learning models for acoustic modeling and speech synthesis, contributing to better performance in automatic speech recognition systems.
+
+### Reinforcement Learning
+
+It is frequently employed to train policy networks and value networks in various reinforcement learning algorithms, helping agents learn optimal behaviors in complex environments.
+
+### Drug Discovery
+
+Deep learning models used for molecular property prediction, protein folding, and drug design often leverage AdamW for efficient and effective training.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement AdamW from scratch
+```
+
+### Using scikit-learn
+
+```python
+# AdamW does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="AdamW Lab" />
+
+## References
+
+- Loshchilov & Hutter (2017). Loshchilov & Hutter.

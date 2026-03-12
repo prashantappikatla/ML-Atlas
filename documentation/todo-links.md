@@ -1604,3 +1604,415 @@
 - [ ] `Jure Leskovec` — appears in prose but has no MDX page
 - [ ] `Large Graphs` — appears in prose but has no MDX page
 - [ ] `Rex Ying` — appears in prose but has no MDX page
+
+### GAT (2026-03-12)
+- [ ] `Adriana Romero` — appears in prose but has no MDX page
+- [ ] `Arantxa Casanova` — appears in prose but has no MDX page
+- [ ] `Graph Attention Networks` — appears in prose but has no MDX page
+- [ ] `Graph Convolutional Networks` — appears in prose but has no MDX page
+- [ ] `Graph Neural Networks` — appears in prose but has no MDX page
+- [ ] `Guillem Cucurull` — appears in prose but has no MDX page
+- [ ] `Yoshua Bengio` — appears in prose but has no MDX page
+
+### GIN (2026-03-12)
+- [ ] `Graph Isomorphism Network` — appears in prose but has no MDX page
+- [ ] `Graph Neural Network` — appears in prose but has no MDX page
+- [ ] `Graph Neural Networks` — appears in prose but has no MDX page
+- [ ] `How Powerful` — appears in prose but has no MDX page
+
+### Relational GCN (2026-03-12)
+- [ ] `Basis Decomposition` — appears in prose but has no MDX page
+- [ ] `Diagonal Decomposition` — appears in prose but has no MDX page
+- [ ] `Graph Convolutional Networks` — appears in prose but has no MDX page
+- [ ] `Graph Neural Networks` — appears in prose but has no MDX page
+- [ ] `Max Welling` — appears in prose but has no MDX page
+- [ ] `Michael Schlichtkrull` — appears in prose but has no MDX page
+- [ ] `Relational Graph Convolutional Networks` — appears in prose but has no MDX page
+- [ ] `Thomas Kipf` — appears in prose but has no MDX page
+
+### Graph Transformer (2026-03-12)
+- [ ] `Attention Is All You` — appears in prose but has no MDX page
+- [ ] `Do Transformers Really Perform` — appears in prose but has no MDX page
+- [ ] `Graph Neural Networks` — appears in prose but has no MDX page
+- [ ] `Graph Representation` — appears in prose but has no MDX page
+- [ ] `Graph Transformers` — appears in prose but has no MDX page
+- [ ] `Random Walk Positional Encoding` — appears in prose but has no MDX page
+
+### TransE (2026-03-12)
+- [ ] `Alberto Garcia` — appears in prose but has no MDX page
+- [ ] `Antoine Bordes` — appears in prose but has no MDX page
+- [ ] `Hong Deng` — appears in prose but has no MDX page
+- [ ] `Jason Weston` — appears in prose but has no MDX page
+- [ ] `Jian Tang` — appears in prose but has no MDX page
+- [ ] `Jianlin Feng` — appears in prose but has no MDX page
+- [ ] `Jianwen Zhang` — appears in prose but has no MDX page
+- [ ] `Johannes Welbl` — appears in prose but has no MDX page
+- [ ] `Maosong Sun` — appears in prose but has no MDX page
+- [ ] `Michael Nickel` — appears in prose but has no MDX page
+- [ ] `Modeling Multi` — appears in prose but has no MDX page
+- [ ] `Nicolas Usunier` — appears in prose but has no MDX page
+- [ ] `Oksana Yakhnenko` — appears in prose but has no MDX page
+- [ ] `Sebastian Riedel` — appears in prose but has no MDX page
+- [ ] `Translating Embeddings` — appears in prose but has no MDX page
+- [ ] `Xuan Zhu` — appears in prose but has no MDX page
+- [ ] `Yang Liu` — appears in prose but has no MDX page
+- [ ] `Yankai Lin` — appears in prose but has no MDX page
+- [ ] `Yun Nie` — appears in prose but has no MDX page
+- [ ] `Zhen Wang` — appears in prose but has no MDX page
+- [ ] `Zheng Chen` — appears in prose but has no MDX page
+- [ ] `Zhiqing Sun` — appears in prose but has no MDX page
+- [ ] `Zhiyuan Liu` — appears in prose but has no MDX page
+
+### Value Iteration (2026-03-12)
+- [ ] `Bellman Optimality Equation` — appears in prose but has no MDX page
+- [ ] `Dynamic Programming` — appears in prose but has no MDX page
+- [ ] `Markov Decision Process` — appears in prose but has no MDX page
+- [ ] `Modern Control Theory` — appears in prose but has no MDX page
+- [ ] `Richard Bellman` — appears in prose but has no MDX page
+- [ ] `The Bellman` — appears in prose but has no MDX page
+
+### Policy Iteration (2026-03-12)
+- [ ] `Dynamic Programming` — appears in prose but has no MDX page
+- [ ] `Markov Decision Process` — appears in prose but has no MDX page
+- [ ] `Markov Processes` — appears in prose but has no MDX page
+- [ ] `Policy Improvement Theorem` — appears in prose but has no MDX page
+- [ ] `Richard Bellman` — appears in prose but has no MDX page
+- [ ] `Ronald Howard` — appears in prose but has no MDX page
+
+### Monte Carlo Control (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Monte Carlo` — appears in prose but has no MDX page
+- [ ] `Monte Carlo Exploring Starts` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+
+### Temporal Difference Learning (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Monte Carlo` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Temporal Difference` — appears in prose but has no MDX page
+- [ ] `Temporal Differences` — appears in prose but has no MDX page
+
+### SARSA (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Gavin Rummery` — appears in prose but has no MDX page
+- [ ] `Mahesan Niranjan` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+
+### Q-Learning (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Peter Dayan` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+
+### Double Q-Learning (2026-03-12)
+- [ ] `Arthur Guez` — appears in prose but has no MDX page
+- [ ] `Chris Watkins` — appears in prose but has no MDX page
+- [ ] `David Silver` — appears in prose but has no MDX page
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `In Double` — appears in prose but has no MDX page
+- [ ] `Policy Gradients` — appears in prose but has no MDX page
+- [ ] `Twin Delayed Deep Deterministic` — appears in prose but has no MDX page
+
+### Deep Q Network (2026-03-12)
+- [ ] `Chris Watkins` — appears in prose but has no MDX page
+- [ ] `Gerald Tesauro` — appears in prose but has no MDX page
+
+### Double DQN (2026-03-12)
+- [ ] `Arthur Guez` — appears in prose but has no MDX page
+- [ ] `Chris Watkins` — appears in prose but has no MDX page
+- [ ] `David Silver` — appears in prose but has no MDX page
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Peter Dayan` — appears in prose but has no MDX page
+- [ ] `The Double` — appears in prose but has no MDX page
+
+### Dueling DQN (2026-03-12)
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Dueling Deep` — appears in prose but has no MDX page
+- [ ] `The Bellman` — appears in prose but has no MDX page
+- [ ] `The Dueling` — appears in prose but has no MDX page
+- [ ] `Van Hasselt` — appears in prose but has no MDX page
+
+### Prioritized Experience Replay (2026-03-12)
+- [ ] `Importance Sampling` — appears in prose but has no MDX page
+- [ ] `Temporal Difference` — appears in prose but has no MDX page
+- [ ] `Van Hasselt` — appears in prose but has no MDX page
+
+### REINFORCE (2026-03-12)
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Monte Carlo` — appears in prose but has no MDX page
+- [ ] `Monte Carlo Policy Gradient` — appears in prose but has no MDX page
+- [ ] `Policy Gradient Theorem` — appears in prose but has no MDX page
+- [ ] `The Policy Gradient Theorem` — appears in prose but has no MDX page
+
+### Actor-Critic (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Asynchronous Advantage Actor` — appears in prose but has no MDX page
+- [ ] `Critic Algorithms` — appears in prose but has no MDX page
+- [ ] `In Actor` — appears in prose but has no MDX page
+- [ ] `Proximal Policy Optimization` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `The Actor` — appears in prose but has no MDX page
+
+### A2C (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Asynchronous Advantage` — appears in prose but has no MDX page
+- [ ] `Asynchronous Methods` — appears in prose but has no MDX page
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+
+### A3C (2026-03-12)
+- [ ] `Asynchronous Advantage` — appears in prose but has no MDX page
+- [ ] `Asynchronous Methods` — appears in prose but has no MDX page
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+
+### TRPO (2026-03-12)
+- [ ] `John Schulman` — appears in prose but has no MDX page
+- [ ] `Michael Jordan` — appears in prose but has no MDX page
+- [ ] `Philipp Moritz` — appears in prose but has no MDX page
+- [ ] `Pieter Abbeel` — appears in prose but has no MDX page
+- [ ] `Proximal Policy Optimization` — appears in prose but has no MDX page
+- [ ] `Sergey Levine` — appears in prose but has no MDX page
+- [ ] `Trust Region Policy Optimization` — appears in prose but has no MDX page
+
+### PPO (2026-03-12)
+- [ ] `Asynchronous Advantage` — appears in prose but has no MDX page
+- [ ] `Generalized Advantage Estimation` — appears in prose but has no MDX page
+- [ ] `John Schulman` — appears in prose but has no MDX page
+- [ ] `Proximal Policy Optimization` — appears in prose but has no MDX page
+- [ ] `Proximal Policy Optimization Algorithms` — appears in prose but has no MDX page
+- [ ] `Trust Region Policy Optimization` — appears in prose but has no MDX page
+
+### Deterministic Policy Gradient (2026-03-12)
+- [ ] `Deep Deterministic Policy Gradient` — appears in prose but has no MDX page
+- [ ] `Deterministic Policy Gradient Algorithms` — appears in prose but has no MDX page
+- [ ] `Policy Gradient Theorem` — appears in prose but has no MDX page
+
+### DDPG (2026-03-12)
+- [ ] `Continuous Control` — appears in prose but has no MDX page
+- [ ] `Deep Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `Twin Delayed` — appears in prose but has no MDX page
+
+### TD3 (2026-03-12)
+- [ ] `Twin Delayed Deep` — appears in prose but has no MDX page
+- [ ] `Van Hasselt` — appears in prose but has no MDX page
+
+### Soft Actor-Critic (2026-03-12)
+- [ ] `Abhishek Gupta` — appears in prose but has no MDX page
+- [ ] `Aurick Zhou` — appears in prose but has no MDX page
+- [ ] `George Tucker` — appears in prose but has no MDX page
+- [ ] `Henry Zhu` — appears in prose but has no MDX page
+- [ ] `Jie Tan` — appears in prose but has no MDX page
+- [ ] `Kristian Hartikainen` — appears in prose but has no MDX page
+- [ ] `Kumar Krishna Agrawal` — appears in prose but has no MDX page
+- [ ] `Pieter Abbeel` — appears in prose but has no MDX page
+- [ ] `Sehoon Ha` — appears in prose but has no MDX page
+- [ ] `Sergey Levine` — appears in prose but has no MDX page
+- [ ] `Tuomas Haarnoja` — appears in prose but has no MDX page
+- [ ] `Yan Duan` — appears in prose but has no MDX page
+
+### Dyna-Q (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Dyna Approach` — appears in prose but has no MDX page
+- [ ] `Integrated Architectures` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+
+### MuZero (2026-03-12)
+- [ ] `Monte Carlo Tree Search` — appears in prose but has no MDX page
+- [ ] `Upper Confidence Bound` — appears in prose but has no MDX page
+
+### Epsilon-Greedy (2026-03-12)
+- [ ] `An Introduction` — appears in prose but has no MDX page
+- [ ] `Armed Bandit` — appears in prose but has no MDX page
+- [ ] `Herbert Robbins` — appears in prose but has no MDX page
+- [ ] `Reinforcement Learning` — appears in prose but has no MDX page
+- [ ] `The Multi` — appears in prose but has no MDX page
+
+### UCB (2026-03-12)
+- [ ] `Herbert Robbins` — appears in prose but has no MDX page
+- [ ] `John Langford` — appears in prose but has no MDX page
+- [ ] `Lihong Li` — appears in prose but has no MDX page
+- [ ] `Paul Fischer` — appears in prose but has no MDX page
+- [ ] `Peter Auer` — appears in prose but has no MDX page
+- [ ] `The Nonstochastic Multiarmed Bandit` — appears in prose but has no MDX page
+- [ ] `Upper Confidence Bound` — appears in prose but has no MDX page
+- [ ] `Wei Chu` — appears in prose but has no MDX page
+
+### Thompson Sampling (2026-03-12)
+- [ ] `An Empirical Evaluation` — appears in prose but has no MDX page
+- [ ] `Bandit Problem` — appears in prose but has no MDX page
+- [ ] `Benjamin Van Roy` — appears in prose but has no MDX page
+- [ ] `Daniel Russo` — appears in prose but has no MDX page
+- [ ] `Lihong Li` — appears in prose but has no MDX page
+- [ ] `Navin Goyal` — appears in prose but has no MDX page
+- [ ] `Olivier Chapelle` — appears in prose but has no MDX page
+- [ ] `Shipra Agrawal` — appears in prose but has no MDX page
+
+### Contextual Bandits (2026-03-12)
+- [ ] `Linear Upper Confidence Bound` — appears in prose but has no MDX page
+- [ ] `Neural Contextual Bandits` — appears in prose but has no MDX page
+
+### Grid Search (2026-03-12)
+- [ ] `Random Forests` — appears in prose but has no MDX page
+- [ ] `Support Vector Machines` — appears in prose but has no MDX page
+
+### Random Search (2026-03-12)
+- [ ] `Convolutional Neural Networks` — appears in prose but has no MDX page
+- [ ] `James Bergstra` — appears in prose but has no MDX page
+- [ ] `Machine Learning Research` — appears in prose but has no MDX page
+- [ ] `Parameter Optimization` — appears in prose but has no MDX page
+- [ ] `Recurrent Neural Networks` — appears in prose but has no MDX page
+- [ ] `Yoshua Bengio` — appears in prose but has no MDX page
+
+### Bayesian Optimization (2026-03-12)
+- [ ] `Box Functions` — appears in prose but has no MDX page
+- [ ] `Efficient Global Optimization` — appears in prose but has no MDX page
+- [ ] `Expected Improvement` — appears in prose but has no MDX page
+- [ ] `Expensive Black` — appears in prose but has no MDX page
+- [ ] `Gaussian Process` — appears in prose but has no MDX page
+- [ ] `Machine Learning Algorithms` — appears in prose but has no MDX page
+- [ ] `Practical Bayesian Optimization` — appears in prose but has no MDX page
+- [ ] `The Bayesian Optimization` — appears in prose but has no MDX page
+- [ ] `Upper Confidence Bound` — appears in prose but has no MDX page
+
+### Hyperband (2026-03-12)
+- [ ] `Based Approach` — appears in prose but has no MDX page
+- [ ] `Best Arm Identification` — appears in prose but has no MDX page
+- [ ] `Convolutional Neural Networks` — appears in prose but has no MDX page
+- [ ] `Gradient Boosting Machines` — appears in prose but has no MDX page
+- [ ] `Hyperparameter Optimization` — appears in prose but has no MDX page
+- [ ] `Novel Bandit` — appears in prose but has no MDX page
+- [ ] `Recurrent Neural Networks` — appears in prose but has no MDX page
+- [ ] `Successive Halving` — appears in prose but has no MDX page
+- [ ] `Support Vector Machines` — appears in prose but has no MDX page
+
+### BOHB (2026-03-12)
+- [ ] `Efficient Hyperparameter Optimization` — appears in prose but has no MDX page
+- [ ] `Gaussian Process` — appears in prose but has no MDX page
+- [ ] `Machine Learning Algorithms` — appears in prose but has no MDX page
+
+### MAML (2026-03-12)
+- [ ] `Agnostic Meta` — appears in prose but has no MDX page
+- [ ] `Alex Nichol` — appears in prose but has no MDX page
+- [ ] `Almost No Inner Loop` — appears in prose but has no MDX page
+- [ ] `Chelsea Finn` — appears in prose but has no MDX page
+- [ ] `Deep Networks` — appears in prose but has no MDX page
+- [ ] `Fast Adaptation` — appears in prose but has no MDX page
+- [ ] `John Schulman` — appears in prose but has no MDX page
+- [ ] `Pieter Abbeel` — appears in prose but has no MDX page
+- [ ] `Sergey Levine` — appears in prose but has no MDX page
+
+### Reptile (2026-03-12)
+- [ ] `Agnostic Meta` — appears in prose but has no MDX page
+- [ ] `Learning Algorithms` — appears in prose but has no MDX page
+- [ ] `On First` — appears in prose but has no MDX page
+- [ ] `Order Meta` — appears in prose but has no MDX page
+
+### NAS (2026-03-12)
+- [ ] `Differentiable Architecture Search` — appears in prose but has no MDX page
+- [ ] `Efficient Neural Architecture Search` — appears in prose but has no MDX page
+- [ ] `Neural Architecture Search` — appears in prose but has no MDX page
+
+### Stochastic Gradient Descent (2026-03-12)
+- [ ] `Gradient Descent` — appears in prose but has no MDX page
+- [ ] `Herbert Robbins` — appears in prose but has no MDX page
+- [ ] `Jack Kiefer` — appears in prose but has no MDX page
+- [ ] `Jacob Wolfowitz` — appears in prose but has no MDX page
+- [ ] `Leon Bottou` — appears in prose but has no MDX page
+- [ ] `Sutton Monro` — appears in prose but has no MDX page
+
+### Momentum (2026-03-12)
+- [ ] `Boris Polyak` — appears in prose but has no MDX page
+- [ ] `Generative Adversarial Networks` — appears in prose but has no MDX page
+- [ ] `Variational Autoencoders` — appears in prose but has no MDX page
+
+### AdaGrad (2026-03-12)
+- [ ] `Adaptive Gradient Algorithm` — appears in prose but has no MDX page
+- [ ] `Adaptive Subgradient Methods` — appears in prose but has no MDX page
+- [ ] `Elad Hazan` — appears in prose but has no MDX page
+- [ ] `John Duchi` — appears in prose but has no MDX page
+- [ ] `Online Learning` — appears in prose but has no MDX page
+- [ ] `Stochastic Optimization` — appears in prose but has no MDX page
+- [ ] `Yoram Singer` — appears in prose but has no MDX page
+
+### RMSProp (2026-03-12)
+- [ ] `Geoff Hinton` — appears in prose but has no MDX page
+- [ ] `Machine Learning` — appears in prose but has no MDX page
+- [ ] `Neural Networks` — appears in prose but has no MDX page
+- [ ] `Optimizing Recurrent Neural Networks` — appears in prose but has no MDX page
+- [ ] `Root Mean Square Propagation` — appears in prose but has no MDX page
+- [ ] `Training Convolutional Neural Networks` — appears in prose but has no MDX page
+
+### Adam (2026-03-12)
+- [ ] `Adaptive Moment Estimation` — appears in prose but has no MDX page
+- [ ] `Frank Hutter` — appears in prose but has no MDX page
+- [ ] `Geoffrey Hinton` — appears in prose but has no MDX page
+- [ ] `Ilya Loshchilov` — appears in prose but has no MDX page
+- [ ] `Jimmy Ba` — appears in prose but has no MDX page
+- [ ] `Proximal Policy Optimization` — appears in prose but has no MDX page
+- [ ] `Timothy Dozat` — appears in prose but has no MDX page
+
+### AdamW (2026-03-12)
+- [ ] `Decoupled Weight Decay Regularization` — appears in prose but has no MDX page
+- [ ] `Frank Hutter` — appears in prose but has no MDX page
+- [ ] `Ilya Loshchilov` — appears in prose but has no MDX page
+- [ ] `Jimmy Ba` — appears in prose but has no MDX page
+- [ ] `The Adam` — appears in prose but has no MDX page
+
+### Genetic Algorithm (2026-03-12)
+- [ ] `Artificial Systems` — appears in prose but has no MDX page
+- [ ] `Genetic Algorithms` — appears in prose but has no MDX page
+- [ ] `John Holland` — appears in prose but has no MDX page
+- [ ] `John Koza` — appears in prose but has no MDX page
+- [ ] `Machine Learning` — appears in prose but has no MDX page
+- [ ] `Point Crossover` — appears in prose but has no MDX page
+- [ ] `Roulette Wheel Selection` — appears in prose but has no MDX page
+- [ ] `Tournament Selection` — appears in prose but has no MDX page
+- [ ] `Traveling Salesperson Problem` — appears in prose but has no MDX page
+
+### Genetic Programming (2026-03-12)
+- [ ] `Automatic Discovery` — appears in prose but has no MDX page
+- [ ] `Competitive Results` — appears in prose but has no MDX page
+- [ ] `John Koza` — appears in prose but has no MDX page
+- [ ] `Natural Selection` — appears in prose but has no MDX page
+- [ ] `Reusable Programs` — appears in prose but has no MDX page
+
+### Differential Evolution (2026-03-12)
+- [ ] `Global Optimization` — appears in prose but has no MDX page
+- [ ] `Kenneth Price` — appears in prose but has no MDX page
+- [ ] `Practical Approach` — appears in prose but has no MDX page
+- [ ] `Rainer Storn` — appears in prose but has no MDX page
+
+### Evolution Strategies (2026-03-12)
+- [ ] `Andreas Ostermeier` — appears in prose but has no MDX page
+- [ ] `Covariance Matrix Adaptation Evolution` — appears in prose but has no MDX page
+- [ ] `Ingo Rechenberg` — appears in prose but has no MDX page
+- [ ] `Nikolaus Hansen` — appears in prose but has no MDX page
+- [ ] `Paul Schwefel` — appears in prose but has no MDX page
+- [ ] `Technical University` — appears in prose but has no MDX page
+
+### Particle Swarm Optimization (2026-03-12)
+- [ ] `Adaptive Particle Swarm Optimization` — appears in prose but has no MDX page
+- [ ] `Comprehensive Learning Particle Swarm` — appears in prose but has no MDX page
+- [ ] `James Kennedy` — appears in prose but has no MDX page
+- [ ] `Maurice Clerc` — appears in prose but has no MDX page
+- [ ] `Russell Eberhart` — appears in prose but has no MDX page
+- [ ] `Yuhui Shi` — appears in prose but has no MDX page
+
+### Ant Colony Optimization (2026-03-12)
+- [ ] `Ant Colony System` — appears in prose but has no MDX page
+- [ ] `Ant System` — appears in prose but has no MDX page
+- [ ] `Cooperating Agents` — appears in prose but has no MDX page
+- [ ] `Marco Dorigo` — appears in prose but has no MDX page
+- [ ] `Traveling Salesperson Problem` — appears in prose but has no MDX page
+- [ ] `Vehicle Routing Problem` — appears in prose but has no MDX page
+
+### Fuzzy Inference System (2026-03-12)
+- [ ] `Complex Systems` — appears in prose but has no MDX page
+- [ ] `Decision Processes` — appears in prose but has no MDX page
+- [ ] `Fuzzy Inference Systems` — appears in prose but has no MDX page
+- [ ] `Fuzzy Sets` — appears in prose but has no MDX page
+- [ ] `New Approach` — appears in prose but has no MDX page
+
+### ANFIS (2026-03-12)
+- [ ] `Adaptive Neuro` — appears in prose but has no MDX page
+- [ ] `Shing Roger Jang` — appears in prose but has no MDX page
+- [ ] `Soft Computing` — appears in prose but has no MDX page

@@ -1,0 +1,168 @@
+---
+title: "Epsilon-Greedy"
+slug: "epsilon-greedy"
+category: "reinforcement"
+subcategory: "bandits"
+year: 1952
+author: "Bandit algorithms"
+paper: "Bandit algorithms"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["baseline", "exploration-exploitation", "greedy", "multi-armed-bandit", "online-learning", "reinforcement-learning", "sequential-decision-making", "simple"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "q-learning"
+  - "sarsa"
+  - "thompson-sampling"
+---
+
+## Overview
+
+Epsilon-Greedy is a fundamental strategy for balancing exploration and exploitation in sequential decision-making problems, particularly within the Multi-Armed Bandit (MAB) framework. It operates by selecting the action with the highest estimated value (exploitation) most of the time, but occasionally choosing a random action (exploration) with a small probability $\epsilon$. This simple yet effective approach ensures that the agent continues to discover potentially better actions while generally leveraging its current knowledge. It serves as a foundational baseline for more complex reinforcement learning algorithms.
+
+## History
+
+**1933** — William R. Thompson introduced a Bayesian approach to sequential decision-making, later known as [Thompson Sampling](/algorithms/reinforcement/bandits/thompson-sampling), which addressed similar exploration-exploitation trade-offs before the formal MAB problem.
+
+**1952** — Herbert Robbins formally introduced the Multi-Armed Bandit problem, providing a mathematical framework for sequential decision-making under uncertainty, which the epsilon-greedy strategy directly addresses.
+
+**1980** — The burgeoning field of reinforcement learning research began to formalize and popularize simple exploration strategies like epsilon-greedy as foundational components for learning agents.
+
+**1998** — The first edition of "Reinforcement Learning: An Introduction" by Richard S. Sutton and Andrew G. Barto extensively covered epsilon-greedy, establishing it as a standard and widely recognized baseline for balancing exploration and exploitation.
+
+## Mathematical Intuition
+
+### The Multi-Armed Bandit Problem
+
+The Multi-Armed Bandit (MAB) problem models a scenario where an agent must repeatedly choose one of $K$ available actions (or "arms"), each yielding a reward drawn from an unknown probability distribution. The goal is to maximize the cumulative reward over a sequence of trials. For each arm $a \in \{1, \dots, K\}$, there is an unknown true action-value $q_*(a)$, which is the expected reward for choosing that arm.
+$$q_*(a) = E[R_t | A_t = a]$$
+where $R_t$ is the reward at time $t$ and $A_t$ is the action taken at time $t$. The agent aims to learn these $q_*(a)$ values to make optimal decisions.
+
+$$
+q_*(a) = E[R_t | A_t = a]
+$$
+
+### Action-Value Estimation
+
+Since the true action-values $q_*(a)$ are unknown, the agent must estimate them from observed rewards. A common approach is to maintain an estimated action-value $Q_t(a)$ for each arm $a$ at time $t$. This estimate is typically the sample average of all rewards received so far for taking action $a$.
+$$Q_t(a) = \frac{\sum_{i=1}^{t-1} R_i \cdot \mathbb{I}(A_i = a)}{\sum_{i=1}^{t-1} \mathbb{I}(A_i = a)}$$
+where $\mathbb{I}(A_i = a)$ is an indicator function that is 1 if action $a$ was chosen at time $i$, and 0 otherwise. This estimate converges to $q_*(a)$ as the number of times action $a$ is chosen increases.
+
+$$
+Q_t(a) = \frac{\sum_{i=1}^{t-1} R_i \cdot \mathbb{I}(A_i = a)}{\sum_{i=1}^{t-1} \mathbb{I}(A_i = a)}
+$$
+
+$$
+\mathbb{I}(A_i = a)
+$$
+
+### The Epsilon-Greedy Strategy
+
+The epsilon-greedy strategy dictates how an agent chooses an action at each time step $t$. With probability $\epsilon$ (where $0 \le \epsilon \le 1$), the agent chooses an action uniformly at random from all available actions (exploration). With probability $1 - \epsilon$, the agent chooses the action that currently has the highest estimated action-value (exploitation).
+$$A_t = \begin{cases} \text{random action from } \{1, \dots, K\} & \text{with probability } \epsilon \\ \arg\max_a Q_t(a) & \text{with probability } 1 - \epsilon \end{cases}$$
+This ensures that even if an action currently appears suboptimal, it still has a chance to be selected and its true value discovered.
+
+$$
+A_t = \begin{cases} \text{random action from } \{1, \dots, K\} & \text{with probability } \epsilon \\ \arg\max_a Q_t(a) & \text{with probability } 1 - \epsilon \end{cases}
+$$
+
+### Balancing Exploration and Exploitation
+
+The parameter $\epsilon$ directly controls the balance between exploration and exploitation. A higher $\epsilon$ leads to more exploration, potentially discovering better actions but sacrificing immediate rewards. A lower $\epsilon$ leads to more exploitation, maximizing immediate rewards based on current knowledge but risking getting stuck in suboptimal local maxima. Often, $\epsilon$ is decayed over time, starting with a higher value to encourage initial exploration and gradually decreasing to favor exploitation as more information is gathered.
+
+## Algorithm Steps
+
+1. Initialize estimated action-values $Q(a)$ for all actions $a \in \{1, \dots, K\}$ to an arbitrary value (e.g., 0 or an optimistic value), and counts $N(a)$ for each action to 0.
+2. For each time step $t = 1, 2, \dots$:
+3. Generate a random number $p$ between 0 and 1.
+4. If $p < \epsilon$, select an action $A_t$ uniformly at random from all $K$ actions (exploration).
+5. Else (if $p \ge \epsilon$), select action $A_t = \arg\max_a Q(a)$ (exploitation).
+6. Execute action $A_t$ and observe the reward $R_t$.
+7. Update the count for action $A_t$: $N(A_t) \leftarrow N(A_t) + 1$.
+8. Update the estimated action-value for action $A_t$ using an incremental average: $Q(A_t) \leftarrow Q(A_t) + \frac{1}{N(A_t)}(R_t - Q(A_t))$. If using a constant step-size $\alpha$, the update is $Q(A_t) \leftarrow Q(A_t) + \alpha(R_t - Q(A_t))$.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `epsilon` | `float` | `0.1` | [0.0, 1.0] | The probability of choosing a random action (exploration) instead of the action with the highest estimated value. |
+| `initial_q_value` | `float` | `0.0` | any real number | The initial estimated value for all actions before any rewards are observed. Optimistic initial values can encourage early exploration. |
+| `decay_rate` | `float` | `1.0` | [0.0, 1.0] | A factor by which epsilon is multiplied at each time step or episode, allowing epsilon to decrease over time. A value of 1.0 means no decay. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- It is simple to understand and implement, requiring minimal computational resources.
+- The strategy guarantees some level of exploration, preventing the agent from getting permanently stuck on a suboptimal action.
+- It provides a robust baseline for comparison with more complex exploration-exploitation algorithms.
+- The parameter $\epsilon$ offers a clear and intuitive way to control the trade-off between exploring new options and exploiting known good options.
+- It can be easily adapted to non-stationary environments by decaying $\epsilon$ or using a constant step-size parameter in the value updates.
+
+## Weaknesses
+
+- The exploration is uniform and undirected, meaning it wastes trials exploring actions that are clearly suboptimal.
+- The choice of $\epsilon$ is often heuristic and can significantly impact performance, requiring careful tuning.
+- It can be slow to converge to the optimal policy, especially in problems with many actions or sparse rewards.
+- A fixed $\epsilon$ might explore too much when the optimal action is already well-known or too little in early stages.
+- It does not leverage uncertainty estimates about action values, unlike more sophisticated methods like Upper Confidence Bound (UCB) or Thompson Sampling.
+
+## Use Cases
+
+### A/B Testing
+
+Optimizing website layouts, ad creatives, or product features by dynamically allocating traffic to variations that perform better based on user engagement.
+
+### Recommendation Systems
+
+Personalizing content, products, or services by learning user preferences through interactions and recommending items with higher predicted engagement while exploring new options.
+
+### Clinical Trials
+
+Dynamically assigning patients to different treatment arms based on their observed efficacy, aiming to provide the best treatment to the most patients while still exploring less-known options.
+
+### Dynamic Pricing
+
+Adjusting prices for products or services in real-time to maximize revenue, exploring different price points while exploiting those that yield higher profits.
+
+### Resource Allocation
+
+Deciding which tasks to prioritize or which machines to use in a manufacturing process to optimize throughput or minimize downtime.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Epsilon-Greedy from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Epsilon-Greedy does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Epsilon-Greedy Lab" />
+
+## References
+
+- Bandit algorithms (1952). Bandit algorithms.

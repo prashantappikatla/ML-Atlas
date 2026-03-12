@@ -1,0 +1,164 @@
+---
+title: "Grid Search"
+slug: "grid-search"
+category: "meta-learning"
+subcategory: "automated-model-search"
+year: 1950
+author: "Classical hyperparameter search"
+paper: "Classical hyperparameter search"
+complexity: "low"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
+  graph: true
+tags: ["brute-force", "cross-validation", "exhaustive-search", "hyperparameter-tuning", "meta-learning", "model-selection", "optimization", "parameter-search"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "bayesian-optimization"
+  - "hyperband"
+  - "logistic-regression"
+  - "random-search"
+---
+
+## Overview
+
+Grid Search is a fundamental hyperparameter optimization technique that systematically explores a predefined subset of the hyperparameter space for a given machine learning model. It operates by constructing a "grid" of all possible hyperparameter combinations and exhaustively evaluating each combination using cross-validation. The primary goal is to identify the set of hyperparameters that yields the best performance according to a chosen scoring metric, ensuring the optimal configuration within the specified search boundaries. This method is model-agnostic and widely applicable across various machine learning tasks.
+
+## History
+
+**1950** — The conceptual origin of systematically exploring parameter spaces for optimization problems emerged in various engineering and statistical fields, laying the groundwork for exhaustive search methods.
+
+**1960** — Early computational methods for experimental design and parameter tuning began to formalize exhaustive search strategies, particularly in fields like control theory and operations research.
+
+**1990** — With the rise of complex machine learning models and increasing computational power, the need for automated hyperparameter tuning became critical, leading to the practical application of grid search.
+
+**2000** — Integration of grid search capabilities into nascent machine learning libraries and toolkits, making it accessible to a broader range of practitioners.
+
+**2010** — Widespread adoption and standardization of Grid Search within popular machine learning frameworks like scikit-learn, establishing it as a default and well-understood choice for hyperparameter optimization.
+
+## Mathematical Intuition
+
+### Defining the Search Space
+
+The hyperparameter search space for Grid Search is explicitly defined by a discrete set of candidate values for each hyperparameter. If a model has $N$ hyperparameters, $h_1, h_2, \dots, h_N$, and each hyperparameter $h_i$ has a set of candidate values $S_i = \{v_{i1}, v_{i2}, \dots, v_{ik_i}\}$, then the total number of unique combinations in the grid is the product of the sizes of these sets. This combinatorial explosion highlights the computational challenge of Grid Search as the number of hyperparameters or candidate values increases.
+
+$$
+\text{Total Combinations} = |S_1| \times |S_2| \times \dots \times |S_N|
+$$
+
+### Exhaustive Evaluation Process
+
+For each unique combination of hyperparameters $(v_{1j_1}, v_{2j_2}, \dots, v_{Nj_N})$ from the defined grid, a machine learning model is instantiated and trained. This process is exhaustive, meaning every single point in the specified grid is evaluated. Typically, this evaluation involves cross-validation, where the model is trained on multiple folds of the training data and validated on the remaining fold, providing a more robust estimate of performance.
+
+### Performance Metric Selection
+
+The performance of each hyperparameter combination is assessed using a predefined scoring function, $J(\theta, \mathcal{D}_{val})$, where $\theta$ represents the model parameters (learned during training) and $\mathcal{D}_{val}$ is the validation dataset. Common metrics include accuracy, precision, recall, F1-score, or mean squared error, chosen based on the problem type. The ultimate goal is to identify the hyperparameter set $\lambda^*$ that maximizes (or minimizes) this chosen metric across the cross-validation folds.
+
+$$
+\lambda^* = \arg\max_{\lambda \in \text{Grid}} J(M(\lambda, \mathcal{D}_{train}), \mathcal{D}_{val})
+$$
+
+## Algorithm Steps
+
+1. Define a machine learning estimator (model) that requires hyperparameter tuning.
+2. Specify a `param_grid` as a dictionary or list of dictionaries, mapping hyperparameter names to lists of candidate values to explore.
+3. Choose a cross-validation strategy (e.g., $k$-fold cross-validation) and a performance `scoring` metric relevant to the task.
+4. Instantiate the Grid Search object, providing the estimator, `param_grid`, `cv` strategy, and `scoring` metric.
+5. Fit the Grid Search object to the training data, which initiates the exhaustive evaluation process across all hyperparameter combinations.
+6. For each unique combination of hyperparameters in the `param_grid`, perform the following steps for each cross-validation fold:
+7. a. Train the estimator on the training folds of the cross-validation split.
+8. b. Evaluate the trained estimator on the validation fold using the specified `scoring` metric and record the score.
+9. Aggregate the performance scores for each hyperparameter combination across all cross-validation folds (e.g., by averaging).
+10. Identify the hyperparameter combination that achieved the best average performance score.
+11. Optionally, refit the best estimator on the entire training dataset using the optimal hyperparameters found to create the final model.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `estimator` | `estimator object` | `None` |  | The estimator object to use for fitting the data. This object is expected to implement the scikit-learn estimator interface. |
+| `param_grid` | `dict or list of dict` | `None` |  | Dictionary with parameter names (string) as keys and lists of parameter settings to try as values, or a list of such dictionaries. Each dictionary in the list specifies a set of parameters to try. |
+| `scoring` | `str, callable, list, tuple, or dict` | `None` |  | Strategy to evaluate the performance of the cross-validated model on the test set. Can be a single string, a callable, or a list/tuple/dict of multiple scoring metrics. |
+| `cv` | `int, cross-validation generator, or iterable` | `None` | integer >= 2, or a valid CV splitter | Determines the cross-validation splitting strategy. An integer specifies the number of folds in a (Stratified)KFold, or a custom CV splitter object can be provided. |
+| `n_jobs` | `int` | `None` | integer or -1 | Number of jobs to run in parallel. `None` means 1 unless in a `joblib.parallel_backend` context. `-1` means using all available processors. |
+| `verbose` | `int` | `0` | integer >= 0 | Controls the verbosity: the higher the value, the more messages are printed during the search process. |
+| `refit` | `bool or str` | `True` | True, False, or a valid scorer string (e.g., 'accuracy') | If `True`, refit an estimator using the best found parameters on the whole dataset. If `False`, no refitting is performed. If a string, it specifies the scorer to use for refitting. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={true}
+/>
+
+## Strengths
+
+- Grid Search guarantees finding the optimal hyperparameter combination within the specified search space, given enough computational resources.
+- It is straightforward to understand and implement, requiring minimal conceptual overhead for practitioners.
+- The evaluation of each hyperparameter combination is independent, making the process highly parallelizable across multiple CPU cores or machines.
+- It provides a clear and systematic way to explore hyperparameter interactions by evaluating every discrete point in the grid.
+- Grid Search does not require gradient information or make assumptions about the smoothness or convexity of the objective function.
+
+## Weaknesses
+
+- Grid Search is computationally expensive, as the number of evaluations grows exponentially with the number of hyperparameters and candidate values.
+- It can be impractical for models with many hyperparameters or when hyperparameter ranges are continuous, leading to a prohibitively large search space.
+- The method is prone to the "curse of dimensionality," where the density of search points decreases rapidly in high-dimensional spaces.
+- Optimal hyperparameters may be missed if the chosen grid does not include them, especially if the true optimum lies between grid points.
+- Grid Search does not leverage information from previous evaluations to guide the search, leading to inefficient exploration compared to adaptive methods.
+
+## Use Cases
+
+### Academic Research
+
+Systematically evaluating model performance across a predefined range of hyperparameters for benchmark studies and comparative analyses of algorithms.
+
+### Predictive Modeling
+
+Optimizing hyperparameters for traditional machine learning models like Support Vector Machines, [Logistic Regression](/algorithms/supervised/classification/logistic-regression), or Random Forests in classification and regression tasks to maximize predictive accuracy.
+
+### Natural Language Processing
+
+Tuning parameters for text classification models, topic models, or sequence labeling algorithms to improve performance on specific linguistic datasets.
+
+### Computer Vision
+
+Finding optimal learning rates, batch sizes, regularization strengths, or kernel parameters for simpler neural network architectures or traditional image processing algorithms.
+
+### Financial Forecasting
+
+Calibrating parameters for time series models or econometric models to achieve better accuracy in predicting stock prices, market trends, or economic indicators.
+
+### Bioinformatics
+
+Optimizing parameters for machine learning models used in gene expression analysis, protein structure prediction, or drug discovery to enhance model reliability and interpretability.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Grid Search from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Grid Search does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Grid Search Lab" />
+
+## References
+
+- Classical hyperparameter search (1950). Classical hyperparameter search.

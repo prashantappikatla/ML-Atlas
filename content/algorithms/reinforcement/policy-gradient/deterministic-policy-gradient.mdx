@@ -1,0 +1,172 @@
+---
+title: "Deterministic Policy Gradient"
+slug: "deterministic-policy-gradient"
+category: "reinforcement"
+subcategory: "policy-gradient"
+year: 2014
+author: "Silver et al."
+paper: "Silver et al."
+complexity: "high"
+status: "in-progress"
+compatibility:
+  tabular: true
+  image: false
+  text: false
+  timeseries: true
+  graph: false
+tags: ["actor-critic", "continuous-control", "deep-learning", "model-free", "off-policy", "policy-gradient", "reinforcement-learning", "value-based"]
+lab_url: ""
+lab_framework: ""
+related:
+  - "actor-critic"
+  - "q-learning"
+  - "reinforce"
+---
+
+## Overview
+
+Deterministic Policy Gradient (DPG) is an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) reinforcement learning algorithm designed to learn policies in environments with continuous action spaces. It learns a deterministic policy that maps states directly to actions, contrasting with stochastic policy gradient methods that learn a distribution over actions. DPG leverages a Q-function to estimate the action-value and guide the policy updates, aiming for more efficient learning in high-dimensional continuous control tasks.
+
+## History
+
+**1999** — Konda and Tsitsiklis introduced the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, combining policy-based and value-based methods for reinforcement learning.
+
+**2000** — Sutton et al. formalized the Policy Gradient Theorem, providing a theoretical foundation for policy-based reinforcement learning algorithms.
+
+**2014** — Silver et al. published "Deterministic Policy Gradient Algorithms," introducing the DPG theorem and demonstrating its effectiveness for continuous control tasks.
+
+**2016** — Lillicrap et al. extended DPG to Deep Deterministic Policy Gradient (DDPG), integrating deep neural networks and techniques like target networks and experience replay, significantly improving performance in complex environments.
+
+## Mathematical Intuition
+
+### Policy Gradient Theorem Foundation
+
+The general policy gradient theorem for stochastic policies states that the gradient of the expected return $J(\theta)$ with respect to policy parameters $\theta$ can be expressed as:$$ \nabla_\theta J(\theta) = E_{\rho^\pi, \pi_\theta} [\nabla_\theta \log \pi_\theta(a|s) Q^\pi(s,a)] $$where $\pi_\theta(a|s)$ is the stochastic policy, $Q^\pi(s,a)$ is the action-value function, and $\rho^\pi$ is the state distribution. This theorem forms the basis for policy optimization by adjusting $\theta$ in the direction of higher returns.
+
+$$
+\nabla_\theta J(\theta) = E_{\rho^\pi, \pi_\theta} [\nabla_\theta \log \pi_\theta(a|s) Q^\pi(s,a)]
+$$
+
+### Deterministic Policy Gradient Theorem
+
+For a deterministic policy $\mu_\theta(s)$ that directly maps states to actions, the policy gradient theorem takes a different form. Silver et al. derived the deterministic policy gradient as:$$ \nabla_\theta J(\theta) = E_{\rho^\mu} [\nabla_\theta \mu_\theta(s) \nabla_a Q^\mu(s,a)|_{a=\mu_\theta(s)}] $$This gradient indicates that the policy parameters $\theta$ should be updated in the direction that maximizes the action-value function $Q^\mu(s,a)$ at the action chosen by the current policy $\mu_\theta(s)$. The expectation is taken over the state distribution $\rho^\mu$ induced by the deterministic policy $\mu_\theta$.
+
+$$
+\nabla_\theta J(\theta) = E_{\rho^\mu} [\nabla_\theta \mu_\theta(s) \nabla_a Q^\mu(s,a)|_{a=\mu_\theta(s)}]
+$$
+
+### Actor-Critic Architecture
+
+DPG employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, where the "actor" is the deterministic policy $\mu_\theta(s)$ parameterized by $\theta$, and the "critic" is the action-value function $Q_w(s,a)$ parameterized by $w$. The critic evaluates the actions taken by the actor, providing a signal for the actor to improve its policy. The actor's goal is to maximize the critic's output, while the critic's goal is to accurately estimate the action-value function.
+
+### Q-function Learning
+
+The critic learns the action-value function $Q_w(s,a)$ by minimizing the temporal difference (TD) error. For a given transition $(s, a, r, s')$, the target Q-value is $y_i = r + \gamma Q_w(s', \mu_{\theta_{target}}(s'))$, where $\gamma$ is the discount factor and $\mu_{\theta_{target}}$ is a target policy used for stability. The critic's loss function is typically the mean-squared error between the predicted Q-value and the target Q-value:$$ L(w) = E_{(s,a,r,s') \sim D} [(Q_w(s,a) - y_i)^2] $$where $D$ is the experience replay buffer.
+
+$$
+y_i = r + \gamma Q_w(s', \mu_{\theta_{target}}(s'))
+$$
+
+$$
+L(w) = E_{(s,a,r,s') \sim D} [(Q_w(s,a) - y_i)^2]
+$$
+
+## Algorithm Steps
+
+1. Initialize actor network $\mu_\theta$ and critic network $Q_w$ with random weights $\theta$ and $w$.
+2. Initialize target actor network $\mu_{\theta_{target}}$ and target critic network $Q_{w_{target}}$ by copying the weights from $\mu_\theta$ and $Q_w$.
+3. Initialize an empty experience replay buffer $D$.
+4. For each episode, observe an initial state $s$.
+5. For each time step $t$ until the episode terminates, select an action $a = \mu_\theta(s) + \mathcal{N}_t$, where $\mathcal{N}_t$ is exploration noise.
+6. Execute action $a$, observe reward $r$ and new state $s'$, then store transition $(s, a, r, s')$ in the replay buffer $D$.
+7. Sample a random mini-batch of $N$ transitions $(s_j, a_j, r_j, s'_j)$ from $D$.
+8. Calculate target Q-values for each transition: $y_j = r_j + \gamma Q_{w_{target}}(s'_j, \mu_{\theta_{target}}(s'_j))$.
+9. Update the critic network $Q_w$ by minimizing the loss $L(w) = \frac{1}{N} \sum_j (y_j - Q_w(s_j, a_j))^2$ using gradient descent.
+10. Update the actor network $\mu_\theta$ using the deterministic policy gradient: $\nabla_\theta J \approx \frac{1}{N} \sum_j \nabla_a Q_w(s_j, a)|_{a=\mu_\theta(s_j)} \nabla_\theta \mu_\theta(s_j)$.
+11. Update the target networks using soft updates: $w_{target} \leftarrow \tau w + (1-\tau) w_{target}$ and $\theta_{target} \leftarrow \tau \theta + (1-\tau) \theta_{target}$, where $\tau \ll 1$.
+12. Set $s \leftarrow s'$ and repeat.
+
+## Parameters
+
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `actor_lr` | `float` | `0.0001` | (0, 1) | Learning rate for the actor network's optimizer. |
+| `critic_lr` | `float` | `0.001` | (0, 1) | Learning rate for the critic network's optimizer. |
+| `gamma` | `float` | `0.99` | (0, 1] | Discount factor for future rewards. |
+| `tau` | `float` | `0.005` | (0, 1) | Soft update coefficient for target networks, controlling the rate at which target network weights track the main network weights. |
+| `replay_buffer_size` | `int` | `1000000` | > 0 | Maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `64` | > 0 | Number of transitions sampled from the replay buffer for each network update. |
+| `exploration_noise_std` | `float` | `0.1` | >= 0 | Standard deviation of the exploration noise added to the actor's output actions. |
+| `hidden_layer_sizes_actor` | `tuple of int` | `(256, 256)` | tuple of positive integers | Sizes of the hidden layers in the actor network. |
+| `hidden_layer_sizes_critic` | `tuple of int` | `(256, 256)` | tuple of positive integers | Sizes of the hidden layers in the critic network. |
+
+## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
+
+## Strengths
+
+- Effectively handles continuous action spaces, which is a significant advantage over methods limited to discrete actions.
+- Can be more sample efficient than stochastic policy gradient methods by directly optimizing for the best action.
+- The deterministic nature of the policy can lead to more stable and predictable behavior once trained.
+- Leverages off-policy learning, allowing for efficient use of experience replay and decoupling data collection from policy improvement.
+- Capable of learning complex, high-dimensional policies when combined with deep neural networks.
+
+## Weaknesses
+
+- Highly sensitive to hyperparameter tuning, especially learning rates and exploration noise parameters.
+- Prone to converging to suboptimal local optima due to the deterministic nature of the policy and the greedy updates.
+- Requires careful design of the exploration strategy to ensure sufficient coverage of the state-action space.
+- The performance can degrade significantly if the Q-function estimation is inaccurate or unstable.
+- Can suffer from catastrophic forgetting if the replay buffer is not managed effectively or if the learning rates are too high.
+
+## Use Cases
+
+### Robotics
+
+Controlling robotic manipulators for tasks like grasping, locomotion, and object manipulation in continuous joint spaces.
+
+### Autonomous Driving
+
+Developing policies for continuous steering, acceleration, and braking decisions in complex traffic scenarios.
+
+### Financial Trading
+
+Optimizing continuous investment strategies, such as portfolio allocation or high-frequency trading decisions.
+
+### Resource Management
+
+Managing continuous resources like energy consumption in data centers or water flow in irrigation systems.
+
+### Game Playing
+
+Training agents to play games with continuous action spaces, such as racing simulators or physics-based games.
+
+## Implementation
+
+### From Scratch
+
+```python
+# TODO: Implement Deterministic Policy Gradient from scratch
+```
+
+### Using scikit-learn
+
+```python
+# Deterministic Policy Gradient does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
+```
+
+## Lab
+
+<LabEmbed url={""} title="Deterministic Policy Gradient Lab" />
+
+## References
+
+- Silver et al. (2014). Silver et al..
