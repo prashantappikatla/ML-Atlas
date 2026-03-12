@@ -9,36 +9,139 @@ paper: "Huber"
 complexity: "low"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["iterative-optimization", "linear-model", "m-estimator", "outlier-robust", "regression", "robust-regression", "supervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "lasso-regression"
+  - "linear-regression"
+  - "quantile-regression"
+  - "ransac-regression"
+  - "ridge-regression"
+  - "support-vector-regression"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Huber Regression is a robust regression technique designed to be less sensitive to outliers in data compared to ordinary least squares (OLS) regression. It achieves this by employing a loss function that is quadratic for small residuals and linear for large residuals. This piecewise function effectively combines the advantages of Mean Squared Error (MSE) for typical data points and Mean Absolute Error (MAE) for outliers, providing a compromise between efficiency and robustness. The algorithm iteratively reweights data points based on their residuals, diminishing the influence of extreme observations.
+
 ## History
+
+**1964** — Peter J. Huber introduced the Huber loss function and the concept of M-estimators in his seminal paper "Robust Estimation of a Location Parameter," laying the theoretical foundation for robust statistics.
+
+**1973** — Huber's work was further elaborated in his book "Robust Statistics," which provided a comprehensive treatment of robust estimation methods, including the application of the Huber loss to regression problems.
+
+**1981** — Frank Hampel, Elvezio Ronchetti, Peter Rousseeuw, and Werner Stahel published "Robust Statistics: The Approach Based on Influence Functions," further solidifying the theoretical framework and practical applications of robust methods, including Huber's contributions.
+
+**2000** — With the increasing availability of computational power and the rise of machine learning, Huber Regression found renewed interest as a robust alternative to standard linear models, particularly in applications where data quality cannot be perfectly controlled.
 
 ## Mathematical Intuition
 
+### Ordinary Least Squares Loss
+
+The standard approach for [Linear Regression](/algorithms/supervised/regression/linear-regression) minimizes the sum of squared residuals, known as the Mean Squared Error (MSE) loss. The objective is to find coefficients $\mathbf{w}$ that minimize:$$L_{MSE}(\mathbf{w}) = \frac{1}{2n} \sum_{i=1}^n (y_i - \mathbf{x}_i^T \mathbf{w})^2$$While simple and efficient, the quadratic nature of MSE heavily penalizes large errors, making OLS highly susceptible to outliers.
+
+$$
+L_{MSE}(\mathbf{w}) = \frac{1}{2n} \sum_{i=1}^n (y_i - \mathbf{x}_i^T \mathbf{w})^2
+$$
+
+### Huber Loss Function Definition
+
+The Huber loss function, denoted $L_\delta(r)$, is a piecewise function that behaves quadratically for small residuals $r = y - \hat{y}$ and linearly for large residuals. It is defined as:$$L_\delta(r) = \begin{cases} \frac{1}{2}r^2 & \text{if } |r| \le \delta \\ \delta |r| - \frac{1}{2}\delta^2 & \text{if } |r| > \delta \end{cases}$$Here, $r$ is the residual, and $\delta$ (often denoted $\epsilon$) is a positive hyperparameter that defines the threshold between quadratic and linear behavior.
+
+$$
+L_\delta(r) = \begin{cases} \frac{1}{2}r^2 & \text{if } |r| \le \delta \\ \delta |r| - \frac{1}{2}\delta^2 & \text{if } |r| > \delta \end{cases}
+$$
+
+### Transition Point and Robustness
+
+The parameter $\delta$ (epsilon in scikit-learn) controls the point at which the loss function transitions from quadratic to linear. For residuals $|r| \le \delta$, the loss grows quadratically, similar to MSE. For residuals $|r| > \delta$, the loss grows linearly, similar to Mean Absolute Error (MAE). This linear growth for large errors makes the model less sensitive to extreme outliers, as their influence on the total loss is capped. The term $-\frac{1}{2}\delta^2$ ensures the function and its first derivative are continuous at $|r| = \delta$.
+
+### Minimizing Huber Loss with Regularization
+
+Huber Regression aims to find the regression coefficients $\mathbf{w}$ that minimize the sum of Huber losses over all training samples, often with an L2 regularization penalty:$$\min_{\mathbf{w}} \sum_{i=1}^n L_\delta(y_i, \mathbf{x}_i^T \mathbf{w}) + \alpha ||\mathbf{w}||_2^2$$The second term, $\alpha ||\mathbf{w}||_2^2$, represents an L2 regularization penalty, which helps prevent overfitting. Due to the non-differentiability of the absolute value at zero and the piecewise nature, optimization typically involves iterative reweighted least squares (IRLS) or gradient-based methods.
+
+$$
+\min_{\mathbf{w}} \sum_{i=1}^n L_\delta(y_i, \mathbf{x}_i^T \mathbf{w}) + \alpha ||\mathbf{w}||_2^2
+$$
+
 ## Algorithm Steps
+
+1. Initialize the regression coefficients $\mathbf{w}$ (e.g., with zeros or an Ordinary Least Squares estimate).
+2. Iteratively update the coefficients until convergence or a maximum number of iterations is reached.
+3. In each iteration, calculate the residuals $r_i = y_i - \mathbf{x}_i^T \mathbf{w}$ for all data points $i=1, \dots, n$.
+4. Determine the weight for each data point $i$ based on its residual $r_i$ and the $\delta$ parameter: $w_i = 1$ if $|r_i| \le \delta$, and $w_i = \frac{\delta}{|r_i|}$ if $|r_i| > \delta$.
+5. Perform a weighted least squares regression using these weights to update the coefficients $\mathbf{w}$.
+6. Optionally, apply L2 regularization by adding $\alpha ||\mathbf{w}||_2^2$ to the objective function during the weighted least squares step.
+7. Check for convergence by comparing the change in coefficients or the loss function value between iterations against a tolerance threshold.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `epsilon` | `float` | `1.35` | positive float | The parameter $\delta$ (epsilon) at which the Huber loss function changes from a quadratic to a linear loss. Values below this threshold are considered inliers. |
+| `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the iterative reweighted least squares solver. |
+| `alpha` | `float` | `0.0001` | float >= 0 | The regularization parameter for L2 penalty. Larger values specify stronger regularization. |
+| `warm_start` | `bool` | `False` | True, False | When set to True, reuse the solution of the previous call to fit as initialization for the next call. |
+| `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations. |
+| `tol` | `float` | `1e-05` | float > 0 | The tolerance for the optimization. If the updates are smaller than `tol`, the optimization cycle finishes. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- It is significantly more robust to outliers than Ordinary Least Squares (OLS) regression, providing more reliable predictions when data is contaminated.
+- The loss function smoothly transitions between quadratic and linear behavior, ensuring differentiability and facilitating optimization.
+- It offers a tunable parameter $\delta$ (epsilon) that allows control over the degree of robustness versus efficiency.
+- Huber Regression provides a good compromise between the efficiency of MSE and the robustness of MAE.
+- It can be combined with regularization techniques like L2 (ridge) to prevent overfitting and improve generalization.
+
 ## Weaknesses
 
+- The performance of Huber Regression is sensitive to the choice of the $\delta$ (epsilon) parameter, which often requires careful tuning.
+- It can be computationally more expensive than OLS regression due to its iterative optimization process.
+- Interpreting the coefficients can be slightly more complex than OLS, as the loss function is non-standard.
+- It may not perform as well as other robust methods like RANSAC or Theil-Sen regression in cases of extreme outlier contamination or high leverage points.
+- The iterative nature means it might converge to a local minimum if the initial guess for coefficients is poor, though this is less common with convex loss functions.
+
 ## Use Cases
+
+### Financial Modeling
+
+Predicting stock prices or economic indicators where market anomalies or data entry errors can act as outliers and skew traditional models.
+
+### Sensor Data Analysis
+
+Processing measurements from sensors that might occasionally produce erroneous readings due to noise, environmental interference, or malfunctions.
+
+### Medical Research
+
+Analyzing patient data where some individuals might have unusual responses or measurement errors that could disproportionately influence standard regression analyses.
+
+### Environmental Science
+
+Modeling environmental factors where extreme weather events or faulty equipment can lead to outlier observations that need to be downweighted.
+
+### Quality Control
+
+Predicting product defects or performance metrics in manufacturing where occasional anomalies in the production process occur.
+
+### Real Estate Valuation
+
+Estimating property values where a few unique, mispriced, or incorrectly recorded properties could distort a standard linear model.
 
 ## Implementation
 
@@ -51,7 +154,18 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.linear_model import HuberRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = HuberRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
 ```
 
 ## Lab
@@ -59,3 +173,6 @@ related: []
 <LabEmbed url={""} title="Huber Regression Lab" />
 
 ## References
+
+- Huber (1964). Huber.
+- [scikit-learn: HuberRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HuberRegression.html)

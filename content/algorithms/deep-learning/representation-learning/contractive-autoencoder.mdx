@@ -9,36 +9,166 @@ paper: "Rifai et al."
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
-  image: false
-  text: false
-  timeseries: false
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
   graph: false
-tags: []
+tags: ["autoencoder", "deep-learning", "dimensionality-reduction", "feature-extraction", "neural-networks", "regularization", "representation-learning", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "autoencoder"
+  - "denoising-autoencoder"
+  - "sparse-autoencoder"
+  - "variational-autoencoder"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Contractive Autoencoders (CAEs) are a type of [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) that learn robust feature representations by penalizing the sensitivity of the learned features to small perturbations in the input data. This is achieved by adding a contractive penalty term to the standard reconstruction loss, which encourages the encoder's output to be locally invariant. The algorithm aims to make the learned representation contractive, meaning that small changes in the input result in even smaller changes in the hidden representation, thereby promoting robustness and generalization.
+
 ## History
+
+**2006** — Geoffrey Hinton and Ruslan Salakhutdinov introduced deep autoencoders for unsupervised pre-training of deep neural networks, demonstrating their ability to learn useful feature hierarchies.
+
+**2008** — Pascal Vincent et al. proposed Denoising Autoencoders (DAEs), which learn robust representations by reconstructing a clean input from a corrupted version, providing an alternative regularization strategy.
+
+**2011** — Sacha Rifai, Pascal Vincent, Xavier Muller, Xavier Glorot, and Yoshua Bengio introduced the Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), formalizing the contractive penalty to encourage local invariance in the learned features.
+
+**2012** — Rifai et al. further explored the theoretical connections between CAEs and other regularization techniques, highlighting their ability to learn features that are robust to input variations.
 
 ## Mathematical Intuition
 
+### Standard Autoencoder Objective
+
+A standard [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The goal is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. The reconstruction loss, often mean squared error, is given by: $$L_{recon}(x, r) = ||x - g(f(x))||^2$$
+
+$$
+h = f(x)
+$$
+
+$$
+r = g(h)
+$$
+
+$$
+L_{recon}(x, r) = ||x - g(f(x))||^2
+$$
+
+### The Contractive Penalty
+
+The Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) adds a penalty term that encourages the encoder's hidden representation $h$ to be insensitive to small changes in the input $x$. This is achieved by penalizing the Frobenius norm of the Jacobian matrix of the encoder's activation function with respect to the input. The Jacobian matrix $J_f(x)$ captures the local sensitivity of each hidden unit $h_i$ to each input dimension $x_j$, where $J_f(x)_{ij} = \frac{\partial h_i}{\partial x_j}$.
+
+$$
+h
+$$
+
+$$
+x
+$$
+
+$$
+J_f(x)
+$$
+
+$$
+J_f(x)_{ij} = \frac{\partial h_i}{\partial x_j}
+$$
+
+### Frobenius Norm Regularization
+
+The contractive penalty term is the squared Frobenius norm of the Jacobian matrix of the encoder's output $h$ with respect to the input $x$. This norm is defined as the sum of the squares of all elements in the matrix: $$L_{contractive}(x) = ||J_f(x)||_F^2 = \sum_{i,j} \left( \frac{\partial h_i}{\partial x_j} \right)^2$$ This penalty forces the derivatives to be small, making the hidden representation $h$ robust to minor input variations.
+
+$$
+L_{contractive}(x) = ||J_f(x)||_F^2 = \sum_{i,j} \left( \frac{\partial h_i}{\partial x_j} \right)^2
+$$
+
+### Total Loss Function
+
+The total loss function for a Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) combines the reconstruction loss and the contractive penalty, weighted by a hyperparameter $\lambda$: $$L_{total}(x) = L_{recon}(x, g(f(x))) + \lambda L_{contractive}(x)$$ The hyperparameter $\lambda$ controls the strength of the contractive regularization. A higher $\lambda$ leads to more robust, but potentially less expressive, features.
+
+$$
+L_{total}(x) = L_{recon}(x, g(f(x))) + \lambda L_{contractive}(x)
+$$
+
+$$
+\lambda
+$$
+
 ## Algorithm Steps
+
+1. Initialize the weights and biases for the encoder and decoder networks randomly.
+2. For each training input $x$, perform a forward pass through the encoder to obtain the hidden representation $h = f(x)$.
+3. Perform a forward pass through the decoder using $h$ to obtain the reconstruction $r = g(h)$.
+4. Calculate the reconstruction loss $L_{recon}(x, r)$, typically the mean squared error $||x - r||^2$.
+5. Compute the Jacobian matrix $J_f(x)$ of the encoder's output $h$ with respect to the input $x$.
+6. Calculate the contractive penalty $L_{contractive}(x)$ as the squared Frobenius norm of $J_f(x)$, i.e., $||J_f(x)||_F^2$.
+7. Combine the two loss terms to form the total loss: $L_{total}(x) = L_{recon}(x, r) + \lambda L_{contractive}(x)$, where $\lambda$ is the contractive coefficient.
+8. Use backpropagation to compute the gradients of $L_{total}(x)$ with respect to the network weights and biases.
+9. Update the network weights and biases using an optimization algorithm (e.g., stochastic gradient descent) to minimize the total loss.
+10. Repeat steps 2-9 for a specified number of epochs or until convergence.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers > 0 | The sizes of the hidden layers in the encoder. For example, (100, 50) would mean an encoder with two hidden layers of 100 and 50 units respectively, with the last layer being the latent representation. |
+| `activation` | `str` | `relu` | identity, logistic, tanh, relu | Activation function for the hidden layers of the encoder and decoder. |
+| `learning_rate_init` | `float` | `0.001` | float > 0 | The initial learning rate used by the optimizer. |
+| `max_iter` | `int` | `200` | integer > 0 | Maximum number of epochs (iterations) to train the model. |
+| `batch_size` | `int` | `32` | integer > 0 | Size of minibatches for stochastic optimizers. |
+| `contractive_coefficient` | `float` | `0.1` | float >= 0 | The regularization parameter (lambda) for the contractive penalty term. |
+| `optimizer` | `str` | `adam` | adam, sgd, lbfgs | The optimization algorithm to use for weight updates. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- Contractive Autoencoders learn robust feature representations that are less sensitive to small perturbations in the input data.
+- The contractive penalty acts as a strong regularizer, helping to prevent overfitting, especially in scenarios with limited training data.
+- Learned features tend to be more disentangled and semantically meaningful due to the local invariance property.
+- CAEs can be effectively used for unsupervised pre-training of deep neural networks, improving performance on downstream tasks.
+- The algorithm can be stacked to form deep contractive networks, enabling the learning of hierarchical robust features.
+- It provides a principled way to encourage smoothness in the learned mapping from input to representation.
+
 ## Weaknesses
 
+- Calculating the Jacobian matrix and its Frobenius norm adds significant computational overhead during training compared to standard autoencoders.
+- The hyperparameter $\lambda$ (contractive coefficient) requires careful tuning, which can be challenging and dataset-dependent.
+- Over-regularization can occur if $\lambda$ is set too high, potentially leading to a loss of important information in the hidden representation.
+- The performance can be sensitive to the choice of activation function, as some functions simplify Jacobian computation more than others.
+- The explicit computation of the Jacobian can be memory-intensive for very high-dimensional inputs or large hidden layers.
+
 ## Use Cases
+
+### Feature Learning
+
+CAEs are used to extract robust and invariant features from raw data, which can then be used as input for supervised learning tasks like classification or regression.
+
+### Dimensionality Reduction
+
+By learning a compact and robust hidden representation, CAEs can effectively reduce the dimensionality of high-dimensional datasets while preserving essential information.
+
+### Anomaly Detection
+
+The ability to learn robust representations makes CAEs suitable for detecting anomalies, as novel or unusual inputs will likely have higher reconstruction errors or different hidden activations.
+
+### Image Processing
+
+CAEs can be applied to image data for tasks such as image denoising, feature extraction for object recognition, and learning robust representations for image retrieval.
+
+### Unsupervised Pre-training
+
+In deep learning, CAEs can be used to pre-train layers of a deep neural network in an unsupervised manner, providing better initialization for subsequent supervised fine-tuning.
 
 ## Implementation
 
@@ -51,7 +181,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# Contractive Autoencoder does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +190,5 @@ related: []
 <LabEmbed url={""} title="Contractive Autoencoder Lab" />
 
 ## References
+
+- Rifai et al. (2011). Rifai et al..

@@ -9,36 +9,164 @@ paper: "Freund & Schapire variants"
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["adaptive-weighting", "boosting", "ensemble", "meta-algorithm", "regression", "sequential-learning", "supervised-learning", "weak-learners"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "adaboost"
+  - "logistic-regression"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+[AdaBoost](/algorithms/supervised/classification/adaboost) Regression is an ensemble meta-algorithm that combines multiple "weak" regression models to create a single strong predictor. It operates by sequentially training base estimators, where each subsequent learner focuses on correcting the errors made by the previous ones. The algorithm adaptively adjusts the weights of the training samples, giving higher importance to samples that were poorly predicted in earlier iterations. This iterative re-weighting strategy forces subsequent learners to pay more attention to difficult cases, leading to a robust and accurate final model.
+
 ## History
+
+**1995** — Yoav Freund and Robert Schapire introduce [AdaBoost](/algorithms/supervised/classification/adaboost) (Adaptive Boosting) for classification, laying the groundwork for subsequent regression adaptations.
+
+**1996** — Freund and Schapire publish "Experiments with a new boosting algorithm," detailing the theoretical underpinnings and practical applications of [AdaBoost](/algorithms/supervised/classification/adaboost).
+
+**1997** — Freund and Schapire extend [AdaBoost](/algorithms/supervised/classification/adaboost) principles to regression tasks, often through variants like [AdaBoost](/algorithms/supervised/classification/adaboost).R2, which adapt the error calculation and weighting schemes for continuous targets.
+
+**1999** — Jerome Friedman, Trevor Hastie, and Robert Tibshirani publish "Additive [Logistic Regression](/algorithms/supervised/classification/logistic-regression): A Statistical View of Boosting," providing a statistical framework that generalizes boosting algorithms.
+
+**2001** — Jerome Friedman introduces Gradient Boosting Machines, a more generalized boosting framework that encompasses [AdaBoost](/algorithms/supervised/classification/adaboost) as a special case, further popularizing boosting methods.
 
 ## Mathematical Intuition
 
+### Core AdaBoost Principle
+
+[AdaBoost](/algorithms/supervised/classification/adaboost) (Adaptive Boosting) is an iterative ensemble method that combines multiple weak learners to form a strong learner. For regression, it sequentially trains base models, with each model attempting to correct the errors of its predecessors. The key idea is to adaptively adjust the focus of subsequent learners based on the performance of previous ones, specifically by re-weighting training samples.
+
+### Sample Error and Learner Error
+
+In each iteration $m$, a weak regressor $h_m(x)$ is trained on the dataset with current sample weights $D_i$. For each sample $(x_i, y_i)$, the absolute error is calculated as $L_i = |y_i - h_m(x_i)|$. To normalize these errors across different scales, a maximum error $L_{max} = \max_i L_i$ is determined, and the normalized error for each sample is $L_{norm,i} = L_i / L_{max}$. The total weighted error for the weak learner $h_m$ is then computed as $\epsilon_m = \sum_{i=1}^N D_i L_{norm,i}$.
+
+$$
+L_i = |y_i - h_m(x_i)|
+$$
+
+$$
+L_{max} = \max_i L_i
+$$
+
+$$
+L_{norm,i} = L_i / L_{max}
+$$
+
+$$
+\epsilon_m = \sum_{i=1}^N D_i L_{norm,i}
+$$
+
+### Weak Learner Weight Calculation
+
+After training a weak learner $h_m(x)$ and calculating its total weighted error $\epsilon_m$, a weight $\alpha_m$ is assigned to it. This weight quantifies the importance of the learner in the final ensemble. A common formulation for $\alpha_m$ in [AdaBoost](/algorithms/supervised/classification/adaboost) Regression (e.g., [AdaBoost](/algorithms/supervised/classification/adaboost).R2) is inversely proportional to its error, such that better performing learners receive higher weights:
+
+$$
+\alpha_m = \frac{1}{2} \ln\left(\frac{1-\epsilon_m}{\epsilon_m}\right)
+$$
+
+### Adaptive Sample Weight Update
+
+Following the calculation of $\alpha_m$, the sample weights $D_i$ are updated for the next iteration. Samples that were poorly predicted by $h_m(x)$ (i.e., have large normalized errors $L_{norm,i}$) will have their weights increased, making them more influential in the training of the subsequent weak learner. Conversely, well-predicted samples have their weights decreased. The update rule is typically followed by a normalization step to ensure the weights sum to one:
+
+$$
+D_i \leftarrow D_i \exp(\alpha_m L_{norm,i})
+$$
+
+$$
+D_i \leftarrow D_i / \sum_{j=1}^N D_j
+$$
+
+### Final Ensemble Prediction
+
+The final prediction of the [AdaBoost](/algorithms/supervised/classification/adaboost) Regression ensemble, $H(x)$, is typically a weighted median of the predictions from all individual weak learners $h_m(x)$. The weights used for this aggregation are the $\alpha_m$ values calculated for each learner. The weighted median is preferred over a weighted sum to mitigate the influence of outliers and improve robustness.
+
+$$
+H(x) = \text{weighted_median}(\alpha_1 h_1(x), \dots, \alpha_M h_M(x))
+$$
+
 ## Algorithm Steps
+
+1. Initialize sample weights $D_i = 1/N$ for all $N$ training samples $(x_i, y_i)$.
+2. For $m = 1$ to $M$ (number of weak learners):
+3.   a. Train a weak regressor $h_m(x)$ on the training data using the current sample weights $D_i$.
+4.   b. Calculate the absolute error $L_i = |y_i - h_m(x_i)|$ for each sample $i$.
+5.   c. Determine the maximum error $L_{max} = \max_i L_i$ and calculate the normalized error for each sample $i$: $L_{norm,i} = L_i / L_{max}$.
+6.   d. Calculate the total weighted error for the learner: $\epsilon_m = \sum_{i=1}^N D_i L_{norm,i}$.
+7.   e. Calculate the learner's weight: $\alpha_m = \frac{1}{2} \ln\left(\frac{1-\epsilon_m}{\epsilon_m}\right)$.
+8.   f. Update sample weights: $D_i \leftarrow D_i \exp(\alpha_m L_{norm,i})$.
+9.   g. Normalize sample weights: $D_i \leftarrow D_i / \sum_{j=1}^N D_j$.
+10. The final prediction $H(x)$ is the weighted median of the predictions from all weak learners $h_m(x)$, where the weights are $\alpha_m$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `base_estimator` | `object` | `DecisionTreeRegressor(max_depth=3)` | Any scikit-learn regressor that supports sample_weight | The weak learner to use as the base estimator. It must support sample weighting. If None, a DecisionTreeRegressor with max_depth=3 is used. |
+| `n_estimators` | `int` | `50` | integer > 0 | The maximum number of estimators at which boosting is terminated. In case of perfect fit, the learning procedure is stopped early. |
+| `learning_rate` | `float` | `1.0` | float > 0 | Weight applied to each regressor at each boosting iteration. A higher learning rate increases the contribution of each regressor. |
+| `loss` | `str` | `linear` | 'linear', 'square', 'exponential' | The loss function to use when updating the weights after each boosting iteration. 'linear' uses $L_1$ loss, 'square' uses $L_2$ loss, and 'exponential' uses an exponential loss function. |
+| `random_state` | `int or RandomState instance` | `None` | integer or RandomState instance | Controls the random seed given to each base_estimator at each boosting iteration. Used for reproducibility. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- AdaBoost Regression can achieve high accuracy by combining many weak learners, often outperforming single strong learners.
+- The algorithm is relatively simple to implement and understand compared to more complex boosting methods.
+- It can effectively handle complex, non-linear relationships in the data when used with appropriate base estimators.
+- AdaBoost Regression is less prone to overfitting than some other boosting methods if the number of estimators is carefully tuned.
+- It offers flexibility by allowing various types of weak learners to be used as base estimators.
+- The adaptive re-weighting mechanism helps the model focus on difficult-to-predict samples, improving overall performance.
+
 ## Weaknesses
 
+- AdaBoost Regression is highly sensitive to noisy data and outliers, as it attempts to correct all errors, including those from anomalies.
+- The sequential nature of training makes it computationally expensive and difficult to parallelize, especially with a large number of estimators.
+- Performance can degrade if the weak learners are too complex or if there are too many iterations, potentially leading to overfitting.
+- It can be challenging to interpret the final ensemble model, especially when using complex base estimators.
+- The algorithm's performance is highly dependent on the quality and type of the base estimator chosen, requiring careful selection.
+
 ## Use Cases
+
+### Financial Forecasting
+
+Predicting stock prices, market trends, or credit risk scores by combining multiple simple models that capture different market dynamics.
+
+### Energy Consumption Prediction
+
+Estimating future energy demand in buildings or grids based on various factors like weather, time of day, and historical usage patterns.
+
+### Medical Diagnosis Support
+
+Predicting disease progression, patient outcomes, or the likelihood of specific medical conditions based on clinical data and patient history.
+
+### Manufacturing Quality Control
+
+Forecasting product defects, predicting equipment failures, or optimizing process parameters to improve product quality and efficiency.
+
+### Environmental Modeling
+
+Predicting air pollution levels, water quality indicators, or agricultural yields from sensor data and environmental factors.
+
+### Real Estate Valuation
+
+Estimating property prices based on features like location, size, number of rooms, and local market conditions.
 
 ## Implementation
 
@@ -51,7 +179,18 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.linear_model import AdaboostRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = AdaboostRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
 ```
 
 ## Lab
@@ -59,3 +198,6 @@ related: []
 <LabEmbed url={""} title="AdaBoost Regression Lab" />
 
 ## References
+
+- Freund & Schapire variants (1997). Freund & Schapire variants.
+- [scikit-learn: AdaboostRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.AdaboostRegression.html)

@@ -5,38 +5,56 @@ import { CategoryCard } from '@/components/home/CategoryCard'
 import { StatsBar } from '@/components/home/StatsBar'
 import { api } from '@/lib/api-client'
 
-async function getStats() {
-  try {
-    const statusData = (await api.status.list()) as { summary?: Record<string, number> } | null
-    const summary = statusData?.summary ?? {}
-    return {
-      total: summary['total'] ?? 278,
-      documented: (summary['documented'] ?? 0) + (summary['implemented'] ?? 0) + (summary['lab-ready'] ?? 0),
-      implemented: summary['implemented'] ?? 0,
-      labReady: summary['lab-ready'] ?? 0,
-    }
-  } catch {
-    return { total: 278, documented: 0, implemented: 0, labReady: 0 }
+type StatusApiResponse = {
+  data?: {
+    summary?: Record<string, number>
+    by_category?: Array<{
+      slug: string
+      total: number
+      planned: number
+      in_progress: number
+      documented: number
+      implemented: number
+      lab_ready: number
+    }>
   }
 }
 
-async function getCategoryStats() {
+async function getHomeData() {
   try {
-    const data = (await api.categories.list()) as unknown
-    if (Array.isArray(data)) return data as Array<{ slug: string; documented?: number }>
-    if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as { data: unknown }).data)) {
-      return (data as { data: Array<{ slug: string; documented?: number }> }).data
+    const statusData = (await api.status.list()) as StatusApiResponse
+    const summary = statusData?.data?.summary ?? {}
+    const byCategory = statusData?.data?.by_category ?? []
+
+    const stats = {
+      total: summary['total'] ?? 278,
+      // "documented" stat = all statuses at or beyond documented
+      documented:
+        (summary['documented'] ?? 0) + (summary['implemented'] ?? 0) + (summary['lab-ready'] ?? 0),
+      implemented: summary['implemented'] ?? 0,
+      labReady: summary['lab-ready'] ?? 0,
     }
-    return []
+
+    // Per-category: sum all statuses at or beyond "documented"
+    const categoryDocMap: Record<string, number> = {}
+    for (const cat of byCategory) {
+      categoryDocMap[cat.slug] =
+        (cat.documented ?? 0) + (cat.implemented ?? 0) + (cat.lab_ready ?? 0)
+    }
+
+    return { stats, categoryDocMap }
   } catch {
-    return []
+    return {
+      stats: { total: 278, documented: 0, implemented: 0, labReady: 0 },
+      categoryDocMap: {} as Record<string, number>,
+    }
   }
 }
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const [stats, categoryStats] = await Promise.all([getStats(), getCategoryStats()])
+  const { stats, categoryDocMap } = await getHomeData()
 
   const statItems = [
     { label: 'Total Algorithms', value: stats.total, description: 'across 10 categories' },
@@ -44,14 +62,6 @@ export default async function HomePage() {
     { label: 'Implemented', value: stats.implemented, description: 'with code' },
     { label: 'Labs Ready', value: stats.labReady, description: 'interactive demos' },
   ]
-
-  const categoryDocMap: Record<string, number> = (categoryStats ?? []).reduce(
-    (acc: Record<string, number>, cs: { slug: string; documented?: number }) => {
-      if (cs.slug) acc[cs.slug] = cs.documented ?? 0
-      return acc
-    },
-    {}
-  )
 
   return (
     <div>

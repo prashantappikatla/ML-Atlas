@@ -9,36 +9,157 @@ paper: "van der Maaten & Hinton"
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["data-exploration", "dimensionality-reduction", "embedding", "manifold-learning", "non-linear", "unsupervised-learning", "visualization"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "autoencoder"
+  - "isomap"
+  - "locally-linear-embedding"
+  - "momentum"
+  - "multidimensional-scaling"
+  - "pca"
+  - "umap"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+t-Distributed Stochastic Neighbor Embedding (t-SNE) is a non-linear dimensionality reduction technique particularly well-suited for visualizing high-dimensional datasets. It maps high-dimensional data points to a low-dimensional space, typically two or three dimensions, such that similar points in the high-dimensional space are modeled by nearby points in the low-dimensional space, and dissimilar points are modeled by distant points. Unlike linear methods, t-SNE excels at preserving local structures within the data, making it highly effective for revealing clusters and intrinsic data manifolds.
+
 ## History
+
+**2002** — Geoffrey Hinton and Sam Roweis introduced Stochastic Neighbor Embedding (SNE), the precursor to t-SNE, which aimed to preserve neighborhood identities in a lower-dimensional space.
+
+**2008** — Laurens van der Maaten and Geoffrey Hinton published "Visualizing Data using t-SNE," introducing the t-distribution in the low-dimensional space to alleviate the "crowding problem" of SNE.
+
+**2014** — Laurens van der Maaten introduced Barnes-Hut t-SNE, an approximation that significantly speeds up computations for large datasets by using a quadtree or octree to approximate forces between distant points.
+
+**2019** — George C. Linderman, et al., introduced FIt-SNE (Fast Interpolation-based t-SNE), further accelerating the algorithm by using interpolation to approximate the gradient, making it suitable for even larger datasets.
 
 ## Mathematical Intuition
 
+### High-Dimensional Probabilities
+
+In the high-dimensional space, t-SNE constructs a probability distribution over pairs of data points, where the probability $p_{j|i}$ that point $x_i$ picks point $x_j$ as its neighbor is given by a Gaussian distribution centered at $x_i$. 
+$$p_{j|i} = \frac{\exp(-\|x_i - x_j\|^2 / (2\sigma_i^2))}{\sum_{k \neq i} \exp(-\|x_i - x_k\|^2 / (2\sigma_i^2))}$$
+The bandwidth $\sigma_i$ of the Gaussian is set such that the perplexity of the conditional distribution equals a user-defined value. For symmetric probabilities, $p_{ij} = (p_{j|i} + p_{i|j}) / (2N)$.
+
+$$
+p_{j|i} = \frac{\exp(-\|x_i - x_j\|^2 / (2\sigma_i^2))}{\sum_{k \neq i} \exp(-\|x_i - x_k\|^2 / (2\sigma_i^2))}
+$$
+
+$$
+p_{ij} = (p_{j|i} + p_{i|j}) / (2N)
+$$
+
+### Low-Dimensional Probabilities
+
+In the low-dimensional space, t-SNE models the similarity between two points $y_i$ and $y_j$ using a Student's t-distribution with one degree of freedom (which is equivalent to a Cauchy distribution). This heavy-tailed distribution allows dissimilar points to be modeled by larger distances in the low-dimensional map, effectively mitigating the crowding problem. 
+$$q_{ij} = \frac{(1 + \|y_i - y_j\|^2)^{-1}}{\sum_{k \neq l} (1 + \|y_k - y_l\|^2)^{-1}}$$
+
+$$
+q_{ij} = \frac{(1 + \|y_i - y_j\|^2)^{-1}}{\sum_{k \neq l} (1 + \|y_k - y_l\|^2)^{-1}}
+$$
+
+### Kullback-Leibler Divergence Objective
+
+The objective of t-SNE is to minimize the Kullback-Leibler (KL) divergence between the high-dimensional probability distribution $P$ and the low-dimensional probability distribution $Q$. Minimizing this divergence ensures that the low-dimensional representation accurately reflects the neighborhood structure of the high-dimensional data. 
+$$C = \sum_i \sum_j p_{ij} \log \frac{p_{ij}}{q_{ij}}$$
+The gradient of the cost function with respect to the low-dimensional points $y_i$ is used for optimization.
+
+$$
+C = \sum_i \sum_j p_{ij} \log \frac{p_{ij}}{q_{ij}}
+$$
+
+### Gradient Descent Optimization
+
+The low-dimensional points $Y = \{y_1, ..., y_N\}$ are initialized randomly and then optimized using gradient descent. The gradient update rule incorporates both attractive forces between points that are neighbors in high-dimensional space and repulsive forces between points that are not. 
+$$\frac{\partial C}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1}$$
+An early exaggeration phase is often used to create tighter clusters, and [Momentum](/algorithms/meta-learning/optimization/momentum) is typically applied to accelerate convergence and avoid poor local minima.
+
+$$
+\frac{\partial C}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1}
+$$
+
 ## Algorithm Steps
+
+1. For each high-dimensional data point $x_i$, compute the conditional probability $p_{j|i}$ that $x_i$ would pick $x_j$ as its neighbor, using a Gaussian distribution centered at $x_i$ with a bandwidth $\sigma_i$ determined by the user-defined perplexity.
+2. Construct the symmetric pairwise probabilities $p_{ij} = (p_{j|i} + p_{i|j}) / (2N)$ for all pairs of points in the high-dimensional space.
+3. Initialize the low-dimensional representation $Y = \{y_1, ..., y_N\}$ randomly, typically in two or three dimensions.
+4. Compute the pairwise probabilities $q_{ij}$ in the low-dimensional space using a Student's t-distribution with one degree of freedom.
+5. Minimize the Kullback-Leibler divergence $C = \sum_i \sum_j p_{ij} \log (p_{ij} / q_{ij})$ between the high-dimensional and low-dimensional probability distributions.
+6. Iteratively update the low-dimensional points $y_i$ using gradient descent, applying an early exaggeration factor for the first few iterations to encourage the formation of well-separated clusters.
+7. Continue the optimization process for a specified number of iterations, often incorporating momentum to stabilize and accelerate convergence.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | [1, infinity) | Dimension of the embedded space. |
+| `perplexity` | `float` | `30.0` | (1, N-1) | Related to the number of nearest neighbors used in the high-dimensional space. It balances attention between local and global aspects of the data. |
+| `early_exaggeration` | `float` | `12.0` | (0, infinity) | Controls how tight natural clusters in the original space are permitted to be in the embedded space. A higher value increases the gaps between clusters. |
+| `learning_rate` | `float` | `200.0` | (0, infinity) | The learning rate for the gradient descent optimization. |
+| `n_iter` | `int` | `1000` | (250, infinity) | Maximum number of iterations for the optimization. |
+| `metric` | `str` | `'euclidean'` | {'euclidean', 'manhattan', 'cosine', ...} | The metric to use when calculating distance between instances in a feature array. |
+| `init` | `str` | `'pca'` | {'random', 'pca'} or a numpy.ndarray | Initialization of the embedding. 'pca' is recommended for dense data, 'random' for sparse data. |
+| `random_state` | `int or RandomState instance or None` | `None` | [0, infinity) or None | Determines the random number generator seed for reproducibility. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- It excels at visualizing high-dimensional data by preserving local structures and revealing clusters that might be obscured by linear methods.
+- The use of a heavy-tailed Student's t-distribution in the low-dimensional space effectively mitigates the "crowding problem," allowing for better separation of clusters.
+- t-SNE can uncover complex, non-linear relationships within data, making it valuable for exploratory data analysis.
+- The perplexity parameter offers a flexible way to balance attention between local and global aspects of the data structure.
+- It produces visually intuitive and interpretable maps, often showing distinct, well-separated clusters.
+
 ## Weaknesses
 
+- The computational complexity of t-SNE is high, scaling as $O(N^2)$ or $O(N \log N)$ with approximations, making it slow for very large datasets.
+- t-SNE is sensitive to its hyperparameters, particularly perplexity and early exaggeration, which can significantly influence the resulting visualization.
+- The global structure of the data is not always well-preserved, meaning distances between widely separated clusters in the t-SNE plot may not accurately reflect their true distances in high-dimensional space.
+- t-SNE is a non-deterministic algorithm; different runs with different random initializations can produce different visualizations, making reproducibility challenging without fixing the random state.
+- It is primarily a visualization tool and does not provide a direct mapping function for new data points, requiring re-computation for new samples.
+
 ## Use Cases
+
+### Bioinformatics
+
+Visualizing gene expression data, single-cell RNA sequencing data, or protein interaction networks to identify cell types or disease states.
+
+### Image Processing
+
+Exploring feature vectors extracted from images to understand image similarity, identify object categories, or detect anomalies.
+
+### Natural Language Processing
+
+Visualizing word embeddings or document embeddings to understand semantic relationships between words or cluster documents by topic.
+
+### Cybersecurity
+
+Detecting anomalies in network traffic data or user behavior logs by visualizing high-dimensional feature vectors to identify unusual patterns.
+
+### Customer Segmentation
+
+Grouping customers based on their purchasing behavior or demographic data to identify distinct market segments.
+
+### Quality Control
+
+Visualizing manufacturing sensor data to identify clusters corresponding to different operational states or defect types.
 
 ## Implementation
 
@@ -51,7 +172,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.manifold import TSNE
+
+model = TSNE()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +183,6 @@ related: []
 <LabEmbed url={""} title="t-SNE Lab" />
 
 ## References
+
+- van der Maaten & Hinton (2008). van der Maaten & Hinton.
+- [scikit-learn: TSNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html)

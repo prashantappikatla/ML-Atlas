@@ -9,36 +9,171 @@ paper: "Generalized Linear Models"
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
-  timeseries: false
+  timeseries: true
   graph: false
-tags: []
+tags: ["count-data", "generalized-linear-model", "log-link", "maximum-likelihood", "regression", "statistical-model", "supervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "gamma-regression"
+  - "linear-regression"
+  - "logistic-regression"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Poisson Regression is a type of Generalized Linear Model (GLM) specifically designed for modeling count data, where the dependent variable represents the number of occurrences of an event. It assumes that the response variable follows a Poisson distribution and uses a logarithmic link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when dealing with non-negative integer outcomes that often exhibit a mean-variance relationship.
+
 ## History
+
+**1970** — John Nelder and Robert Wedderburn published "Generalized Linear Models," a seminal paper that unified various statistical models, including Poisson Regression, under a common theoretical framework.
+
+**1972** — The GLIM (Generalized Linear Interactive Modelling) software package was developed, making GLMs, including Poisson Regression, more accessible to practitioners for data analysis.
+
+**1983** — McCullagh and Nelder published "Generalized Linear Models," a comprehensive textbook that further solidified the theoretical and practical understanding of GLMs, including detailed discussions on Poisson Regression.
+
+**1990** — Increased computational power and the development of more sophisticated optimization algorithms led to wider adoption and application of Poisson Regression in various scientific and social science fields.
 
 ## Mathematical Intuition
 
+### Poisson Distribution Fundamentals
+
+The Poisson distribution is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space if these events occur with a known constant mean rate and independently of the time since the last event. Its probability mass function (PMF) for a random variable $Y$ with mean $\lambda > 0$ is given by:
+$$P(Y=k | \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}$$
+where $k$ is the number of occurrences ($k=0, 1, 2, \dots$). A key property of the Poisson distribution is that its mean and variance are equal: $E[Y] = Var[Y] = \lambda$. This equality is a fundamental assumption in Poisson Regression.
+
+$$
+P(Y=k | \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+
+$$
+E[Y] = Var[Y] = \lambda
+$$
+
+### Generalized Linear Model Structure
+
+Poisson Regression is a member of the Generalized Linear Model (GLM) family, which consists of three main components: a random component, a systematic component, and a link function. The random component specifies the probability distribution of the response variable, which for Poisson Regression is the Poisson distribution. The systematic component is a linear predictor, $\eta = \mathbf{x}^T \beta$, where $\mathbf{x}$ is a vector of predictor variables and $\beta$ is a vector of coefficients. The link function $g(\cdot)$ connects the expected value of the response, $E[Y] = \lambda$, to the linear predictor: $g(\lambda) = \eta$.
+
+$$
+\eta = \mathbf{x}^T \beta
+$$
+
+$$
+g(\lambda) = \eta
+$$
+
+### Log Link Function
+
+For Poisson Regression, the canonical link function is the natural logarithm, $g(\lambda) = \log(\lambda)$. This choice ensures that the predicted expected counts $\lambda$ are always positive, as $e^{\eta}$ is always positive. Thus, the model specifies that the logarithm of the expected count is a linear combination of the predictors:
+$$\log(\lambda) = \beta_0 + \beta_1 x_1 + \dots + \beta_p x_p$$
+Exponentiating both sides yields the expected count as:
+$$\lambda = e^{\beta_0 + \beta_1 x_1 + \dots + \beta_p x_p} = e^{\mathbf{x}^T \beta}$$
+This formulation allows for a multiplicative effect of predictors on the expected count.
+
+$$
+g(\lambda) = \log(\lambda)
+$$
+
+$$
+\log(\lambda) = \beta_0 + \beta_1 x_1 + \dots + \beta_p x_p
+$$
+
+$$
+\lambda = e^{\beta_0 + \beta_1 x_1 + \dots + \beta_p x_p} = e^{\mathbf{x}^T \beta}
+$$
+
+### Parameter Estimation via MLE
+
+The coefficients $\beta$ in Poisson Regression are typically estimated using Maximum Likelihood Estimation (MLE). Given a dataset of $n$ observations $(x_i, y_i)$, the log-likelihood function is derived from the Poisson PMF:
+$$L(\beta) = \sum_{i=1}^n \left( y_i \log(\lambda_i) - \lambda_i - \log(y_i!) \right)$$
+Substituting $\lambda_i = e^{\mathbf{x}_i^T \beta}$, the log-likelihood becomes:
+$$L(\beta) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^T \beta) - e^{\mathbf{x}_i^T \beta} - \log(y_i!) \right)$$
+The goal is to find the values of $\beta$ that maximize this log-likelihood function. This is typically achieved using iterative optimization algorithms such as iteratively reweighted least squares (IRLS) or gradient descent.
+
+$$
+L(\beta) = \sum_{i=1}^n \left( y_i \log(\lambda_i) - \lambda_i - \log(y_i!) \right)
+$$
+
+$$
+L(\beta) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^T \beta) - e^{\mathbf{x}_i^T \beta} - \log(y_i!) \right)
+$$
+
 ## Algorithm Steps
+
+1. Define the linear predictor $\eta = \mathbf{x}^T \beta$, where $\mathbf{x}$ is the vector of features for an observation and $\beta$ is the vector of coefficients to be estimated.
+2. Specify the link function $g(\cdot)$ that connects the expected value of the response $\lambda = E[Y]$ to the linear predictor, which for Poisson Regression is $g(\lambda) = \log(\lambda)$.
+3. Derive the inverse link function to express the expected value $\lambda$ in terms of the linear predictor: $\lambda = e^{\eta} = e^{\mathbf{x}^T \beta}$.
+4. Formulate the log-likelihood function based on the Poisson probability mass function for all observations, substituting the expression for $\lambda_i$.
+5. Maximize the log-likelihood function with respect to the coefficients $\beta$ using an iterative optimization algorithm, such as iteratively reweighted least squares (IRLS).
+6. Iteratively update the coefficients $\beta$ until convergence, where the change in log-likelihood or coefficients falls below a predefined tolerance.
+7. Once coefficients are estimated, predict the expected count for new data points by calculating $\hat{\lambda} = e^{\mathbf{x}_{new}^T \hat{\beta}}$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `alpha` | `float` | `1.0` | non-negative float | Constant that multiplies the L2 penalty term. Used for regularization to prevent overfitting. If 0, no regularization is applied. |
+| `fit_intercept` | `bool` | `True` | True, False | Specifies whether a constant (intercept) should be added to the decision function. |
+| `solver` | `str` | `lbfgs` | 'lbfgs', 'newton-cg', 'sag', 'saga' | Algorithm to use in the optimization problem. Options include 'lbfgs', 'newton-cg', 'sag', 'saga'. |
+| `max_iter` | `int` | `100` | positive integer | Maximum number of iterations taken for the solvers to converge. |
+| `tol` | `float` | `1e-4` | positive float | Tolerance for stopping criteria. The algorithm will stop when the change in coefficients or objective function is less than this value. |
+| `warm_start` | `bool` | `False` | True, False | When set to True, reuse the solution of the previous call to fit as initialization for the next call. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- Poisson Regression is specifically designed for modeling count data, providing more appropriate statistical inference than ordinary least squares regression for such outcomes.
+- The log link function ensures that the predicted expected counts are always non-negative, which is a natural constraint for count data.
+- It provides interpretable coefficients, where the exponentiated coefficient $e^{\beta_j}$ represents the multiplicative change in the expected count for a one-unit increase in $x_j$.
+- As a GLM, it has a strong theoretical foundation and allows for robust statistical inference, including hypothesis testing and confidence interval estimation.
+- It can naturally handle varying exposure times or areas by including an offset term in the linear predictor.
+- The model is relatively simple to implement and computationally efficient for many datasets.
+
 ## Weaknesses
 
+- A strong assumption of Poisson Regression is that the conditional mean and variance of the response variable are equal, which is often violated in real-world count data (overdispersion or underdispersion).
+- Overdispersion, where the variance exceeds the mean, can lead to underestimated standard errors and inflated Type I error rates, making the model's inferences unreliable.
+- The model struggles with zero-inflated data, where there are more zero counts than predicted by the Poisson distribution, often requiring specialized models like Zero-Inflated Poisson.
+- It assumes that events are independent, which may not hold true in all applications.
+- The model is sensitive to outliers, particularly those with high leverage, which can disproportionately influence coefficient estimates.
+
 ## Use Cases
+
+### Public Health
+
+Modeling the number of disease cases or hospital admissions in a specific region or time period, accounting for demographic and environmental factors.
+
+### Ecology
+
+Predicting the count of a particular species in a given area based on habitat characteristics, or the number of events like animal sightings.
+
+### Marketing and Sales
+
+Estimating the number of website clicks, customer purchases, or calls to a call center, given various marketing efforts or customer demographics.
+
+### Insurance
+
+Analyzing the number of insurance claims filed by policyholders, considering factors like age, driving history, and policy type.
+
+### Transportation
+
+Forecasting the number of traffic accidents at an intersection or on a road segment based on road design, weather conditions, and traffic volume.
+
+### Sports Analytics
+
+Predicting the number of goals scored by a team or player in a game, given various team and opponent statistics.
 
 ## Implementation
 
@@ -51,7 +186,18 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.linear_model import PoissonRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = PoissonRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
 ```
 
 ## Lab
@@ -59,3 +205,6 @@ related: []
 <LabEmbed url={""} title="Poisson Regression Lab" />
 
 ## References
+
+- Generalized Linear Models (1970). Generalized Linear Models.
+- [scikit-learn: PoissonRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PoissonRegression.html)

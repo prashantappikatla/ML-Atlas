@@ -11,34 +11,156 @@ status: "in-progress"
 compatibility:
   tabular: false
   image: false
-  text: false
+  text: true
   timeseries: false
   graph: false
-tags: []
+tags: ["dimensionality-reduction", "information-retrieval", "matrix-factorization", "natural-language-processing", "singular-value-decomposition", "text-analysis", "topic-modeling", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "doc2vec"
+  - "truncated-svd"
+  - "word2vec"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Latent Semantic Analysis (LSA) is an unsupervised technique primarily used for topic modeling and dimensionality reduction in text corpora. It analyzes relationships between terms and documents by constructing a term-document matrix and then applying Singular Value Decomposition (SVD). This process projects documents and terms into a lower-dimensional "semantic space," where semantically related terms and documents are closer together, thereby uncovering latent topics. LSA is foundational for understanding semantic content beyond mere keyword matching.
+
 ## History
+
+**1988** — Scott Deerwester, Susan T. Dumais, George W. Furnas, Thomas K. Landauer, and Richard Harshman introduced Latent Semantic Indexing (LSI), the information retrieval application of LSA, in their seminal paper "Indexing by Latent Semantic Analysis." This marked the first application of SVD to text data for semantic analysis.
+
+**1990** — Dumais et al. demonstrated the effectiveness of LSI for information retrieval tasks, showing its ability to retrieve relevant documents even when they did not share keywords with the query, highlighting its semantic understanding capabilities.
+
+**1997** — Landauer and Dumais published "A Solution to Plato's Problem: The Latent Semantic Analysis Theory of Acquisition, Induction, and Representation of Knowledge," further elaborating on LSA's cognitive implications and its ability to model human knowledge acquisition.
+
+**2000** — LSA became a foundational technique in natural language processing, influencing subsequent topic modeling methods and demonstrating the power of matrix factorization for semantic representation across various applications.
 
 ## Mathematical Intuition
 
+### Term-Document Matrix Construction
+
+Text data is initially represented as a term-document matrix, $A$, where rows correspond to unique terms (words) in the corpus and columns correspond to documents. Each entry $A_{ij}$ typically represents the frequency of term $i$ in document $j$, often weighted by schemes like TF-IDF (Term Frequency-Inverse Document Frequency). The dimensions of this matrix can be very large, making it sparse and high-dimensional.
+$$ A \in \mathbb{R}^{m \times n} $$
+where $m$ is the number of unique terms and $n$ is the number of documents.
+
+$$
+A \in \mathbb{R}^{m \times n}
+$$
+
+### Singular Value Decomposition Core
+
+The core of LSA is Singular Value Decomposition (SVD), which decomposes the term-document matrix $A$ into three matrices: a term-topic matrix $U$, a diagonal matrix of singular values $\Sigma$, and a document-topic matrix $V^T$.
+$$ A = U \Sigma V^T $$
+Here, $U$ is an $m \times m$ orthogonal matrix whose columns are left singular vectors (term vectors), $\Sigma$ is an $m \times n$ diagonal matrix containing singular values in descending order, and $V^T$ is an $n \times n$ orthogonal matrix whose rows are right singular vectors (document vectors).
+$$ U^T U = I, \quad V^T V = I $$
+
+$$
+A = U \Sigma V^T
+$$
+
+$$
+U^T U = I, \quad V^T V = I
+$$
+
+### Dimensionality Reduction via Truncation
+
+To achieve dimensionality reduction and uncover latent semantic structures, SVD is truncated. This involves selecting the top $k$ largest singular values from $\Sigma$ and the corresponding $k$ columns from $U$ and $k$ rows from $V^T$. This yields a lower-rank approximation of the original matrix $A$.
+$$ A_k = U_k \Sigma_k V_k^T $$
+where $U_k$ is $m \times k$, $\Sigma_k$ is $k \times k$, and $V_k^T$ is $k \times n$. The value $k$ represents the number of latent semantic dimensions or "topics." This truncation effectively filters out noise and captures the most significant semantic relationships.
+
+$$
+A_k = U_k \Sigma_k V_k^T
+$$
+
+### Semantic Space Interpretation
+
+The truncated matrices $U_k$, $\Sigma_k$, and $V_k^T$ define a $k$-dimensional semantic space. The rows of $U_k \Sigma_k$ represent terms projected into this semantic space, while the columns of $\Sigma_k V_k^T$ represent documents projected into this space. The proximity of vectors in this space indicates semantic similarity. For example, the $i$-th row of $U_k \Sigma_k$ is the vector for term $i$, and the $j$-th column of $\Sigma_k V_k^T$ is the vector for document $j$.
+$$ \text{Term vector for term } i: \quad U_k[i, :] \Sigma_k $$
+$$ \text{Document vector for document } j: \quad \Sigma_k V_k^T[:, j] $$
+
+$$
+\text{Term vector for term } i: \quad U_k[i, :] \Sigma_k
+$$
+
+$$
+\text{Document vector for document } j: \quad \Sigma_k V_k^T[:, j]
+$$
+
 ## Algorithm Steps
+
+1. Collect a corpus of text documents for analysis.
+2. Preprocess the text by tokenizing, removing stop words, stemming or lemmatizing, and converting to lowercase.
+3. Construct a term-document matrix $A$, where rows represent unique terms and columns represent documents, with entries $A_{ij}$ indicating the frequency of term $i$ in document $j$.
+4. Apply a weighting scheme, typically TF-IDF, to the term-document matrix to emphasize important terms and normalize for document length.
+5. Perform Singular Value Decomposition (SVD) on the weighted term-document matrix $A$ to obtain $A = U \Sigma V^T$.
+6. Select a desired number of latent dimensions, $k$, and truncate the SVD by keeping only the top $k$ singular values and their corresponding singular vectors, resulting in $U_k$, $\Sigma_k$, and $V_k^T$.
+7. The matrix $U_k \Sigma_k$ provides the term vectors in the $k$-dimensional semantic space, and $\Sigma_k V_k^T$ provides the document vectors in the same space.
+8. Analyze the resulting term and document vectors to identify latent topics, measure semantic similarity, or perform information retrieval tasks.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | integer > 0 | The desired dimensionality of the output data. This is the number of latent semantic dimensions (topics) to extract. |
+| `algorithm` | `str` | `'randomized'` | 'arpack', 'randomized' | The algorithm to use for computing the SVD. 'arpack' for the ARPACK implementation, 'randomized' for a randomized algorithm. |
+| `n_iter` | `int` | `5` | integer > 0 | Number of iterations for randomized SVD solver. Not used by ARPACK. |
+| `random_state` | `int or None` | `None` | integer or None | Used when 'algorithm' is 'randomized' for reproducibility of the results. |
+| `tol` | `float` | `0.0` | float >= 0.0 | Tolerance for singular values computed by ARPACK. Not used by randomized SVD. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- Effectively captures semantic relationships between words and documents, moving beyond simple keyword matching.
+- Reduces the dimensionality of high-dimensional text data, making subsequent processing more efficient.
+- Mitigates issues of synonymy (different words, same meaning) and polysemy (same word, different meanings) to some extent.
+- Provides a robust mathematical foundation based on linear algebra for topic extraction.
+- Can be used for cross-language information retrieval if parallel corpora are available.
+- Relatively simple to implement once the SVD machinery is in place.
+
 ## Weaknesses
 
+- Does not account for word order or syntactic structure, treating documents as "bags of words."
+- The number of latent dimensions $k$ must be chosen manually, which can significantly impact performance and interpretability.
+- The interpretability of the latent dimensions (topics) can be challenging, as they are orthogonal mathematical constructs rather than intuitive clusters of words.
+- Computationally intensive for very large corpora, as SVD complexity scales with matrix size.
+- Assumes a Gaussian distribution for word counts, which is often not true for text data.
+
 ## Use Cases
+
+### Information Retrieval
+
+Enhancing search engines by retrieving documents semantically related to a query, even if they don't share exact keywords.
+
+### Document Clustering
+
+Grouping similar documents together based on their semantic content rather than just word overlap for organization and discovery.
+
+### Text Summarization
+
+Identifying the most important sentences or passages in a document by analyzing their semantic centrality within the corpus.
+
+### Recommendation Systems
+
+Recommending documents or items to users based on the semantic similarity between user profiles and item descriptions.
+
+### Cross-Language Information Retrieval
+
+Matching documents across different languages by projecting them into a common semantic space, given appropriate parallel corpora.
+
+### Automated Essay Scoring
+
+Evaluating the quality of essays by comparing their semantic content to that of expert-scored essays or rubrics.
 
 ## Implementation
 
@@ -51,7 +173,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import LatentSemanticAnalysis
+
+model = LatentSemanticAnalysis()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +184,6 @@ related: []
 <LabEmbed url={""} title="Latent Semantic Analysis Lab" />
 
 ## References
+
+- Deerwester et al. (1988). Deerwester et al..
+- [scikit-learn: LatentSemanticAnalysis](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LatentSemanticAnalysis.html)

@@ -9,36 +9,133 @@ paper: "Ankerst et al."
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["density-based-clustering", "hierarchical-clustering", "outlier-detection", "reachability-plot", "spatial-data-analysis", "unsupervised-learning", "variable-density"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "agglomerative-clustering"
+  - "birch"
+  - "dbscan"
+  - "hdbscan"
+  - "k-means"
+  - "mean-shift"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+OPTICS (Ordering Points To Identify the Clustering Structure) is a density-based clustering algorithm that extends [DBSCAN](/algorithms/unsupervised/clustering/dbscan) by addressing its limitation of handling clusters of varying densities. Instead of producing a single clustering, OPTICS generates an augmented ordering of the database representing its density-based clustering structure. This ordering allows for the extraction of clusters with respect to different density thresholds, revealing a hierarchical structure. The algorithm provides a reachability plot, which is a powerful tool for visualizing the density landscape of the data.
+
 ## History
+
+**1999** — Ankerst, Breunig, Kriegel, and Sander introduced OPTICS in their paper "OPTICS: Ordering Points To Identify the Clustering Structure," extending [DBSCAN](/algorithms/unsupervised/clustering/dbscan) to handle varying density clusters and produce a hierarchical structure.
 
 ## Mathematical Intuition
 
+### Core-distance Definition
+
+For a given point $p$ and a minimum number of points $MinPts$, the core-distance of $p$ is the smallest distance $\epsilon$ such that $p$ is a core point with respect to $\epsilon$ and $MinPts$. A point $p$ is considered a core point if its $\epsilon$-neighborhood contains at least $MinPts$ points. If $p$ is not a core point for any $\epsilon$, its core-distance is undefined. Otherwise, it is the distance to its $MinPts$-th nearest neighbor.
+
+$$
+CoreDistance_{MinPts}(p) = \text{distance}(p, N_{MinPts}(p))
+$$
+
+$$
+\text{where } N_{MinPts}(p) \text{ is the } MinPts\text{-th nearest neighbor of } p.
+$$
+
+### Reachability-distance Calculation
+
+The reachability-distance of a point $q$ from a core point $p$ is defined as the maximum of the core-distance of $p$ and the Euclidean distance between $p$ and $q$. This metric ensures that points within a dense cluster have small reachability distances from their core points, while points in sparser regions or between clusters exhibit larger reachability distances. This property is crucial for identifying density-based clusters and noise.
+
+$$
+ReachabilityDistance_{MinPts}(q, p) = \max(CoreDistance_{MinPts}(p), d(p, q))
+$$
+
+$$
+\text{where } d(p, q) \text{ is the distance between points } p \text{ and } q.
+$$
+
+### Reachability Plot Interpretation
+
+The reachability plot is a two-dimensional graph where points are ordered according to their processing sequence by the OPTICS algorithm, and their corresponding reachability distances are plotted on the y-axis. Valleys in this plot correspond to clusters, with deeper valleys indicating denser clusters. Peaks, conversely, represent noise points or boundaries between distinct clusters. The plot visually represents the hierarchical density structure of the dataset, allowing for manual or automatic cluster extraction at various density levels.
+
 ## Algorithm Steps
+
+1. Initialize all points as unprocessed and create an empty ordered list and an empty priority queue (OrderSeeds).
+2. For each unprocessed point $p$ in the dataset, mark $p$ as processed and add it to the ordered list; compute its $CoreDistance_{MinPts}(p)$.
+3. If $p$ is a core point, update the reachability distances of its neighbors within $max\_eps$ and insert them into OrderSeeds, prioritizing points with smaller reachability distances.
+4. While OrderSeeds is not empty, extract the point $q$ with the smallest reachability distance.
+5. Mark $q$ as processed, add it to the ordered list, and compute its $CoreDistance_{MinPts}(q)$.
+6. If $q$ is a core point, update the reachability distances of its unprocessed neighbors within $max\_eps$ and insert or re-insert them into OrderSeeds.
+7. Repeat steps 2-6 until all points have been processed and OrderSeeds is empty.
+8. The output is the ordered list of points and their associated reachability distances, which forms the basis for the reachability plot and subsequent cluster extraction.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_samples` | `int or float` | `5` | integer >= 1 or float in (0.0, 1.0] | The number of samples in a neighborhood for a point to be considered as a core point. If float, it represents a fraction of the total number of samples. |
+| `max_eps` | `float` | `inf` | float >= 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other. This parameter limits the maximum reachability distance computed. |
+| `metric` | `str or callable` | `'minkowski'` | e.g., 'euclidean', 'manhattan', 'minkowski', or a callable | The distance metric to use for computing distances between points. |
+| `p` | `int` | `2` | integer >= 1 | The power of the Minkowski metric. Used when `metric` is 'minkowski'. |
+| `cluster_method` | `str` | `'xi'` | 'xi', 'dbscan' | The method used to extract clusters from the reachability plot. 'xi' uses a steepness-based approach, while 'dbscan' uses a fixed epsilon threshold. |
+| `eps` | `float` | `None` | float >= 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other, used specifically for 'dbscan' cluster extraction. |
+| `xi` | `float` | `0.05` | float in (0.0, 1.0) | Determines the minimum steepness of the reachability plot that constitutes a cluster, used for 'xi' cluster extraction. |
+| `predecessor_correction` | `bool` | `True` | True, False | Corrects the reachability distance of a point to be at least the core distance of its predecessor in the ordering. |
+| `n_jobs` | `int` | `None` | integer or None | The number of parallel jobs to run for neighbors search. -1 means using all processors. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- OPTICS can discover clusters of arbitrary shape, making it suitable for complex data distributions.
+- It effectively handles datasets with varying cluster densities, a significant improvement over DBSCAN.
+- The algorithm produces a hierarchical clustering structure, allowing for analysis at different density levels without re-running the algorithm.
+- It provides a reachability plot, which offers a visual representation of the dataset's density structure and aids in parameter selection.
+- OPTICS inherently identifies noise points as those with high reachability distances, facilitating outlier detection.
+- The output ordering allows for flexible cluster extraction using different density thresholds post-processing.
+
 ## Weaknesses
 
+- The computational complexity of OPTICS is higher than DBSCAN, typically $O(N \log N)$ with spatial indexing or $O(N^2)$ without, making it slower for very large datasets.
+- Interpreting the reachability plot to extract meaningful clusters can be subjective and often requires domain knowledge.
+- The algorithm's performance is sensitive to the choice of the $min\_samples$ parameter, which can significantly impact the resulting density structure.
+- It does not directly produce a partition of the data into clusters, but rather an ordering and reachability distances, requiring an additional extraction step.
+
 ## Use Cases
+
+### Outlier Detection
+
+Identifying anomalous data points in various datasets by observing high reachability distances in the plot, which often correspond to noise or outliers.
+
+### Geospatial Data Analysis
+
+Discovering natural groupings of geographical features, such as urban areas or geological formations, where these clusters might exhibit varying population or feature densities.
+
+### Customer Segmentation
+
+Grouping customers based on purchasing behavior or demographics, where different segments might have varying densities of members, revealing nuanced market structures.
+
+### Bioinformatics
+
+Analyzing gene expression data or protein structures to find clusters of related biological entities at different levels of similarity and density.
+
+### Fraud Detection
+
+Identifying unusual patterns in transaction data that might indicate fraudulent activities, where normal and fraudulent transactions often form clusters of different densities.
 
 ## Implementation
 
@@ -51,7 +148,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import OPTICS
+
+model = OPTICS()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +159,6 @@ related: []
 <LabEmbed url={""} title="OPTICS Lab" />
 
 ## References
+
+- Ankerst et al. (1999). Ankerst et al..
+- [scikit-learn: OPTICS](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html)

@@ -9,36 +9,144 @@ paper: "Friedman"
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
-  timeseries: false
+  timeseries: true
   graph: false
-tags: []
+tags: ["additive-model", "boosting", "decision-trees", "ensemble", "gradient-descent", "regression", "supervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "adaboost"
+  - "catboost"
+  - "lightgbm"
+  - "xgboost"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Gradient Boosting Regression is an ensemble machine learning technique that builds a strong predictive model by sequentially combining multiple weak learners, typically decision trees. It operates by iteratively fitting new models to the negative gradient of a chosen loss function, effectively correcting the errors made by previous models in the ensemble. This additive approach allows for high predictive accuracy and flexibility in modeling complex, non-linear relationships within data.
+
 ## History
+
+**1990** — Yoav Freund and Robert Schapire introduce [AdaBoost](/algorithms/supervised/classification/adaboost), a foundational boosting algorithm that adaptively weights misclassified samples.
+
+**1999** — Jerome H. Friedman introduces Gradient Boosting Machines (GBM), generalizing boosting to arbitrary differentiable loss functions by using gradient descent in function space.
+
+**2001** — Friedman publishes "Greedy Function Approximation: A Gradient Boosting Machine," providing a comprehensive framework and theoretical foundation for the algorithm.
+
+**2014** — Tianqi Chen and Carlos Guestrin release [XGBoost](/algorithms/supervised/regression/xgboost), an optimized, distributed, and highly efficient implementation of gradient boosting, gaining widespread adoption.
+
+**2016** — Microsoft introduces [LightGBM](/algorithms/supervised/regression/lightgbm), another high-performance gradient boosting framework designed for speed and efficiency on large datasets.
 
 ## Mathematical Intuition
 
+### Additive Model Formulation
+
+Gradient Boosting Regression constructs an additive model, $F_M(x)$, by sequentially combining $M$ weak learners, $h_m(x)$. Each new learner is added to the ensemble to improve the overall prediction. The model can be expressed as an iterative sum:
+$$ F_m(x) = F_{m-1}(x) + 
+u h_m(x) $$
+where $F_0(x)$ is an initial constant prediction, and $
+u$ is the learning rate. The objective is to find $h_m(x)$ that minimizes the loss function.
+
+$$
+F_m(x) = F_{m-1}(x) + \nu h_m(x)
+$$
+
+### Loss Function Minimization
+
+The core idea is to minimize a differentiable loss function $L(y, F(x))$ by iteratively moving in the direction of the steepest descent. At each step $m$, the algorithm seeks to find a function $h_m(x)$ that best approximates the negative gradient of the loss function with respect to the current model $F_{m-1}(x)$. This is analogous to gradient descent in function space, where the 'target' for the new weak learner is the negative gradient:
+$$ \tilde{y}_i = -\left[ \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right]_{F(x)=F_{m-1}(x)} $$
+These $\tilde{y}_i$ values are often referred to as pseudo-residuals.
+
+$$
+\tilde{y}_i = -\left[ \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right]_{F(x)=F_{m-1}(x)}
+$$
+
+### Fitting Weak Learners to Residuals
+
+Once the pseudo-residuals $\tilde{y}_i$ are computed for all training samples, a new weak learner, typically a regression decision tree $h_m(x)$, is trained to predict these pseudo-residuals. The tree is fitted using the original input features $x_i$ and the calculated $\tilde{y}_i$ as target values. This step effectively identifies the regions where the current model $F_{m-1}(x)$ performs poorly and attempts to correct those errors by learning the 'residual' pattern.
+
+### Model Update and Shrinkage
+
+After fitting the weak learner $h_m(x)$ to the pseudo-residuals, the model is updated. A learning rate (or shrinkage parameter) $\nu \in (0, 1]$ is applied to the output of the weak learner before adding it to the ensemble. This shrinkage helps prevent overfitting and improves generalization by slowing down the learning process, requiring more iterations but often leading to a more robust model. The updated model becomes:
+$$ F_m(x) = F_{m-1}(x) + \nu h_m(x) $$
+The process continues for a predefined number of iterations $M$, accumulating the contributions of all weak learners.
+
+$$
+F_m(x) = F_{m-1}(x) + \nu h_m(x)
+$$
+
 ## Algorithm Steps
+
+1. Initialize the ensemble model $F_0(x)$ with a constant value that minimizes the loss function, typically $F_0(x) = \arg\min_c \sum_{i=1}^N L(y_i, c)$.
+2. For each iteration $m = 1, \dots, M$:
+3. Compute the negative gradient of the loss function with respect to the current model $F_{m-1}(x)$ for each sample $i$, yielding the pseudo-residuals $\tilde{y}_i = -\left[ \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right]_{F(x)=F_{m-1}(x)}$.
+4. Fit a base learner, typically a regression tree $h_m(x)$, to the training data $(x_i, \tilde{y}_i)_{i=1}^N$.
+5. Update the ensemble model: $F_m(x) = F_{m-1}(x) + \nu h_m(x)$, where $\nu$ is the learning rate (shrinkage parameter).
+6. After $M$ iterations, the final model is $F_M(x)$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `loss` | `str` | `'squared_error'` | 'squared_error', 'absolute_error', 'huber', 'quantile' | The loss function to be optimized. Options include 'squared_error' for L2 loss, 'absolute_error' for L1 loss, 'huber' for a combination of L1 and L2, and 'quantile' for quantile regression. |
+| `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages to perform. Higher values can lead to better performance but also increase the risk of overfitting and computation time. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinkage factor applied to the contribution of each tree. It controls the step size of the gradient descent, with smaller values requiring more estimators but potentially leading to better generalization. |
+| `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators (decision trees). Controls the complexity of the base learners; deeper trees can capture more complex interactions but are more prone to overfitting. |
+| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
+| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce stochasticity, which can reduce variance and prevent overfitting (Stochastic Gradient Boosting). |
+| `criterion` | `str` | `'friedman_mse'` | 'friedman_mse', 'squared_error' | The function to measure the quality of a split in the regression trees. 'friedman_mse' uses an improved version of mean squared error for split evaluation. |
+| `alpha` | `float` | `0.9` | 0.0 < float < 1.0 | The alpha parameter for the Huber loss function and the quantile parameter for the Quantile loss function. Only relevant if 'loss' is 'huber' or 'quantile'. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- Gradient Boosting Regression often achieves very high predictive accuracy, frequently outperforming many other algorithms on complex datasets.
+- It can handle various types of features, including numerical and categorical, without extensive preprocessing.
+- The algorithm is robust to outliers and noisy data due to its sequential error correction mechanism and the use of robust loss functions.
+- It can capture complex non-linear relationships between features and the target variable effectively.
+- Gradient Boosting provides feature importance scores, which can aid in understanding the relative influence of different input variables.
+
 ## Weaknesses
 
+- Gradient Boosting models are prone to overfitting if hyperparameters are not carefully tuned, especially with a large number of estimators or high learning rates.
+- Training can be computationally expensive and time-consuming, particularly on large datasets or with many estimators, as it is a sequential process.
+- The ensemble nature of the model makes it less interpretable than a single decision tree, making it harder to understand individual predictions.
+- It is sensitive to noisy data if the learning rate is too high or too many estimators are used without proper regularization.
+- Parallelization of the training process is challenging due to its sequential nature, although some frameworks offer approximations.
+
 ## Use Cases
+
+### Finance
+
+Used for predicting stock prices, forecasting market trends, assessing credit risk, and detecting fraudulent transactions due to its high accuracy.
+
+### Healthcare
+
+Applied in predicting disease progression, forecasting patient outcomes, and identifying risk factors for various medical conditions.
+
+### E-commerce
+
+Utilized in building recommender systems, predicting customer churn, forecasting sales, and optimizing pricing strategies.
+
+### Marketing
+
+Employed for predicting customer lifetime value, segmenting customers, and forecasting the response to marketing campaigns.
+
+### Energy
+
+Used for forecasting energy consumption, predicting renewable energy output, and optimizing energy grid management.
 
 ## Implementation
 
@@ -51,7 +159,18 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = GradientBoostingRegressor()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²:  {r2_score(y_test, y_pred):.4f}")
 ```
 
 ## Lab
@@ -59,3 +178,6 @@ related: []
 <LabEmbed url={""} title="Gradient Boosting Regression Lab" />
 
 ## References
+
+- Friedman (1999). Friedman.
+- [scikit-learn: GradientBoostingRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html)

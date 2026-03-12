@@ -13,32 +13,211 @@ compatibility:
   image: false
   text: false
   timeseries: false
-  graph: false
-tags: []
+  graph: true
+tags: ["deep-learning", "graph-convolution", "graph-neural-network", "message-passing", "node-embedding", "spectral-graph-theory", "transductive"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "graphsage"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Graph Convolutional Networks (GCNs) are a class of neural networks designed to operate directly on graph-structured data. They learn node representations by aggregating information from a node's local neighborhood, effectively performing a form of message passing. GCNs generalize convolutional operations from regular grids (like images) to irregular graph domains, enabling powerful feature learning for tasks such as node classification, link prediction, and graph classification. Their distinctive feature is the layer-wise propagation rule that combines node features with graph topology.
+
 ## History
+
+**2013** — Bruna et al. introduced the first spectral graph convolutional networks, laying theoretical groundwork for generalizing CNNs to graphs using graph Fourier transform.
+
+**2016** — Defferrard et al. proposed ChebNet, a graph CNN using Chebyshev polynomials to approximate spectral filters, improving computational efficiency and localization.
+
+**2017** — Kipf and Welling introduced the Graph Convolutional Network (GCN) model, simplifying ChebNet by using a first-order approximation of spectral convolutions, leading to a highly efficient and widely adopted architecture.
+
+**2017** — Hamilton et al. introduced [GraphSAGE](/algorithms/graph/graph-embeddings/graphsage), a general inductive framework that learns node embeddings by sampling and aggregating features from a node's local neighborhood, addressing limitations of transductive GCNs.
+
+**2018** — Velickovic et al. introduced Graph Attention Networks (GATs), incorporating attention mechanisms into graph convolutions, allowing nodes to assign different weights to neighbors.
 
 ## Mathematical Intuition
 
+### Graph Representation and Adjacency
+
+A graph $G = (V, E)$ consists of a set of nodes $V$ and edges $E$. It can be represented by an adjacency matrix $A \in \mathbb{R}^{N \times N}$, where $N$ is the number of nodes. $A_{ij} = 1$ if an edge exists between node $i$ and node $j$, and $0$ otherwise. For graphs with self-loops, we often use $\tilde{A} = A + I$, where $I$ is the identity matrix. The degree matrix $D$ is a diagonal matrix where $D_{ii} = \sum_j A_{ij}$. The normalized adjacency matrix is often used, such as $D^{-1/2} A D^{-1/2}$.
+
+$$
+G = (V, E)
+$$
+
+$$
+A \in \mathbb{R}^{N \times N}
+$$
+
+$$
+A_{ij}
+$$
+
+$$
+\tilde{A} = A + I
+$$
+
+$$
+D_{ii} = \sum_j A_{ij}
+$$
+
+$$
+D^{-1/2} A D^{-1/2}
+$$
+
+### Spectral Graph Convolution Theory
+
+The core idea of graph convolution stems from spectral graph theory. The graph Laplacian is defined as $L = D - A$. The normalized Laplacian is $L_{norm} = I - D^{-1/2} A D^{-1/2}$. The eigenvalues and eigenvectors of the Laplacian form an orthonormal basis, analogous to the Fourier basis for signals on Euclidean domains. A graph convolution operation can be defined as filtering a signal $x$ on a graph with a filter $g_\theta$ in the spectral domain:
+
+$$
+L = D - A
+$$
+
+$$
+L_{norm} = I - D^{-1/2} A D^{-1/2}
+$$
+
+$$
+$$(x * g_\theta)_G = U g_\theta(\Lambda) U^T x$$
+$$
+
+$$
+U
+$$
+
+$$
+g_\theta(\Lambda)
+$$
+
+$$
+\Lambda
+$$
+
+### GCN Layer Propagation Rule
+
+Kipf and Welling simplified the spectral convolution by approximating the filter $g_\theta(\Lambda)$ with a first-order Chebyshev polynomial and further simplifying it. This leads to the layer-wise propagation rule for a GCN:
+
+$$
+g_\theta(\Lambda)
+$$
+
+$$
+$$H^{(l+1)} = \sigma(\tilde{D}^{-1/2} \tilde{A} \tilde{D}^{-1/2} H^{(l)} W^{(l)})$$
+$$
+
+$$
+H^{(l)}
+$$
+
+$$
+H^{(0)} = X
+$$
+
+$$
+\tilde{A} = A + I_N
+$$
+
+$$
+\tilde{D}
+$$
+
+$$
+W^{(l)}
+$$
+
+$$
+\sigma
+$$
+
+$$
+\tilde{D}^{-1/2} \tilde{A} \tilde{D}^{-1/2}
+$$
+
+### Message Passing Interpretation
+
+The GCN propagation rule can be interpreted as a message-passing scheme. For each node, its new feature representation is computed by aggregating the transformed features of its neighbors (including itself due to self-loops) and then applying a non-linear activation. The normalization term $\tilde{D}^{-1/2}$ ensures that the aggregated features are appropriately scaled, preventing nodes with many neighbors from dominating the feature update. This iterative process allows information to propagate across the graph, enabling nodes to learn representations that capture both their own features and the structural context of their neighborhood.
+
+$$
+\tilde{D}^{-1/2}
+$$
+
 ## Algorithm Steps
+
+1. Preprocess the input graph: Construct the adjacency matrix $A$ and the feature matrix $X$. Add self-loops to $A$ to form $\tilde{A} = A + I_N$. Compute the degree matrix $\tilde{D}$ for $\tilde{A}$.
+2. Compute the symmetrically normalized adjacency matrix: Calculate $\hat{A} = \tilde{D}^{-1/2} \tilde{A} \tilde{D}^{-1/2}$. This matrix acts as the propagation operator.
+3. Initialize the first layer's node features: Set $H^{(0)} = X$.
+4. For each GCN layer $l$ from $0$ to $L-1$:
+5.   a. Perform a linear transformation on the current node features: $Z^{(l)} = H^{(l)} W^{(l)}$, where $W^{(l)}$ is the trainable weight matrix for layer $l$.
+6.   b. Aggregate and normalize features from neighbors: $H_{intermediate}^{(l+1)} = \hat{A} Z^{(l)}$.
+7.   c. Apply a non-linear activation function: $H^{(l+1)} = \sigma(H_{intermediate}^{(l+1)})$.
+8. After the final layer $L$, the output $H^{(L)}$ contains the learned node embeddings.
+9. Apply a task-specific loss function (e.g., cross-entropy for node classification) to the output embeddings and train the network using an optimizer (e.g., Adam) to update the weight matrices $W^{(l)}$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `in_channels` | `int` | `None` | integer > 0 | Number of input features per node. |
+| `hidden_channels` | `int` | `64` | integer > 0 | Number of features in the hidden layers. |
+| `out_channels` | `int` | `None` | integer > 0 | Number of output features per node (e.g., number of classes for node classification). |
+| `num_layers` | `int` | `2` | integer >= 1 | Number of GCN layers in the network. |
+| `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | Probability of an element to be zeroed during training to prevent overfitting. |
+| `activation` | `str` | `relu` | 'relu', 'tanh', 'sigmoid', 'leaky_relu' | The non-linear activation function to use after each GCN layer. |
+| `add_self_loops` | `bool` | `True` | True, False | Whether to add self-loops to the adjacency matrix for each node. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
 
 ## Strengths
 
+- GCNs effectively capture both node features and graph topology, leading to powerful representations for graph-structured data.
+- The layer-wise propagation rule is computationally efficient, especially for sparse graphs, due to matrix multiplication with sparse adjacency matrices.
+- GCNs are relatively simple to implement and understand, making them a popular baseline for many graph learning tasks.
+- They can be applied to various graph-based tasks, including node classification, link prediction, and graph classification.
+- The spectral formulation provides a strong theoretical foundation for understanding how convolutions are generalized to graphs.
+
 ## Weaknesses
 
+- GCNs are inherently transductive, meaning they cannot directly generalize to unseen nodes or graphs without retraining or significant modifications.
+- The fixed aggregation function (mean or sum of neighbors) can limit the model's expressiveness and ability to differentiate between neighbors.
+- GCNs suffer from over-smoothing, where node representations become indistinguishable as the number of layers increases, losing local information.
+- They struggle with large graphs due to the need to store the full adjacency matrix and feature matrix in memory, especially in a full-batch training setting.
+- The model assumes homophily (similar nodes are connected), performing poorly on heterophilous graphs where dissimilar nodes are connected.
+
 ## Use Cases
+
+### Social Networks
+
+Used for node classification tasks like identifying communities, recommending friends, or detecting influential users based on connections and profiles.
+
+### Drug Discovery
+
+Applied to molecular graphs for predicting molecular properties, drug-target interaction, or synthesizing new molecules by learning representations of chemical structures.
+
+### Citation Networks
+
+Employed for classifying research papers into categories or recommending related papers by leveraging citation links and paper content.
+
+### Traffic Prediction
+
+Utilized in transportation networks to predict traffic flow or congestion by modeling road networks as graphs and considering spatio-temporal dependencies.
+
+### Recommender Systems
+
+Can model user-item interaction graphs to provide personalized recommendations by learning embeddings for users and items.
+
+### Knowledge Graphs
+
+Used for link prediction or entity classification within knowledge graphs, inferring missing relationships or types of entities.
 
 ## Implementation
 
@@ -51,7 +230,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# GCN does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +239,5 @@ related: []
 <LabEmbed url={""} title="GCN Lab" />
 
 ## References
+
+- Kipf & Welling (2017). Kipf & Welling.

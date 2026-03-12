@@ -9,36 +9,131 @@ paper: "Zhang et al."
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["clustering", "data-stream", "hierarchical-clustering", "incremental-learning", "large-datasets", "outlier-detection", "tree-structure", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "agglomerative-clustering"
+  - "dbscan"
+  - "hierarchical-clustering"
+  - "k-means"
+  - "mean-shift"
+  - "optics"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+BIRCH (Balanced Iterative Reducing and Clustering using Hierarchies) is an unsupervised clustering algorithm designed for large datasets. It constructs a compact, hierarchical data structure called a Clustering Feature (CF) tree, which summarizes the data points. This tree-based approach allows for efficient, incremental clustering by reducing the data to a set of CFs before an optional global clustering step.
+
 ## History
+
+**1996** — Ming-Yang Zhang, Jiawei Han, and Tian Zhang introduced BIRCH in their seminal paper "BIRCH: An Efficient Data Clustering Method for Very Large Databases" at the ACM SIGMOD Conference.
 
 ## Mathematical Intuition
 
+### Clustering Feature Definition
+
+A Clustering Feature (CF) is a triplet $(N, \vec{LS}, \vec{SS})$ that summarizes a cluster of data points. $N$ is the number of data points in the cluster, $\vec{LS}$ is the linear sum of the $N$ data points (i.e., $\sum_{i=1}^N \vec{X_i}$), and $\vec{SS}$ is the sum of the squares of the $N$ data points (i.e., $\sum_{i=1}^N \vec{X_i}^2$). These features allow for the calculation of cluster centroids, radii, and other statistics without storing all individual data points.
+
+$$
+CF = (N, \vec{LS}, \vec{SS})
+$$
+
+$$
+N = \sum_{i=1}^N 1
+$$
+
+$$
+\vec{LS} = \sum_{i=1}^N \vec{X_i}
+$$
+
+$$
+\vec{SS} = \sum_{i=1}^N \vec{X_i}^2
+$$
+
+### CF-Tree Structure
+
+The CF-tree is a height-balanced tree where each non-leaf node contains CFs of its children, and each leaf node contains CFs of subclusters. Each node has a maximum number of entries (branching factor $B$) and each leaf node has a maximum diameter or radius (threshold $T$). When a new data point is inserted, it traverses the tree to find the closest leaf entry, and its CF is updated. If the entry's diameter exceeds $T$, the leaf node may split, propagating changes up the tree.
+
+### CF Additivity and Merging
+
+CFs are additive, meaning the CF of a cluster formed by merging two subclusters is simply the sum of their individual CFs. If $CF_1 = (N_1, \vec{LS_1}, \vec{SS_1})$ and $CF_2 = (N_2, \vec{LS_2}, \vec{SS_2})$, then the CF of their merged cluster is $CF_{merged} = (N_1+N_2, \vec{LS_1}+\vec{LS_2}, \vec{SS_1}+\vec{SS_2})$. This property enables efficient updates and merging operations within the CF-tree, as only the summary statistics need to be combined.
+
+$$
+CF_{merged} = (N_1+N_2, \vec{LS_1}+\vec{LS_2}, \vec{SS_1}+\vec{SS_2})
+$$
+
 ## Algorithm Steps
+
+1. Initialize an empty CF-tree with a root node.
+2. For each data point $\vec{X_i}$ in the dataset, traverse the CF-tree from the root to find the leaf entry whose centroid is closest to $\vec{X_i}$.
+3. Attempt to insert $\vec{X_i}$ into this leaf entry by updating its Clustering Feature (CF).
+4. If the updated CF's diameter (or radius) exceeds the threshold $T$, the leaf entry cannot absorb $\vec{X_i}$ without violating the constraint, so a new leaf entry is created or the leaf node is split into two new nodes, and the CFs are redistributed.
+5. This splitting process propagates up the tree if necessary, potentially causing parent nodes to split as well.
+6. After all data points are processed, the CF-tree represents a compact summary of the dataset, where leaf entries correspond to micro-clusters.
+7. Optionally, apply a global clustering algorithm (e.g., K-Means or Agglomerative Clustering) to the centroids of the leaf entries in the CF-tree to form a desired number of macro-clusters.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `threshold` | `float` | `0.5` | positive float | The maximum radius of the subcluster that can be formed by a new sample without forcing a split in a leaf node. |
+| `branching_factor` | `int` | `50` | integer >= 2 | The maximum number of CF subclusters in each node (internal and leaf) of the CF-tree. |
+| `n_clusters` | `int or None` | `3` | integer >= 1 or None | The number of clusters to form after the BIRCH tree building process. If None, no global clustering step is performed, and the leaf nodes of the CF-tree are considered the final clusters. |
+| `compute_labels` | `bool` | `True` | True, False | Whether to compute cluster labels for each sample. If False, `fit_predict` and `fit_transform` will return -1 for all samples. |
+| `copy` | `bool` | `True` | True, False | Whether to copy the input data X or perform in-place operations. Setting to False can save memory but modifies the input. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- BIRCH is highly efficient and scalable for very large datasets due to its ability to summarize data into a compact CF-tree.
+- It can process data incrementally, making it suitable for data streams where data arrives continuously.
+- The algorithm can detect and handle outliers by placing them in separate leaf entries or discarding them if they are too far from any existing cluster.
+- It requires only a single scan of the dataset, which significantly reduces I/O costs compared to multi-pass algorithms.
+- The CF-tree structure provides a natural hierarchical clustering, allowing for different levels of granularity.
+
 ## Weaknesses
 
+- BIRCH is sensitive to the `threshold` and `branching_factor` parameters, which can significantly impact the quality of the resulting clusters.
+- It tends to form spherical clusters and may struggle with clusters of arbitrary shapes or varying densities.
+- The final clustering step (if `n_clusters` is specified) can be computationally expensive if the number of micro-clusters is still very large.
+- The algorithm's performance can degrade in high-dimensional spaces due to the curse of dimensionality affecting distance calculations.
+
 ## Use Cases
+
+### Data Summarization
+
+Used to reduce the dimensionality and size of large datasets by creating a compact representation of micro-clusters, which can then be used for further analysis.
+
+### Outlier Detection
+
+Can identify data points that do not fit well into any existing micro-cluster, making them potential outliers for fraud detection or anomaly monitoring.
+
+### Pre-processing for Clustering
+
+Serves as an initial step to reduce the dataset size before applying more computationally intensive clustering algorithms like [K-Means](/algorithms/unsupervised/clustering/k-means) or [DBSCAN](/algorithms/unsupervised/clustering/dbscan).
+
+### Real-time Data Stream Analysis
+
+Its incremental nature makes it suitable for clustering data that arrives continuously, such as network traffic, sensor data, or financial transactions.
+
+### Customer Segmentation
+
+Can be applied to large customer transaction datasets to identify distinct customer groups based on purchasing behavior or demographic attributes.
 
 ## Implementation
 
@@ -51,7 +146,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import Birch
+
+model = Birch()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +157,6 @@ related: []
 <LabEmbed url={""} title="BIRCH Lab" />
 
 ## References
+
+- Zhang et al. (1996). Zhang et al..
+- [scikit-learn: Birch](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html)

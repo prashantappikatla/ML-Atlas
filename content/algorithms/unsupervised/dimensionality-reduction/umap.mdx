@@ -9,36 +9,147 @@ paper: "McInnes et al."
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
-  image: false
-  text: false
-  timeseries: false
+  tabular: true
+  image: true
+  text: true
+  timeseries: true
   graph: false
-tags: []
+tags: ["dimensionality-reduction", "embedding", "graph-based", "manifold-learning", "non-linear", "topological-data-analysis", "unsupervised-learning", "visualization"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "autoencoder"
+  - "diffusion-maps"
+  - "isomap"
+  - "kernel-pca"
+  - "t-sne"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+UMAP (Uniform Manifold Approximation and Projection) is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data while preserving its essential topological structure. It models the data as a fuzzy simplicial set and then optimizes a low-dimensional representation to minimize the cross-entropy between the high-dimensional and low-dimensional topological structures. UMAP is particularly effective for visualization and exploratory data analysis, often producing more compact and separated clusters than [t-SNE](/algorithms/unsupervised/dimensionality-reduction/t-sne) while being computationally more efficient.
+
 ## History
+
+**2018** — The UMAP algorithm was first introduced by Leland McInnes, John Healy, and James Melville in a pre-print, outlining its theoretical foundations and practical application.
+
+**2018** — An open-source Python implementation of UMAP was released, facilitating its rapid adoption and widespread use across various scientific and machine learning domains.
+
+**2020** — The seminal paper "UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction" by McInnes, Healy, and Melville was formally published in the Journal of Open Source Software, solidifying its place in the academic literature.
 
 ## Mathematical Intuition
 
+### Fuzzy Simplicial Set Construction
+
+UMAP models the high-dimensional data as a fuzzy simplicial set, which is a generalization of a topological space where points are connected with varying degrees of membership or probability. This allows for a robust representation of local neighborhood structures. For any two points $x_i$ and $x_j$, their membership strength $\mu_X(x_i, x_j)$ in the high-dimensional space is derived from their distance and local connectivity properties, ensuring that connections are strong within local neighborhoods and decay rapidly outside them.
+
+$$
+\mu_X(x_i, x_j) = \exp\left(-\frac{\max(0, d(x_i, x_j) - \rho_i)}{\sigma_i}\right)
+$$
+
+$$
+\rho_i = \min_{j \in \text{neighbors}(i), j \neq i} d(x_i, x_j)
+$$
+
+$$
+\sigma_i \text{ is a local scale parameter chosen such that } \sum_{j \in \text{neighbors}(i)} \exp\left(-\frac{d(x_i, x_j) - \rho_i}{\sigma_i}\right) = \log_2(k)
+$$
+
+### High-Dimensional Graph Representation
+
+A weighted graph is constructed in the high-dimensional space where edge weights represent the probability of two points being connected. This involves defining local neighborhoods, typically using $k$-nearest neighbors, and then converting distances to probabilities using a smooth kernel. The weights are symmetrized to form a fuzzy union of the individual fuzzy sets, ensuring that the resulting graph captures the manifold structure effectively.
+
+$$
+p_{ij} = \mu_X(x_i, x_j) + \mu_X(x_j, x_i) - \mu_X(x_i, x_j) \cdot \mu_X(x_j, x_i)
+$$
+
+### Low-Dimensional Graph Optimization
+
+A similar graph is constructed in the low-dimensional embedding space, where the probability of connection $q_{ij}$ between embedded points $y_i$ and $y_j$ is modeled using a Student's t-distribution-like kernel. The objective is to optimize the layout of points in this low-dimensional space such that the cross-entropy between the high-dimensional fuzzy simplicial set ($p_{ij}$) and the low-dimensional one ($q_{ij}$) is minimized. This optimization preserves the topological structure by encouraging points that are close in high dimensions to be close in low dimensions, and points that are far apart to remain far apart.
+
+$$
+q_{ij} = (1 + a(y_i - y_j)^{2b})^{-1}
+$$
+
+$$
+C = \sum_{i,j} \left[ p_{ij} \log\left(\frac{p_{ij}}{q_{ij}}\right) + (1-p_{ij}) \log\left(\frac{1-p_{ij}}{1-q_{ij}}\right) \right]
+$$
+
 ## Algorithm Steps
+
+1. For each data point $x_i$ in the high-dimensional space, identify its $k$-nearest neighbors based on a chosen distance metric.
+2. Compute a local connectivity measure for each point, including the distance to its first nearest neighbor $\rho_i$ and a local scale $\sigma_i$, which normalizes distances within its neighborhood.
+3. Construct a weighted graph (fuzzy simplicial set) in the high-dimensional space where edge weights $p_{ij}$ represent the probability of connection between points $x_i$ and $x_j$, derived from their distances and local scales.
+4. Initialize the low-dimensional embedding of the data points, often randomly or using a spectral embedding method like PCA.
+5. Construct a weighted graph in the low-dimensional space, where edge weights $q_{ij}$ represent the probability of connection between embedded points $y_i$ and $y_j$, typically using a parameterized Student's t-distribution-like kernel.
+6. Optimize the low-dimensional embedding by minimizing the cross-entropy between the high-dimensional fuzzy simplicial set ($p_{ij}$) and the low-dimensional one ($q_{ij}$) using stochastic gradient descent.
+7. Iteratively adjust the positions of the embedded points to better match the topological structure of the high-dimensional data, pushing connected points closer and disconnected points further apart.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_neighbors` | `int` | `15` | integer > 0 | The size of local neighborhood (in terms of number of neighboring sample points) used for constructing the high-dimensional graph. Smaller values emphasize local structure, larger values emphasize global structure. |
+| `n_components` | `int` | `2` | integer > 0 | The dimension of the space into which to embed the data. Commonly 2 or 3 for visualization. |
+| `min_dist` | `float` | `0.1` | 0.0 <= float < 1.0 | The effective minimum distance between embedded points. Smaller values will result in more clustered embeddings, while larger values will ensure embedded points are more spread out. |
+| `metric` | `str or callable` | `'euclidean'` | e.g., 'euclidean', 'manhattan', 'cosine', 'correlation' | The metric to use to compute distances in high dimensional space. Can be a string identifier for a common metric or a custom callable function. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer or None | Determines the random number generator for reproducible results across multiple runs. |
+| `n_epochs` | `int` | `None` | integer > 0 or None | The number of training epochs to be used in optimizing the low dimensional embedding. If None, it is determined automatically based on the dataset size. |
+| `learning_rate` | `float` | `1.0` | float > 0.0 | The initial learning rate for the embedding optimization process. |
+| `spread` | `float` | `1.0` | float > 0.0 | The effective scale of embedded points. It controls how tightly the points are packed together. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={true}
+  text={true}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- UMAP is generally faster and more scalable than t-SNE for large datasets, making it suitable for higher-dimensional data analysis.
+- It often preserves both local and global data structure effectively, leading to well-separated clusters and a meaningful overall layout.
+- The algorithm is robust to noise and outliers due to its probabilistic approach to neighborhood definition and fuzzy set theory.
+- UMAP can handle a wide range of distance metrics, allowing flexibility in defining similarity between data points.
+- The resulting embeddings are often more compact and less prone to "crowding" than those produced by other non-linear methods.
+- UMAP provides a principled framework for manifold learning, grounded in Riemannian geometry and algebraic topology.
+
 ## Weaknesses
 
+- The choice of hyperparameters, particularly `n_neighbors` and `min_dist`, can significantly impact the resulting embedding and often requires careful tuning.
+- Interpreting the absolute distances or densities in the UMAP embedding space can be misleading, as it primarily preserves relative topological structure rather than metric distances.
+- UMAP's theoretical foundations, while robust, are complex and may be less intuitive for practitioners compared to simpler linear methods.
+- The algorithm's performance can degrade with extremely high-dimensional data if the intrinsic dimensionality is also very high, potentially leading to less informative embeddings.
+- Reproducibility can be a concern without setting a `random_state`, as the stochastic optimization process can yield slightly different results.
+
 ## Use Cases
+
+### Bioinformatics
+
+Visualizing high-dimensional gene expression data or single-cell RNA sequencing data to identify distinct cell populations and understand cellular heterogeneity.
+
+### Natural Language Processing
+
+Reducing the dimensionality of word embeddings or document embeddings for visualization, enabling the discovery of semantic relationships and topic clusters within text corpora.
+
+### Image Processing
+
+Visualizing feature vectors extracted from images by deep learning models to understand relationships between different image categories or identify anomalies.
+
+### Cybersecurity
+
+Detecting anomalies or clusters in network traffic data, system logs, or user behavior patterns for threat intelligence and intrusion detection.
+
+### Customer Segmentation
+
+Visualizing complex customer behavior data to identify distinct customer groups, which informs targeted marketing strategies and product development.
+
+### Drug Discovery
+
+Analyzing chemical compound properties and molecular fingerprints to identify structural similarities, explore chemical space, and predict potential drug candidates.
 
 ## Implementation
 
@@ -51,7 +162,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.manifold import TSNE
+
+model = TSNE()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +173,6 @@ related: []
 <LabEmbed url={""} title="UMAP Lab" />
 
 ## References
+
+- McInnes et al. (2018). McInnes et al..
+- [scikit-learn: TSNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html)

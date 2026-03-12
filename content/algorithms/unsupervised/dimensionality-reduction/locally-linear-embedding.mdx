@@ -9,36 +9,139 @@ paper: "Roweis & Saul"
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["data-visualization", "dimensionality-reduction", "eigenvalue-decomposition", "feature-extraction", "local-geometry", "manifold-learning", "non-linear", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "isomap"
+  - "laplacian-eigenmaps"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Locally Linear Embedding (LLE) is a non-linear dimensionality reduction technique that seeks to preserve the local geometry of the data. It maps high-dimensional inputs into a lower-dimensional space while attempting to maintain the linear relationships between each data point and its neighbors. This method is particularly effective for uncovering the underlying manifold structure of complex datasets by assuming that each data point and its neighbors lie on a locally linear patch of the manifold.
+
 ## History
+
+**2000** — Sam T. Roweis and Lawrence K. Saul introduced Locally Linear Embedding in their seminal paper "Nonlinear Dimensionality Reduction by Locally Linear Embedding," published in Science. This marked a significant advancement in manifold learning.
+
+**2001** — Saul and Roweis further elaborated on the theoretical foundations and practical aspects of LLE in "Think globally, act locally: Locally linear embedding and intrinsic dimensionality," providing deeper insights into the algorithm.
+
+**2002** — LLE gained recognition as a powerful tool for visualizing high-dimensional data and was extensively compared with other emerging non-linear dimensionality reduction techniques like [Isomap](/algorithms/unsupervised/dimensionality-reduction/isomap) and [Laplacian Eigenmaps](/algorithms/unsupervised/dimensionality-reduction/laplacian-eigenmaps).
+
+**2006** — Extensions and variants of LLE, such as Hessian LLE and Modified LLE, were developed to address some of its limitations, particularly regarding robustness to noise and handling of varying data densities.
 
 ## Mathematical Intuition
 
+### Local Reconstruction Weights
+
+For each data point $X_i$ in the high-dimensional space, LLE first identifies its $k$ nearest neighbors. It then computes a set of optimal linear reconstruction weights $W_{ij}$ that best reconstruct $X_i$ from its neighbors. This is achieved by minimizing the reconstruction error, subject to two crucial constraints: the weights must sum to one for each point, and they must be zero for non-neighbors, ensuring local linearity and sparsity.
+
+$$
+\min_W \sum_i \| X_i - \sum_j W_{ij} X_j \|^2
+$$
+
+$$
+\sum_j W_{ij} = 1 \text{ for each } i
+$$
+
+$$
+W_{ij} = 0 \text{ if } X_j \text{ is not a neighbor of } X_i
+$$
+
+### Global Low-Dimensional Embedding
+
+Once the optimal weights $W_{ij}$ are determined, LLE seeks to find a low-dimensional representation $Y_i$ for each $X_i$ such that the same reconstruction weights apply. That is, each $Y_i$ should be reconstructible from its neighbors $Y_j$ using the *same* weights $W_{ij}$ found in the high-dimensional space. This is achieved by minimizing a new cost function, subject to constraints that prevent trivial solutions, such as all points collapsing to the origin or arbitrary scaling. The problem reduces to finding the eigenvectors corresponding to the smallest non-zero eigenvalues of a specific matrix $M = (I - W)^T (I - W)$.
+
+$$
+\min_Y \sum_i \| Y_i - \sum_j W_{ij} Y_j \|^2
+$$
+
+$$
+\sum_i Y_i = 0 \text{ (centering)}
+$$
+
+$$
+\frac{1}{N} \sum_i Y_i Y_i^T = I \text{ (unit variance/orthogonality)}
+$$
+
+$$
+M = (I - W)^T (I - W)
+$$
+
 ## Algorithm Steps
+
+1. For each data point $X_i$ in the high-dimensional input space, identify its $k$ nearest neighbors.
+2. Compute the optimal linear reconstruction weights $W_{ij}$ that minimize the squared reconstruction error of $X_i$ from its neighbors, subject to the constraint that the sum of weights for each point is one.
+3. Construct a sparse weight matrix $W$ where $W_{ij}$ are the computed weights and $W_{ij}=0$ if $X_j$ is not a neighbor of $X_i$.
+4. Form the cost matrix $M = (I - W)^T (I - W)$, where $I$ is the identity matrix.
+5. Solve the eigenvalue problem for $M$ to find the $d+1$ eigenvectors corresponding to the smallest non-zero eigenvalues.
+6. The low-dimensional embedding $Y$ is formed by the $d$ eigenvectors corresponding to the smallest non-zero eigenvalues (excluding the trivial eigenvector associated with eigenvalue 0, which corresponds to a constant shift).
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_neighbors` | `int` | `5` | integer > 0 | Number of neighbors to consider for each point when constructing the local linear approximations. |
+| `n_components` | `int` | `2` | integer > 0 | Desired dimensionality of the output embedding space. |
+| `reg` | `float` | `1e-3` | float >= 0 | Regularization parameter. Controls the amount of regularization in the linear reconstruction problem to prevent ill-conditioned matrices. |
+| `eigen_solver` | `str` | `auto` | 'auto', 'arpack', 'dense' | Solver to use for the eigenvalue problem. 'auto' chooses based on problem size, 'arpack' for sparse, 'dense' for dense. |
+| `tol` | `float` | `1e-6` | float >= 0 | Tolerance for the eigenvalue solver convergence. |
+| `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the eigenvalue solver. |
+| `method` | `str` | `standard` | 'standard', 'hessian', 'modified', 'ltsa' | The LLE algorithm variant to use, offering different ways to handle local geometry and robustness. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- LLE is capable of uncovering complex non-linear structures in data, making it suitable for manifold learning.
+- It preserves the local geometry of the data, which can be crucial for maintaining meaningful relationships between nearby points.
+- The algorithm has no free parameters other than the number of neighbors $k$ and the target dimensionality $d$, simplifying its configuration compared to some other non-linear methods.
+- The embedding is unique up to global rotations, translations, and scaling, providing a stable representation.
+- It can be more robust to noise than some other manifold learning techniques due to its local averaging process.
+
 ## Weaknesses
 
+- LLE is sensitive to the choice of the number of neighbors $k$, which can significantly impact the quality of the embedding.
+- It struggles with datasets where the intrinsic dimensionality varies across the manifold or where the data density is highly non-uniform.
+- The computational complexity can be high, especially for large datasets, due to the need to find neighbors and solve an eigenvalue problem.
+- LLE assumes that the local geometry is approximately linear, which may not hold true for all types of manifolds or very sparse data.
+- It does not provide an explicit mapping function for out-of-sample data, requiring re-computation for new points.
+
 ## Use Cases
+
+### Bioinformatics
+
+Visualizing high-dimensional gene expression data to identify clusters or underlying biological processes, revealing intrinsic patterns in cellular states.
+
+### Computer Vision
+
+Reducing the dimensionality of image features for tasks like facial recognition or object classification, revealing intrinsic variations in pose or illumination.
+
+### Robotics
+
+Learning low-dimensional representations of robot joint angles or sensor readings to simplify control or state estimation in complex robotic systems.
+
+### Data Visualization
+
+Creating 2D or 3D visualizations of complex, high-dimensional datasets to aid human understanding and pattern discovery in various scientific and business domains.
+
+### Speech Processing
+
+Analyzing and visualizing high-dimensional acoustic features to understand phonetic variations or speaker characteristics, aiding in speech synthesis and recognition.
 
 ## Implementation
 
@@ -51,7 +154,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import LocallyLinearEmbedding
+
+model = LocallyLinearEmbedding()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +165,6 @@ related: []
 <LabEmbed url={""} title="Locally Linear Embedding Lab" />
 
 ## References
+
+- Roweis & Saul (2000). Roweis & Saul.
+- [scikit-learn: LocallyLinearEmbedding](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LocallyLinearEmbedding.html)

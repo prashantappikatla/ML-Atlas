@@ -10,35 +10,186 @@ complexity: "high"
 status: "in-progress"
 compatibility:
   tabular: false
-  image: false
+  image: true
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["deep-learning", "density-estimation", "flow-based", "generative-model", "image-generation", "invertible-neural-networks", "normalizing-flows", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "stacking"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Glow is a generative model that learns an invertible mapping from data space to a simple latent space, enabling exact log-likelihood computation and efficient sampling. It achieves this by [Stacking](/algorithms/supervised/classification/stacking) a series of invertible transformations, primarily based on affine coupling layers, which allow for both forward (density estimation) and inverse (sampling) passes. This architecture facilitates high-quality image synthesis and latent space manipulation while maintaining tractability of the likelihood function.
+
 ## History
+
+**2014** — Laurent Dinh et al. introduced NICE (Non-linear Independent Components Estimation), pioneering the concept of additive coupling layers for invertible transformations.
+
+**2016** — Laurent Dinh et al. improved upon NICE with Real NVP (Real-valued Non-Volume Preserving), introducing affine coupling layers for more expressive transformations and exact log-likelihood computation.
+
+**2018** — Diederik P. Kingma and Prafulla Dhariwal introduced Glow: Generative Flow with Invertible 1x1 Convolutions, significantly enhancing flow-based models with invertible 1x1 convolutions and a squeezing operation for high-resolution image generation.
+
+**2018** — OpenAI's public demonstration and implementation of Glow for high-resolution face generation popularized the model and showcased its advanced capabilities in image synthesis.
 
 ## Mathematical Intuition
 
+### Change of Variables Formula
+
+The fundamental principle of flow-based models is to transform a complex data distribution $p_X(x)$ into a simple, tractable latent distribution $p_Z(z)$ via an invertible mapping $z = f(x)$. The probability density of $x$ can then be computed using the change of variables formula:
+$$p_X(x) = p_Z(f(x)) \left| \det \left( \frac{\partial f(x)}{\partial x} \right) \right|$$
+For a sequence of $K$ invertible transformations $f = f_K \circ \dots \circ f_1$, the determinant of the Jacobian is computed as:
+$$\left| \det \left( \frac{\partial f(x)}{\partial x} \right) \right| = \prod_{k=1}^K \left| \det \left( \frac{\partial f_k(h_{k-1})}{\partial h_{k-1}} \right) \right|$$
+The objective during training is to maximize the log-likelihood $\log p_X(x)$, which involves minimizing the negative log-likelihood:
+$$-\log p_X(x) = -\log p_Z(f(x)) - \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(h_{k-1})}{\partial h_{k-1}} \right) \right|$$
+This requires each transformation $f_k$ to be invertible and its Jacobian determinant to be efficiently computable.
+
+$$
+p_X(x) = p_Z(f(x)) \left| \det \left( \frac{\partial f(x)}{\partial x} \right) \right|
+$$
+
+$$
+\left| \det \left( \frac{\partial f(x)}{\partial x} \right) \right| = \prod_{k=1}^K \left| \det \left( \frac{\partial f_k(h_{k-1})}{\partial h_{k-1}} \right) \right|
+$$
+
+$$
+-\log p_X(x) = -\log p_Z(f(x)) - \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(h_{k-1})}{\partial h_{k-1}} \right) \right|
+$$
+
+### Affine Coupling Layers
+
+Affine coupling layers are a core component, partitioning the input $h$ into two parts, $h_1$ and $h_2$. One part, $h_1$, is passed through unchanged, while the other part, $h_2$, is transformed using a scaling factor $s(h_1)$ and a translation $t(h_1)$ derived from $h_1$ by a neural network. The forward transformation is:
+$$y_1 = h_1$$
+$$y_2 = h_2 \odot \exp(s(h_1)) + t(h_1)$$
+The inverse transformation is:
+$$h_1 = y_1$$
+$$h_2 = (y_2 - t(y_1)) \odot \exp(-s(y_1))$$
+The log-determinant of the Jacobian for this transformation is simply $\sum s(h_1)$, which is efficiently computable. To ensure all dimensions are transformed, the roles of $h_1$ and $h_2$ are swapped in alternating layers.
+
+$$
+y_1 = h_1
+$$
+
+$$
+y_2 = h_2 \odot \exp(s(h_1)) + t(h_1)
+$$
+
+$$
+h_1 = y_1
+$$
+
+$$
+h_2 = (y_2 - t(y_1)) \odot \exp(-s(y_1))
+$$
+
+$$
+\sum s(h_1)
+$$
+
+### Invertible 1x1 Convolutions
+
+Glow introduced invertible 1x1 convolutions to permute channels, which is crucial for mixing information across channels within a coupling layer. For an input $h \in \mathbb{R}^{H \times W \times C}$, an invertible 1x1 convolution applies a $C \times C$ weight matrix $W$ to the channels at each spatial location. The transformation is $y = W h$. The log-determinant of the Jacobian for this operation is $H \cdot W \cdot \log |\det(W)|$. The matrix $W$ is initialized as a random orthogonal matrix and optimized during training, with its determinant efficiently computable.
+
+$$
+h \in \mathbb{R}^{H \times W \times C}
+$$
+
+$$
+y = W h
+$$
+
+$$
+H \cdot W \cdot \log |\det(W)|
+$$
+
+### Squeezing and Splitting Operations
+
+To handle high-resolution images and increase channel depth, Glow employs a 'squeezing' operation, transforming a tensor of shape $H \times W \times C$ into $H/2 \times W/2 \times 4C$ by rearranging pixels from a $2 \times 2$ neighborhood into new channels. This reduces spatial dimensions while increasing channel depth. 'Splitting' (or multi-scale architecture) allows some channels to be factored out into the latent space at different scales; after a sequence of flow steps, half of the channels are sent directly to the latent space (assumed to be Gaussian), while the other half continue through further flow layers, managing computational complexity and enabling multi-resolution learning.
+
+$$
+H \times W \times C
+$$
+
+$$
+H/2 \times W/2 \times 4C
+$$
+
 ## Algorithm Steps
+
+1. Initialize the model with a sequence of flow steps, each consisting of an actnorm layer, an invertible 1x1 convolution, and an affine coupling layer.
+2. For each training image $x$, apply a squeezing operation to reduce spatial dimensions and increase channel depth, if processing at multiple scales.
+3. Pass the squeezed data through the sequence of flow steps; each step $k$ transforms the input $h_{k-1}$ to $h_k$ and computes the log-determinant of its Jacobian, $\log |\det(\partial h_k / \partial h_{k-1})|$.
+4. At certain points in the flow, apply a splitting operation, where half of the channels are directly mapped to a latent variable $z_i$ and assumed to follow a standard Gaussian distribution $p(z_i) = \mathcal{N}(0, I)$.
+5. The other half of the channels continue through subsequent flow steps, with the final output being a latent variable $z_L$, also assumed to follow a standard Gaussian distribution $p(z_L) = \mathcal{N}(0, I)$.
+6. Compute the negative log-likelihood for the input image $x$ as: $-\log p_X(x) = -\sum_{i} \log p(z_i) - \log p(z_L) - \sum_{k} \log |\det(\partial h_k / \partial h_{k-1})|$.
+7. Optimize the model parameters using an optimizer (e.g., Adam) to minimize the negative log-likelihood.
+8. For sampling, generate a latent vector $z$ from a standard Gaussian distribution and pass it through the inverse of the flow transformations to reconstruct an image $x$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_blocks` | `int` | `1` | integer >= 1 | Number of flow blocks (scales) in the multi-scale architecture. |
+| `n_steps_per_block` | `int` | `32` | integer >= 1 | Number of flow steps (affine coupling layers, 1x1 convs, actnorms) within each block. |
+| `n_channels` | `int` | `3` | integer >= 1 | Number of input channels (e.g., 3 for RGB images). |
+| `hidden_channels` | `int` | `512` | integer >= 1 | Number of channels in the hidden layers of the neural networks within affine coupling layers. |
+| `affine_coupling_type` | `str` | `"glow"` | ['glow', 'real_nvp'] | Type of affine coupling layer to use. |
+| `learn_top_prior` | `bool` | `True` | boolean | Whether to learn the parameters of the Gaussian prior for the top-level latent variables. |
+| `optimizer` | `str` | `"adam"` | ['adam', 'sgd', 'rmsprop'] | Optimization algorithm to use for training. |
+| `learning_rate` | `float` | `0.0001` | float > 0 | Initial learning rate for the optimizer. |
+| `batch_size` | `int` | `64` | integer >= 1 | Number of samples per batch during training. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- Glow allows for exact computation of the log-likelihood of data, providing a strong and unambiguous objective for generative modeling.
+- The model is fully invertible, enabling both efficient sampling from the latent space to data space and exact inference from data space to latent space.
+- Glow can generate high-quality and diverse samples, particularly for image data, due to its expressive invertible transformations.
+- The latent space learned by Glow is often well-structured and disentangled, allowing for meaningful interpolations and manipulations of generated samples.
+- It does not suffer from mode collapse, a common issue in Generative Adversarial Networks, as it directly optimizes the data likelihood.
+- The architecture is inherently parallelizable, allowing for efficient training on modern hardware.
+
 ## Weaknesses
 
+- Training Glow models can be computationally expensive and memory-intensive, especially for very high-resolution images, due to the need to store intermediate activations for backpropagation.
+- The model's performance is highly sensitive to the choice of architecture, number of flow steps, and hyperparameter tuning.
+- While it avoids mode collapse, it can sometimes struggle with capturing all modes of a complex distribution, potentially leading to blurry or less diverse samples compared to state-of-the-art GANs in some cases.
+- The requirement for invertible transformations limits the types of functions that can be used, potentially restricting the model's expressiveness compared to non-invertible deep networks.
+- The log-determinant calculation, while efficient for the chosen layers, still adds computational overhead during training.
+
 ## Use Cases
+
+### Image Synthesis
+
+Generating realistic and diverse images, such as human faces or objects, from a simple latent space.
+
+### Image Manipulation
+
+Performing operations like style transfer, attribute editing (e.g., changing hair color, adding glasses), or interpolation in the latent space.
+
+### Anomaly Detection
+
+Identifying out-of-distribution samples by evaluating their low likelihood under the learned data distribution.
+
+### Data Compression
+
+Encoding images into a compact latent representation that can be perfectly reconstructed through the inverse flow.
+
+### Density Estimation
+
+Providing an explicit and exact probability density function for complex data distributions, useful in various statistical tasks.
 
 ## Implementation
 
@@ -51,7 +202,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# Glow does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +211,5 @@ related: []
 <LabEmbed url={""} title="Glow Lab" />
 
 ## References
+
+- Kingma & Dhariwal (2018). Kingma & Dhariwal.

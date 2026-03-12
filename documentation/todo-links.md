@@ -2016,3 +2016,184 @@
 - [ ] `Adaptive Neuro` — appears in prose but has no MDX page
 - [ ] `Shing Roger Jang` — appears in prose but has no MDX page
 - [ ] `Soft Computing` — appears in prose but has no MDX page
+
+### Huber Regression (2026-03-12)
+- [ ] `Elvezio Ronchetti` — appears in prose but has no MDX page
+- [ ] `Frank Hampel` — appears in prose but has no MDX page
+- [ ] `Influence Functions` — appears in prose but has no MDX page
+- [ ] `Location Parameter` — appears in prose but has no MDX page
+- [ ] `Mean Absolute Error` — appears in prose but has no MDX page
+- [ ] `Mean Squared Error` — appears in prose but has no MDX page
+- [ ] `Peter Rousseeuw` — appears in prose but has no MDX page
+- [ ] `Robust Estimation` — appears in prose but has no MDX page
+- [ ] `Robust Statistics` — appears in prose but has no MDX page
+- [ ] `The Approach Based` — appears in prose but has no MDX page
+- [ ] `The Huber` — appears in prose but has no MDX page
+- [ ] `Werner Stahel` — appears in prose but has no MDX page
+
+### AdaBoost Regression (2026-03-12)
+- [ ] `Adaptive Boosting` — appears in prose but has no MDX page
+- [ ] `Gradient Boosting Machines` — appears in prose but has no MDX page
+- [ ] `Jerome Friedman` — appears in prose but has no MDX page
+- [ ] `Robert Schapire` — appears in prose but has no MDX page
+- [ ] `Robert Tibshirani` — appears in prose but has no MDX page
+- [ ] `Statistical View` — appears in prose but has no MDX page
+- [ ] `Trevor Hastie` — appears in prose but has no MDX page
+- [ ] `Yoav Freund` — appears in prose but has no MDX page
+
+### Gradient Boosting Regression (2026-03-12)
+- [ ] `Carlos Guestrin` — appears in prose but has no MDX page
+- [ ] `Gradient Boosting Machine` — appears in prose but has no MDX page
+- [ ] `Gradient Boosting Machines` — appears in prose but has no MDX page
+- [ ] `Greedy Function Approximation` — appears in prose but has no MDX page
+- [ ] `Robert Schapire` — appears in prose but has no MDX page
+- [ ] `Tianqi Chen` — appears in prose but has no MDX page
+- [ ] `Yoav Freund` — appears in prose but has no MDX page
+
+### LightGBM (2026-03-12)
+- [ ] `Decision Tree` — appears in prose but has no MDX page
+- [ ] `Exclusive Feature Bundling` — appears in prose but has no MDX page
+- [ ] `Gradient Boosting` — appears in prose but has no MDX page
+- [ ] `Guolin Ke` — appears in prose but has no MDX page
+- [ ] `Highly Efficient Gradient Boosting` — appears in prose but has no MDX page
+- [ ] `Light Gradient Boosting Machine` — appears in prose but has no MDX page
+- [ ] `Microsoft Research` — appears in prose but has no MDX page
+- [ ] `Side Sampling` — appears in prose but has no MDX page
+
+### BIRCH (2026-03-12)
+- [ ] `An Efficient Data Clustering` — appears in prose but has no MDX page
+- [ ] `Balanced Iterative Reducing` — appears in prose but has no MDX page
+- [ ] `Clustering Feature` — appears in prose but has no MDX page
+- [ ] `Jiawei Han` — appears in prose but has no MDX page
+- [ ] `Tian Zhang` — appears in prose but has no MDX page
+- [ ] `Very Large Databases` — appears in prose but has no MDX page
+- [ ] `Yang Zhang` — appears in prose but has no MDX page
+
+### Locally Linear Embedding (2026-03-12)
+- [ ] `Nonlinear Dimensionality Reduction` — appears in prose but has no MDX page
+
+### Laplacian Eigenmaps (2026-03-12)
+- [ ] `Data Representation` — appears in prose but has no MDX page
+- [ ] `Dimensionality Reduction` — appears in prose but has no MDX page
+- [ ] `Graph Laplacian` — appears in prose but has no MDX page
+- [ ] `Mikhail Belkin` — appears in prose but has no MDX page
+- [ ] `Partha Niyogi` — appears in prose but has no MDX page
+
+### t-SNE (2026-03-12)
+- [ ] `Distributed Stochastic Neighbor Embedding` — appears in prose but has no MDX page
+- [ ] `Fast Interpolation` — appears in prose but has no MDX page
+- [ ] `Geoffrey Hinton` — appears in prose but has no MDX page
+- [ ] `Sam Roweis` — appears in prose but has no MDX page
+- [ ] `Stochastic Neighbor Embedding` — appears in prose but has no MDX page
+- [ ] `Visualizing Data` — appears in prose but has no MDX page
+
+### Latent Semantic Analysis (2026-03-12)
+- [ ] `Inverse Document Frequency` — appears in prose but has no MDX page
+- [ ] `Latent Semantic Indexing` — appears in prose but has no MDX page
+- [ ] `Richard Harshman` — appears in prose but has no MDX page
+- [ ] `Scott Deerwester` — appears in prose but has no MDX page
+- [ ] `Singular Value Decomposition` — appears in prose but has no MDX page
+- [ ] `Term Frequency` — appears in prose but has no MDX page
+- [ ] `The Latent Semantic Analysis` — appears in prose but has no MDX page
+
+### FP-Growth (2026-03-12)
+- [ ] `Data Mining` — appears in prose but has no MDX page
+- [ ] `Frequent Pattern Tree` — appears in prose but has no MDX page
+
+### Contractive Autoencoder (2026-03-12)
+- [ ] `Contractive Autoencoders` — appears in prose but has no MDX page
+- [ ] `Denoising Autoencoders` — appears in prose but has no MDX page
+- [ ] `Geoffrey Hinton` — appears in prose but has no MDX page
+- [ ] `Pascal Vincent` — appears in prose but has no MDX page
+- [ ] `Ruslan Salakhutdinov` — appears in prose but has no MDX page
+- [ ] `Sacha Rifai` — appears in prose but has no MDX page
+- [ ] `The Contractive` — appears in prose but has no MDX page
+- [ ] `The Jacobian` — appears in prose but has no MDX page
+- [ ] `Xavier Glorot` — appears in prose but has no MDX page
+- [ ] `Xavier Muller` — appears in prose but has no MDX page
+- [ ] `Yoshua Bengio` — appears in prose but has no MDX page
+
+### Hopfield Network (2026-03-12)
+- [ ] `Bidirectional Associative Memory` — appears in prose but has no MDX page
+- [ ] `David Tank` — appears in prose but has no MDX page
+- [ ] `Hopfield Networks` — appears in prose but has no MDX page
+- [ ] `John Hopfield` — appears in prose but has no MDX page
+- [ ] `The Hopfield Network` — appears in prose but has no MDX page
+- [ ] `Traveling Salesperson Problem` — appears in prose but has no MDX page
+
+### Glow (2026-03-12)
+- [ ] `Generative Flow` — appears in prose but has no MDX page
+- [ ] `Independent Components Estimation` — appears in prose but has no MDX page
+- [ ] `Laurent Dinh` — appears in prose but has no MDX page
+- [ ] `Prafulla Dhariwal` — appears in prose but has no MDX page
+- [ ] `Volume Preserving` — appears in prose but has no MDX page
+
+### Node2Vec (2026-03-12)
+- [ ] `First Search` — appears in prose but has no MDX page
+- [ ] `The Skip` — appears in prose but has no MDX page
+
+### GCN (2026-03-12)
+- [ ] `Graph Attention Networks` — appears in prose but has no MDX page
+- [ ] `Graph Convolutional Network` — appears in prose but has no MDX page
+- [ ] `Graph Convolutional Networks` — appears in prose but has no MDX page
+
+### ANFIS (2026-03-12)
+- [ ] `Adaptive Neuro` — appears in prose but has no MDX page
+- [ ] `Shing Roger Jang` — appears in prose but has no MDX page
+
+### Poisson Regression (2026-03-12)
+- [ ] `For Poisson Regression` — appears in prose but has no MDX page
+- [ ] `Generalized Linear Interactive Modelling` — appears in prose but has no MDX page
+- [ ] `Generalized Linear Model` — appears in prose but has no MDX page
+- [ ] `Generalized Linear Models` — appears in prose but has no MDX page
+- [ ] `John Nelder` — appears in prose but has no MDX page
+- [ ] `Maximum Likelihood Estimation` — appears in prose but has no MDX page
+- [ ] `Robert Wedderburn` — appears in prose but has no MDX page
+- [ ] `The Poisson` — appears in prose but has no MDX page
+
+### OPTICS (2026-03-12)
+- [ ] `Clustering Structure` — appears in prose but has no MDX page
+- [ ] `Ordering Points To Identify` — appears in prose but has no MDX page
+
+### Sparse PCA (2026-03-12)
+- [ ] `American Statistical Association` — appears in prose but has no MDX page
+- [ ] `Daniela Witten` — appears in prose but has no MDX page
+- [ ] `Francis Bach` — appears in prose but has no MDX page
+- [ ] `Hui Zou` — appears in prose but has no MDX page
+- [ ] `Laurent El Ghaoui` — appears in prose but has no MDX page
+- [ ] `Least Angle Regression` — appears in prose but has no MDX page
+- [ ] `Penalized Matrix Decomposition` — appears in prose but has no MDX page
+- [ ] `Principal Component Analysis` — appears in prose but has no MDX page
+- [ ] `Robert Tibshirani` — appears in prose but has no MDX page
+- [ ] `Rodolphe Sepulchre` — appears in prose but has no MDX page
+- [ ] `Sparse Principal Component Analysis` — appears in prose but has no MDX page
+- [ ] `Traditional Principal Component Analysis` — appears in prose but has no MDX page
+- [ ] `Trevor Hastie` — appears in prose but has no MDX page
+- [ ] `Yurii Nesterov` — appears in prose but has no MDX page
+
+### UMAP (2026-03-12)
+- [ ] `Dimension Reduction` — appears in prose but has no MDX page
+- [ ] `James Melville` — appears in prose but has no MDX page
+- [ ] `John Healy` — appears in prose but has no MDX page
+- [ ] `Open Source Software` — appears in prose but has no MDX page
+- [ ] `Uniform Manifold Approximation` — appears in prose but has no MDX page
+
+### Particle Filter (2026-03-12)
+- [ ] `Adrian Smith` — appears in prose but has no MDX page
+- [ ] `Arnaud Doucet` — appears in prose but has no MDX page
+- [ ] `David Salmond` — appears in prose but has no MDX page
+- [ ] `Gaussian Bayesian` — appears in prose but has no MDX page
+- [ ] `Genshiro Kitagawa` — appears in prose but has no MDX page
+- [ ] `Monte Carlo` — appears in prose but has no MDX page
+- [ ] `Neil Gordon` — appears in prose but has no MDX page
+- [ ] `Particle Filters` — appears in prose but has no MDX page
+- [ ] `Sequential Importance Resampling` — appears in prose but has no MDX page
+- [ ] `Sequential Monte Carlo Methods` — appears in prose but has no MDX page
+
+### VARMA (2026-03-12)
+- [ ] `George Box` — appears in prose but has no MDX page
+- [ ] `George Tiao` — appears in prose but has no MDX page
+- [ ] `Gwilym Jenkins` — appears in prose but has no MDX page
+- [ ] `Modeling Multiple Time Series` — appears in prose but has no MDX page
+- [ ] `Time Series Analysis` — appears in prose but has no MDX page
+- [ ] `Vector Autoregressive Moving Average` — appears in prose but has no MDX page

@@ -4,8 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Search, Loader2 } from 'lucide-react'
 import { AlgorithmCard } from '@/components/algorithm/AlgorithmCard'
 import { Algorithm } from '@/types/algorithm'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+import { api } from '@/lib/api-client'
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -32,9 +31,7 @@ export function SearchPage() {
     setLoading(true)
     setSearched(true)
     try {
-      const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`)
-      if (!res.ok) throw new Error('Search failed')
-      const data = await res.json()
+      const data = (await api.search(q)) as Algorithm[] | { data?: Algorithm[] }
       const items = Array.isArray(data) ? data : data?.data ?? []
       setResults(items)
     } catch {

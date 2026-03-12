@@ -10,35 +10,153 @@ complexity: "medium"
 status: "in-progress"
 compatibility:
   tabular: false
-  image: false
-  text: false
+  image: true
+  text: true
   timeseries: false
   graph: false
-tags: []
+tags: ["associative-memory", "binary-neurons", "deep-learning", "energy-based-model", "optimization", "pattern-recognition", "recurrent-neural-network", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "autoencoder"
+  - "boltzmann-machine"
+  - "recurrent-neural-network"
+  - "restricted-boltzmann-machine"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+The Hopfield Network is a type of recurrent artificial neural network that serves as a content-addressable memory system. It is characterized by its fully connected, symmetric architecture and a defined energy function that guides its dynamics towards stable states, which correspond to stored memory patterns. This network can retrieve a complete memory pattern from a noisy or incomplete input by iteratively updating neuron states until convergence to a local minimum of its energy function.
+
 ## History
+
+**1982** — John Hopfield introduced the model of a neural network with emergent computational properties, demonstrating its ability to function as an associative memory system and solve optimization problems.
+
+**1984** — Hopfield and David Tank extended the continuous version of the Hopfield Network to solve complex optimization problems, such as the Traveling Salesperson Problem, by mapping problem constraints to the network's energy function.
+
+**1985** — The concept of 'spurious memories' or 'false memories' was further analyzed, highlighting the network's tendency to converge to states that were not among the original training patterns, especially with high memory load.
+
+**1986** — The relationship between Hopfield Networks and statistical mechanics models, particularly the Ising model, was formalized, providing a deeper theoretical understanding of its dynamics and capacity.
+
+**1990** — Variations like the Bidirectional Associative Memory (BAM) were developed, extending the Hopfield Network's principles to associate patterns between two distinct sets of neurons.
 
 ## Mathematical Intuition
 
+### Network Architecture and State
+
+A Hopfield Network consists of $N$ interconnected binary neurons, where each neuron $s_i$ can take a value of either $+1$ or $-1$. The network is fully connected, meaning every neuron is connected to every other neuron, but not to itself. The connections are symmetric, such that the weight from neuron $i$ to neuron $j$ is equal to the weight from neuron $j$ to neuron $i$, i.e., $W_{ij} = W_{ji}$. The state of the network at any given time is represented by a vector $S = (s_1, s_2, ..., s_N)$.
+
+$$
+s_i \in \{-1, +1\}
+$$
+
+$$
+W_{ij} = W_{ji}
+$$
+
+$$
+W_{ii} = 0
+$$
+
+### Hebbian Learning Rule
+
+The network 'learns' or stores patterns by setting its synaptic weights. For $M$ binary patterns $x^{(p)} = (x_1^{(p)}, ..., x_N^{(p)})$ to be stored, the weights $W_{ij}$ are typically determined by a Hebbian-like learning rule. This rule strengthens connections between co-active neurons and weakens connections between anti-active neurons across the stored patterns. The weights are normalized by the number of neurons $N$ to prevent unbounded growth.
+
+$$
+W_{ij} = \frac{1}{N} \sum_{p=1}^{M} x_i^{(p)} x_j^{(p)} \quad \text{for } i \neq j
+$$
+
+$$
+W_{ii} = 0
+$$
+
+### Energy Function Minimization
+
+A crucial aspect of the Hopfield Network is its energy function, which decreases monotonically as the network evolves. This function is analogous to the energy in a physical system, and the network's dynamics drive it towards local minima, which correspond to the stored memory patterns. The energy $E$ for a given network state $S$ is defined as:
+
+$$
+E(S) = -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1, j \neq i}^{N} W_{ij} s_i s_j
+$$
+
+### Asynchronous Retrieval Dynamics
+
+During retrieval, the network starts from an initial state (a noisy or incomplete input pattern). Neurons are then updated asynchronously, one at a time, based on the weighted sum of their inputs from other neurons. The update rule ensures that the energy function decreases or stays constant, guaranteeing convergence to a stable state. A neuron $s_i$ updates its state based on the sign of its net input:
+
+$$
+h_i = \sum_{j=1, j \neq i}^{N} W_{ij} s_j
+$$
+
+$$
+s_i \leftarrow \begin{cases} +1 & \text{if } h_i > 0 \\ -1 & \text{if } h_i < 0 \\ s_i & \text{if } h_i = 0 \end{cases}
+$$
+
 ## Algorithm Steps
+
+1. Initialize the network with $N$ binary neurons, $s_i \in \{-1, +1\}$, and set all diagonal weights $W_{ii}$ to zero.
+2. Store $M$ desired memory patterns $x^{(p)}$ by calculating the synaptic weights $W_{ij}$ using the Hebbian learning rule: $W_{ij} = \frac{1}{N} \sum_{p=1}^{M} x_i^{(p)} x_j^{(p)}$ for $i \neq j$.
+3. To retrieve a memory, initialize the network's state $S$ with an input pattern (e.g., a noisy or partial version of a stored pattern).
+4. Select a neuron $s_k$ at random (asynchronous update) or update all neurons simultaneously (synchronous update, though asynchronous is preferred for guaranteed convergence).
+5. Calculate the net input to the selected neuron $s_k$: $h_k = \sum_{j=1, j \neq k}^{N} W_{kj} s_j$.
+6. Update the state of neuron $s_k$ based on its net input: $s_k \leftarrow +1$ if $h_k > 0$, $s_k \leftarrow -1$ if $h_k < 0$, and $s_k$ remains unchanged if $h_k = 0$.
+7. Repeat steps 4-6 until the network reaches a stable state where no neuron changes its value upon further updates, indicating convergence to a local minimum of the energy function.
+8. The final stable state represents the retrieved memory pattern.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `max_iterations` | `int` | `100` | integer > 0 | Maximum number of asynchronous update steps allowed during retrieval before stopping, even if convergence is not reached. |
+| `asynchronous_update` | `bool` | `true` | true, false | If true, neurons are updated one at a time in random order; if false, all neurons are updated simultaneously (synchronous update). Asynchronous update guarantees energy decrease. |
+| `threshold` | `float` | `0.0` | any float | The activation threshold for neurons. A neuron activates to +1 if its net input is greater than this threshold, and -1 if less than this threshold. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={true}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- Hopfield Networks function as content-addressable memory, allowing retrieval of complete patterns from incomplete or corrupted inputs.
+- The Hebbian learning rule is simple and biologically plausible, requiring only local information for weight updates.
+- The network exhibits robustness to noise and partial information, as it can reconstruct original patterns from degraded versions.
+- Its energy function guarantees convergence to a stable state, making its retrieval dynamics predictable.
+- Hopfield Networks can be adapted to solve certain combinatorial optimization problems by mapping problem constraints to the energy landscape.
+- The model provides a foundational understanding of associative memory in neural systems.
+
 ## Weaknesses
 
+- The memory capacity of a Hopfield Network is severely limited, typically to about $0.14N$ patterns for $N$ neurons, beyond which spurious memories emerge.
+- It is prone to converging to 'spurious' or 'false' memories, which are stable states not corresponding to any of the original stored patterns.
+- The network requires binary inputs and outputs, necessitating preprocessing for continuous or categorical data.
+- Retrieval can get stuck in local minima of the energy function, which may not be the desired global minimum or the closest stored pattern.
+- The learning process is non-incremental; adding new patterns requires recomputing all weights from scratch.
+
 ## Use Cases
+
+### Pattern Recognition
+
+Used for recognizing patterns, such as characters or images, by retrieving the closest stored pattern from a noisy or incomplete input.
+
+### Image Restoration
+
+Applied to reconstruct original images from partially corrupted or noisy versions, leveraging its ability to complete patterns.
+
+### Content-Addressable Memory Systems
+
+Forms the basis for systems where data is retrieved based on its content rather than its address, useful in database lookups or information retrieval.
+
+### Combinatorial Optimization
+
+Explored for solving NP-hard problems like the Traveling Salesperson Problem by encoding problem constraints into the network's energy function.
+
+### Error Correction
+
+Can be used in scenarios where corrupted data needs to be corrected by mapping it to the closest valid stored pattern.
 
 ## Implementation
 
@@ -51,7 +169,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# Hopfield Network does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +178,5 @@ related: []
 <LabEmbed url={""} title="Hopfield Network Lab" />
 
 ## References
+
+- Hopfield (1982). Hopfield.

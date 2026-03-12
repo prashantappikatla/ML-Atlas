@@ -9,36 +9,126 @@ paper: "Han et al."
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["association-rules", "data-mining", "frequent-itemset-mining", "market-basket-analysis", "pattern-discovery", "transactional-data", "tree-based", "unsupervised"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "apriori"
+  - "eclat"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+FP-Growth is an efficient algorithm for mining frequent itemsets from transactional databases without generating candidate itemsets. It constructs a compact Frequent Pattern Tree (FP-Tree) to store transaction information, significantly reducing the search space compared to [Apriori](/algorithms/unsupervised/association-rules/apriori)-like algorithms. This tree-based approach enables faster discovery of patterns that meet a user-defined minimum support threshold. The algorithm operates in two phases: FP-Tree construction and recursive FP-Tree mining.
+
 ## History
+
+**1993** — R. Agrawal, T. Imieliński, and A. Swami introduced the [Apriori](/algorithms/unsupervised/association-rules/apriori) algorithm, a seminal work for frequent itemset mining, which relies on candidate generation and pruning.
+
+**1994** — R. Agrawal and R. Srikant extended [Apriori](/algorithms/unsupervised/association-rules/apriori) to mine association rules, formally defining the concepts of support and confidence which became fundamental to the field.
+
+**2000** — J. Han, J. Pei, and Y. Yin proposed the FP-Growth algorithm, an alternative to [Apriori](/algorithms/unsupervised/association-rules/apriori) that avoids candidate generation by using a compact tree structure for efficient frequent itemset discovery.
+
+**2003** — J. Han, J. Pei, and M. Kamber published "Data Mining: Concepts and Techniques," which popularized FP-Growth and other data mining algorithms, establishing it as a standard method.
 
 ## Mathematical Intuition
 
+### Frequent Itemsets and Support
+
+A frequent itemset is a set of items that appears together in a transactional database with a frequency greater than or equal to a user-specified minimum support threshold. The support of an itemset $X$ is defined as the proportion of transactions in the database $D$ that contain $X$. This metric quantifies the prevalence of an itemset in the dataset.
+
+$$
+Support(X) = \frac{|\{t \in D \mid X \subseteq t\}|}{|D|}
+$$
+
+### FP-Tree Construction
+
+The FP-Tree is a compact prefix tree structure that stores frequent items. First, all items in the database are counted, and infrequent items are removed. Then, frequent items in each transaction are sorted by their global frequency in descending order. The tree is built by inserting these sorted transactions, sharing common prefixes among transactions to compress the representation. Each node in the tree stores an item and its count, and a node-link structure connects all occurrences of the same item, facilitating efficient traversal.
+
+### Conditional FP-Tree
+
+To mine frequent itemsets, FP-Growth recursively constructs conditional FP-Trees. For each frequent item $i$, a conditional pattern base is formed by collecting all prefix paths in the original FP-Tree that end with $i$. This conditional pattern base represents the set of transactions containing $i$ and their preceding items. This base is then used to construct a conditional FP-Tree for $i$, effectively projecting the database onto patterns containing $i$. This process is repeated until no more frequent items can be found in the conditional trees.
+
+### Mining Frequent Itemsets
+
+The mining process starts from the least frequent item in the global frequent item list. For each such item, its conditional FP-Tree is constructed. From this conditional tree, frequent patterns are extracted by traversing paths and combining items with the current item. This recursive, divide-and-conquer strategy ensures that all frequent itemsets are discovered without explicit candidate generation, as the tree structure inherently prunes infrequent combinations and efficiently aggregates counts.
+
 ## Algorithm Steps
+
+1. Scan the transaction database once to find the support for each item and identify all frequent items (items with support $\ge$ `min_support`).
+2. Sort the frequent items in descending order of their global support. This ordered list is referred to as $L$.
+3. Construct the FP-Tree: Create a root node labeled "null". For each transaction in the database, filter out infrequent items, sort the remaining frequent items according to the order in $L$, and insert the sorted transaction into the FP-Tree, incrementing counts for existing nodes or creating new ones. Link new nodes to a header table for their respective items.
+4. Mine the FP-Tree to find frequent itemsets: Start from the last item in $L$ (the one with the lowest frequency).
+5. For each item $i$ in $L$ (in reverse order of frequency): Construct its conditional pattern base by finding all prefix paths in the FP-Tree that end with $i$.
+6. Construct a conditional FP-Tree from the conditional pattern base for item $i$.
+7. Recursively mine the conditional FP-Tree to find frequent patterns. Each frequent pattern found in the conditional tree, when combined with $i$, forms a frequent itemset.
+8. Continue this recursive mining process until all conditional FP-Trees are empty or contain no frequent items.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `min_support` | `float` | `0.5` | [0.0, 1.0] | The minimum support threshold for an itemset to be considered frequent. It is a value between 0 and 1, representing the proportion of transactions that must contain the itemset. |
+| `min_confidence` | `float` | `0.7` | [0.0, 1.0] | The minimum confidence threshold for an association rule to be considered strong. This parameter is typically used in a subsequent step to generate association rules from the frequent itemsets found by FP-Growth. |
+| `max_len` | `int or None` | `None` | integer > 0 or None | The maximum length (number of items) of the frequent itemsets to be extracted. If set to None, all frequent itemsets are extracted regardless of their length. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- FP-Growth is significantly faster than Apriori for dense and sparse datasets because it avoids the costly candidate generation process.
+- The FP-Tree is a compact representation of the transactional database, which can lead to better memory utilization for certain datasets.
+- It only scans the database twice, making it efficient for large datasets by reducing I/O operations.
+- The algorithm is well-suited for finding long frequent patterns due to its divide-and-conquer strategy.
+- It inherently prunes infrequent items and patterns during tree construction and mining, effectively reducing the search space.
+- The algorithm is deterministic and guarantees to find all frequent itemsets given a support threshold.
+
 ## Weaknesses
 
+- The FP-Tree can become very large and memory-intensive for extremely dense datasets with many distinct frequent items and long transactions.
+- It is not directly designed for mining association rules; an additional post-processing step is required to generate rules from the frequent itemsets.
+- The performance can degrade if the number of distinct frequent items is very high, leading to a bushy FP-Tree with less compression.
+- The recursive nature of the mining process can be complex to implement and understand compared to simpler algorithms.
+- The algorithm's efficiency is sensitive to the ordering of items, which is typically handled by sorting by frequency, but suboptimal orderings can impact performance.
+
 ## Use Cases
+
+### Retail
+
+Identifying frequently purchased product bundles for shelf placement optimization, targeted promotions, and cross-selling strategies in e-commerce and physical stores.
+
+### Web Usage Mining
+
+Discovering common navigation paths or sequences of pages visited by users to improve website design, personalize content, and enhance user experience.
+
+### Bioinformatics
+
+Finding frequently co-occurring genes, protein sequences, or motifs in biological datasets to understand genetic interactions, disease mechanisms, or functional relationships.
+
+### Recommendation Systems
+
+Generating item-based recommendations by identifying items frequently bought, viewed, or interacted with together, suggesting relevant products or content to users.
+
+### Fraud Detection
+
+Detecting unusual patterns of transactions or activities that frequently co-occur, potentially indicating fraudulent behavior in financial or insurance industries.
+
+### Market Basket Analysis
+
+Analyzing customer purchasing habits to understand product associations, inform inventory management, and design effective marketing campaigns.
 
 ## Implementation
 
@@ -51,7 +141,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import FpGrowth
+
+model = FpGrowth()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +152,6 @@ related: []
 <LabEmbed url={""} title="FP-Growth Lab" />
 
 ## References
+
+- Han et al. (2000). Han et al..
+- [scikit-learn: FpGrowth](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FpGrowth.html)

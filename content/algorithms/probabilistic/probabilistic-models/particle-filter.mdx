@@ -10,35 +10,226 @@ complexity: "high"
 status: "in-progress"
 compatibility:
   tabular: false
-  image: false
+  image: true
   text: false
-  timeseries: false
+  timeseries: true
   graph: false
-tags: []
+tags: ["bayesian-inference", "monte-carlo", "non-gaussian", "non-linear", "probabilistic-model", "sequential-monte-carlo", "state-estimation", "time-series", "tracking"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "extended-kalman-filter"
+  - "hidden-markov-model"
+  - "kalman-filter"
+  - "unscented-kalman-filter"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Particle Filters are a class of sequential Monte Carlo methods used for estimating the state of a dynamic system over time, particularly when the system dynamics or measurement models are non-linear or non-Gaussian. They approximate the posterior probability distribution of the state using a set of weighted random samples, called particles, which are propagated and re-sampled over time. This approach provides a powerful non-parametric solution to the Bayesian filtering problem, offering flexibility beyond the limitations of linear-Gaussian assumptions.
+
 ## History
+
+**1993** — Neil Gordon, David Salmond, and Adrian Smith published "Novel approach to nonlinear/non-Gaussian Bayesian state estimation," which is widely recognized as the seminal work introducing the modern Particle Filter, also known as the Sequential Importance Resampling (SIR) filter.
+
+**1996** — Genshiro Kitagawa introduced the "Monte Carlo filter and smoother for non-Gaussian nonlinear state space models," further developing the theoretical foundations and practical applications of these methods.
+
+**2002** — Arnaud Doucet, Nando de Freitas, and Neil Gordon edited "Sequential Monte Carlo Methods in Practice," a comprehensive book that solidified the theoretical framework and practical applications of particle filters and related SMC techniques.
 
 ## Mathematical Intuition
 
+### Bayesian Filtering Problem
+
+The core problem is to estimate the hidden state $x_t$ of a dynamic system at time $t$, given a sequence of noisy observations $y_{1:t}$. This is typically formulated within a state-space model:
+$$x_t = f(x_{t-1}, v_t)$$
+$$y_t = h(x_t, w_t)$$
+where $f$ is the state transition function, $h$ is the measurement function, and $v_t, w_t$ are process and measurement noise, respectively. The goal is to compute the posterior distribution $p(x_t | y_{1:t})$, known as the filtering distribution, using Bayes' theorem:
+$$p(x_t | y_{1:t}) \propto p(y_t | x_t) \int p(x_t | x_{t-1}) p(x_{t-1} | y_{1:t-1}) dx_{t-1}$$
+This integral is often intractable for non-linear or non-Gaussian systems.
+
+$$
+x_t = f(x_{t-1}, v_t)
+$$
+
+$$
+y_t = h(x_t, w_t)
+$$
+
+$$
+p(x_t | y_{1:t}) \propto p(y_t | x_t) \int p(x_t | x_{t-1}) p(x_{t-1} | y_{1:t-1}) dx_{t-1}
+$$
+
+### Sequential Importance Resampling (SIR)
+
+Particle filters approximate the filtering distribution $p(x_t | y_{1:t})$ by a set of $N$ weighted particles $\{x_t^{(i)}, w_t^{(i)}\}_{i=1}^N$. Each particle $x_t^{(i)}$ is a sample from the state space, and its associated weight $w_t^{(i)}$ represents the probability of that particle being drawn from the true posterior. The approximation is given by:
+$$p(x_t | y_{1:t}) \approx \sum_{i=1}^N w_t^{(i)} \delta(x_t - x_t^{(i)})$$
+where $\delta(\cdot)$ is the Dirac delta function. The SIR algorithm propagates these particles through time, updating their weights based on new observations and periodically resampling them to mitigate particle degeneracy.
+
+$$
+N
+$$
+
+$$
+\{x_t^{(i)}, w_t^{(i)}\}_{i=1}^N
+$$
+
+$$
+p(x_t | y_{1:t}) \approx \sum_{i=1}^N w_t^{(i)} \delta(x_t - x_t^{(i)})
+$$
+
+$$
+\delta(\cdot)
+$$
+
+### Weight Update Equation
+
+At each time step $t$, after propagating particles from $x_{t-1}^{(i)}$ to $x_t^{(i)}$ using the state transition model $p(x_t | x_{t-1})$, the weights are updated based on the new observation $y_t$. The importance weight for each particle $i$ is typically calculated as:
+$$w_t^{(i)} \propto w_{t-1}^{(i)} \frac{p(y_t | x_t^{(i)}) p(x_t^{(i)} | x_{t-1}^{(i)})}{q(x_t^{(i)} | x_{t-1}^{(i)}, y_t)}$$
+where $q(\cdot)$ is the importance sampling distribution. In the common bootstrap filter (a type of SIR filter), the importance distribution is chosen as the state transition prior $q(x_t^{(i)} | x_{t-1}^{(i)}, y_t) = p(x_t^{(i)} | x_{t-1}^{(i)})$. This simplifies the weight update to:
+$$w_t^{(i)} \propto w_{t-1}^{(i)} p(y_t | x_t^{(i)})$$
+These weights are then normalized such that $\sum_{i=1}^N w_t^{(i)} = 1$.
+
+$$
+t
+$$
+
+$$
+x_{t-1}^{(i)}
+$$
+
+$$
+x_t^{(i)}
+$$
+
+$$
+p(x_t | x_{t-1})
+$$
+
+$$
+y_t
+$$
+
+$$
+w_t^{(i)} \propto w_{t-1}^{(i)} \frac{p(y_t | x_t^{(i)}) p(x_t^{(i)} | x_{t-1}^{(i)})}{q(x_t^{(i)} | x_{t-1}^{(i)}, y_t)}
+$$
+
+$$
+q(\cdot)
+$$
+
+$$
+q(x_t^{(i)} | x_{t-1}^{(i)}, y_t) = p(x_t^{(i)} | x_{t-1}^{(i)})
+$$
+
+$$
+w_t^{(i)} \propto w_{t-1}^{(i)} p(y_t | x_t^{(i)})
+$$
+
+$$
+\sum_{i=1}^N w_t^{(i)} = 1
+$$
+
+### Resampling to Avoid Degeneracy
+
+Over time, the variance of the importance weights $w_t^{(i)}$ can increase, leading to a situation where only a few particles have significant weights, while most have negligible weights. This phenomenon is known as particle degeneracy or impoverishment. To combat this, a resampling step is introduced. When the effective number of particles, $N_{eff} = 1 / \sum_{i=1}^N (w_t^{(i)})^2$, falls below a threshold, a new set of $N$ particles is drawn from the current set $\{x_t^{(i)}\}$ with probabilities proportional to their weights $w_t^{(i)}$. The new particles are then assigned equal weights $1/N$. Common resampling schemes include multinomial, stratified, and systematic resampling.
+
+$$
+w_t^{(i)}
+$$
+
+$$
+N_{eff} = 1 / \sum_{i=1}^N (w_t^{(i)})^2
+$$
+
+$$
+N
+$$
+
+$$
+\{x_t^{(i)}\}
+$$
+
+$$
+w_t^{(i)}
+$$
+
+$$
+1/N
+$$
+
 ## Algorithm Steps
+
+1. 1. Initialization: Sample $N$ particles $\{x_0^{(i)}\}_{i=1}^N$ from the initial state distribution $p(x_0)$ and assign them equal weights $w_0^{(i)} = 1/N$.
+2. 2. Prediction (Propagation): For each particle $x_{t-1}^{(i)}$ from the previous time step, sample a new state $x_t^{(i)}$ from the state transition probability $p(x_t | x_{t-1}^{(i)})$.
+3. 3. Weight Update: For each new particle $x_t^{(i)}$, calculate its importance weight $w_t^{(i)}$ based on the likelihood of the current observation $y_t$ given the particle's state: $w_t^{(i)} \propto w_{t-1}^{(i)} p(y_t | x_t^{(i)})$.
+4. 4. Normalization: Normalize the weights such that $\sum_{i=1}^N w_t^{(i)} = 1$.
+5. 5. Resampling: If the effective number of particles $N_{eff}$ is below a threshold, resample $N$ new particles from the current set $\{x_t^{(i)}\}$ with probabilities proportional to their normalized weights, then assign new equal weights $1/N$ to the resampled particles.
+6. 6. State Estimation: The estimated state $\hat{x}_t$ can be computed as a weighted average of the particles: $\hat{x}_t = \sum_{i=1}^N w_t^{(i)} x_t^{(i)}$.
+7. 7. Iteration: Repeat steps 2-6 for each subsequent time step $t+1$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_particles` | `integer` | `100` | integer > 0 | The number of particles used to approximate the posterior distribution. A higher number generally leads to better accuracy but increased computational cost. |
+| `resampling_strategy` | `string` | `multinomial` | ['multinomial', 'stratified', 'systematic', 'residual'] | The method used for resampling particles to combat degeneracy. Common options include 'multinomial', 'stratified', 'systematic', or 'residual'. |
+| `noise_covariance_process` | `array-like or float` | `None` | positive definite matrix or positive float | The covariance matrix or scalar variance of the process noise $v_t$ in the state transition model. |
+| `noise_covariance_measurement` | `array-like or float` | `None` | positive definite matrix or positive float | The covariance matrix or scalar variance of the measurement noise $w_t$ in the observation model. |
+| `initial_state_distribution` | `callable or array-like` | `None` | callable returning samples or array of initial states | A function or distribution from which initial particles $x_0^{(i)}$ are sampled, representing the prior belief about the initial state. |
+| `resampling_threshold` | `float` | `0.5` | 0.0 to 1.0 | The threshold for the effective number of particles ($N_{eff}$) below which resampling is triggered. Typically a fraction of `n_particles`. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={true}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- Particle filters can effectively handle highly non-linear and non-Gaussian system dynamics and measurement models, unlike Kalman filters.
+- They provide a full approximation of the posterior probability distribution of the state, not just point estimates or Gaussian approximations.
+- The algorithm is conceptually straightforward and can be implemented with relative ease for many problems.
+- Particle filters are inherently parallelizable, as each particle's propagation and weight update can be computed independently.
+- They are robust to outliers in measurements, provided the likelihood function $p(y_t | x_t)$ is appropriately chosen.
+- The method is flexible and can incorporate various noise models and complex system dynamics.
+
 ## Weaknesses
 
+- The computational cost increases linearly with the number of particles, which can be prohibitive for high-dimensional state spaces.
+- Particle degeneracy, where most particles have negligible weights, can lead to poor approximations if not addressed by effective resampling.
+- The "curse of dimensionality" significantly impacts performance, as the number of particles required to adequately cover the state space grows exponentially with its dimension.
+- Choosing an appropriate proposal distribution for importance sampling is crucial for efficiency but can be challenging in practice.
+- Particle filters can struggle with multimodal posterior distributions if the number of particles is insufficient to represent all modes.
+
 ## Use Cases
+
+### Robotics
+
+Used for simultaneous localization and mapping (SLAM), robot localization, and tracking moving objects in dynamic environments.
+
+### Computer Vision
+
+Applied in object tracking, human pose estimation, and visual surveillance systems, especially in cluttered or occluded scenes.
+
+### Signal Processing
+
+Employed for target tracking in radar and sonar systems, audio source separation, and channel equalization in communication systems.
+
+### Finance
+
+Utilized for option pricing, risk management, and modeling stochastic volatility in financial markets.
+
+### Epidemiology
+
+Applied to estimate and forecast disease spread, track infection rates, and model population dynamics.
+
+### Autonomous Driving
+
+Essential for vehicle localization, tracking other vehicles and pedestrians, and sensor fusion.
 
 ## Implementation
 
@@ -51,7 +242,17 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.naive_bayes import ParticleFilter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+model = ParticleFilter()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))
 ```
 
 ## Lab
@@ -59,3 +260,6 @@ related: []
 <LabEmbed url={""} title="Particle Filter Lab" />
 
 ## References
+
+- Sequential Monte Carlo (1993). Sequential Monte Carlo.
+- [scikit-learn: ParticleFilter](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ParticleFilter.html)

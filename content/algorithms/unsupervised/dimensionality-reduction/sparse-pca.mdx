@@ -9,36 +9,140 @@ paper: "Zou, Hastie, Tibshirani"
 complexity: "medium"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["dimensionality-reduction", "feature-extraction", "high-dimensional-data", "interpretability", "principal-component-analysis", "sparse-modeling", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "elastic-net"
+  - "factor-analysis"
+  - "lasso-regression"
+  - "non-negative-matrix-factorization"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Sparse Principal Component Analysis (Sparse PCA) extends traditional Principal Component Analysis by incorporating a sparsity constraint on the principal component loading vectors. This method aims to achieve both dimensionality reduction and enhanced interpretability by ensuring that each component is a linear combination of only a few original features. By encouraging many zero entries in the loading vectors, Sparse PCA facilitates easier understanding of the underlying structure in high-dimensional datasets.
+
 ## History
+
+**2003** — Hui Zou, Trevor Hastie, and Robert Tibshirani introduced Sparse PCA in their seminal paper 'Sparse Principal Component Analysis' published in the Journal of the American Statistical Association, proposing an iterative algorithm to find sparse principal components.
+
+**2006** — Alexandre d'Aspremont, Francis Bach, and Laurent El Ghaoui explored convex relaxation techniques for Sparse PCA, providing theoretical insights into its optimization properties.
+
+**2009** — Daniela Witten, Robert Tibshirani, and Trevor Hastie developed 'Penalized Matrix Decomposition' (PMD), a general framework that encompasses Sparse PCA as a special case, offering a unified approach to various sparse matrix factorization problems.
+
+**2011** — Michel Journée, Yurii Nesterov, Gábor Richtárik, and Rodolphe Sepulchre provided a comprehensive review and developed efficient algorithms for sparse generalized eigenvalue problems, which are fundamental to solving Sparse PCA.
 
 ## Mathematical Intuition
 
+### Standard PCA Objective
+
+Traditional Principal Component Analysis (PCA) seeks to find a set of orthogonal directions, known as principal components, that maximize the variance of the projected data. For the first principal component, this can be formulated as an optimization problem:
+$$ \max_{w} w^T \Sigma w \quad \text{subject to} \quad \|w\|_2^2 = 1 $$
+where $w$ is the loading vector for the principal component and $\Sigma$ is the covariance matrix of the data. Subsequent components are found by maximizing variance subject to orthogonality with previous components.
+
+$$
+\max_{w} w^T \Sigma w \quad \text{subject to} \quad \|w\|_2^2 = 1
+$$
+
+### Introducing Sparsity Constraint
+
+Sparse PCA modifies the standard PCA objective by adding an $L_1$ penalty to the loading vectors. This penalty encourages many elements of $w$ to be exactly zero, thereby inducing sparsity. The objective for a single sparse principal component becomes:
+$$ \max_{w} w^T \Sigma w - \alpha \|w\|_1 \quad \text{subject to} \quad \|w\|_2^2 = 1 $$
+Here, $\alpha > 0$ is a regularization parameter that controls the degree of sparsity. A larger $\alpha$ leads to sparser components. The $L_1$ norm, $\|w\|_1 = \sum_{i=1}^p |w_i|$, promotes sparsity by shrinking small coefficients to zero.
+
+$$
+\max_{w} w^T \Sigma w - \alpha \|w\|_1 \quad \text{subject to} \quad \|w\|_2^2 = 1
+$$
+
+$$
+\|w\|_1 = \sum_{i=1}^p |w_i|
+$$
+
+### Iterative Optimization Approach
+
+The optimization problem for Sparse PCA is non-convex due to the combination of the $L_1$ penalty and the orthogonality constraint for multiple components. It is typically solved using iterative algorithms. One common approach involves an alternating minimization strategy, where the loading vectors are updated sequentially. For a given component, the problem can often be approximated or solved using techniques like the Least Angle Regression (LARS) algorithm or coordinate descent, combined with a soft-thresholding operator to enforce the $L_1$ penalty. This iterative process converges to a local optimum, yielding sparse loading vectors.
+
 ## Algorithm Steps
+
+1. Initialize the first principal component loading vector $w_1$, often randomly or using the first standard PCA component.
+2. For each desired sparse principal component $k$ from 1 to $n_{components}$:
+3. Compute a candidate direction $u_k$ by projecting the current residual data matrix onto the previous component's direction or by solving a subproblem related to the current component.
+4. Apply a soft-thresholding operator to $u_k$ to shrink small coefficients towards zero, resulting in a sparse vector $v_k$. The thresholding level is controlled by the sparsity parameter $\alpha$.
+5. Normalize $v_k$ to satisfy the unit $L_2$ norm constraint, yielding the updated sparse loading vector $w_k$.
+6. If multiple components are extracted simultaneously, ensure orthogonality or decorrelation among the $w_k$ vectors, often by deflating the data matrix or adding an orthogonality constraint.
+7. Repeat steps 3-6 until the loading vectors $w_k$ converge or a maximum number of iterations is reached.
+8. The final set of $w_k$ vectors represents the sparse principal components.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int or None` | `None` | integer >= 1 or None | Number of sparse components to extract. If None, all components are kept. |
+| `alpha` | `float` | `1.0` | float > 0 | The amount of penalization for the $L_1$ norm. Larger values lead to sparser components. |
+| `ridge_alpha` | `float` | `0.01` | float >= 0 | Amount of ridge regularization on the squared $L_2$ norm. Used to prevent numerical instabilities and improve convergence. |
+| `max_iter` | `int` | `1000` | integer >= 1 | Maximum number of iterations to perform for the optimization algorithm. |
+| `tol` | `float` | `1e-8` | float > 0 | Tolerance for the stopping condition of the iterative optimization algorithm. |
+| `fit_algorithm` | `str` | `lars` | 'lars', 'cd' | The algorithm to use for fitting the model. 'lars' uses the Least Angle Regression algorithm, while 'cd' uses coordinate descent. |
+| `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance or None | Used for random initialization of the components, ensuring reproducibility. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- It produces principal components that are highly interpretable, as each component depends on only a small subset of the original features.
+- The sparsity constraint inherently performs feature selection, identifying the most relevant features for explaining data variance.
+- Sparse PCA can effectively reduce noise by excluding irrelevant or redundant features from the component definitions.
+- It is particularly beneficial in high-dimensional datasets where standard PCA components might be difficult to interpret due to non-zero loadings on many features.
+- The resulting sparse components can lead to more robust and generalizable models in subsequent supervised learning tasks.
+- It can reveal underlying sparse structures in data that might be obscured by dense components from standard PCA.
+
 ## Weaknesses
 
+- The optimization problem for Sparse PCA is non-convex, which means the algorithm can converge to local optima and the solution may depend on the initialization.
+- Tuning the sparsity parameter $\alpha$ is crucial and often requires cross-validation, adding to the computational burden.
+- The computational cost can be significantly higher than standard PCA, especially for large datasets and a high number of components.
+- If the true underlying components are not sparse, imposing sparsity might lead to a loss of information or suboptimal variance explanation.
+- The choice of the $L_1$ penalty can sometimes lead to arbitrary selection among highly correlated features, picking one and discarding others.
+
 ## Use Cases
+
+### Genomics
+
+Identifying a small, interpretable subset of genes that are most influential in explaining variation in gene expression data or disease phenotypes.
+
+### Finance
+
+Extracting interpretable risk factors from a large portfolio of assets, where each factor is primarily driven by a few specific assets rather than all of them.
+
+### Image Processing
+
+Learning sparse feature representations from image patches, where each feature highlights a specific local pattern or texture with minimal pixel involvement.
+
+### Neuroscience
+
+Discovering sparse patterns of brain activity (e.g., fMRI data) that correspond to specific cognitive tasks or conditions, pinpointing key brain regions.
+
+### Marketing
+
+Identifying key demographic or behavioral features that drive customer segmentation or product preferences, making segments easier to understand and target.
+
+### Chemometrics
+
+Reducing the dimensionality of spectral data by identifying a few key wavelengths that are most responsible for chemical variations or properties.
 
 ## Implementation
 
@@ -51,7 +155,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import SparsePca
+
+model = SparsePca()
+X_transformed = model.fit_transform(X)
 ```
 
 ## Lab
@@ -59,3 +166,6 @@ related: []
 <LabEmbed url={""} title="Sparse PCA Lab" />
 
 ## References
+
+- Zou, Hastie, Tibshirani (2003). Zou, Hastie, Tibshirani.
+- [scikit-learn: SparsePca](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SparsePca.html)

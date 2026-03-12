@@ -494,6 +494,41 @@ def validate_response(data: dict) -> list[str]:
     return errors
 
 
+def _fix_latex_escapes(s: str) -> str:
+    """
+    Fix LaTeX backslash sequences that produce invalid JSON escape sequences.
+
+    Gemini sometimes emits LaTeX like \\mu, \\sigma, \\lambda with either:
+      - 1 backslash (bare): \\lambda  → invalid JSON, needs doubling → \\\\lambda
+      - 2 backslashes (already doubled): \\\\lambda → valid JSON already
+
+    The naive approach of replacing every lone backslash breaks 2-backslash
+    sequences: \\\\lambda → \\\\ + \\l → valid \\\\ then INVALID \\l.
+
+    Correct fix: collect the full run of consecutive backslashes and only add
+    one more backslash when the run length is ODD (meaning the last backslash
+    has no partner and is a bare invalid escape).
+
+    Valid JSON escape chars after a backslash: \" \\ / b f n r t u
+    """
+    def fix_run(m: re.Match) -> str:
+        backslashes: str = m.group(1)
+        following: str = m.group(2)
+        n = len(backslashes)
+        if n % 2 == 1:
+            # Odd run: the final backslash is a bare invalid escape — add one
+            # more to make it a valid \\ pair, then the following char is literal.
+            return backslashes + "\\" + following
+        else:
+            # Even run: all backslashes are properly paired; following char is
+            # just a regular character after the escaped backslash(es).
+            return backslashes + following
+
+    # Match one-or-more backslashes followed by a char that is NOT a valid
+    # JSON escape character.  Valid set after \: " \ / b f n r t u
+    return re.sub(r"(\\+)([^\"\\\\/bfnrtu])", fix_run, s)
+
+
 def call_gemini_with_backoff(model, prompt: str, algorithm_name: str) -> dict | None:
     """
     Calls Gemini with exponential backoff and MAX_RETRIES attempts.
@@ -507,6 +542,8 @@ def call_gemini_with_backoff(model, prompt: str, algorithm_name: str) -> dict | 
             # Strip accidental code fences
             clean = re.sub(r"^```(?:json)?\s*", "", raw.strip())
             clean = re.sub(r"\s*```$", "", clean.strip())
+            # Fix bare LaTeX backslashes that aren't valid JSON escape sequences
+            clean = _fix_latex_escapes(clean)
             data = json.loads(clean)
 
             errors = validate_response(data)

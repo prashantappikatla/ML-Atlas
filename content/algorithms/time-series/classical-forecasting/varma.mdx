@@ -12,33 +12,154 @@ compatibility:
   tabular: false
   image: false
   text: false
-  timeseries: false
+  timeseries: true
   graph: false
-tags: []
+tags: ["autoregressive", "classical-ml", "forecasting", "moving-average", "multivariate", "statistical-model", "time-series", "vector-model"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "arima"
+  - "kalman-filter"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Vector Autoregressive Moving Average (VARMA) models extend the univariate ARMA framework to multiple interdependent time series. This statistical model captures the linear interdependencies among several time series variables by modeling each variable as a linear combination of its own past values, past values of other series, and past forecast errors from all series. It is particularly useful for understanding and forecasting the dynamic relationships within a system of multiple time-varying components.
+
 ## History
+
+**1970** — George Box and Gwilym Jenkins publish "Time Series Analysis: Forecasting and Control," formalizing univariate [ARIMA](/algorithms/time-series/classical-forecasting/arima) models and laying the theoretical groundwork for multivariate extensions.
+
+**1980** — The concept of Vector Autoregressive Moving Average (VARMA) models is introduced in the econometric and statistical literature as a generalization of univariate ARMA to multiple interdependent series.
+
+**1981** — George Tiao and George Box publish "Modeling Multiple Time Series with Applications," providing comprehensive methods for identification, estimation, and diagnostic checking of VARMA models.
+
+**1990** — Further theoretical advancements and increased computational power facilitate the application of VARMA models in various fields, particularly in economics and finance.
+
+**2000** — Widespread availability of statistical software packages (e.g., R, Python's statsmodels) makes VARMA modeling more accessible to practitioners for complex multivariate time series analysis.
 
 ## Mathematical Intuition
 
+### VARMA Model Structure
+
+A VARMA($p, q$) process for a $k$-dimensional vector time series $Y_t = (y_{1t}, ..., y_{kt})'$ is defined by the equation:
+$$ Y_t = c + \Phi_1 Y_{t-1} + ... + \Phi_p Y_{t-p} + \Theta_1 \epsilon_{t-1} + ... + \Theta_q \epsilon_{t-q} + \epsilon_t $$
+Here, $c$ is a $k 	imes 1$ vector of constants, $\Phi_i$ are $k 	imes k$ matrices of autoregressive coefficients for $i=1,...,p$, and $\Theta_j$ are $k 	imes k$ matrices of moving average coefficients for $j=1,...,q$. The term $\epsilon_t$ represents a $k 	imes 1$ vector of white noise errors, assumed to have zero mean $E[\epsilon_t] = 0$ and a positive definite covariance matrix $E[\epsilon_t \epsilon_t'] = \Sigma$.
+
+$$
+Y_t = c + \Phi_1 Y_{t-1} + ... + \Phi_p Y_{t-p} + \Theta_1 \epsilon_{t-1} + ... + \Theta_q \epsilon_{t-q} + \epsilon_t
+$$
+
+$$
+E[\epsilon_t] = 0
+$$
+
+$$
+E[\epsilon_t \epsilon_t'] = \Sigma
+$$
+
+### Stationarity and Invertibility Conditions
+
+For a VARMA model to be well-defined and yield stable forecasts, it must satisfy stationarity and invertibility conditions. Stationarity requires that the roots of the determinantal equation $det(I - \Phi_1 z - ... - \Phi_p z^p) = 0$ lie outside the unit circle. This ensures that the mean, variance, and autocorrelation structure of the process remain constant over time. Invertibility requires that the roots of $det(I + \Theta_1 z + ... + \Theta_q z^q) = 0$ also lie outside the unit circle, which ensures that the error terms can be expressed as a convergent sum of past observations.
+
+$$
+det(I - \Phi_1 z - ... - \Phi_p z^p) = 0
+$$
+
+$$
+det(I + \Theta_1 z + ... + \Theta_q z^q) = 0
+$$
+
+### Parameter Estimation via MLE
+
+The parameters of a VARMA model, including the constant vector $c$, the autoregressive matrices $\Phi_i$, the moving average matrices $\Theta_j$, and the error covariance matrix $\Sigma$, are typically estimated using maximum likelihood estimation (MLE). This involves maximizing the likelihood function of the observed data, often under the assumption that the error terms $\epsilon_t$ follow a multivariate normal distribution. Due to the complexity of the likelihood function for VARMA models, numerical optimization techniques, such as the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) for state-space representation, are commonly employed to find the parameter estimates that best fit the data.
+
+### Forecasting Future Values
+
+Once the VARMA model parameters are estimated, future values of the multivariate time series can be forecasted recursively. A one-step-ahead forecast, $Y_{T+1|T}$, is computed by substituting the last observed values $Y_T, Y_{T-1}, ...$ and estimated error terms $\hat{\epsilon}_T, \hat{\epsilon}_{T-1}, ...$ into the model equation. For multi-step-ahead forecasts, $Y_{T+h|T}$ for $h > 1$, previous forecasts are substituted for unknown future values of $Y_t$, and future error terms are set to their expected value of zero, $E[\epsilon_{T+h}] = 0$.
+
+$$
+Y_{T+1|T}
+$$
+
+$$
+Y_{T+h|T}
+$$
+
+$$
+E[\epsilon_{T+h}] = 0
+$$
+
 ## Algorithm Steps
+
+1. Perform exploratory data analysis on the multivariate time series to understand individual series characteristics, trends, seasonality, and cross-correlations.
+2. Check for stationarity of each series using statistical tests like the Augmented Dickey-Fuller (ADF) test; if non-stationary, apply appropriate differencing to achieve stationarity.
+3. Determine the appropriate orders $p$ and $q$ for the VARMA model, often by examining the multivariate autocorrelation function (MACF) and multivariate partial autocorrelation function (MPACF), or by using information criteria such as AIC or BIC.
+4. Estimate the model parameters (autoregressive matrices $\Phi_i$, moving average matrices $\Theta_j$, and error covariance matrix $\Sigma$) using maximum likelihood estimation, typically through numerical optimization.
+5. Perform diagnostic checks on the residuals (e.g., Ljung-Box test for multivariate white noise) to ensure the model adequately captures the data's underlying structure and that residuals are uncorrelated.
+6. If the model diagnostics are satisfactory, use the fitted VARMA model to generate multi-step-ahead forecasts for the multivariate time series, along with prediction intervals.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `order` | `tuple` | `(1, 0)` | p >= 0, q >= 0 | The (p, q) order of the VARMA model, where p is the autoregressive order and q is the moving average order. |
+| `trend` | `str` | `c` | 'n', 'c', 't', 'ct' | Type of trend component to include in the model. 'n' for no trend, 'c' for constant, 't' for linear trend, 'ct' for constant and linear trend. |
+| `initialization` | `str` | `approximate_diffuse` | 'approximate_diffuse', 'stationary' | Method for initializing the state space representation of the model. Options include 'approximate_diffuse' for a diffuse prior or 'stationary' for a stationary initialization. |
+| `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the autoregressive parameters during estimation, ensuring that the roots of the AR characteristic polynomial lie outside the unit circle. |
+| `enforce_invertibility` | `bool` | `True` | True, False | Whether to enforce invertibility of the moving average parameters during estimation, ensuring that the roots of the MA characteristic polynomial lie outside the unit circle. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={false}
+  image={false}
+  text={false}
+  timeseries={true}
+  graph={false}
+/>
 
 ## Strengths
 
+- VARMA models can effectively capture and model complex dynamic interdependencies among multiple time series variables simultaneously.
+- They provide a coherent and theoretically sound framework for joint forecasting of several related time series, yielding optimal linear forecasts under appropriate conditions.
+- The model's ability to incorporate both autoregressive and moving average components offers significant flexibility in modeling various temporal structures and dependencies.
+- VARMA models can provide valuable insights into the lead-lag relationships and Granger causality between different series within a multivariate system.
+- The framework is robust for stationary multivariate time series and forms a foundation for more advanced state-space models.
+
 ## Weaknesses
 
+- Determining the appropriate orders $p$ and $q$ for VARMA models can be challenging and subjective, especially with a large number of variables.
+- The number of parameters to estimate grows quadratically with the number of series, leading to high computational cost and potential overfitting for high-dimensional data.
+- VARMA models assume linearity and stationarity, which may not hold for many real-world time series without extensive and careful preprocessing.
+- Interpretation of the coefficient matrices can be complex due to the large number of parameters and the intricate cross-dependencies they represent.
+- The estimation process for VARMA models is computationally intensive and can be numerically unstable for certain parameter configurations or small sample sizes.
+
 ## Use Cases
+
+### Economics
+
+Forecasting macroeconomic indicators such as GDP, inflation, and interest rates, considering their mutual influence and dynamic interactions.
+
+### Finance
+
+Predicting stock prices, exchange rates, or commodity prices in a portfolio, accounting for cross-market correlations and volatility spillovers.
+
+### Environmental Science
+
+Modeling and forecasting air pollution levels or climate variables (e.g., temperature, humidity) across different geographical locations simultaneously.
+
+### Engineering
+
+Predicting sensor readings in complex industrial systems where multiple sensors interact, such as in process control or fault detection.
+
+### Healthcare
+
+Forecasting disease incidence rates across different regions or demographic groups, considering spatial and temporal dependencies in disease spread.
+
+### Retail
+
+Predicting sales volumes for multiple related product categories, accounting for cross-product demand dynamics and promotional effects.
 
 ## Implementation
 
@@ -51,7 +172,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# VARMA does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +181,5 @@ related: []
 <LabEmbed url={""} title="VARMA Lab" />
 
 ## References
+
+- Multivariate time series literature (1980). Multivariate time series literature.

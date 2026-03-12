@@ -9,36 +9,162 @@ paper: "Microsoft"
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
   graph: false
-tags: []
+tags: ["classification", "decision-trees", "ensemble-learning", "gradient-boosting", "high-performance", "microsoft", "regression", "supervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "adaboost"
+  - "catboost"
+  - "decision-tree-classifier"
+  - "xgboost"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+LightGBM (Light Gradient Boosting Machine) is an open-source distributed gradient boosting framework designed for efficient and high-performance training of decision tree models. It distinguishes itself from other gradient boosting frameworks by employing two novel techniques: Gradient-based One-Side Sampling (GOSS) and Exclusive Feature Bundling (EFB), which significantly accelerate the training process and reduce memory consumption. These optimizations allow LightGBM to handle large datasets with superior speed and accuracy compared to many traditional boosting algorithms, making it a popular choice for various machine learning tasks.
+
 ## History
+
+**2016** — Initial development of LightGBM began at Microsoft Research, focusing on optimizing gradient boosting decision trees for large-scale data.
+
+**2017** — LightGBM was publicly released as an open-source project by Microsoft, introducing its core innovations like GOSS and EFB.
+
+**2017** — The seminal paper "LightGBM: A Highly Efficient Gradient Boosting Decision Tree" by Guolin Ke et al. was published, detailing the algorithm's architecture and performance.
+
+**2018** — Integration into popular machine learning libraries and platforms increased, solidifying its position as a leading gradient boosting framework.
 
 ## Mathematical Intuition
 
+### Gradient Boosting Foundation
+
+LightGBM builds upon the principle of Gradient Boosting, where an ensemble of weak learners (decision trees) is sequentially trained to correct the errors of previous learners. Each new tree is fit to the negative gradient of the loss function with respect to the current model's predictions. For a given loss function $L(y, F(x))$, the negative gradient for each instance $i$ at iteration $m$ is given by: $$g_i = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}$$ The new tree $h_m(x)$ is then trained to predict these negative gradients, and the model is updated as $F_m(x) = F_{m-1}(x) + \eta h_m(x)$, where $\eta$ is the learning rate.
+
+$$
+L(y, F(x))
+$$
+
+$$
+g_i = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}
+$$
+
+$$
+F_m(x) = F_{m-1}(x) + \eta h_m(x)
+$$
+
+### Gradient-based One-Side Sampling (GOSS)
+
+GOSS is a technique to reduce the number of data instances without losing significant accuracy. It observes that instances with larger gradients contribute more to the information gain for splitting a tree, while instances with small gradients are already well-trained. GOSS retains all instances with large gradients and randomly samples from instances with small gradients. Specifically, it divides instances into two sets: $S_l$ (instances with large gradients) and $S_s$ (instances with small gradients). It uses all instances in $S_l$ and randomly samples a fraction $b$ of instances from $S_s$. To maintain the data distribution, the sampled instances from $S_s$ are weighted by a factor of $\frac{1-a}{b}$, where $a$ is the ratio of $S_l$ to the total dataset size. This approach focuses training on more informative data points.
+
+$$
+S_l
+$$
+
+$$
+S_s
+$$
+
+$$
+b
+$$
+
+$$
+\frac{1-a}{b}
+$$
+
+$$
+a
+$$
+
+### Exclusive Feature Bundling (EFB)
+
+EFB is a method to reduce the number of features, particularly effective for sparse datasets. It identifies features that are mutually exclusive, meaning they rarely take non-zero values simultaneously. Such features can be safely bundled together into a single feature without losing information. The process involves constructing a weighted undirected graph where nodes are features and edges represent the total number of conflicts (non-zero co-occurrences) between features. A greedy algorithm is then used to find bundles of features with minimal conflicts. Once bundled, the original features are replaced by a single bundled feature, which is created by summing the original features with distinct offsets to preserve their individual contributions. This significantly reduces the dimensionality and accelerates feature scanning.
+
+### Leaf-wise Tree Growth
+
+Unlike traditional level-wise (depth-first) tree growth algorithms that split nodes at the same level, LightGBM employs a leaf-wise (best-first) strategy. In leaf-wise growth, the algorithm iteratively finds the leaf node that would result in the maximum loss reduction if split, and then performs that split. This greedy approach often leads to deeper, more complex trees on one side and shallower trees on the other, potentially achieving lower training error with the same number of leaves compared to level-wise growth. However, it can also be more prone to overfitting on smaller datasets if not regularized properly.
+
 ## Algorithm Steps
+
+1. Initialize the ensemble model $F_0(x)$ with a constant value, typically the mean of the target variable for regression or log-odds for classification.
+2. For each boosting iteration $m = 1, \dots, M$:
+3. Calculate the negative gradients (pseudo-residuals) $g_i = -[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}]_{F(x)=F_{m-1}(x)}$ for all training instances.
+4. Apply Gradient-based One-Side Sampling (GOSS) to select a subset of instances for training the next weak learner, prioritizing instances with larger gradients and weighting sampled small-gradient instances.
+5. Apply Exclusive Feature Bundling (EFB) to group mutually exclusive features into dense bundles, reducing the effective number of features.
+6. Train a new decision tree $h_m(x)$ (weak learner) on the sampled instances and bundled features, using a leaf-wise growth strategy to find the split that yields the maximum gain.
+7. Update the ensemble model: $F_m(x) = F_{m-1}(x) + \eta h_m(x)$, where $\eta$ is the learning rate.
+8. Repeat until the maximum number of iterations is reached or a stopping criterion (e.g., early stopping) is met.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `objective` | `str` | `regression` | ['regression', 'regression_l1', 'huber', 'fair', 'poisson', 'quantile', 'mape', 'gamma', 'tweedie', 'binary', 'multiclass', 'multiclassova', 'cross_entropy', 'cross_entropy_lambda', 'lambdarank'] | Defines the learning task and the corresponding loss function. Common options include 'regression', 'binary', 'multiclass', 'poisson', etc. |
+| `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages to perform, equivalent to the number of trees in the ensemble. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinkage rate. It scales the contribution of each tree by 'learning_rate'. |
+| `num_leaves` | `int` | `31` | integer > 1 | Maximum number of leaves in one tree. A higher value increases model complexity and can lead to overfitting. |
+| `max_depth` | `int` | `-1` | integer >= -1 | Maximum tree depth for base learners. -1 means no limit. A lower value helps prevent overfitting. |
+| `min_child_samples` | `int` | `20` | integer >= 0 | Minimum number of data needed in a child (leaf). A larger value prevents a tree from learning relations which are highly specific to the training set. |
+| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | Fraction of samples to be used for fitting the individual base learners. Used for bagging to reduce variance. |
+| `colsample_bytree` | `float` | `1.0` | 0.0 < float <= 1.0 | Fraction of features to consider when building each tree. Used for feature subsampling to reduce variance. |
+| `reg_alpha` | `float` | `0.0` | float >= 0.0 | L1 regularization term on weights. A higher value makes the model more robust to noise. |
+| `reg_lambda` | `float` | `0.0` | float >= 0.0 | L2 regularization term on weights. A higher value makes the model more robust to noise. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={false}
+/>
 
 ## Strengths
 
+- LightGBM offers significantly faster training speed and lower memory consumption compared to other GBDT frameworks, especially on large datasets, due to its GOSS and EFB optimizations.
+- It achieves high predictive accuracy, often outperforming many other machine learning algorithms in various tabular data tasks.
+- The algorithm supports parallel and distributed training, making it highly scalable for very large datasets and complex models.
+- LightGBM can handle categorical features directly without requiring explicit one-hot encoding, which can save memory and improve performance.
+- It provides feature importance scores, which can aid in understanding the relative contribution of different features to the model's predictions.
+- The leaf-wise growth strategy can lead to more complex and accurate trees with the same number of leaves compared to level-wise growth.
+
 ## Weaknesses
 
+- LightGBM can be sensitive to overfitting if hyperparameters are not carefully tuned, particularly with a large number of trees or a small learning rate, especially on smaller datasets.
+- It requires careful preprocessing of data, such as handling missing values, as it does not inherently manage them in a sophisticated way.
+- The leaf-wise tree growth, while efficient, can sometimes lead to trees that are deeper and more prone to overfitting than level-wise trees if not properly constrained.
+- The ensemble nature of LightGBM makes it less interpretable than simpler models like linear regression or single decision trees.
+
 ## Use Cases
+
+### Fraud Detection
+
+LightGBM is widely used to identify fraudulent transactions in financial data by learning complex patterns from various features like transaction amount, location, and frequency.
+
+### Customer Churn Prediction
+
+Businesses employ LightGBM to predict which customers are likely to discontinue their service based on historical behavior, usage patterns, and demographic information, enabling proactive retention strategies.
+
+### Ad Click-Through Rate Prediction
+
+In online advertising, LightGBM is used to estimate the probability of a user clicking on an advertisement, optimizing ad placement and targeting for higher engagement.
+
+### Credit Scoring
+
+Financial institutions utilize LightGBM for assessing the creditworthiness of loan applicants, predicting default risk based on financial history, income, and other relevant factors.
+
+### Drug Discovery
+
+LightGBM can be applied to predict molecular properties, drug efficacy, or toxicity based on chemical structures and experimental data, accelerating the drug development process.
+
+### Recommendation Systems
+
+It is used in e-commerce and content platforms to rank items or predict user preferences, enhancing personalized recommendations for products, movies, or articles.
 
 ## Implementation
 
@@ -51,7 +177,8 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+# LightGBM does not have a direct scikit-learn implementation.
+# See the References section for relevant libraries.
 ```
 
 ## Lab
@@ -59,3 +186,5 @@ related: []
 <LabEmbed url={""} title="LightGBM Lab" />
 
 ## References
+
+- Microsoft (2017). Microsoft.

@@ -9,36 +9,183 @@ paper: "Belkin & Niyogi"
 complexity: "high"
 status: "in-progress"
 compatibility:
-  tabular: false
+  tabular: true
   image: false
   text: false
   timeseries: false
-  graph: false
-tags: []
+  graph: true
+tags: ["data-visualization", "dimensionality-reduction", "embedding", "graph-theory", "manifold-learning", "nonlinear", "spectral-methods", "unsupervised-learning"]
 lab_url: ""
 lab_framework: ""
-related: []
+related:
+  - "diffusion-maps"
+  - "isomap"
+  - "locally-linear-embedding"
+  - "spectral-clustering"
 ---
-
-<!-- TODO: Gemini generation failed. All sections need manual completion. -->
 
 ## Overview
 
+Laplacian Eigenmaps is a nonlinear dimensionality reduction technique that aims to preserve the local neighborhood structure of data points. It constructs a weighted graph representing the data manifold and then finds a low-dimensional embedding that minimizes the distortion of local proximities. This method is particularly effective for visualizing data that lies on a low-dimensional manifold embedded in a higher-dimensional space, making it a powerful tool for manifold learning.
+
 ## History
+
+**2001** — Mikhail Belkin and Partha Niyogi introduce Laplacian Eigenmaps in their seminal paper "Laplacian Eigenmaps for Dimensionality Reduction and Data Representation," establishing a graph-based approach to nonlinear dimensionality reduction.
+
+**2002** — The algorithm gains recognition as part of the broader field of manifold learning, alongside other techniques like [Isomap](/algorithms/unsupervised/dimensionality-reduction/isomap) and [Locally Linear Embedding](/algorithms/unsupervised/dimensionality-reduction/locally-linear-embedding) (LLE), which also focus on preserving geometric properties.
+
+**2003** — Researchers begin exploring extensions and applications of Laplacian Eigenmaps, including its use in semi-supervised learning and [Spectral Clustering](/algorithms/unsupervised/clustering/spectral-clustering), leveraging its ability to capture data manifold structure.
+
+**2007** — The theoretical connections between Laplacian Eigenmaps and other spectral methods, such as [Spectral Clustering](/algorithms/unsupervised/clustering/spectral-clustering), are further elucidated, highlighting its versatility in various machine learning tasks.
+
+**2010** — Laplacian Eigenmaps becomes a standard technique in manifold learning toolkits, influencing the development of more advanced graph-based methods for data visualization and feature extraction throughout the decade.
 
 ## Mathematical Intuition
 
+### Constructing the Similarity Graph
+
+Laplacian Eigenmaps begins by constructing a weighted undirected graph $G = (V, E)$ where each data point $x_i \in \mathbb{R}^D$ is a vertex. Edges are typically formed between $k$-nearest neighbors or points within an $\epsilon$-radius. The weight $w_{ij}$ of an edge between $x_i$ and $x_j$ quantifies their similarity, often using a Gaussian kernel: $$w_{ij} = e^{-\frac{||x_i - x_j||^2}{\sigma^2}}$$ where $\sigma$ is a scaling parameter. If $x_i$ and $x_j$ are not connected, $w_{ij} = 0$.
+
+$$
+G = (V, E)
+$$
+
+$$
+x_i \in \mathbb{R}^D
+$$
+
+$$
+w_{ij} = e^{-\frac{||x_i - x_j||^2}{\sigma^2}}
+$$
+
+### Graph Laplacian Definition
+
+From the weight matrix $W = [w_{ij}]$, a diagonal degree matrix $D$ is constructed, where $D_{ii} = \sum_j w_{ij}$. The unnormalized Graph Laplacian $L$ is then defined as $L = D - W$. This matrix plays a central role in spectral graph theory, encoding the connectivity and structure of the graph.
+
+$$
+W = [w_{ij}]
+$$
+
+$$
+D_{ii} = \sum_j w_{ij}
+$$
+
+$$
+L = D - W
+$$
+
+### Minimizing Local Distances
+
+The objective of Laplacian Eigenmaps is to find a low-dimensional embedding $y_i \in \mathbb{R}^d$ (where $d \ll D$) for each $x_i$ such that if $x_i$ and $x_j$ are close in the original space (i.e., $w_{ij}$ is large), then their images $y_i$ and $y_j$ are also close. This is formulated as minimizing the objective function: $$\min_{Y} \sum_{i,j} w_{ij} ||y_i - y_j||^2$$ This sum penalizes mapping connected points far apart. Using the Graph Laplacian, this objective can be rewritten in matrix form as $\text{Tr}(Y^T L Y)$, where $Y = [y_1, \dots, y_N]^T$ is the matrix of embedded points.
+
+$$
+y_i \in \mathbb{R}^d
+$$
+
+$$
+d \ll D
+$$
+
+$$
+\min_{Y} \sum_{i,j} w_{ij} ||y_i - y_j||^2
+$$
+
+$$
+\text{Tr}(Y^T L Y)
+$$
+
+$$
+Y = [y_1, \dots, y_N]^T
+$$
+
+### Generalized Eigenvalue Problem
+
+To prevent trivial solutions (e.g., all $y_i = 0$) and ensure a unique scaling, constraints are added. A common constraint is $Y^T D Y = I$, which ensures that the embedding vectors are orthonormal with respect to the degree matrix. Minimizing $\text{Tr}(Y^T L Y)$ subject to $Y^T D Y = I$ leads to the generalized eigenvalue problem: $$Lv = \lambda Dv$$ The optimal low-dimensional embedding is formed by the eigenvectors corresponding to the smallest non-zero eigenvalues. The first eigenvector (corresponding to $\lambda_0 = 0$) is typically discarded as it represents a constant vector.
+
+$$
+Y^T D Y = I
+$$
+
+$$
+Lv = \lambda Dv
+$$
+
+$$
+\lambda_0 = 0
+$$
+
 ## Algorithm Steps
+
+1. Construct a similarity graph $G$ for the $N$ data points, connecting $x_i$ and $x_j$ if $x_j$ is among the $k$-nearest neighbors of $x_i$ (or vice versa), or if $||x_i - x_j|| < \epsilon$.
+2. Compute the weight matrix $W$ for the graph, setting $w_{ij} = e^{-\frac{||x_i - x_j||^2}{\sigma^2}}$ for connected points and $w_{ij} = 0$ otherwise.
+3. Compute the diagonal degree matrix $D$, where each diagonal element $D_{ii}$ is the sum of weights of edges connected to vertex $i$, i.e., $D_{ii} = \sum_j w_{ij}$.
+4. Compute the unnormalized Graph Laplacian $L = D - W$.
+5. Solve the generalized eigenvalue problem $Lv = \lambda Dv$ for its eigenvalues $\lambda$ and corresponding eigenvectors $v$.
+6. Sort the eigenvalues in ascending order: $0 = \lambda_0 \le \lambda_1 \le \dots \le \lambda_{N-1}$.
+7. Select the $d$ eigenvectors $v_1, \dots, v_d$ corresponding to the $d$ smallest non-zero eigenvalues $\lambda_1, \dots, \lambda_d$.
+8. The low-dimensional embedding for data point $x_i$ is given by the $i$-th row of the matrix formed by these selected eigenvectors, $Y = [v_1, \dots, v_d]$. The $j$-th component of $y_i$ is $v_{j,i}$.
 
 ## Parameters
 
+| Parameter | Type | Default | Range / Options | Description |
+|---|---|---|---|---|
+| `n_components` | `int` | `2` | > 0 | The dimension of the embedded space to reduce the data to. |
+| `affinity` | `str` | `'nearest_neighbors'` | {'nearest_neighbors', 'rbf', 'precomputed', 'precomputed_nearest_neighbors'} | The method used to construct the affinity graph. Can be 'nearest_neighbors', 'rbf', 'precomputed', 'precomputed_nearest_neighbors', or a callable. |
+| `n_neighbors` | `int` | `10` | > 0 | Number of neighbors for the 'nearest_neighbors' affinity graph construction. Only used if affinity is 'nearest_neighbors'. |
+| `gamma` | `float` | `1.0` | > 0 | Kernel coefficient for 'rbf' affinity. Only used if affinity is 'rbf'. |
+| `eigen_solver` | `str` | `None` | {'arpack', 'lobpcg', 'amg', None} | The solver for the eigenvalue problem. Can be 'arpack', 'lobpcg', 'amg', or None (auto-select). |
+| `random_state` | `int or RandomState instance` | `None` | int >= 0 | Determines random number generation for graph construction (e.g., for k-NN tie-breaking) and eigenvalue solvers. |
+
 ## Compatibility
+
+<CompatibilityMatrix
+  tabular={true}
+  image={false}
+  text={false}
+  timeseries={false}
+  graph={true}
+/>
 
 ## Strengths
 
+- Laplacian Eigenmaps effectively preserves the local neighborhood structure of the data, making it suitable for uncovering intrinsic manifold structures.
+- The method is computationally efficient for sparse graphs, as the eigenvalue problem involves sparse matrices.
+- It is robust to outliers compared to global methods like PCA, as its objective function focuses on local relationships.
+- The algorithm provides a clear mathematical foundation rooted in spectral graph theory, offering interpretability of its embedding properties.
+- It can discover non-linear structures in data that linear methods like PCA would fail to capture.
+
 ## Weaknesses
 
+- The choice of neighborhood parameters (e.g., $k$ for k-NN graph, $\epsilon$ for $\epsilon$-neighborhood, or $\sigma$ for Gaussian kernel) significantly impacts the embedding quality and can be difficult to tune.
+- Laplacian Eigenmaps does not inherently provide an out-of-sample mapping function, meaning new data points cannot be directly embedded without re-running the entire algorithm or using an approximation.
+- The global structure of the data may not be well-preserved, as the objective function primarily focuses on local proximities.
+- The computational cost of solving the generalized eigenvalue problem can be high for very large datasets, even with sparse matrices.
+
 ## Use Cases
+
+### Bioinformatics
+
+Used for visualizing gene expression data or protein interaction networks to identify clusters of related genes or proteins, revealing underlying biological patterns.
+
+### Computer Vision
+
+Applied to image manifold learning for tasks like face recognition, image retrieval, or dimensionality reduction of high-dimensional image features to improve processing efficiency.
+
+### Natural Language Processing
+
+Employed for visualizing word embeddings or document embeddings, helping to understand semantic relationships and cluster similar texts within a corpus.
+
+### Social Network Analysis
+
+Utilized to embed nodes in a social network into a low-dimensional space, revealing community structures, influential users, or patterns of interaction.
+
+### Medical Imaging
+
+Applied to reduce the dimensionality of fMRI or other medical scan data, aiding in the visualization of brain activity patterns or disease progression for diagnostic purposes.
+
+### Robotics
+
+Used for learning low-dimensional representations of robot sensor data or motor control states, facilitating more efficient navigation, control, and task learning.
 
 ## Implementation
 
@@ -51,7 +198,10 @@ related: []
 ### Using scikit-learn
 
 ```python
-# TODO
+from sklearn.cluster import LaplacianEigenmaps
+
+model = LaplacianEigenmaps()
+labels = model.fit_predict(X)
 ```
 
 ## Lab
@@ -59,3 +209,6 @@ related: []
 <LabEmbed url={""} title="Laplacian Eigenmaps Lab" />
 
 ## References
+
+- Belkin & Niyogi (2001). Belkin & Niyogi.
+- [scikit-learn: LaplacianEigenmaps](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LaplacianEigenmaps.html)
