@@ -83,7 +83,7 @@ A fundamental requirement for the application of ARMA models is that the underly
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `order` | `tuple of int` | `Required` | p >= 0, q >= 0 | The order of the ARMA model, specified as a tuple (p, q) where p is the autoregressive order and q is the moving average order. |
+| `order` | `tuple of int` | `Required` | p ≥ 0, q ≥ 0 | The order of the ARMA model, specified as a tuple (p, q) where p is the autoregressive order and q is the moving average order. |
 | `trend` | `string` | `c` | 'n', 'c', 't', 'ct' | Specifies whether to include a constant or trend term in the model. Options include 'n' (no trend), 'c' (constant), 't' (linear trend), 'ct' (constant and linear trend). |
 | `solver` | `string` | `lbfgs` | 'lbfgs', 'bfgs', 'newton', 'nm', 'cg', 'ncg', 'powell' | The optimization algorithm used to estimate the model parameters. |
 | `maxiter` | `int` | `50` | maxiter > 0 | The maximum number of iterations for the optimization algorithm. |

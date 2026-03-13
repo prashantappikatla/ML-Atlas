@@ -100,10 +100,10 @@ The hierarchical clustering process culminates in the construction of a dendrogr
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_clusters` | `int or None` | `None` | integer >= 1 or None | The number of clusters to form. If None, the algorithm performs a full hierarchy and `distance_threshold` must be specified. |
+| `n_clusters` | `int or None` | `None` | integer ≥ 1 or None | The number of clusters to form. If None, the algorithm performs a full hierarchy and `distance_threshold` must be specified. |
 | `affinity` | `str or callable` | `'euclidean'` | {'euclidean', 'l1', 'l2', 'manhattan', 'cosine', 'precomputed'} | Metric used to compute the linkage. Can be 'euclidean', 'l1', 'l2', 'manhattan', 'cosine', or 'precomputed'. If 'precomputed', a distance matrix must be provided. |
 | `linkage` | `str` | `'ward'` | {'ward', 'complete', 'average', 'single'} | Which linkage criterion to use. 'ward' minimizes the variance of the clusters being merged. 'average' uses the average of the distances of each observation of the two sets. 'complete' or 'maximum' linkage uses the maximum distances between all observations of the two sets. 'single' uses the minimum of the distances between all observations of the two sets. |
-| `distance_threshold` | `float or None` | `None` | float >= 0 or None | The linkage distance threshold above which clusters will not be merged. If None, `n_clusters` must be specified. |
+| `distance_threshold` | `float or None` | `None` | float ≥ 0 or None | The linkage distance threshold above which clusters will not be merged. If None, `n_clusters` must be specified. |
 | `compute_full_tree` | `str or bool` | `'auto'` | {'auto', True, False} | Whether to compute the full tree or only up to `n_clusters`. 'auto' computes the full tree if `n_clusters` is None or `distance_threshold` is set, otherwise it computes a truncated tree. |
 | `compute_distances` | `bool` | `False` | {True, False} | Whether to compute the distances between clusters. This is useful for plotting dendrograms. |
 

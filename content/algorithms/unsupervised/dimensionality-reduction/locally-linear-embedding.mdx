@@ -89,9 +89,9 @@ $$
 |---|---|---|---|---|
 | `n_neighbors` | `int` | `5` | integer > 0 | Number of neighbors to consider for each point when constructing the local linear approximations. |
 | `n_components` | `int` | `2` | integer > 0 | Desired dimensionality of the output embedding space. |
-| `reg` | `float` | `1e-3` | float >= 0 | Regularization parameter. Controls the amount of regularization in the linear reconstruction problem to prevent ill-conditioned matrices. |
+| `reg` | `float` | `1e-3` | float ≥ 0 | Regularization parameter. Controls the amount of regularization in the linear reconstruction problem to prevent ill-conditioned matrices. |
 | `eigen_solver` | `str` | `auto` | 'auto', 'arpack', 'dense' | Solver to use for the eigenvalue problem. 'auto' chooses based on problem size, 'arpack' for sparse, 'dense' for dense. |
-| `tol` | `float` | `1e-6` | float >= 0 | Tolerance for the eigenvalue solver convergence. |
+| `tol` | `float` | `1e-6` | float ≥ 0 | Tolerance for the eigenvalue solver convergence. |
 | `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the eigenvalue solver. |
 | `method` | `str` | `standard` | 'standard', 'hessian', 'modified', 'ltsa' | The LLE algorithm variant to use, offering different ways to handle local geometry and robustness. |
 

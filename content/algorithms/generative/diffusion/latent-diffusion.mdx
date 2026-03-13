@@ -132,7 +132,7 @@ $$
 | `unet_channels` | `list of integers` | `[320, 640, 1280, 1280]` | list of integers > 0 | A list of channel dimensions for each block in the U-Net architecture. Determines model capacity. |
 | `attention_resolutions` | `list of integers` | `[4, 2, 1]` | list of integers > 0 | A list of resolutions at which self-attention blocks are applied within the U-Net. Higher resolutions imply more detailed attention. |
 | `learning_rate` | `float` | `1e-4` | float > 0 | The learning rate used for optimizing the U-Net model during training. |
-| `guidance_scale` | `float` | `7.5` | float >= 0 | During inference with classifier-free guidance, this parameter controls the strength of the conditioning signal. Higher values mean stronger adherence to the prompt but can reduce diversity. |
+| `guidance_scale` | `float` | `7.5` | float ≥ 0 | During inference with classifier-free guidance, this parameter controls the strength of the conditioning signal. Higher values mean stronger adherence to the prompt but can reduce diversity. |
 
 ## Compatibility
 

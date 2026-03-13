@@ -81,7 +81,7 @@ export function NavbarClient() {
           </Link>
 
           <a
-            href="https://github.com"
+            href="https://github.com/prashantappikatla/ML-Atlas"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"

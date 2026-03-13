@@ -90,7 +90,7 @@ The algorithm typically converges when the centroids no longer change significan
 | `max_iter` | `int` | `100` | integer > 0 | Maximum number of passes over the training data (full passes, not mini-batch passes). |
 | `batch_size` | `int` | `1024` | integer > 0 | Size of the mini batch. |
 | `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance or None | Determines random number generation for centroid initialization and mini-batch sampling. Pass an int for reproducible output across multiple function calls. |
-| `tol` | `float` | `0.0` | float >= 0.0 | Controls the tolerance for the stopping criterion. If the inertia does not improve by at least 'tol' for 'max_no_improvement' consecutive mini-batches, the algorithm converges. |
+| `tol` | `float` | `0.0` | float ≥ 0.0 | Controls the tolerance for the stopping criterion. If the inertia does not improve by at least 'tol' for 'max_no_improvement' consecutive mini-batches, the algorithm converges. |
 | `max_no_improvement` | `int` | `10` | integer > 0 | Number of consecutive mini-batch updates with no improvement in the inertia to declare convergence. |
 | `compute_labels` | `bool` | `True` | {True, False} | Compute label assignments and inertia for the complete dataset once the algorithm has converged. This is more computationally expensive but provides a full view of the clustering. |
 

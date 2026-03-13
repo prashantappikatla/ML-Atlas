@@ -91,9 +91,9 @@ $$
 | `min_budget` | `float` | `1.0` | float > 0 | Minimum budget (e.g., epochs, data fraction) to allocate to a configuration in a successive halving bracket. |
 | `max_budget` | `float` | `100.0` | float > 0 | Maximum budget to allocate to a configuration, defining the upper limit of resources for the best candidates. |
 | `eta` | `float` | `3.0` | float > 1 | Reduction factor for successive halving; determines how many configurations are discarded and by what factor the budget is increased in each step. |
-| `num_brackets` | `int` | `3` | int >= 1 | Number of successive halving brackets to run, influencing the diversity of initial budgets and the total search space explored. |
-| `min_bandwidth_factor` | `float` | `0.0` | float >= 0 | A factor that controls the minimum bandwidth of the kernel density estimators, influencing the balance between exploration and exploitation in the Bayesian Optimization component. |
-| `random_fraction` | `float` | `0.33` | 0.0 <= float <= 1.0 | Fraction of configurations to sample randomly instead of from the BO model, ensuring initial exploration and preventing premature convergence. |
+| `num_brackets` | `int` | `3` | int ≥ 1 | Number of successive halving brackets to run, influencing the diversity of initial budgets and the total search space explored. |
+| `min_bandwidth_factor` | `float` | `0.0` | float ≥ 0 | A factor that controls the minimum bandwidth of the kernel density estimators, influencing the balance between exploration and exploitation in the Bayesian Optimization component. |
+| `random_fraction` | `float` | `0.33` | 0.0 ≤ float ≤ 1.0 | Fraction of configurations to sample randomly instead of from the BO model, ensuring initial exploration and preventing premature convergence. |
 
 ## Compatibility
 

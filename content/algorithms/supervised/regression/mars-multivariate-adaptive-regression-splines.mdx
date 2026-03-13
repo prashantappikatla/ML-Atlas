@@ -109,10 +109,10 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `max_terms` | `integer` | `200` | integer > 0 | The maximum number of terms (including the intercept) allowed in the model before the backward pruning step. |
-| `max_degree` | `integer` | `1` | integer >= 1 | The maximum degree of interaction between variables. A value of 1 implies an additive model, while 2 allows for pairwise interactions. |
-| `penalty` | `float` | `2.0` | float >= 0.0 | The generalized cross-validation (GCV) penalty parameter. Higher values lead to sparser models by penalizing complexity more heavily during pruning. |
-| `min_samples` | `integer` | `5` | integer >= 1 | The minimum number of samples required to form a new basis function (i.e., the minimum number of observations between knots and between a knot and the boundary). |
-| `endspan` | `integer` | `0` | integer >= 0 | The minimum number of observations between knots and between the knot and the boundary. A value of 0 means no restriction. |
+| `max_degree` | `integer` | `1` | integer ≥ 1 | The maximum degree of interaction between variables. A value of 1 implies an additive model, while 2 allows for pairwise interactions. |
+| `penalty` | `float` | `2.0` | float ≥ 0.0 | The generalized cross-validation (GCV) penalty parameter. Higher values lead to sparser models by penalizing complexity more heavily during pruning. |
+| `min_samples` | `integer` | `5` | integer ≥ 1 | The minimum number of samples required to form a new basis function (i.e., the minimum number of observations between knots and between a knot and the boundary). |
+| `endspan` | `integer` | `0` | integer ≥ 0 | The minimum number of observations between knots and between the knot and the boundary. A value of 0 means no restriction. |
 
 ## Compatibility
 

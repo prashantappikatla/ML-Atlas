@@ -87,8 +87,8 @@ $$
 | `leak_rate` | `float` | `0.3` | float in (0, 1] | The leaking rate $\alpha$ of the reservoir neurons, controlling the update speed and short-term memory of the internal states. |
 | `input_scaling` | `float` | `1.0` | float > 0 | Scaling factor for the input weights $W_{in}$, influencing the impact of external inputs on reservoir dynamics. |
 | `reservoir_sparsity` | `float` | `0.1` | float in (0, 1] | The proportion of non-zero connections in the recurrent weight matrix $W$, influencing reservoir connectivity and complexity. |
-| `ridge_param` | `float` | `0.0` | float >= 0 | Regularization parameter $\lambda$ for the Ridge regression used to train the output layer weights, preventing overfitting. |
-| `random_state` | `integer or None` | `None` | integer >= 0 or None | Seed for the random number generator to ensure reproducibility of reservoir initialization and weight generation. |
+| `ridge_param` | `float` | `0.0` | float ≥ 0 | Regularization parameter $\lambda$ for the Ridge regression used to train the output layer weights, preventing overfitting. |
+| `random_state` | `integer or None` | `None` | integer ≥ 0 or None | Seed for the random number generator to ensure reproducibility of reservoir initialization and weight generation. |
 
 ## Compatibility
 

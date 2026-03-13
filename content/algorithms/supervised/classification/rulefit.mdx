@@ -81,7 +81,7 @@ $$
 | `max_depth` | `int` | `3` | > 0 | The maximum depth limits the number of nodes in each individual decision tree used for rule generation. |
 | `tree_generator` | `estimator` | `GradientBoostingRegressor(n_estimators=500, max_depth=5, learning_rate=0.01)` | scikit-learn compatible estimator | An estimator object that implements the fit method, used to generate the rules. Typically a Gradient Boosting Machine. |
 | `alpha` | `float` | `1.0` | > 0 | The regularization strength for the LASSO model. Higher values enforce stronger sparsity by penalizing larger coefficients. |
-| `l1_ratio` | `float` | `1.0` | [0.0, 1.0] | The ElasticNet mixing parameter, with 0 <= l1_ratio <= 1. A ratio of L1 regularization to L2 regularization. l1_ratio=1 is pure LASSO, l1_ratio=0 is Ridge. |
+| `l1_ratio` | `float` | `1.0` | [0.0, 1.0] | The ElasticNet mixing parameter, with 0 ≤ l1_ratio ≤ 1. A ratio of L1 regularization to L2 regularization. l1_ratio=1 is pure LASSO, l1_ratio=0 is Ridge. |
 | `max_rules` | `int` | `2000` | > 0 | Limits the total number of rules considered for the final linear model, helping to manage model complexity. |
 | `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance or None | Controls the randomness of the estimator, ensuring reproducibility of the tree ensemble generation. |
 

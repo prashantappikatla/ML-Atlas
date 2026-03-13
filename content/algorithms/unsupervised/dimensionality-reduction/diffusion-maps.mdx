@@ -117,7 +117,7 @@ $$
 | `n_components` | `integer` | `2` | integer > 0 | The number of dimensions to keep in the embedded space, corresponding to the number of diffusion coordinates. |
 | `kernel` | `string` | `gaussian` | ['gaussian', 'laplacian'] | The type of kernel to use for computing affinities between data points. |
 | `epsilon` | `float` | `1.0` | float > 0 | The bandwidth parameter for the kernel function, controlling the decay of similarity with distance. |
-| `alpha` | `float` | `1.0` | float >= 0 | The normalization parameter for the diffusion operator; a value of 1.0 corresponds to the standard graph Laplacian normalization. |
+| `alpha` | `float` | `1.0` | float ≥ 0 | The normalization parameter for the diffusion operator; a value of 1.0 corresponds to the standard graph Laplacian normalization. |
 | `t` | `float` | `1.0` | float > 0 | The diffusion time parameter, controlling the scale of the diffusion process; larger $t$ emphasizes global structure. |
 
 ## Compatibility

@@ -93,7 +93,7 @@ $$
 |---|---|---|---|---|
 | `store_precision` | `boolean` | `True` | True, False | Whether to store the precision matrix (inverse of the covariance matrix). |
 | `assume_centered` | `boolean` | `False` | True, False | If True, the data is assumed to be centered, and no location (mean) is estimated. This can be useful if the data is already preprocessed to have zero mean. |
-| `support_fraction` | `float` | `None` | 0.0 < support_fraction <= 1.0 | The proportion of points to be included in the support of the raw Minimum Covariance Determinant (MCD) estimate. If None, it is set to $(n_samples + n_features + 1) / 2$. |
+| `support_fraction` | `float` | `None` | 0.0 < support_fraction ≤ 1.0 | The proportion of points to be included in the support of the raw Minimum Covariance Determinant (MCD) estimate. If None, it is set to $(n_samples + n_features + 1) / 2$. |
 | `contamination` | `float` | `0.1` | 0.0 < contamination < 0.5 | The proportion of outliers in the dataset. This parameter is used to compute the threshold for outlier detection, effectively controlling the number of anomalies identified. |
 | `random_state` | `int, RandomState instance or None` | `None` | integer, RandomState instance, None | Determines random number generation for the initial subset selection in the FastMCD algorithm. Pass an int for reproducible results across multiple function calls. |
 

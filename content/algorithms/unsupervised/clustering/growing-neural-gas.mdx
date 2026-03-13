@@ -102,10 +102,10 @@ $$
 | `n_iterations` | `integer` | `10000` | integer > 0 | The total number of training iterations or input signals to process. |
 | `max_nodes` | `integer` | `250` | integer > 1 | The maximum number of neurons allowed in the network. The algorithm stops growing if this limit is reached. |
 | `lambda_` | `integer` | `100` | integer > 0 | The frequency (in terms of iterations) at which a new neuron is inserted into the network. |
-| `epsilon_b` | `float` | `0.05` | 0.0 < float <= 1.0 | The learning rate for the best-matching unit, determining how much its weight vector moves towards the input signal. |
-| `epsilon_n` | `float` | `0.0006` | 0.0 < float <= 1.0 | The learning rate for the topological neighbors of the best-matching unit, determining their adaptation speed. |
-| `alpha` | `float` | `0.5` | 0.0 < float <= 1.0 | The factor by which the error variables of the two neurons involved in a new node insertion are decreased. |
-| `beta` | `float` | `0.0005` | 0.0 < float <= 1.0 | The factor by which all neurons' error variables are decreased at each iteration, preventing unbounded error growth. |
+| `epsilon_b` | `float` | `0.05` | 0.0 < float ≤ 1.0 | The learning rate for the best-matching unit, determining how much its weight vector moves towards the input signal. |
+| `epsilon_n` | `float` | `0.0006` | 0.0 < float ≤ 1.0 | The learning rate for the topological neighbors of the best-matching unit, determining their adaptation speed. |
+| `alpha` | `float` | `0.5` | 0.0 < float ≤ 1.0 | The factor by which the error variables of the two neurons involved in a new node insertion are decreased. |
+| `beta` | `float` | `0.0005` | 0.0 < float ≤ 1.0 | The factor by which all neurons' error variables are decreased at each iteration, preventing unbounded error growth. |
 | `max_age` | `integer` | `50` | integer > 0 | The maximum age an edge can reach before it is removed, pruning old or irrelevant connections. |
 | `random_state` | `integer or None` | `None` | integer or None | Seed for the random number generator to ensure reproducibility of results. |
 

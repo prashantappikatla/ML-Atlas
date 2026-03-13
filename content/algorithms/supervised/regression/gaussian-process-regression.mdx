@@ -90,9 +90,9 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `kernel` | `Kernel object` | `None` | Any valid scikit-learn Kernel object | The kernel function specifying the covariance of the Gaussian Process. If None, the default is 1.0 * RBF(1.0). |
-| `alpha` | `float or ndarray` | `1e-10` | float >= 0 or array-like of shape (n_samples,) | Value added to the diagonal of the kernel matrix during fitting, representing the noise level of the observations. Can be a scalar or an array of noise levels. |
+| `alpha` | `float or ndarray` | `1e-10` | float ≥ 0 or array-like of shape (n_samples,) | Value added to the diagonal of the kernel matrix during fitting, representing the noise level of the observations. Can be a scalar or an array of noise levels. |
 | `optimizer` | `str or callable` | `'fmin_l_bfgs_b'` | 'fmin_l_bfgs_b', None, or a callable | Method used to optimize the kernel's hyperparameters. Can be a string for a built-in optimizer or a callable function. |
-| `n_restarts_optimizer` | `int` | `0` | integer >= 0 | Number of restarts of the optimizer for finding the kernel's hyperparameters. Multiple restarts help avoid local optima. |
+| `n_restarts_optimizer` | `int` | `0` | integer ≥ 0 | Number of restarts of the optimizer for finding the kernel's hyperparameters. Multiple restarts help avoid local optima. |
 | `normalize_y` | `bool` | `False` | True or False | Whether to normalize the target values $y$ by subtracting the mean and dividing by the standard deviation. This can improve numerical stability. |
 | `copy_X_train` | `bool` | `True` | True or False | If true, the training data X_train is copied. Otherwise, it may be overwritten. |
 | `random_state` | `int or RandomState instance` | `None` | integer, RandomState instance, or None | Used when `optimizer` is not `None` and `n_restarts_optimizer > 0` to control the random number generator for initial hyperparameter values. |

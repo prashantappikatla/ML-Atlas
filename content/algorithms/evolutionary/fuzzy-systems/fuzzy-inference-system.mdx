@@ -89,8 +89,8 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `num_inputs` | `integer` | `1` | >= 1 | The number of input variables the fuzzy inference system will process. |
-| `num_outputs` | `integer` | `1` | >= 1 | The number of output variables the fuzzy inference system will produce. |
+| `num_inputs` | `integer` | `1` | ≥ 1 | The number of input variables the fuzzy inference system will process. |
+| `num_outputs` | `integer` | `1` | ≥ 1 | The number of output variables the fuzzy inference system will produce. |
 | `input_mf_types` | `list of strings` | `['trimf', 'gaussmf']` | ['trimf', 'trapmf', 'gaussmf', 'gbellmf', 'sigmf'] | A list specifying the types of membership functions (e.g., triangular, Gaussian) used for each input variable's fuzzy sets. |
 | `output_mf_types` | `list of strings` | `['trimf']` | ['trimf', 'trapmf', 'gaussmf', 'gbellmf', 'sigmf', 'constant', 'linear'] | A list specifying the types of membership functions (e.g., triangular, Gaussian) used for each output variable's fuzzy sets (Mamdani) or the type of consequent function (Sugeno). |
 | `fuzzy_operators` | `dict` | `{'and': 'min', 'or': 'max', 'implication': 'min', 'aggregation': 'max'}` | {'and': ['min', 'prod'], 'or': ['max', 'sum'], 'implication': ['min', 'prod'], 'aggregation': ['max', 'sum']} | Specifies the t-norm (AND), t-conorm (OR), implication, and aggregation operators used in the fuzzy inference process. |

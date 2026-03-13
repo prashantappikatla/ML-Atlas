@@ -68,9 +68,9 @@ The algorithm operates in a greedy, iterative fashion. In each iteration, it ide
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `min_samples_leaf` | `int` | `2` | integer >= 1 | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least `min_samples_leaf` training samples in each of the left and right branches. This parameter helps control the complexity of the partial decision trees and thus the rules. |
+| `min_samples_leaf` | `int` | `2` | integer ≥ 1 | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least `min_samples_leaf` training samples in each of the left and right branches. This parameter helps control the complexity of the partial decision trees and thus the rules. |
 | `confidence_threshold` | `float` | `0.25` | float in (0.0, 1.0) | The confidence factor used for error-based pruning of the partial decision tree. Lower values result in more aggressive pruning, leading to simpler rules. |
-| `max_rules` | `int` | `-1` | integer >= 1 or -1 | The maximum number of rules to generate. If -1, no limit is imposed. This can be used to control the overall complexity of the rule set. |
+| `max_rules` | `int` | `-1` | integer ≥ 1 or -1 | The maximum number of rules to generate. If -1, no limit is imposed. This can be used to control the overall complexity of the rule set. |
 | `pruning_strategy` | `string` | `error_based` | ['error_based', 'reduced_error'] | The strategy used for pruning the partial decision tree. Common options include "error_based" (similar to C4.5) or "reduced_error". |
 | `split_criterion` | `string` | `gini` | ['gini', 'entropy'] | The function to measure the quality of a split in the partial decision tree. Supported criteria are "gini" for Gini impurity and "entropy" for information gain. |
 

@@ -101,10 +101,10 @@ $$
 |---|---|---|---|---|
 | `meta_lr` | `float` | `0.001` | positive float | The learning rate for the outer loop meta-update, controlling how quickly the initial parameters $\theta$ are updated. |
 | `inner_lr` | `float` | `0.01` | positive float | The learning rate for the inner loop task-specific adaptation, controlling how quickly $\theta$ adapts to $\theta_i'$. |
-| `num_inner_steps` | `int` | `1` | integer >= 1 | The number of gradient descent steps performed in the inner loop for each task adaptation. |
-| `meta_batch_size` | `int` | `16` | integer >= 1 | The number of tasks sampled from the task distribution for each meta-update step. |
-| `k_shot` | `int` | `5` | integer >= 1 | The number of support examples (training examples) provided for each class within a task during the inner loop adaptation. |
-| `query_size` | `int` | `15` | integer >= 1 | The number of query examples (test examples) used to evaluate the adapted model and compute the meta-gradient for each task. |
+| `num_inner_steps` | `int` | `1` | integer ≥ 1 | The number of gradient descent steps performed in the inner loop for each task adaptation. |
+| `meta_batch_size` | `int` | `16` | integer ≥ 1 | The number of tasks sampled from the task distribution for each meta-update step. |
+| `k_shot` | `int` | `5` | integer ≥ 1 | The number of support examples (training examples) provided for each class within a task during the inner loop adaptation. |
+| `query_size` | `int` | `15` | integer ≥ 1 | The number of query examples (test examples) used to evaluate the adapted model and compute the meta-gradient for each task. |
 | `first_order` | `boolean` | `False` | True, False | If True, approximates MAML by ignoring second-order derivatives, reducing computational cost (FOMAML). |
 
 ## Compatibility

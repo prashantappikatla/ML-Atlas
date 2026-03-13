@@ -103,7 +103,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `order` | `tuple` | `(1, 0)` | p >= 0, q >= 0 | The (p, q) order of the VARMA model, where p is the autoregressive order and q is the moving average order. |
+| `order` | `tuple` | `(1, 0)` | p ≥ 0, q ≥ 0 | The (p, q) order of the VARMA model, where p is the autoregressive order and q is the moving average order. |
 | `trend` | `str` | `c` | 'n', 'c', 't', 'ct' | Type of trend component to include in the model. 'n' for no trend, 'c' for constant, 't' for linear trend, 'ct' for constant and linear trend. |
 | `initialization` | `str` | `approximate_diffuse` | 'approximate_diffuse', 'stationary' | Method for initializing the state space representation of the model. Options include 'approximate_diffuse' for a diffuse prior or 'stationary' for a stationary initialization. |
 | `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the autoregressive parameters during estimation, ensuring that the roots of the [AR](/algorithms/time-series/ar) characteristic polynomial lie outside the unit circle. |

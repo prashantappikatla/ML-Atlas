@@ -152,10 +152,10 @@ $$
 |---|---|---|---|---|
 | `n_iter` | `integer` | `300` | integer > 0 | Maximum number of iterations for the optimization algorithm. |
 | `tol` | `float` | `1e-3` | float > 0 | Stop the algorithm if the absolute change in the weights or the precision parameters is smaller than `tol`. |
-| `alpha_1` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the shape parameter. |
-| `alpha_2` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the inverse scale parameter. |
-| `lambda_1` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the shape parameter. |
-| `lambda_2` | `float` | `1e-6` | float >= 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the inverse scale parameter. |
+| `alpha_1` | `float` | `1e-6` | float ≥ 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the shape parameter. |
+| `alpha_2` | `float` | `1e-6` | float ≥ 0 | Hyperparameter for the Gamma distribution prior on the precision of the weights $\alpha$. Corresponds to the inverse scale parameter. |
+| `lambda_1` | `float` | `1e-6` | float ≥ 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the shape parameter. |
+| `lambda_2` | `float` | `1e-6` | float ≥ 0 | Hyperparameter for the Gamma distribution prior on the precision of the noise $\lambda$. Corresponds to the inverse scale parameter. |
 | `fit_intercept` | `boolean` | `true` | true, false | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (i.e. data is expected to be centered). |
 | `compute_score` | `boolean` | `false` | true, false | Whether to compute the log marginal likelihood (evidence) at each iteration. This is used for convergence monitoring. |
 

@@ -91,7 +91,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `maxlags` | `integer` | `None` | integer >= 1 | Maximum number of lags to consider when automatically selecting the optimal lag order using an information criterion. If None, a default based on the number of observations is used. |
+| `maxlags` | `integer` | `None` | integer ≥ 1 | Maximum number of lags to consider when automatically selecting the optimal lag order using an information criterion. If None, a default based on the number of observations is used. |
 | `ic` | `string` | `aic` | ['aic', 'bic', 'fpe', 'hqic'] | Information criterion to use for lag order selection. Common choices are 'aic' (Akaike Information Criterion) or 'bic' (Bayesian Information Criterion). |
 | `trend` | `string` | `c` | ['c', 't', 'ct', 'nc'] | Specifies whether to include a constant ('c'), a linear trend ('t'), both ('ct'), or no trend ('nc') in the VAR model. |
 | `exog` | `array-like or None` | `None` | array-like of shape (n_samples, n_exog) or None | Array of exogenous variables to include in the VAR model. These variables are treated as external inputs that influence the endogenous variables but are not influenced by them. |

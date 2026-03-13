@@ -85,10 +85,10 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `input_channels` | `int` | `1` | >= 1 | Number of channels in the input image (e.g., 1 for grayscale, 3 for RGB). |
-| `output_channels` | `int` | `2` | >= 1 | Number of output classes for segmentation (e.g., 2 for binary segmentation). |
-| `depth` | `int` | `4` | >= 2 | Number of downsampling/upsampling blocks in the U-Net architecture. |
-| `features_root` | `int` | `64` | >= 16 | Number of feature maps in the first convolutional layer of the encoder path. This number typically doubles at each subsequent downsampling step. |
+| `input_channels` | `int` | `1` | ≥ 1 | Number of channels in the input image (e.g., 1 for grayscale, 3 for RGB). |
+| `output_channels` | `int` | `2` | ≥ 1 | Number of output classes for segmentation (e.g., 2 for binary segmentation). |
+| `depth` | `int` | `4` | ≥ 2 | Number of downsampling/upsampling blocks in the U-Net architecture. |
+| `features_root` | `int` | `64` | ≥ 16 | Number of feature maps in the first convolutional layer of the encoder path. This number typically doubles at each subsequent downsampling step. |
 | `kernel_size` | `tuple` | `(3, 3)` | e.g., (3, 3), (5, 5) | Size of the convolutional kernels used in the network's convolutional blocks. |
 | `padding` | `str` | `same` | 'same', 'valid' | Type of padding applied to convolutional layers to maintain spatial dimensions. 'same' padding ensures output size matches input size for convolutions. |
 | `activation` | `str` | `relu` | 'relu', 'leaky_relu', 'elu' | Activation function used after convolutional layers in the encoder and decoder paths. |

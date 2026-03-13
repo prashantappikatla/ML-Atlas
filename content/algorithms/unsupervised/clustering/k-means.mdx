@@ -81,7 +81,7 @@ K-Means employs an alternating optimization strategy, which involves two main st
 | `init` | `str or callable` | `'k-means++'` | 'k-means++', 'random', or a callable | Method for initialization: 'k-means++' (smart initialization), 'random' (randomly choose $k$ observations), or a callable. |
 | `n_init` | `int or str` | `'auto'` | integer > 0 or 'auto' | Number of times the K-Means algorithm is run with different centroid seeds. The final results are the best output of $n_{init}$ consecutive runs in terms of inertia. |
 | `max_iter` | `int` | `300` | integer > 0 | Maximum number of iterations of the K-Means algorithm for a single run. |
-| `tol` | `float` | `1e-4` | float >= 0 | Relative tolerance with regards to Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence. |
+| `tol` | `float` | `1e-4` | float ≥ 0 | Relative tolerance with regards to Frobenius norm of the difference in the cluster centers of two consecutive iterations to declare convergence. |
 | `random_state` | `int or RandomState instance` | `None` | integer or None | Determines random number generation for centroid initialization. Use an int for reproducible results. |
 | `algorithm` | `str` | `'lloyd'` | 'lloyd', 'elkan', 'auto' | The algorithm to use for K-Means clustering. 'lloyd' is the standard EM-style algorithm. 'elkan' is a more efficient variant for sparse data. |
 

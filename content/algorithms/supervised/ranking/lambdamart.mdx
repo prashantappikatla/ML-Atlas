@@ -104,10 +104,10 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages (trees) to perform. |
-| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinks the contribution of each tree by 'learning_rate'. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float ≤ 1.0 | Shrinks the contribution of each tree by 'learning_rate'. |
 | `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators (trees). |
-| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. |
-| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | The fraction of samples to be used for fitting the individual base learners. |
+| `min_samples_leaf` | `int or float` | `1` | integer ≥ 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. |
+| `subsample` | `float` | `1.0` | 0.0 < float ≤ 1.0 | The fraction of samples to be used for fitting the individual base learners. |
 | `random_state` | `int` | `None` | integer or None | Controls the random seed given to each Tree estimator at each boosting iteration for reproducibility. |
 | `max_features` | `int, float, str or None` | `None` | integer, float in (0.0, 1.0], 'auto', 'sqrt', 'log2', None | The number of features to consider when looking for the best split. |
 | `validation_fraction` | `float` | `0.1` | 0.0 < float < 1.0 | The proportion of training data to set aside as validation set for early stopping. |

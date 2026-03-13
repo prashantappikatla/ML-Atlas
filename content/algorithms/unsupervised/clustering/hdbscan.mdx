@@ -84,13 +84,13 @@ From the condensed hierarchy, HDBSCAN extracts a flat partitioning of clusters b
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `min_cluster_size` | `int` | `5` | integer >= 2 | The minimum number of samples in a cluster for it to be considered a valid cluster. Smaller values allow for more granular clusters. |
-| `min_samples` | `int` | `None` | integer >= 1 | The number of samples in a neighborhood for a point to be considered as a core point. This also controls the 'k' in core distance. If None, defaults to `min_cluster_size`. |
+| `min_cluster_size` | `int` | `5` | integer ≥ 2 | The minimum number of samples in a cluster for it to be considered a valid cluster. Smaller values allow for more granular clusters. |
+| `min_samples` | `int` | `None` | integer ≥ 1 | The number of samples in a neighborhood for a point to be considered as a core point. This also controls the 'k' in core distance. If None, defaults to `min_cluster_size`. |
 | `metric` | `str or callable` | `euclidean` | string (e.g., 'euclidean', 'manhattan', 'cosine') or callable | The distance metric to use for computing distances between points. Can be any metric supported by `scipy.spatial.distance.pdist`. |
-| `alpha` | `float` | `1.0` | float >= 0.0 | A parameter to control the relative importance of core distance versus actual distance in the mutual reachability distance calculation. Higher values increase the influence of core distance. |
-| `cluster_selection_epsilon` | `float` | `0.0` | float >= 0.0 | A distance threshold for cluster selection. Clusters below this threshold are considered noise. A value of 0.0 means no thresholding is applied. |
+| `alpha` | `float` | `1.0` | float ≥ 0.0 | A parameter to control the relative importance of core distance versus actual distance in the mutual reachability distance calculation. Higher values increase the influence of core distance. |
+| `cluster_selection_epsilon` | `float` | `0.0` | float ≥ 0.0 | A distance threshold for cluster selection. Clusters below this threshold are considered noise. A value of 0.0 means no thresholding is applied. |
 | `algorithm` | `str` | `best` | 'auto', 'ball_tree', 'kd_tree', 'brute', 'best' | The algorithm to use for computing the nearest neighbors and constructing the MST. Options include 'auto', 'ball_tree', 'kd_tree', 'brute'. |
-| `leaf_size` | `int` | `40` | integer >= 1 | Leaf size for BallTree or KDTree. Affects the speed and memory of the nearest neighbor search, especially for high-dimensional data. |
+| `leaf_size` | `int` | `40` | integer ≥ 1 | Leaf size for BallTree or KDTree. Affects the speed and memory of the nearest neighbor search, especially for high-dimensional data. |
 
 ## Compatibility
 

@@ -83,8 +83,8 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `threshold` | `float` | `0.5` | positive float | The maximum radius of the subcluster that can be formed by a new sample without forcing a split in a leaf node. |
-| `branching_factor` | `int` | `50` | integer >= 2 | The maximum number of CF subclusters in each node (internal and leaf) of the CF-tree. |
-| `n_clusters` | `int or None` | `3` | integer >= 1 or None | The number of clusters to form after the BIRCH tree building process. If None, no global clustering step is performed, and the leaf nodes of the CF-tree are considered the final clusters. |
+| `branching_factor` | `int` | `50` | integer ≥ 2 | The maximum number of CF subclusters in each node (internal and leaf) of the CF-tree. |
+| `n_clusters` | `int or None` | `3` | integer ≥ 1 or None | The number of clusters to form after the BIRCH tree building process. If None, no global clustering step is performed, and the leaf nodes of the CF-tree are considered the final clusters. |
 | `compute_labels` | `bool` | `True` | True, False | Whether to compute cluster labels for each sample. If False, `fit_predict` and `fit_transform` will return -1 for all samples. |
 | `copy` | `bool` | `True` | True, False | Whether to copy the input data X or perform in-place operations. Setting to False can save memory but modifies the input. |
 

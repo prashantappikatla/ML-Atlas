@@ -184,10 +184,10 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `num_layers` | `int` | `6` | >= 1 | Number of Transformer encoder layers. |
-| `d_model` | `int` | `512` | >= 1 | Dimensionality of the input and output embeddings for each Transformer layer. |
-| `num_heads` | `int` | `8` | >= 1 | Number of attention heads in the multi-head self-attention mechanism. |
-| `d_ff` | `int` | `2048` | >= 1 | Dimensionality of the inner layer of the position-wise feed-forward networks. |
+| `num_layers` | `int` | `6` | ≥ 1 | Number of Transformer encoder layers. |
+| `d_model` | `int` | `512` | ≥ 1 | Dimensionality of the input and output embeddings for each Transformer layer. |
+| `num_heads` | `int` | `8` | ≥ 1 | Number of attention heads in the multi-head self-attention mechanism. |
+| `d_ff` | `int` | `2048` | ≥ 1 | Dimensionality of the inner layer of the position-wise feed-forward networks. |
 | `dropout_rate` | `float` | `0.1` | 0.0 to 1.0 | Dropout probability applied to the output of each sub-layer before residual connection. |
 | `attention_dropout_rate` | `float` | `0.1` | 0.0 to 1.0 | Dropout probability applied to the attention weights. |
 | `norm_first` | `bool` | `False` | True, False | If True, layer normalization is applied before attention and FFN; otherwise, after. |

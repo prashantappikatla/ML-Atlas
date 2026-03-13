@@ -178,12 +178,12 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_components` | `int` | `1` | integer >= 1 | The number of hidden states in the model. |
+| `n_components` | `int` | `1` | integer ≥ 1 | The number of hidden states in the model. |
 | `covariance_type` | `str` | `'diag'` | 'spherical', 'diag', 'full', 'tied' | The type of covariance matrix to use for each state's emission distribution. |
 | `min_covar` | `float` | `1e-3` | float > 0 | Floor on the diagonal of all covariance matrices to prevent overfitting. |
 | `startprob_prior` | `array-like` | `1.0` | array of shape (n_components,) or float > 0 | Prior distribution over the initial states, used for Dirichlet prior. |
 | `transmat_prior` | `array-like` | `1.0` | array of shape (n_components, n_components) or float > 0 | Prior distribution over the state transition probabilities, used for Dirichlet prior. |
-| `n_iter` | `int` | `10` | integer >= 1 | Maximum number of iterations to perform during training (Baum-Welch algorithm). |
+| `n_iter` | `int` | `10` | integer ≥ 1 | Maximum number of iterations to perform during training (Baum-Welch algorithm). |
 | `tol` | `float` | `1e-4` | float > 0 | Convergence threshold for the log-likelihood difference between iterations. |
 | `params` | `str` | `'stmc'` | string containing any combination of 's', 't', 'm', 'c' | Controls which parameters are updated during training. 's' for startprob, 't' for transmat, 'm' for means, 'c' for covars. |
 | `init_params` | `str` | `'stmc'` | string containing any combination of 's', 't', 'm', 'c' | Controls which parameters are initialized prior to training. 's' for startprob, 't' for transmat, 'm' for means, 'c' for covars. |

@@ -91,7 +91,7 @@ $$
 |---|---|---|---|---|
 | `n_neighbors` | `int` | `15` | integer > 0 | The size of local neighborhood (in terms of number of neighboring sample points) used for constructing the high-dimensional graph. Smaller values emphasize local structure, larger values emphasize global structure. |
 | `n_components` | `int` | `2` | integer > 0 | The dimension of the space into which to embed the data. Commonly 2 or 3 for visualization. |
-| `min_dist` | `float` | `0.1` | 0.0 <= float < 1.0 | The effective minimum distance between embedded points. Smaller values will result in more clustered embeddings, while larger values will ensure embedded points are more spread out. |
+| `min_dist` | `float` | `0.1` | 0.0 ≤ float < 1.0 | The effective minimum distance between embedded points. Smaller values will result in more clustered embeddings, while larger values will ensure embedded points are more spread out. |
 | `metric` | `str or callable` | `'euclidean'` | e.g., 'euclidean', 'manhattan', 'cosine', 'correlation' | The metric to use to compute distances in high dimensional space. Can be a string identifier for a common metric or a custom callable function. |
 | `random_state` | `int, RandomState instance or None` | `None` | integer or None | Determines the random number generator for reproducible results across multiple runs. |
 | `n_epochs` | `int` | `None` | integer > 0 or None | The number of training epochs to be used in optimizing the low dimensional embedding. If None, it is determined automatically based on the dataset size. |

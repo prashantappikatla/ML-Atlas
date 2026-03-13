@@ -116,7 +116,7 @@ $$
 | `batch_size` | `int` | `1` | > 0 | The number of training examples utilized in one iteration of weight update. |
 | `gibbs_steps_positive` | `int` | `1` | > 0 | Number of Gibbs sampling steps for the positive phase to reach equilibrium. Often set to 1 for RBMs, but higher for full BMs. |
 | `gibbs_steps_negative` | `int` | `100` | > 0 | Number of Gibbs sampling steps for the negative phase to reach equilibrium. This typically requires many steps. |
-| `weight_decay` | `float` | `0.0` | >= 0.0 | L2 regularization term to prevent overfitting by penalizing large weights. |
+| `weight_decay` | `float` | `0.0` | ≥ 0.0 | L2 regularization term to prevent overfitting by penalizing large weights. |
 | `random_state` | `int or None` | `None` | integer or None | Seed for the random number generator for reproducibility. |
 
 ## Compatibility

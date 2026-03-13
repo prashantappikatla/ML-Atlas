@@ -104,10 +104,10 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `p` | `integer` | `1` | p >= 0 | The order of the ARCH component, representing the number of lagged squared residuals included in the conditional variance equation. |
-| `q` | `integer` | `1` | q >= 0 | The order of the GARCH component, representing the number of lagged conditional variances included in the conditional variance equation. |
+| `p` | `integer` | `1` | p ≥ 0 | The order of the ARCH component, representing the number of lagged squared residuals included in the conditional variance equation. |
+| `q` | `integer` | `1` | q ≥ 0 | The order of the GARCH component, representing the number of lagged conditional variances included in the conditional variance equation. |
 | `mean` | `string` | `Constant` | ['Constant', 'ARX', 'ARMA', 'Zero'] | The type of mean model to use for the time series. Common options include 'Constant', 'ARX' (autoregressive with exogenous regressors), or 'ARMA'. |
-| `lags` | `integer or list of integers` | `None` | lags >= 0 or list/tuple of integers | The number of lags for the autoregressive ([AR](/algorithms/time-series/ar)) and moving average ([MA](/algorithms/time-series/ma)) components if an 'ARX' or 'ARMA' mean model is selected. Can be a single integer for AR order or a list/tuple for (AR_order, MA_order). |
+| `lags` | `integer or list of integers` | `None` | lags ≥ 0 or list/tuple of integers | The number of lags for the autoregressive ([AR](/algorithms/time-series/ar)) and moving average ([MA](/algorithms/time-series/ma)) components if an 'ARX' or 'ARMA' mean model is selected. Can be a single integer for AR order or a list/tuple for (AR_order, MA_order). |
 | `dist` | `string` | `normal` | ['normal', 'studentst', 'skewstudent', 'ged'] | The assumed distribution for the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$. Common choices include 'normal', 'studentst' (Student's t-distribution), or 'skewstudent'. |
 
 ## Compatibility

@@ -105,8 +105,8 @@ $$
 | `learning_rate` | `float` | `0.1` | float in (0.0, 1.0] | Shrinks the contribution of each tree by `learning_rate`. There is a trade-off between `learning_rate` and `n_estimators`. |
 | `subsample` | `float` | `1.0` | float in (0.0, 1.0] | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce stochasticity, which can reduce variance and improve generalization. |
 | `criterion` | `str` | `'friedman_mse'` | 'friedman_mse', 'squared_error' | The function to measure the quality of a split in the regression trees. 'friedman_mse' uses Friedman's improvement score, 'squared_error' uses mean squared error. |
-| `min_samples_split` | `int or float` | `2` | integer >= 2 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. Can be an absolute number or a fraction of the total samples. |
-| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 0.5] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
+| `min_samples_split` | `int or float` | `2` | integer ≥ 2 or float in (0.0, 1.0] | The minimum number of samples required to split an internal node. Can be an absolute number or a fraction of the total samples. |
+| `min_samples_leaf` | `int or float` | `1` | integer ≥ 1 or float in (0.0, 0.5] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
 | `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators. Controls the complexity of the base learners. |
 | `max_features` | `str or int or float` | `None` | None, 'auto', 'sqrt', 'log2', integer > 0, float in (0.0, 1.0] | The number of features to consider when looking for the best split. Can be 'auto', 'sqrt', 'log2', an integer, or a float. |
 

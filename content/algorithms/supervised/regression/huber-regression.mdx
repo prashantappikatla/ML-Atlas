@@ -86,7 +86,7 @@ $$
 |---|---|---|---|---|
 | `epsilon` | `float` | `1.35` | positive float | The parameter $\delta$ (epsilon) at which the Huber loss function changes from a quadratic to a linear loss. Values below this threshold are considered inliers. |
 | `max_iter` | `int` | `100` | integer > 0 | Maximum number of iterations for the iterative reweighted least squares solver. |
-| `alpha` | `float` | `0.0001` | float >= 0 | The regularization parameter for L2 penalty. Larger values specify stronger regularization. |
+| `alpha` | `float` | `0.0001` | float ≥ 0 | The regularization parameter for L2 penalty. Larger values specify stronger regularization. |
 | `warm_start` | `bool` | `False` | True, False | When set to True, reuse the solution of the previous call to fit as initialization for the next call. |
 | `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations. |
 | `tol` | `float` | `1e-05` | float > 0 | The tolerance for the optimization. If the updates are smaller than `tol`, the optimization cycle finishes. |

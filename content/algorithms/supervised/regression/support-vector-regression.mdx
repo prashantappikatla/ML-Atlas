@@ -102,15 +102,15 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `kernel` | `string` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | The kernel type to be used in the algorithm. |
-| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `degree` | `int` | `3` | integer ≥ 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
 | `gamma` | `string or float` | `scale` | 'scale', 'auto', or float > 0 | Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. Can be 'scale' (1 / (n_features * X.var())) or 'auto' (1 / n_features). |
 | `coef0` | `float` | `0.0` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
 | `C` | `float` | `1.0` | float > 0 | Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive. |
-| `epsilon` | `float` | `0.1` | float >= 0 | Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value. |
+| `epsilon` | `float` | `0.1` | float ≥ 0 | Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value. |
 | `shrinking` | `boolean` | `True` | True, False | Whether to use the shrinking heuristic. |
 | `tol` | `float` | `1e-3` | float > 0 | Tolerance for stopping criterion. |
 | `cache_size` | `float` | `200` | float > 0 | Specify the size of the kernel cache (in MB). |
-| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within solver, or -1 for no limit. |
+| `max_iter` | `int` | `-1` | integer ≥ -1 | Hard limit on iterations within solver, or -1 for no limit. |
 
 ## Compatibility
 

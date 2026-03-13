@@ -83,9 +83,9 @@ $$
 | `estimator` | `estimator object` | `None` |  | The estimator object to use for fitting the data. This object is expected to implement the scikit-learn estimator interface. |
 | `param_grid` | `dict or list of dict` | `None` |  | Dictionary with parameter names (string) as keys and lists of parameter settings to try as values, or a list of such dictionaries. Each dictionary in the list specifies a set of parameters to try. |
 | `scoring` | `str, callable, list, tuple, or dict` | `None` |  | Strategy to evaluate the performance of the cross-validated model on the test set. Can be a single string, a callable, or a list/tuple/dict of multiple scoring metrics. |
-| `cv` | `int, cross-validation generator, or iterable` | `None` | integer >= 2, or a valid CV splitter | Determines the cross-validation splitting strategy. An integer specifies the number of folds in a (Stratified)KFold, or a custom CV splitter object can be provided. |
+| `cv` | `int, cross-validation generator, or iterable` | `None` | integer ≥ 2, or a valid CV splitter | Determines the cross-validation splitting strategy. An integer specifies the number of folds in a (Stratified)KFold, or a custom CV splitter object can be provided. |
 | `n_jobs` | `int` | `None` | integer or -1 | Number of jobs to run in parallel. `None` means 1 unless in a `joblib.parallel_backend` context. `-1` means using all available processors. |
-| `verbose` | `int` | `0` | integer >= 0 | Controls the verbosity: the higher the value, the more messages are printed during the search process. |
+| `verbose` | `int` | `0` | integer ≥ 0 | Controls the verbosity: the higher the value, the more messages are printed during the search process. |
 | `refit` | `bool or str` | `True` | True, False, or a valid scorer string (e.g., 'accuracy') | If `True`, refit an estimator using the best found parameters on the whole dataset. If `False`, no refitting is performed. If a string, it specifies the scorer to use for refitting. |
 
 ## Compatibility

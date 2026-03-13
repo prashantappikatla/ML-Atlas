@@ -95,9 +95,9 @@ $$
 |---|---|---|---|---|
 | `n_particles` | `int` | `30` | integer > 0 | The number of particles in the swarm. A larger swarm generally increases exploration but also computational cost. |
 | `max_iter` | `int` | `100` | integer > 0 | The maximum number of iterations (generations) the optimization algorithm will run. |
-| `inertia_weight` | `float` | `0.5` | float >= 0 | The inertia weight ($w$) that controls the impact of the previous velocity on the current velocity. Higher values favor global exploration, lower values favor local exploitation. |
-| `cognitive_coeff` | `float` | `1.5` | float >= 0 | The cognitive acceleration coefficient ($c_1$) that scales the influence of a particle's personal best position. |
-| `social_coeff` | `float` | `1.5` | float >= 0 | The social acceleration coefficient ($c_2$) that scales the influence of the global best position found by the swarm. |
+| `inertia_weight` | `float` | `0.5` | float ≥ 0 | The inertia weight ($w$) that controls the impact of the previous velocity on the current velocity. Higher values favor global exploration, lower values favor local exploitation. |
+| `cognitive_coeff` | `float` | `1.5` | float ≥ 0 | The cognitive acceleration coefficient ($c_1$) that scales the influence of a particle's personal best position. |
+| `social_coeff` | `float` | `1.5` | float ≥ 0 | The social acceleration coefficient ($c_2$) that scales the influence of the global best position found by the swarm. |
 | `bounds` | `list of tuples` | `None` | list of (float, float) tuples | A list of (min, max) tuples, one for each dimension, defining the search space for the particle positions. |
 | `velocity_clamp` | `float or None` | `None` | float > 0 or None | The maximum absolute velocity a particle can have in any dimension. Clamping velocities can prevent particles from flying out of the search space too quickly. |
 

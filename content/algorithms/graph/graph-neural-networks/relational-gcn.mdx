@@ -98,11 +98,11 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `num_layers` | `int` | `2` | >= 1 | The number of R-GCN layers to stack in the network. |
-| `hidden_channels` | `int` | `64` | >= 1 | The dimensionality of the hidden feature representations in each R-GCN layer. |
-| `num_relations` | `int` | `` | >= 1 | The total number of distinct relation types present in the graph. This must be provided. |
-| `num_bases` | `int` | `None` | >= 1 or None | The number of basis transformations to use for basis decomposition. If None, no basis decomposition is applied. |
-| `num_blocks` | `int` | `None` | >= 1 or None | The number of blocks to use for block-diagonal decomposition. If None, no block-diagonal decomposition is applied. |
+| `num_layers` | `int` | `2` | ≥ 1 | The number of R-GCN layers to stack in the network. |
+| `hidden_channels` | `int` | `64` | ≥ 1 | The dimensionality of the hidden feature representations in each R-GCN layer. |
+| `num_relations` | `int` | `` | ≥ 1 | The total number of distinct relation types present in the graph. This must be provided. |
+| `num_bases` | `int` | `None` | ≥ 1 or None | The number of basis transformations to use for basis decomposition. If None, no basis decomposition is applied. |
+| `num_blocks` | `int` | `None` | ≥ 1 or None | The number of blocks to use for block-diagonal decomposition. If None, no block-diagonal decomposition is applied. |
 | `dropout` | `float` | `0.0` | [0.0, 1.0) | The dropout probability applied to the hidden representations between layers. |
 | `activation` | `str` | `relu` | ['relu', 'tanh', 'leaky_relu', 'sigmoid'] | The non-linear activation function to apply after each R-GCN layer (e.g., 'relu', 'tanh'). |
 | `self_loop` | `bool` | `True` | True, False | Whether to include a self-loop transformation in the aggregation for each node. |

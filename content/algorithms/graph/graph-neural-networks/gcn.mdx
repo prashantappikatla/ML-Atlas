@@ -162,7 +162,7 @@ $$
 | `in_channels` | `int` | `None` | integer > 0 | Number of input features per node. |
 | `hidden_channels` | `int` | `64` | integer > 0 | Number of features in the hidden layers. |
 | `out_channels` | `int` | `None` | integer > 0 | Number of output features per node (e.g., number of classes for node classification). |
-| `num_layers` | `int` | `2` | integer >= 1 | Number of GCN layers in the network. |
+| `num_layers` | `int` | `2` | integer ≥ 1 | Number of GCN layers in the network. |
 | `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | Probability of an element to be zeroed during training to prevent overfitting. |
 | `activation` | `str` | `relu` | 'relu', 'tanh', 'sigmoid', 'leaky_relu' | The non-linear activation function to use after each GCN layer. |
 | `add_self_loops` | `bool` | `True` | True, False | Whether to add self-loops to the adjacency matrix for each node. |

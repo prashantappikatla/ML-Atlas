@@ -132,15 +132,15 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_blocks` | `int` | `1` | integer >= 1 | Number of flow blocks (scales) in the multi-scale architecture. |
-| `n_steps_per_block` | `int` | `32` | integer >= 1 | Number of flow steps (affine coupling layers, 1x1 convs, actnorms) within each block. |
-| `n_channels` | `int` | `3` | integer >= 1 | Number of input channels (e.g., 3 for RGB images). |
-| `hidden_channels` | `int` | `512` | integer >= 1 | Number of channels in the hidden layers of the neural networks within affine coupling layers. |
+| `n_blocks` | `int` | `1` | integer ≥ 1 | Number of flow blocks (scales) in the multi-scale architecture. |
+| `n_steps_per_block` | `int` | `32` | integer ≥ 1 | Number of flow steps (affine coupling layers, 1x1 convs, actnorms) within each block. |
+| `n_channels` | `int` | `3` | integer ≥ 1 | Number of input channels (e.g., 3 for RGB images). |
+| `hidden_channels` | `int` | `512` | integer ≥ 1 | Number of channels in the hidden layers of the neural networks within affine coupling layers. |
 | `affine_coupling_type` | `str` | `"glow"` | ['glow', 'real_nvp'] | Type of affine coupling layer to use. |
 | `learn_top_prior` | `bool` | `True` | boolean | Whether to learn the parameters of the Gaussian prior for the top-level latent variables. |
 | `optimizer` | `str` | `"adam"` | ['adam', 'sgd', 'rmsprop'] | Optimization algorithm to use for training. |
 | `learning_rate` | `float` | `0.0001` | float > 0 | Initial learning rate for the optimizer. |
-| `batch_size` | `int` | `64` | integer >= 1 | Number of samples per batch during training. |
+| `batch_size` | `int` | `64` | integer ≥ 1 | Number of samples per batch during training. |
 
 ## Compatibility
 

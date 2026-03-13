@@ -105,7 +105,7 @@ $$
 | `model_name` | `str` | `'B0'` | ['B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'L2'] | Specifies the EfficientNet variant (e.g., 'B0', 'B1', ..., 'B7', 'L2'), which implicitly defines the depth, width, and resolution scaling. |
 | `include_top` | `bool` | `true` | true or false | Whether to include the fully-connected layer at the top of the network, used for classification. |
 | `weights` | `str or None` | `'imagenet'` | 'imagenet' or None | Pre-training weights to load for the model. 'imagenet' uses weights pre-trained on ImageNet. |
-| `input_shape` | `tuple` | `None` | (H, W, C) where H, W >= 32 | Optional shape tuple, only to be specified if 'include_top' is False or if a custom input shape is desired. Must be (height, width, channels). |
+| `input_shape` | `tuple` | `None` | (H, W, C) where H, W ≥ 32 | Optional shape tuple, only to be specified if 'include_top' is False or if a custom input shape is desired. Must be (height, width, channels). |
 | `pooling` | `str or None` | `None` | ['avg', 'max', None] | Optional pooling mode for feature extraction when 'include_top' is False. 'avg' means global average pooling, 'max' means global max pooling. |
 | `classes` | `int` | `1000` | integer > 0 | Optional number of classes to classify images into, only to be specified if 'include_top' is True and 'weights' is None. |
 | `dropout_rate` | `float` | `0.2` | 0.0 to 1.0 | Dropout rate for the final classification layer, typically scaled with model size. |

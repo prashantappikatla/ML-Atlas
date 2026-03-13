@@ -99,7 +99,7 @@ The quantization step $z_q(x) = e_k$ is non-differentiable. To allow gradients t
 |---|---|---|---|---|
 | `num_embeddings` | `int` | `512` | integer > 0 | The number of distinct embedding vectors in the codebook, representing the size of the discrete latent space. |
 | `embedding_dim` | `int` | `64` | integer > 0 | The dimensionality of each embedding vector in the codebook. |
-| `commitment_cost` | `float` | `0.25` | float >= 0 | The hyperparameter $\beta$ that weights the commitment loss, controlling how strongly the encoder output is pulled towards the codebook embeddings. |
+| `commitment_cost` | `float` | `0.25` | float ≥ 0 | The hyperparameter $\beta$ that weights the commitment loss, controlling how strongly the encoder output is pulled towards the codebook embeddings. |
 | `encoder_hidden_dims` | `list of int` | `[256, 128]` | list of positive integers | A list specifying the number of units in each hidden layer of the encoder network. |
 | `decoder_hidden_dims` | `list of int` | `[128, 256]` | list of positive integers | A list specifying the number of units in each hidden layer of the decoder network. |
 | `learning_rate` | `float` | `0.0002` | float > 0 | The step size used by the optimizer during training. |

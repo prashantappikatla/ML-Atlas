@@ -88,7 +88,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `alpha` | `float` | `1.0` | >= 0 | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied. Must be non-negative. |
+| `alpha` | `float` | `1.0` | ≥ 0 | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied. Must be non-negative. |
 | `fit_prior` | `bool` | `True` | True, False | Whether to learn class prior probabilities ($P(\bar{C_k})$) or assume equal priors for all complement classes. |
 | `class_prior` | `array-like of shape (n_classes,)` | `None` | array of probabilities summing to 1, or None | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data. This parameter is typically used to set $P(C_k)$ directly, which then implies $P(\bar{C_k})$. |
 | `force_alpha` | `bool` | `False` | True, False | If False and alpha is less than 1e-10, it will be set to 1e-10. If True, alpha will remain as is. This parameter is for backward compatibility. |

@@ -93,7 +93,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `initial_plays_per_arm` | `integer` | `1` | integer >= 1 | The number of times each arm is played initially to gather preliminary reward estimates before the UCB formula is applied. |
+| `initial_plays_per_arm` | `integer` | `1` | integer ≥ 1 | The number of times each arm is played initially to gather preliminary reward estimates before the UCB formula is applied. |
 | `reward_min` | `float` | `0.0` | float | The minimum possible reward value. This is used to normalize rewards if they are not inherently in the range [0,1], which is an assumption for the Hoeffding bound. |
 | `reward_max` | `float` | `1.0` | float, reward_max > reward_min | The maximum possible reward value. This is used to normalize rewards if they are not inherently in the range [0,1], which is an assumption for the Hoeffding bound. |
 

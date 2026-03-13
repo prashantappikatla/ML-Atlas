@@ -154,9 +154,9 @@ $$
 | `P` | `numpy.ndarray` | `None` | square matrix of shape (dim_x, dim_x) | The initial state covariance matrix. |
 | `Q` | `numpy.ndarray` | `None` | square matrix of shape (dim_x, dim_x) | The process noise covariance matrix. |
 | `R` | `numpy.ndarray` | `None` | square matrix of shape (dim_z, dim_z) | The measurement noise covariance matrix. |
-| `alpha` | `float` | `1e-3` | 0.0 < alpha <= 1.0 | Scaling parameter that controls the spread of sigma points from the mean. Typically $10^{-3} \le \alpha \le 1$. |
-| `beta` | `float` | `2.0` | beta >= 0.0 | Parameter used to incorporate prior knowledge about the distribution. Optimal value for Gaussian distributions is 2. |
-| `kappa` | `float` | `0.0` | kappa >= 0.0 | A secondary scaling parameter, often set to 0 or $3-L$ where $L$ is the state dimension. |
+| `alpha` | `float` | `1e-3` | 0.0 < alpha ≤ 1.0 | Scaling parameter that controls the spread of sigma points from the mean. Typically $10^{-3} \le \alpha \le 1$. |
+| `beta` | `float` | `2.0` | beta ≥ 0.0 | Parameter used to incorporate prior knowledge about the distribution. Optimal value for Gaussian distributions is 2. |
+| `kappa` | `float` | `0.0` | kappa ≥ 0.0 | A secondary scaling parameter, often set to 0 or $3-L$ where $L$ is the state dimension. |
 
 ## Compatibility
 

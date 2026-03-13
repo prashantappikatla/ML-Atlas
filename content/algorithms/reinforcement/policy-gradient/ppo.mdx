@@ -138,14 +138,14 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `learning_rate` | `float` | `0.0003` | (0, 1] | The step size for the optimizer when updating network weights. |
-| `n_steps` | `int` | `2048` | >= 1 | The number of steps to run for each environment per update (i.e., rollout length). |
-| `batch_size` | `int` | `64` | >= 1 | The number of samples per mini-batch used for optimization. |
+| `n_steps` | `int` | `2048` | ≥ 1 | The number of steps to run for each environment per update (i.e., rollout length). |
+| `batch_size` | `int` | `64` | ≥ 1 | The number of samples per mini-batch used for optimization. |
 | `gamma` | `float` | `0.99` | [0, 1] | The discount factor for future rewards. |
 | `gae_lambda` | `float` | `0.95` | [0, 1] | The parameter for Generalized Advantage Estimation (GAE) that balances bias and variance. |
 | `clip_range` | `float` | `0.2` | (0, 1] | The clipping parameter $\epsilon$ for the PPO objective function, controlling the maximum policy change. |
-| `ent_coef` | `float` | `0.01` | >= 0 | Coefficient for the entropy bonus term in the loss function, encouraging exploration. |
-| `vf_coef` | `float` | `0.5` | >= 0 | Coefficient for the value function loss term in the total loss. |
-| `n_epochs` | `int` | `10` | >= 1 | The number of epochs to optimize the surrogate objective on the collected data. |
+| `ent_coef` | `float` | `0.01` | ≥ 0 | Coefficient for the entropy bonus term in the loss function, encouraging exploration. |
+| `vf_coef` | `float` | `0.5` | ≥ 0 | Coefficient for the value function loss term in the total loss. |
+| `n_epochs` | `int` | `10` | ≥ 1 | The number of epochs to optimize the surrogate objective on the collected data. |
 
 ## Compatibility
 

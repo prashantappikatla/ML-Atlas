@@ -92,11 +92,11 @@ $$
 | `hidden_layer_sizes` | `tuple` | `(100,)` | tuple of integers, e.g., (50, 20) | The sizes of the hidden layers in the neural network. Each element represents the number of neurons in that layer. |
 | `activation` | `string` | `relu` | 'identity', 'logistic', 'tanh', 'relu' | Activation function for the hidden layers. |
 | `solver` | `string` | `adam` | 'lbfgs', 'sgd', 'adam' | The solver for weight optimization. |
-| `alpha` | `float` | `0.0001` | float >= 0.0 | L2 penalty (regularization term) parameter. |
-| `batch_size` | `int` | `'auto'` | integer >= 1 or 'auto' | Size of minibatches for stochastic optimizers. If 'auto', batch_size=min(200, n_samples). |
+| `alpha` | `float` | `0.0001` | float ≥ 0.0 | L2 penalty (regularization term) parameter. |
+| `batch_size` | `int` | `'auto'` | integer ≥ 1 or 'auto' | Size of minibatches for stochastic optimizers. If 'auto', batch_size=min(200, n_samples). |
 | `learning_rate_init` | `float` | `0.001` | float > 0.0 | The initial learning rate used for 'sgd' or 'adam' solvers. |
-| `max_iter` | `int` | `200` | integer >= 1 | Maximum number of iterations (epochs) for the solver to run. |
-| `tol` | `float` | `1e-4` | float >= 0.0 | Tolerance for the optimization. When the loss or score is not improving by at least 'tol' for 'n_iter_no_change' consecutive iterations, convergence is considered to be reached. |
+| `max_iter` | `int` | `200` | integer ≥ 1 | Maximum number of iterations (epochs) for the solver to run. |
+| `tol` | `float` | `1e-4` | float ≥ 0.0 | Tolerance for the optimization. When the loss or score is not improving by at least 'tol' for 'n_iter_no_change' consecutive iterations, convergence is considered to be reached. |
 
 ## Compatibility
 

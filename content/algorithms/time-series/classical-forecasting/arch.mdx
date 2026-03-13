@@ -88,10 +88,10 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `lags` | `integer` | `1` | q >= 1 | The number of past squared residuals (q) to include in the conditional variance equation. This defines the order of the ARCH model. |
+| `lags` | `integer` | `1` | q ≥ 1 | The number of past squared residuals (q) to include in the conditional variance equation. This defines the order of the ARCH model. |
 | `mean_model` | `string` | `constant` | 'constant', 'AR', 'ARMA', 'zero', 'LS' | The type of model used for the conditional mean of the time series. Common options include 'constant', 'AR', 'ARMA', or 'zero'. |
-| `p_mean` | `integer` | `0` | p_mean >= 0 | The order of the autoregressive (AR) component in the mean model, if 'mean_model' is 'AR' or 'ARMA'. |
-| `q_mean` | `integer` | `0` | q_mean >= 0 | The order of the moving average (MA) component in the mean model, if 'mean_model' is 'ARMA'. |
+| `p_mean` | `integer` | `0` | p_mean ≥ 0 | The order of the autoregressive (AR) component in the mean model, if 'mean_model' is 'AR' or 'ARMA'. |
+| `q_mean` | `integer` | `0` | q_mean ≥ 0 | The order of the moving average (MA) component in the mean model, if 'mean_model' is 'ARMA'. |
 | `dist` | `string` | `normal` | 'normal', 'studentst', 'skewstudent', 'ged' | The assumed distribution for the standardized residuals $z_t$. Common choices include 'normal', 'studentst' (Student's t-distribution), or 'skewstudent'. |
 
 ## Compatibility

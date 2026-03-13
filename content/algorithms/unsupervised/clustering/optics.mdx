@@ -79,12 +79,12 @@ The reachability plot is a two-dimensional graph where points are ordered accord
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `min_samples` | `int or float` | `5` | integer >= 1 or float in (0.0, 1.0] | The number of samples in a neighborhood for a point to be considered as a core point. If float, it represents a fraction of the total number of samples. |
-| `max_eps` | `float` | `inf` | float >= 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other. This parameter limits the maximum reachability distance computed. |
+| `min_samples` | `int or float` | `5` | integer ≥ 1 or float in (0.0, 1.0] | The number of samples in a neighborhood for a point to be considered as a core point. If float, it represents a fraction of the total number of samples. |
+| `max_eps` | `float` | `inf` | float ≥ 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other. This parameter limits the maximum reachability distance computed. |
 | `metric` | `str or callable` | `'minkowski'` | e.g., 'euclidean', 'manhattan', 'minkowski', or a callable | The distance metric to use for computing distances between points. |
-| `p` | `int` | `2` | integer >= 1 | The power of the Minkowski metric. Used when `metric` is 'minkowski'. |
+| `p` | `int` | `2` | integer ≥ 1 | The power of the Minkowski metric. Used when `metric` is 'minkowski'. |
 | `cluster_method` | `str` | `'xi'` | 'xi', 'dbscan' | The method used to extract clusters from the reachability plot. 'xi' uses a steepness-based approach, while 'dbscan' uses a fixed epsilon threshold. |
-| `eps` | `float` | `None` | float >= 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other, used specifically for 'dbscan' cluster extraction. |
+| `eps` | `float` | `None` | float ≥ 0.0 | The maximum distance between two samples for one to be considered as in the neighborhood of the other, used specifically for 'dbscan' cluster extraction. |
 | `xi` | `float` | `0.05` | float in (0.0, 1.0) | Determines the minimum steepness of the reachability plot that constitutes a cluster, used for 'xi' cluster extraction. |
 | `predecessor_correction` | `bool` | `True` | True, False | Corrects the reachability distance of a point to be at least the core distance of its predecessor in the ordering. |
 | `n_jobs` | `int` | `None` | integer or None | The number of parallel jobs to run for neighbors search. -1 means using all processors. |

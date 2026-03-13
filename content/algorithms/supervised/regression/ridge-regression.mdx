@@ -102,7 +102,7 @@ The regularization parameter $\alpha$ in Ridge Regression controls the balance b
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `alpha` | `float or array-like` | `1.0` | alpha >= 0 | The regularization strength; must be a positive float. Larger values specify stronger regularization, leading to greater coefficient shrinkage. |
+| `alpha` | `float or array-like` | `1.0` | alpha ≥ 0 | The regularization strength; must be a positive float. Larger values specify stronger regularization, leading to greater coefficient shrinkage. |
 | `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (i.e., data is assumed to be centered). |
 | `solver` | `string` | `'auto'` | 'auto', 'svd', 'cholesky', 'lsqr', 'sag', 'saga' | Solver to use in the computational routines. Options include 'auto', 'svd', 'cholesky', 'lsqr', 'sag', and 'saga', each with different performance characteristics. |
 | `max_iter` | `int` | `None` | max_iter > 0 | Maximum number of iterations for iterative solvers ('sag', 'saga', 'lsqr'). For non-iterative solvers, this parameter has no effect. |

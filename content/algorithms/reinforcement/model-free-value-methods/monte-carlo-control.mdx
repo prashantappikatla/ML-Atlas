@@ -85,8 +85,8 @@ $$Q(s,a) \leftarrow \text{average of returns for } (s,a)$$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `n_episodes` | `integer` | `10000` | integer > 0 | The total number of episodes to run for training the agent. |
-| `gamma` | `float` | `0.99` | 0.0 <= gamma <= 1.0 | The discount factor for future rewards, determining the present value of future rewards. |
-| `epsilon` | `float` | `0.1` | 0.0 <= epsilon <= 1.0 | The probability of taking a random action (exploration) in an $\epsilon$-greedy policy. |
+| `gamma` | `float` | `0.99` | 0.0 ≤ gamma ≤ 1.0 | The discount factor for future rewards, determining the present value of future rewards. |
+| `epsilon` | `float` | `0.1` | 0.0 ≤ epsilon ≤ 1.0 | The probability of taking a random action (exploration) in an $\epsilon$-greedy policy. |
 | `initial_q_value` | `float` | `0.0` | any float | The initial value assigned to all state-action pairs before any learning occurs. |
 | `max_steps_per_episode` | `integer` | `1000` | integer > 0 | The maximum number of steps allowed in a single episode to prevent infinite loops in continuing tasks or very long episodes. |
 

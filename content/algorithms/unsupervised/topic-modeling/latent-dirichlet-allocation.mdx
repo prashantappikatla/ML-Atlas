@@ -100,8 +100,8 @@ The primary challenge in LDA is inferring the latent variables: the topic assign
 | `topic_word_prior` | `float or None` | `None` | > 0 | Prior of topic word distribution $\eta$ (often denoted $\beta$). If None, defaults to $1 / \text{n_components}$. |
 | `learning_method` | `str` | `'batch'` | 'batch', 'online' | Method used to update the variational parameters. 'batch' uses all training data at each iteration. 'online' uses mini-batches. |
 | `max_iter` | `int` | `10` | > 0 | Maximum number of iterations. |
-| `evaluate_every` | `int` | `10` | int >= 0 | How often to evaluate perplexity. Set to 0 to never evaluate. |
-| `random_state` | `int or RandomState instance or None` | `None` | int >= 0 | Used for random initialization. |
+| `evaluate_every` | `int` | `10` | int ≥ 0 | How often to evaluate perplexity. Set to 0 to never evaluate. |
+| `random_state` | `int or RandomState instance or None` | `None` | int ≥ 0 | Used for random initialization. |
 
 ## Compatibility
 

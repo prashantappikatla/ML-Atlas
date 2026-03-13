@@ -88,7 +88,7 @@ $$
 | `encoder_layers` | `list of integers` | `[256, 128]` | list of integers > 0 | List specifying the number of units in each hidden layer of the encoder network. |
 | `decoder_layers` | `list of integers` | `[128, 256]` | list of integers > 0 | List specifying the number of units in each hidden layer of the decoder network. |
 | `learning_rate` | `float` | `0.001` | float > 0 | The learning rate for the optimizer used during training. |
-| `kl_weight` | `float` | `1.0` | float >= 0 | Weight applied to the Kullback-Leibler divergence term in the ELBO objective, controlling the regularization strength (e.g., for beta-VAE). |
+| `kl_weight` | `float` | `1.0` | float ≥ 0 | Weight applied to the Kullback-Leibler divergence term in the ELBO objective, controlling the regularization strength (e.g., for beta-VAE). |
 | `reconstruction_loss_type` | `string` | `mse` | 'mse', 'bce' | Type of loss function used for the reconstruction term (e.g., 'mse' for mean squared error, 'bce' for binary cross-entropy). |
 
 ## Compatibility

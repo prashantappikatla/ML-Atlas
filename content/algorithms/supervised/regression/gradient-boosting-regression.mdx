@@ -93,10 +93,10 @@ $$
 |---|---|---|---|---|
 | `loss` | `str` | `'squared_error'` | 'squared_error', 'absolute_error', 'huber', 'quantile' | The loss function to be optimized. Options include 'squared_error' for L2 loss, 'absolute_error' for L1 loss, 'huber' for a combination of L1 and L2, and 'quantile' for quantile regression. |
 | `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages to perform. Higher values can lead to better performance but also increase the risk of overfitting and computation time. |
-| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinkage factor applied to the contribution of each tree. It controls the step size of the gradient descent, with smaller values requiring more estimators but potentially leading to better generalization. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float ≤ 1.0 | Shrinkage factor applied to the contribution of each tree. It controls the step size of the gradient descent, with smaller values requiring more estimators but potentially leading to better generalization. |
 | `max_depth` | `int` | `3` | integer > 0 | The maximum depth of the individual regression estimators (decision trees). Controls the complexity of the base learners; deeper trees can capture more complex interactions but are more prone to overfitting. |
-| `min_samples_leaf` | `int or float` | `1` | integer >= 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
-| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce stochasticity, which can reduce variance and prevent overfitting (Stochastic Gradient Boosting). |
+| `min_samples_leaf` | `int or float` | `1` | integer ≥ 1 or float in (0.0, 1.0] | The minimum number of samples required to be at a leaf node. Can be an absolute number or a fraction of the total samples. |
+| `subsample` | `float` | `1.0` | 0.0 < float ≤ 1.0 | The fraction of samples to be used for fitting the individual base learners. Values less than 1.0 introduce stochasticity, which can reduce variance and prevent overfitting (Stochastic Gradient Boosting). |
 | `criterion` | `str` | `'friedman_mse'` | 'friedman_mse', 'squared_error' | The function to measure the quality of a split in the regression trees. 'friedman_mse' uses an improved version of mean squared error for split evaluation. |
 | `alpha` | `float` | `0.9` | 0.0 < float < 1.0 | The alpha parameter for the Huber loss function and the quantile parameter for the Quantile loss function. Only relevant if 'loss' is 'huber' or 'quantile'. |
 

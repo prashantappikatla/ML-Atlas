@@ -90,7 +90,7 @@ $$
 | `max_iter` | `integer` | `100` | positive integer | Maximum number of EM iterations to perform before stopping. |
 | `tol` | `float` | `1e-3` | positive float | The convergence threshold. The algorithm stops if the change in the log-likelihood or parameters between iterations is below this value. |
 | `n_init` | `integer` | `1` | positive integer | Number of times the EM algorithm is run with different random initializations. The best result is chosen based on the log-likelihood. |
-| `random_state` | `integer or None` | `None` | integer >= 0 or None | Controls the pseudo-random number generation for initial parameter selection to ensure reproducibility. |
+| `random_state` | `integer or None` | `None` | integer ≥ 0 or None | Controls the pseudo-random number generation for initial parameter selection to ensure reproducibility. |
 | `initial_parameters` | `string or object` | `random` | e.g., 'random', 'kmeans' (for GMMs), or a dictionary of initial parameter values | Method or specific values used to initialize the model parameters before the first E-step. |
 
 ## Compatibility

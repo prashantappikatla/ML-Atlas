@@ -98,7 +98,7 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `max_resources` | `int` | `81` | positive integer | The maximum amount of resources (e.g., epochs, iterations) that can be allocated to a single hyperparameter configuration. |
-| `eta` | `int` | `3` | integer >= 2 | The halving factor, determining how aggressively configurations are pruned and how quickly resources are increased in successive halving. |
+| `eta` | `int` | `3` | integer ≥ 2 | The halving factor, determining how aggressively configurations are pruned and how quickly resources are increased in successive halving. |
 | `min_resources` | `int` | `1` | positive integer | The minimum amount of resources to allocate to a configuration in the first stage of any successive halving bracket. |
 | `random_state` | `int` | `None` | integer or None | Seed for the random number generator used for sampling configurations, ensuring reproducibility. |
 

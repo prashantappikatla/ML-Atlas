@@ -90,10 +90,10 @@ CatBoost uses oblivious decision trees, also known as symmetric trees. In these 
 | `iterations` | `integer` | `1000` | integer > 0 | The maximum number of boosting iterations (trees) to perform. |
 | `learning_rate` | `float` | `0.03` | float in (0, 1] | The learning rate (step size) that shrinks the contribution of each tree. |
 | `depth` | `integer` | `6` | integer in [1, 16] | The maximum depth of the individual decision trees (oblivious trees). |
-| `l2_leaf_reg` | `float` | `3.0` | float >= 0 | The L2 regularization coefficient applied to leaf values. |
+| `l2_leaf_reg` | `float` | `3.0` | float ≥ 0 | The L2 regularization coefficient applied to leaf values. |
 | `loss_function` | `string` | `RMSE (for regression), Logloss (for binary classification)` | e.g., 'RMSE', 'Logloss', 'MultiClass' | The loss function to be optimized during training. |
 | `eval_metric` | `string` | `RMSE (for regression), Logloss (for binary classification)` | e.g., 'RMSE', 'Logloss', 'AUC' | The metric used for evaluating the model's performance and for early stopping. |
-| `random_seed` | `integer` | `None` | integer >= 0 | The random seed used for reproducibility of results. |
+| `random_seed` | `integer` | `None` | integer ≥ 0 | The random seed used for reproducibility of results. |
 | `cat_features` | `list of integers or boolean mask` | `None` | list of integers or boolean array | A list of indices or a boolean mask indicating which features are categorical. |
 | `early_stopping_rounds` | `integer` | `None` | integer > 0 | Activates early stopping if the validation metric does not improve for a specified number of consecutive rounds. |
 

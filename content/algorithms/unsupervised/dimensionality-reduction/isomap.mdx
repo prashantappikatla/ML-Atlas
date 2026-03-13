@@ -92,12 +92,12 @@ $$
 | `n_neighbors` | `integer` | `5` | integer > 0 | Number of neighbors to consider for each point when constructing the neighborhood graph. |
 | `n_components` | `integer` | `2` | integer > 0 | The dimension of the low-dimensional space to which the data will be embedded. |
 | `eigen_solver` | `string` | `auto` | 'auto', 'arpack', 'dense' | Solver to use for the eigenvalue decomposition step in MDS. Options include 'auto', 'arpack', 'dense'. |
-| `tol` | `float` | `0` | float >= 0 | Tolerance for the eigenvalue decomposition. Ignored for 'dense' solver. |
+| `tol` | `float` | `0` | float ≥ 0 | Tolerance for the eigenvalue decomposition. Ignored for 'dense' solver. |
 | `max_iter` | `integer` | `None` | integer > 0 or None | Maximum number of iterations for the 'arpack' solver. Used only if `eigen_solver='arpack'`. |
 | `path_method` | `string` | `auto` | 'auto', 'FW', 'D' | Method to use for shortest path computation. Options include 'auto', 'FW' (Floyd-Warshall), 'D' (Dijkstra). |
 | `neighbors_algorithm` | `string` | `auto` | 'auto', 'kd_tree', 'ball_tree', 'brute' | Algorithm to use for nearest neighbors search. Options include 'auto', 'kd_tree', 'ball_tree', 'brute'. |
 | `metric` | `string or callable` | `minkowski` | string (e.g., 'euclidean', 'manhattan') or callable | The metric to use when calculating distance between instances in a feature array. |
-| `p` | `integer` | `2` | integer >= 1 | The power of the Minkowski metric. Only used if `metric='minkowski'`. |
+| `p` | `integer` | `2` | integer ≥ 1 | The power of the Minkowski metric. Only used if `metric='minkowski'`. |
 
 ## Compatibility
 

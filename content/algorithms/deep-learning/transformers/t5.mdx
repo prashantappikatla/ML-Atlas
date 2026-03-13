@@ -72,7 +72,7 @@ $$
 
 ### Self-Supervised Pre-training
 
-T5 is pre-trained using a self-supervised objective called "span corruption." In this method, contiguous spans of input tokens are randomly selected and replaced with a single unique sentinel token. The model is then trained to predict the corrupted spans, including the sentinel tokens, in the output sequence. This forces the model to reconstruct missing information and learn robust contextual representations. For example, an input like "The man went to the store to buy milk." might be corrupted to "The man <extra_id_0> to the store <extra_id_1> milk." and the target output would be "<extra_id_0> went <extra_id_1> to buy <extra_id_2>".
+T5 is pre-trained using a self-supervised objective called "span corruption." In this method, contiguous spans of input tokens are randomly selected and replaced with a single unique sentinel token. The model is then trained to predict the corrupted spans, including the sentinel tokens, in the output sequence. This forces the model to reconstruct missing information and learn robust contextual representations. For example, an input like "The man went to the store to buy milk." might be corrupted to "The man `<extra_id_0>` to the store `<extra_id_1>` milk." and the target output would be "`<extra_id_0>` went `<extra_id_1>` to buy `<extra_id_2>`".
 
 ### Fine-tuning for Downstream Tasks
 

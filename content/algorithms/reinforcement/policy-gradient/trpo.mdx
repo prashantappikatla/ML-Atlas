@@ -114,7 +114,7 @@ $$
 | `max_kl` | `float` | `0.01` | > 0 | Maximum allowed KL divergence between the old and new policies per update, defining the size of the trust region. |
 | `cg_damping` | `float` | `0.1` | > 0 | Damping coefficient for the conjugate gradient algorithm, used to improve numerical stability during the natural gradient computation. |
 | `cg_iters` | `int` | `10` | > 0 | Number of iterations for the conjugate gradient algorithm to estimate the natural gradient direction. |
-| `ent_coef` | `float` | `0.0` | >= 0 | Coefficient for the entropy bonus, added to the objective to encourage exploration by penalizing deterministic policies. |
+| `ent_coef` | `float` | `0.0` | ≥ 0 | Coefficient for the entropy bonus, added to the objective to encourage exploration by penalizing deterministic policies. |
 | `vf_iters` | `int` | `80` | > 0 | Number of gradient descent steps to update the value function per policy update, ensuring the value function accurately estimates returns. |
 | `vf_lr` | `float` | `1e-3` | > 0 | Learning rate for the value function optimizer, controlling the step size for value function updates. |
 

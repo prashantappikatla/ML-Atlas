@@ -97,12 +97,12 @@ $$
 | `nu` | `float` | `0.5` | (0, 1] | An upper bound on the fraction of training errors and a lower bound of the fraction of support vectors. It should be in the interval $(0, 1]$. |
 | `kernel` | `str` | `'rbf'` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' | Specifies the kernel type to be used in the algorithm. |
 | `gamma` | `float or {'scale', 'auto'}` | `'scale'` | 'scale', 'auto', or positive float | Kernel coefficient for 'rbf', 'poly' and 'sigmoid'. If 'scale' is passed then it uses $1 / (n_{features} * X.var())$ as value of gamma. If 'auto', uses $1 / n_{features}$. |
-| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `degree` | `int` | `3` | integer ≥ 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
 | `coef0` | `float` | `0.0` | any float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
 | `shrinking` | `bool` | `True` | true, false | Whether to use the shrinking heuristic. |
 | `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion. |
 | `cache_size` | `float` | `200` | positive float | Specify the size of the kernel cache (in MB). |
-| `max_iter` | `int` | `-1` | integer >= -1 | Hard limit on iterations within solver, or -1 for no limit. |
+| `max_iter` | `int` | `-1` | integer ≥ -1 | Hard limit on iterations within solver, or -1 for no limit. |
 
 ## Compatibility
 

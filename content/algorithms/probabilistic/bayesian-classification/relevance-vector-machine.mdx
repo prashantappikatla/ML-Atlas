@@ -92,10 +92,10 @@ $$
 |---|---|---|---|---|
 | `kernel` | `str` | `rbf` | 'linear', 'poly', 'rbf', 'sigmoid' | Specifies the kernel type to be used in the algorithm. Common choices include 'linear', 'poly', 'rbf' (Gaussian), and 'sigmoid'. |
 | `gamma` | `float or 'scale'` | `'scale'` | positive float or 'scale' | Kernel coefficient for 'rbf', 'poly', and 'sigmoid' kernels. If 'scale', it uses $1 / (n_{features} * X.var())$ as value. |
-| `degree` | `int` | `3` | integer >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `degree` | `int` | `3` | integer ≥ 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
 | `coef0` | `float` | `0.0` | float | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
 | `tol` | `float` | `1e-3` | positive float | Tolerance for stopping criterion. The algorithm converges when the change in hyperparameters falls below this threshold. |
-| `max_iter` | `int` | `1000` | integer >= 1 | Maximum number of iterations for the optimization algorithm. If the algorithm does not converge within this limit, it stops. |
+| `max_iter` | `int` | `1000` | integer ≥ 1 | Maximum number of iterations for the optimization algorithm. If the algorithm does not converge within this limit, it stops. |
 
 ## Compatibility
 

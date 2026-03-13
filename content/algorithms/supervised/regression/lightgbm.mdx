@@ -105,14 +105,14 @@ Unlike traditional level-wise (depth-first) tree growth algorithms that split no
 |---|---|---|---|---|
 | `objective` | `str` | `regression` | ['regression', 'regression_l1', 'huber', 'fair', 'poisson', 'quantile', 'mape', 'gamma', 'tweedie', 'binary', 'multiclass', 'multiclassova', 'cross_entropy', 'cross_entropy_lambda', 'lambdarank'] | Defines the learning task and the corresponding loss function. Common options include 'regression', 'binary', 'multiclass', 'poisson', etc. |
 | `n_estimators` | `int` | `100` | integer > 0 | The number of boosting stages to perform, equivalent to the number of trees in the ensemble. |
-| `learning_rate` | `float` | `0.1` | 0.0 < float <= 1.0 | Shrinkage rate. It scales the contribution of each tree by 'learning_rate'. |
+| `learning_rate` | `float` | `0.1` | 0.0 < float ≤ 1.0 | Shrinkage rate. It scales the contribution of each tree by 'learning_rate'. |
 | `num_leaves` | `int` | `31` | integer > 1 | Maximum number of leaves in one tree. A higher value increases model complexity and can lead to overfitting. |
-| `max_depth` | `int` | `-1` | integer >= -1 | Maximum tree depth for base learners. -1 means no limit. A lower value helps prevent overfitting. |
-| `min_child_samples` | `int` | `20` | integer >= 0 | Minimum number of data needed in a child (leaf). A larger value prevents a tree from learning relations which are highly specific to the training set. |
-| `subsample` | `float` | `1.0` | 0.0 < float <= 1.0 | Fraction of samples to be used for fitting the individual base learners. Used for bagging to reduce variance. |
-| `colsample_bytree` | `float` | `1.0` | 0.0 < float <= 1.0 | Fraction of features to consider when building each tree. Used for feature subsampling to reduce variance. |
-| `reg_alpha` | `float` | `0.0` | float >= 0.0 | L1 regularization term on weights. A higher value makes the model more robust to noise. |
-| `reg_lambda` | `float` | `0.0` | float >= 0.0 | L2 regularization term on weights. A higher value makes the model more robust to noise. |
+| `max_depth` | `int` | `-1` | integer ≥ -1 | Maximum tree depth for base learners. -1 means no limit. A lower value helps prevent overfitting. |
+| `min_child_samples` | `int` | `20` | integer ≥ 0 | Minimum number of data needed in a child (leaf). A larger value prevents a tree from learning relations which are highly specific to the training set. |
+| `subsample` | `float` | `1.0` | 0.0 < float ≤ 1.0 | Fraction of samples to be used for fitting the individual base learners. Used for bagging to reduce variance. |
+| `colsample_bytree` | `float` | `1.0` | 0.0 < float ≤ 1.0 | Fraction of features to consider when building each tree. Used for feature subsampling to reduce variance. |
+| `reg_alpha` | `float` | `0.0` | float ≥ 0.0 | L1 regularization term on weights. A higher value makes the model more robust to noise. |
+| `reg_lambda` | `float` | `0.0` | float ≥ 0.0 | L2 regularization term on weights. A higher value makes the model more robust to noise. |
 
 ## Compatibility
 

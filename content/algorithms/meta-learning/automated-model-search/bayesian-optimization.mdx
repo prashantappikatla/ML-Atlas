@@ -108,9 +108,9 @@ The Bayesian Optimization process is iterative. At each step, the acquisition fu
 | `n_calls` | `int` | `100` | int > 0 | The total number of evaluations of the objective function, including the initial random points. |
 | `n_initial_points` | `int` | `10` | int > 0 | The number of random points to sample before the Bayesian Optimization procedure begins. |
 | `acq_func` | `str` | `'GP_EI'` | ['GP_EI', 'GP_LCB', 'GP_PI', 'EI', 'LCB', 'PI'] | The acquisition function used to propose the next point to evaluate. Options include Expected Improvement ('GP_EI'), Lower Confidence Bound ('GP_LCB'), or Probability of Improvement ('GP_PI'). |
-| `kappa` | `float` | `1.96` | float >= 0 | Parameter for the Upper Confidence Bound (UCB) acquisition function, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
-| `xi` | `float` | `0.01` | float >= 0 | Parameter for Expected Improvement (EI) and Probability of Improvement (PI) acquisition functions, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
-| `random_state` | `int or numpy.random.RandomState` | `None` | int >= 0 | Seed for the random number generator for reproducible results. |
+| `kappa` | `float` | `1.96` | float ≥ 0 | Parameter for the Upper Confidence Bound (UCB) acquisition function, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
+| `xi` | `float` | `0.01` | float ≥ 0 | Parameter for Expected Improvement (EI) and Probability of Improvement (PI) acquisition functions, controlling the exploration-exploitation trade-off. Higher values favor exploration. |
+| `random_state` | `int or numpy.random.RandomState` | `None` | int ≥ 0 | Seed for the random number generator for reproducible results. |
 
 ## Compatibility
 

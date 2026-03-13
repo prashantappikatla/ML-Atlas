@@ -107,9 +107,9 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_components` | `int` | `1` | n_components >= 1 | The maximum number of mixture components to consider. While DPMM aims to infer the number of components, this parameter sets an upper bound in practical implementations like scikit-learn's BayesianGaussianMixture. |
+| `n_components` | `int` | `1` | n_components ≥ 1 | The maximum number of mixture components to consider. While DPMM aims to infer the number of components, this parameter sets an upper bound in practical implementations like scikit-learn's BayesianGaussianMixture. |
 | `covariance_type` | `str` | `full` | {'full', 'tied', 'diag', 'spherical'} | Controls the type of covariance matrix for each component: 'full' (each component has its own general covariance matrix), 'tied' (all components share the same general covariance matrix), 'diag' (each component has its own diagonal covariance matrix), or 'spherical' (each component has its own single variance). |
-| `max_iter` | `int` | `100` | max_iter >= 1 | The maximum number of iterations to perform for the inference algorithm (e.g., variational inference or MCMC steps). |
+| `max_iter` | `int` | `100` | max_iter ≥ 1 | The maximum number of iterations to perform for the inference algorithm (e.g., variational inference or MCMC steps). |
 | `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance, or None | Controls the pseudo random number generator used for random sampling during initialization and iteration. |
 | `weight_concentration_prior_type` | `str` | `dirichlet_process` | {'dirichlet_process', 'dirichlet_distribution'} | Specifies the type of prior for the mixture weights. Setting to 'dirichlet_process' enables the DPMM-like behavior where components can be pruned. |
 | `weight_concentration_prior` | `float or None` | `None` | weight_concentration_prior > 0 | The concentration parameter $\alpha$ for the Dirichlet Process prior on the mixture weights. A smaller value encourages fewer active components. If None, it is inferred from data. |

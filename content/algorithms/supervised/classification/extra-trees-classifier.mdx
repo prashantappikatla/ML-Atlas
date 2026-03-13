@@ -92,7 +92,7 @@ $$
 | `min_samples_leaf` | `int or float` | `1` | integer > 0 or float in (0.0, 0.5] | The minimum number of samples required to be at a leaf node. A split point at any depth will only be considered if it leaves at least min_samples_leaf training samples in each of the left and right branches. |
 | `max_features` | `int, float, str or None` | `1.0` | integer > 0, float in (0.0, 1.0], {"sqrt", "log2", None} | The number of features to consider when looking for the best split. For Extra Trees, this parameter is crucial as it controls the randomness in feature selection at each split. |
 | `bootstrap` | `bool` | `False` | {True, False} | Whether bootstrap samples are used when building trees. If False, the whole dataset is used to build each tree. |
-| `random_state` | `int or None` | `None` | integer >= 0 or None | Controls the randomness of the bootstrapping of the samples and the features to consider when looking for the best split for each tree. |
+| `random_state` | `int or None` | `None` | integer ≥ 0 or None | Controls the randomness of the bootstrapping of the samples and the features to consider when looking for the best split for each tree. |
 
 ## Compatibility
 

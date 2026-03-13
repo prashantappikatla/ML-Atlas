@@ -86,9 +86,9 @@ $$
 |---|---|---|---|---|
 | `num_ants` | `integer` | `typically 10-50` | integer > 0 | The number of artificial ants that construct solutions in each iteration. |
 | `num_iterations` | `integer` | `typically 100-1000` | integer > 0 | The total number of iterations or cycles the algorithm will run. |
-| `alpha` | `float` | `1.0` | float >= 0.0 | The exponent controlling the influence of the pheromone trail $\tau_{ij}$ on path selection. |
-| `beta` | `float` | `2.0` | float >= 0.0 | The exponent controlling the influence of the heuristic information $\eta_{ij}$ on path selection. |
-| `rho` | `float` | `0.1` | 0.0 < float <= 1.0 | The pheromone evaporation rate, a value between 0 and 1, determining how much pheromone evaporates in each iteration. |
+| `alpha` | `float` | `1.0` | float ≥ 0.0 | The exponent controlling the influence of the pheromone trail $\tau_{ij}$ on path selection. |
+| `beta` | `float` | `2.0` | float ≥ 0.0 | The exponent controlling the influence of the heuristic information $\eta_{ij}$ on path selection. |
+| `rho` | `float` | `0.1` | 0.0 < float ≤ 1.0 | The pheromone evaporation rate, a value between 0 and 1, determining how much pheromone evaporates in each iteration. |
 | `Q` | `float` | `1.0` | float > 0.0 | A constant representing the total amount of pheromone deposited by an ant on its chosen path. |
 | `initial_pheromone` | `float` | `0.001` | float > 0.0 | The initial pheromone value assigned to all edges at the start of the algorithm. |
 

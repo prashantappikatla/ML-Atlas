@@ -84,9 +84,9 @@ Unlike Grid Search, which evaluates all combinations of hyperparameters on a pre
 |---|---|---|---|---|
 | `estimator` | `object` | `` |  | An object of that type is expected to implement the scikit-learn estimator interface. |
 | `param_distributions` | `dict` | `` |  | Dictionary with parameters names (string) as keys and distributions or list of parameters to sample from as values. Defines the search space for hyperparameters, where values can be distributions (e.g., scipy.stats.uniform) or lists of discrete choices. |
-| `n_iter` | `int` | `10` | integer >= 1 | The number of different hyperparameter combinations to try. A higher number means a more exhaustive search but also higher computational cost. |
+| `n_iter` | `int` | `10` | integer ≥ 1 | The number of different hyperparameter combinations to try. A higher number means a more exhaustive search but also higher computational cost. |
 | `scoring` | `str or callable or list or tuple or dict` | `None` | valid scikit-learn scoring string or callable | Specifies the metric used to evaluate model performance (e.g., 'accuracy', 'f1', 'roc_auc'). |
-| `cv` | `int or cross-validation generator or iterable` | `None` | integer >= 2 or valid CV splitter | Specifies the number of folds for cross-validation, or a custom cross-validation splitter. |
+| `cv` | `int or cross-validation generator or iterable` | `None` | integer ≥ 2 or valid CV splitter | Specifies the number of folds for cross-validation, or a custom cross-validation splitter. |
 | `random_state` | `int or RandomState instance or None` | `None` | integer or None | Controls the pseudo random number generator used for sampling; passing an int will produce the same results across multiple calls. |
 | `n_jobs` | `int` | `None` | integer or -1 | The number of CPU cores to use for parallelizing the evaluation of different hyperparameter configurations. -1 means using all available processors. |
 

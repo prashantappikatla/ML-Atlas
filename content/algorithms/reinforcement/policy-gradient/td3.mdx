@@ -120,14 +120,14 @@ $$
 |---|---|---|---|---|
 | `gamma` | `float` | `0.99` | (0, 1] | Discount factor for future rewards, determining the importance of future rewards. |
 | `tau` | `float` | `0.005` | (0, 1) | Soft update coefficient for target networks, controlling the rate at which target networks track the main networks. |
-| `policy_noise` | `float` | `0.2` | >= 0 | Standard deviation of noise added to target policy actions for smoothing, making the value function more robust. |
-| `noise_clip` | `float` | `0.5` | >= 0 | Range to clip target policy noise, limiting the magnitude of noise added to target actions. |
-| `policy_delay` | `int` | `2` | >= 1 | Number of critic updates per policy update, ensuring critics are more stable before the actor is updated. |
+| `policy_noise` | `float` | `0.2` | ≥ 0 | Standard deviation of noise added to target policy actions for smoothing, making the value function more robust. |
+| `noise_clip` | `float` | `0.5` | ≥ 0 | Range to clip target policy noise, limiting the magnitude of noise added to target actions. |
+| `policy_delay` | `int` | `2` | ≥ 1 | Number of critic updates per policy update, ensuring critics are more stable before the actor is updated. |
 | `buffer_size` | `int` | `1000000` | > 0 | Maximum size of the replay buffer, storing past experiences for off-policy learning. |
 | `batch_size` | `int` | `256` | > 0 | Number of transitions sampled from the replay buffer for each update. |
 | `actor_lr` | `float` | `0.0003` | > 0 | Learning rate for the actor network's optimizer. |
 | `critic_lr` | `float` | `0.0003` | > 0 | Learning rate for the critic networks' optimizers. |
-| `exploration_noise` | `float` | `0.1` | >= 0 | Standard deviation of Gaussian noise added to actions for exploration during training. |
+| `exploration_noise` | `float` | `0.1` | ≥ 0 | Standard deviation of Gaussian noise added to actions for exploration during training. |
 
 ## Compatibility
 

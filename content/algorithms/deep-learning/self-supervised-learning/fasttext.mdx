@@ -40,7 +40,7 @@ related:
 
 ### Word Representation with N-grams
 
-FastText represents each word $w$ as a bag of character n-grams, including the word itself. For instance, the word 'apple' with $n=3$ might be represented by '<ap', 'app', 'ppl', 'ple>', and 'apple'. Each character n-gram $g$ is associated with a vector $v_g$. The vector for a word $w$ is then the sum of the vectors of its constituent n-grams: $v_w = \sum_{g \in G_w} v_g$, where $G_w$ is the set of n-grams for word $w$. This approach allows the model to handle out-of-vocabulary (OOV) words by composing their vectors from known n-grams and to capture morphological similarities.
+FastText represents each word $w$ as a bag of character n-grams, including the word itself. For instance, the word 'apple' with $n=3$ might be represented by `<ap`', 'app', 'ppl', 'ple>', and 'apple'. Each character n-gram $g$ is associated with a vector $v_g$. The vector for a word $w$ is then the sum of the vectors of its constituent n-grams: $v_w = \sum_{g \in G_w} v_g$, where $G_w$ is the set of n-grams for word $w$. This approach allows the model to handle out-of-vocabulary (OOV) words by composing their vectors from known n-grams and to capture morphological similarities.
 
 $$
 v_w = \sum_{g \in G_w} v_g

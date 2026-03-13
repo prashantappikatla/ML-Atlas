@@ -85,13 +85,13 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `base_estimator` | `estimator object` | `None` | Any scikit-learn compatible estimator | The base estimator to fit on random subsets of the dataset. If None, a DecisionTreeClassifier is used. |
-| `n_estimators` | `int` | `10` | integer >= 1 | The number of base estimators in the ensemble. |
-| `max_samples` | `int or float` | `1.0` | integer >= 1 or float in (0.0, 1.0] | The number of samples to draw from the training data $X$ to train each base estimator. |
-| `max_features` | `int or float` | `1.0` | integer >= 1 or float in (0.0, 1.0] | The number of features to draw from the training data $X$ to train each base estimator. |
+| `n_estimators` | `int` | `10` | integer ≥ 1 | The number of base estimators in the ensemble. |
+| `max_samples` | `int or float` | `1.0` | integer ≥ 1 or float in (0.0, 1.0] | The number of samples to draw from the training data $X$ to train each base estimator. |
+| `max_features` | `int or float` | `1.0` | integer ≥ 1 or float in (0.0, 1.0] | The number of features to draw from the training data $X$ to train each base estimator. |
 | `bootstrap` | `bool` | `True` | True or False | Whether samples are drawn with replacement when creating bootstrap samples. |
 | `bootstrap_features` | `bool` | `False` | True or False | Whether features are drawn with replacement when creating feature subsets. |
 | `oob_score` | `bool` | `False` | True or False | Whether to use out-of-bag samples to estimate the generalization error. |
-| `n_jobs` | `int` | `None` | integer >= -1 | The number of jobs to run in parallel for fitting and predicting. -1 means using all processors. |
+| `n_jobs` | `int` | `None` | integer ≥ -1 | The number of jobs to run in parallel for fitting and predicting. -1 means using all processors. |
 | `random_state` | `int or RandomState instance` | `None` | integer or RandomState instance | Controls the random seed given to each base estimator and for sampling. |
 
 ## Compatibility

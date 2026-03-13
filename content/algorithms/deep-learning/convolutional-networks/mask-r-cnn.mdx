@@ -93,7 +93,7 @@ The mask branch is a small Fully Convolutional Network (FCN) applied to each ROI
 | `rpn_post_nms_top_n` | `integer` | `2000` | integer > 0 | The number of top-scoring RPN proposals to keep after Non-Maximum Suppression during training. |
 | `roi_align_output_size` | `tuple of integers` | `(7, 7)` | tuple of positive integers (height, width) | The target spatial size of the feature maps extracted by ROIAlign for the classification and bounding box heads. |
 | `mask_roi_align_output_size` | `tuple of integers` | `(14, 14)` | tuple of positive integers (height, width) | The target spatial size of the feature maps extracted by ROIAlign for the mask prediction head. |
-| `mask_loss_weight` | `float` | `1.0` | float >= 0.0 | The weight applied to the mask prediction loss component in the total multi-task loss. |
+| `mask_loss_weight` | `float` | `1.0` | float ≥ 0.0 | The weight applied to the mask prediction loss component in the total multi-task loss. |
 
 ## Compatibility
 

@@ -70,7 +70,7 @@ $$
 |---|---|---|---|---|
 | `base_estimator` | `object` | `None` | Any scikit-learn compatible classifier with predict_proba or decision_function. | The classifier whose predictions are to be calibrated. If None, a LogisticRegression classifier is used as the base estimator. |
 | `method` | `str` | `'sigmoid'` | {'sigmoid', 'isotonic'} | The method to use for calibration. 'sigmoid' corresponds to Platt's method, and 'isotonic' corresponds to isotonic regression. |
-| `cv` | `int or cross-validation generator` | `None` | integer >= 2, or a CV splitter object | Determines the cross-validation splitting strategy. If an integer, it specifies the number of folds. If None, 5-fold cross-validation is used. |
+| `cv` | `int or cross-validation generator` | `None` | integer ≥ 2, or a CV splitter object | Determines the cross-validation splitting strategy. If an integer, it specifies the number of folds. If None, 5-fold cross-validation is used. |
 | `n_jobs` | `int` | `None` | integer or None | The number of jobs to run in parallel for 'fit'. None means 1 unless in a joblib.parallel_backend context. -1 means using all processors. |
 | `ensemble` | `bool` | `True` | {True, False} | If True, the calibrated probabilities are the average of the calibrated probabilities of the $cv$ folds. If False, the calibrated probabilities are the probabilities of the $cv$ fold that trained on the test sample. |
 

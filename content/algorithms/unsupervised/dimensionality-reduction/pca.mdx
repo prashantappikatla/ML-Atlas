@@ -96,12 +96,12 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_components` | `int, float, str or None` | `None` | integer >= 1, float (0, 1], 'mle', or None | Number of components to keep. If 'mle' and svd_solver='full', Minka's MLE is used to estimate the dimension. If 0 < n_components < 1, selects the number of components such that the amount of variance that needs to be explained is greater than the percentage specified by n_components. |
+| `n_components` | `int, float, str or None` | `None` | integer ≥ 1, float (0, 1], 'mle', or None | Number of components to keep. If 'mle' and svd_solver='full', Minka's MLE is used to estimate the dimension. If 0 < n_components < 1, selects the number of components such that the amount of variance that needs to be explained is greater than the percentage specified by n_components. |
 | `copy` | `bool` | `True` | True, False | If False, data passed to fit are overwritten and running fit(X).transform(X) will not yield the expected results, use fit_transform(X) instead. |
 | `whiten` | `bool` | `False` | True, False | When True (False by default) the components vectors are multiplied by the square root of n_samples and then divided by the singular values to ensure uncorrelated outputs with unit component-wise variances. |
 | `svd_solver` | `str` | `'auto'` | 'auto', 'full', 'arpack', 'randomized' | The solver is selected by a default policy based on X.shape and n_components: 'auto', 'full', 'arpack', 'randomized'. |
-| `tol` | `float` | `0.0` | float >= 0.0 | Tolerance for singular values computed by svd_solver == 'arpack'. |
-| `iterated_power` | `int or 'auto'` | `'auto'` | integer >= 0 or 'auto' | Number of iterations for the power method computed by svd_solver == 'randomized'. |
+| `tol` | `float` | `0.0` | float ≥ 0.0 | Tolerance for singular values computed by svd_solver == 'arpack'. |
+| `iterated_power` | `int or 'auto'` | `'auto'` | integer ≥ 0 or 'auto' | Number of iterations for the power method computed by svd_solver == 'randomized'. |
 | `random_state` | `int or RandomState instance or None` | `None` | integer, RandomState instance, or None | Used when svd_solver == 'arpack' or 'randomized' for tests reproducibility. |
 
 ## Compatibility

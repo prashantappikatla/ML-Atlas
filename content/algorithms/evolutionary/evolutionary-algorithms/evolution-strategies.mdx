@@ -122,11 +122,11 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `population_size` | `int` | `50` | integer > 0 | The total number of offspring ($\lambda$) generated in each generation. |
-| `parent_population_size` | `int` | `25` | integer > 0, parent_population_size <= population_size | The number of parent solutions ($\mu$) selected to propagate to the next generation. |
+| `parent_population_size` | `int` | `25` | integer > 0, parent_population_size ≤ population_size | The number of parent solutions ($\mu$) selected to propagate to the next generation. |
 | `sigma` | `float` | `0.1` | float > 0 | The initial standard deviation of the Gaussian mutation noise, controlling the exploration step size. |
 | `generations` | `int` | `1000` | integer > 0 | The total number of iterations or generations for which the optimization process will run. |
 | `strategy` | `str` | `(mu, lambda)` | ['(mu, lambda)', '(mu + lambda)'] | The selection strategy used to form the next generation, either "(mu, lambda)" or "(mu + lambda)". |
-| `seed` | `int` | `None` | integer >= 0 or None | Seed for the random number generator to ensure reproducibility. |
+| `seed` | `int` | `None` | integer ≥ 0 or None | Seed for the random number generator to ensure reproducibility. |
 
 ## Compatibility
 

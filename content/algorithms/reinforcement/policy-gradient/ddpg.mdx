@@ -111,9 +111,9 @@ $$
 | `critic_lr` | `float` | `1e-3` | (0, 1) | Learning rate for the critic network's optimizer. |
 | `gamma` | `float` | `0.99` | (0, 1] | Discount factor for future rewards, balancing immediate vs. long-term returns. |
 | `tau` | `float` | `0.005` | (0, 1) | Soft update coefficient for target networks. A smaller value means slower updates. |
-| `buffer_size` | `int` | `1e6` | >= 1 | Maximum number of transitions to store in the experience replay buffer. |
-| `batch_size` | `int` | `256` | >= 1 | Number of transitions sampled from the replay buffer for each training update. |
-| `exploration_noise_std` | `float` | `0.1` | >= 0 | Standard deviation of the Gaussian or Ornstein-Uhlenbeck noise added to actions for exploration. |
+| `buffer_size` | `int` | `1e6` | ≥ 1 | Maximum number of transitions to store in the experience replay buffer. |
+| `batch_size` | `int` | `256` | ≥ 1 | Number of transitions sampled from the replay buffer for each training update. |
+| `exploration_noise_std` | `float` | `0.1` | ≥ 0 | Standard deviation of the Gaussian or Ornstein-Uhlenbeck noise added to actions for exploration. |
 
 ## Compatibility
 

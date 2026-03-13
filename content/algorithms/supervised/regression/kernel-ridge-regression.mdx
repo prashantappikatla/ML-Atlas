@@ -130,7 +130,7 @@ $$
 | `alpha` | `float` | `1.0` | alpha > 0 | Regularization strength; must be a positive float. Smaller values specify stronger regularization. |
 | `kernel` | `str or callable` | `'linear'` | 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', or callable | Specifies the kernel type to be used in the algorithm. It can be 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed', or a callable function. |
 | `gamma` | `float` | `None` | gamma > 0 | Kernel coefficient for 'rbf', 'poly', and 'sigmoid' kernels. If None, defaults to 1 / (n_features * X.var()) for 'rbf' and 'poly', and 1 / n_features for 'sigmoid'. |
-| `degree` | `int` | `3` | degree >= 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
+| `degree` | `int` | `3` | degree ≥ 1 | Degree of the polynomial kernel function ('poly'). Ignored by other kernels. |
 | `coef0` | `float` | `1.0` | any real number | Independent term in kernel function. It is only significant in 'poly' and 'sigmoid' kernels. |
 | `kernel_params` | `dict` | `None` | dictionary of parameters | Parameters (keyword arguments) for a callable kernel function. Ignored by built-in kernels. |
 

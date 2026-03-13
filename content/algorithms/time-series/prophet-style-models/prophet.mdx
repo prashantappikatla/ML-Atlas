@@ -93,7 +93,7 @@ $$
 | `seasonality_prior_scale` | `float` | `10.0` | 0.0 to infinity | Controls the strength of the seasonality components. Higher values allow the model to fit larger seasonal fluctuations. |
 | `holidays_prior_scale` | `float` | `10.0` | 0.0 to infinity | Controls the strength of the holiday components. Higher values allow the model to fit larger holiday effects. |
 | `seasonality_mode` | `string` | `additive` | additive, multiplicative | Specifies whether seasonality and holiday effects are additive or multiplicative. |
-| `n_changepoints` | `integer` | `25` | integer >= 0 | The number of potential changepoints to include in the trend model. Prophet automatically selects the most significant ones. |
+| `n_changepoints` | `integer` | `25` | integer ≥ 0 | The number of potential changepoints to include in the trend model. Prophet automatically selects the most significant ones. |
 | `yearly_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables yearly seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
 | `weekly_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables weekly seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
 | `daily_seasonality` | `string or boolean` | `auto` | auto, True, False, integer | Enables or disables daily seasonality. Can be 'auto', True, False, or an integer specifying Fourier order. |
