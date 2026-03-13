@@ -28,11 +28,11 @@ related:
 
 ## Overview
 
-Seasonal Autoregressive Integrated Moving Average (SARIMA) is a statistical model used for forecasting time series data that exhibits both non-seasonal and seasonal patterns. It extends the [ARIMA](/algorithms/time-series/classical-forecasting/arima) model by incorporating seasonal autoregressive, integrated, and moving average components. SARIMA is particularly effective for data with repeating patterns over fixed periods, such as daily, weekly, or yearly cycles. The model's strength lies in its ability to capture complex temporal dependencies through a structured, interpretable framework.
+Seasonal Autoregressive Integrated Moving Average ([SARIMA](/algorithms/time-series/sarima)) is a statistical model used for forecasting time series data that exhibits both non-seasonal and seasonal patterns. It extends the [ARIMA](/algorithms/time-series/arima) model by incorporating seasonal autoregressive, integrated, and moving average components. SARIMA is particularly effective for data with repeating patterns over fixed periods, such as daily, weekly, or yearly cycles. The model's strength lies in its ability to capture complex temporal dependencies through a structured, interpretable framework.
 
 ## History
 
-**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins published "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," introducing the [ARIMA](/algorithms/time-series/classical-forecasting/arima) model and the iterative Box-Jenkins methodology for model identification, estimation, and diagnostic checking.
+**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins published "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," introducing the ARIMA model and the iterative Box-Jenkins methodology for model identification, estimation, and diagnostic checking.
 
 **1976** — The Box-Jenkins methodology was formally extended to incorporate seasonal components, leading to the development of the Seasonal Autoregressive Integrated Moving Average (SARIMA) model, specifically addressing time series with periodic patterns. This extension is often referred to as the "Seasonal Box-Jenkins" approach.
 
@@ -44,7 +44,7 @@ Seasonal Autoregressive Integrated Moving Average (SARIMA) is a statistical mode
 
 ### ARIMA Model Components
 
-The non-seasonal part of SARIMA is the [ARIMA](/algorithms/time-series/classical-forecasting/arima)$(p, d, q)$ model. The Autoregressive (AR) component of order $p$, denoted AR$(p)$, models the dependency between an observation and a number of lagged observations. The Integrated (I) component of order $d$, denoted I$(d)$, involves differencing the raw observations to make the time series stationary. The Moving Average (MA) component of order $q$, denoted MA$(q)$, models the dependency between an observation and a residual error from a moving average model applied to lagged observations.
+The non-seasonal part of SARIMA is the ARIMA$(p, d, q)$ model. The Autoregressive ([AR](/algorithms/time-series/ar)) component of order $p$, denoted AR$(p)$, models the dependency between an observation and a number of lagged observations. The Integrated (I) component of order $d$, denoted I$(d)$, involves differencing the raw observations to make the time series stationary. The Moving Average ([MA](/algorithms/time-series/ma)) component of order $q$, denoted MA$(q)$, models the dependency between an observation and a residual error from a moving average model applied to lagged observations.
 $$ (1 - \sum_{i=1}^p \phi_i L^i) (1-L)^d Y_t = (1 + \sum_{j=1}^q \theta_j L^j) \epsilon_t $$
 Here, $Y_t$ is the time series, $L$ is the lag operator, $\phi_i$ are AR coefficients, $\theta_j$ are MA coefficients, and $\epsilon_t$ is white noise.
 
@@ -54,7 +54,7 @@ $$
 
 ### Seasonal ARIMA Components
 
-The seasonal part of SARIMA is denoted [ARIMA](/algorithms/time-series/classical-forecasting/arima)$(P, D, Q)_s$, where $s$ is the seasonal period. The Seasonal Autoregressive (SAR) component of order $P$ models the dependency between an observation and a number of lagged observations at seasonal intervals. The Seasonal Integrated (SI) component of order $D$ involves seasonal differencing to remove seasonal trends. The Seasonal Moving Average (SMA) component of order $Q$ models the dependency between an observation and a residual error from a moving average model applied to lagged seasonal observations.
+The seasonal part of SARIMA is denoted ARIMA$(P, D, Q)_s$, where $s$ is the seasonal period. The Seasonal Autoregressive (SAR) component of order $P$ models the dependency between an observation and a number of lagged observations at seasonal intervals. The Seasonal Integrated (SI) component of order $D$ involves seasonal differencing to remove seasonal trends. The Seasonal Moving Average (SMA) component of order $Q$ models the dependency between an observation and a residual error from a moving average model applied to lagged seasonal observations.
 $$ (1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L^s)^D Y_t = (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t $$
 Here, $\Phi_i$ are seasonal AR coefficients, $\Theta_j$ are seasonal MA coefficients, and $s$ is the seasonal period.
 
@@ -64,7 +64,7 @@ $$
 
 ### Combining Non-Seasonal and Seasonal Parts
 
-A SARIMA$(p, d, q)(P, D, Q)_s$ model combines both non-seasonal and seasonal components multiplicatively. The non-seasonal differencing $(1-L)^d$ and seasonal differencing $(1-L^s)^D$ are applied to the original series $Y_t$ to achieve stationarity. The resulting stationary series is then modeled by the product of the non-seasonal ARMA and seasonal ARMA polynomials.
+A SARIMA$(p, d, q)(P, D, Q)_s$ model combines both non-seasonal and seasonal components multiplicatively. The non-seasonal differencing $(1-L)^d$ and seasonal differencing $(1-L^s)^D$ are applied to the original series $Y_t$ to achieve stationarity. The resulting stationary series is then modeled by the product of the non-seasonal [ARMA](/algorithms/time-series/arma) and seasonal ARMA polynomials.
 $$ (1 - \sum_{i=1}^p \phi_i L^i) (1 - \sum_{i=1}^P \Phi_i L^{is}) (1-L)^d (1-L^s)^D Y_t = (1 + \sum_{j=1}^q \theta_j L^j) (1 + \sum_{j=1}^Q \Theta_j L^{js}) \epsilon_t $$
 This multiplicative structure allows the model to capture both short-term and long-term seasonal dependencies simultaneously.
 

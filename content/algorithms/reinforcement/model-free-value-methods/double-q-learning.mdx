@@ -27,25 +27,25 @@ related:
 
 ## Overview
 
-Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) addresses the overestimation bias inherent in standard [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), which arises from using the same Q-function to select and evaluate actions. It mitigates this issue by employing two independent Q-functions, $Q_A$ and $Q_B$, to decouple the action selection from the action evaluation step. This approach leads to more accurate value estimates and often results in more stable and improved policy learning.
+[Double Q-Learning](/algorithms/reinforcement/double-q-learning) addresses the overestimation bias inherent in standard [Q-Learning](/algorithms/reinforcement/q-learning), which arises from using the same Q-function to select and evaluate actions. It mitigates this issue by employing two independent Q-functions, $Q_A$ and $Q_B$, to decouple the action selection from the action evaluation step. This approach leads to more accurate value estimates and often results in more stable and improved policy learning.
 
 ## History
 
-**1989** — Chris Watkins introduced [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), a model-free reinforcement learning algorithm, in his PhD thesis, laying the foundation for value-based methods.
+**1989** — Chris Watkins introduced Q-Learning, a model-free reinforcement learning algorithm, in his PhD thesis, laying the foundation for value-based methods.
 
-**2010** — Hado van Hasselt proposed Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) in "Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)," introducing the idea of using two Q-functions to reduce overestimation bias in value estimates.
+**2010** — Hado van Hasselt proposed Double Q-Learning in "Double Q-Learning," introducing the idea of using two Q-functions to reduce overestimation bias in value estimates.
 
-**2013** — Deep Q-Networks (DQN) by Mnih et al. combined [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks and experience replay, enabling it to learn directly from high-dimensional sensory input like images.
+**2013** — Deep Q-Networks (DQN) by Mnih et al. combined Q-Learning with deep neural networks and experience replay, enabling it to learn directly from high-dimensional sensory input like images.
 
-**2015** — Hado van Hasselt, Arthur Guez, and [David Silver](https://en.wikipedia.org/wiki/David_Silver_(programmer)) published "Deep Reinforcement Learning with Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)," extending the Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) principle to Deep Q-Networks (DDQN), significantly improving their performance.
+**2015** — Hado van Hasselt, Arthur Guez, and [David Silver](https://en.wikipedia.org/wiki/David_Silver_(programmer)))) published "Deep [Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning) with Double Q-Learning," extending the Double Q-Learning principle to Deep Q-Networks (DDQN), significantly improving their performance.
 
-**2018** — Twin Delayed Deep Deterministic Policy Gradients (TD3) by Fujimoto et al. further built upon the idea of using multiple Q-functions to combat overestimation in [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods, demonstrating its broader applicability.
+**2018** — Twin Delayed Deep Deterministic Policy Gradients ([TD3](/algorithms/reinforcement/td3)) by Fujimoto et al. further built upon the idea of using multiple Q-functions to combat overestimation in [Actor-Critic](/algorithms/reinforcement/actor-critic) methods, demonstrating its broader applicability.
 
 ## Mathematical Intuition
 
 ### Standard Q-learning Overestimation
 
-Standard [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) updates the Q-value for a state-action pair $(s, a)$ using the Bellman optimality equation:
+Standard Q-Learning updates the Q-value for a state-action pair $(s, a)$ using the Bellman optimality equation:
 $$Q(s, a) \leftarrow Q(s, a) + \alpha [R_{t+1} + \gamma \max_{a'} Q(s', a') - Q(s, a)]$$
 The $\max_{a'} Q(s', a')$ term uses the same Q-function to both select the action $a'$ that maximizes the future reward and to evaluate its value. When the Q-values are noisy or approximate, this maximization step tends to select actions whose values are overestimated, leading to a systematic positive bias in the Q-value estimates.
 
@@ -55,7 +55,7 @@ $$
 
 ### Decoupling Selection and Evaluation
 
-Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) addresses this overestimation by using two separate Q-functions, $Q_A$ and $Q_B$. One Q-function is used to select the action, and the other is used to evaluate its value. For example, to update $Q_A$, the target value is constructed as:
+Double Q-Learning addresses this overestimation by using two separate Q-functions, $Q_A$ and $Q_B$. One Q-function is used to select the action, and the other is used to evaluate its value. For example, to update $Q_A$, the target value is constructed as:
 $$Y_t = R_{t+1} + \gamma Q_B(s', \arg\max_{a'} Q_A(s', a'))$$
 Here, $Q_A$ selects the greedy action $a'$ in the next state $s'$, but $Q_B$ evaluates the value of that selected action. This decoupling helps to reduce the overestimation bias because the error in one Q-function's estimate is less likely to be correlated with the error in the other's selection.
 
@@ -65,7 +65,7 @@ $$
 
 ### Double Q-learning Update Rule
 
-In Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), at each step, one of the two Q-functions (say $Q_A$) is updated, while the other ($Q_B$) is used to form the target. The roles are typically swapped or chosen randomly. The update for $Q_A$ (assuming $Q_B$ is the target evaluator) is:
+In Double Q-Learning, at each step, one of the two Q-functions (say $Q_A$) is updated, while the other ($Q_B$) is used to form the target. The roles are typically swapped or chosen randomly. The update for $Q_A$ (assuming $Q_B$ is the target evaluator) is:
 $$Q_A(s, a) \leftarrow Q_A(s, a) + \alpha [R_{t+1} + \gamma Q_B(s', \arg\max_{a'} Q_A(s', a')) - Q_A(s, a)]$$
 Symmetrically, if $Q_B$ were updated, $Q_A$ would be used for evaluation:
 $$Q_B(s, a) \leftarrow Q_B(s, a) + \alpha [R_{t+1} + \gamma Q_A(s', \arg\max_{a'} Q_B(s', a')) - Q_B(s, a)]$$

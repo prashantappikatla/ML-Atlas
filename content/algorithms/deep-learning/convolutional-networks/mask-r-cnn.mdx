@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Mask R-CNN is a deep learning model designed for instance segmentation, a task that combines object detection with semantic segmentation. It extends the Faster R-CNN architecture by adding a third branch dedicated to predicting an object mask in parallel with the existing branches for classification and bounding box regression. This allows it to generate high-quality, pixel-level segmentation masks for each detected object instance in an image, distinguishing between individual objects of the same class. A key innovation is the ROIAlign layer, which precisely aligns extracted features to avoid quantization errors, crucial for accurate mask prediction.
+[Mask R-CNN](/algorithms/deep-learning/mask-r-cnn) is a deep learning model designed for instance segmentation, a task that combines object detection with semantic segmentation. It extends the Faster R-CNN architecture by adding a third branch dedicated to predicting an object mask in parallel with the existing branches for classification and bounding box regression. This allows it to generate high-quality, pixel-level segmentation masks for each detected object instance in an image, distinguishing between individual objects of the same class. A key innovation is the ROIAlign layer, which precisely aligns extracted features to avoid quantization errors, crucial for accurate mask prediction.
 
 ## History
 
-**1998** — LeCun et al. introduce [LeNet](/algorithms/deep-learning/convolutional-networks/lenet)-5, a pioneering convolutional neural network for document recognition, laying foundational work for CNNs.
+**1998** — LeCun et al. introduce [LeNet](/algorithms/deep-learning/lenet)-5, a pioneering convolutional neural network for document recognition, laying foundational work for CNNs.
 
-**2012** — Krizhevsky et al. publish [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), demonstrating the power of deep CNNs for image classification on ImageNet, sparking the deep learning revolution in computer vision.
+**2012** — Krizhevsky et al. publish [AlexNet](/algorithms/deep-learning/alexnet), demonstrating the power of deep CNNs for image classification on ImageNet, sparking the deep learning revolution in computer vision.
 
 **2014** — Girshick et al. introduce R-CNN, combining region proposals with CNNs for object detection, significantly improving performance over previous methods.
 
@@ -73,7 +73,7 @@ The mask branch is a small Fully Convolutional Network (FCN) applied to each ROI
 
 ## Algorithm Steps
 
-1. An input image is fed into a backbone Convolutional Neural Network (CNN) (e.g., ResNet, ResNeXt) to extract a feature map.
+1. An input image is fed into a backbone Convolutional Neural Network (CNN) (e.g., [ResNet](/algorithms/deep-learning/resnet), [ResNeXt](/algorithms/deep-learning/resnext)) to extract a feature map.
 2. A Region Proposal Network (RPN) takes the feature map and generates a set of object proposals, each with an objectness score and bounding box coordinates.
 3. Non-Maximum Suppression (NMS) is applied to the RPN proposals to reduce redundancy, yielding a refined set of region proposals.
 4. For each refined region proposal, ROIAlign is used to extract a fixed-size feature map from the backbone's feature map, precisely aligning the features to the proposal.

@@ -32,11 +32,11 @@ Masked Autoencoders (MAE) are a self-supervised learning method for computer vis
 
 ## History
 
-**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, revolutionizing sequence modeling and laying the groundwork for attention-based models in various domains.
+**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformer) architecture, revolutionizing sequence modeling and laying the groundwork for attention-based models in various domains.
 
-**2018** — Devlin et al. introduce BERT, a pre-training method for natural language processing that uses masked language modeling, inspiring similar masking strategies in other modalities.
+**2018** — Devlin et al. introduce [BERT](/algorithms/deep-learning/bert), a pre-training method for natural language processing that uses masked language modeling, inspiring similar masking strategies in other modalities.
 
-**2020** — Dosovitskiy et al. demonstrate the effectiveness of Vision Transformers (ViT) for image classification, showing that a pure [Transformer](/algorithms/deep-learning/transformers/transformer) applied directly to sequences of image patches can achieve competitive performance.
+**2020** — Dosovitskiy et al. demonstrate the effectiveness of Vision Transformers (ViT) for image classification, showing that a pure Transformer applied directly to sequences of image patches can achieve competitive performance.
 
 **2021** — He et al. introduce Masked Autoencoders (MAE), adapting the masked modeling idea to computer vision with an asymmetric encoder-decoder design, achieving state-of-the-art results in self-supervised image pre-training.
 
@@ -66,7 +66,7 @@ $$
 
 ### Asymmetric Encoder-Decoder Architecture
 
-The encoder, typically a standard [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)), only operates on the embedded visible patches. This significantly reduces computational cost during pre-training. The decoder, a much shallower [Transformer](/algorithms/deep-learning/transformers/transformer), takes the encoder's output for visible patches and a set of learnable "mask tokens" for the masked positions. It then attempts to reconstruct the original pixel values of the masked patches.
+The encoder, typically a standard [Vision Transformer](/algorithms/deep-learning/vision-transformer), only operates on the embedded visible patches. This significantly reduces computational cost during pre-training. The decoder, a much shallower Transformer, takes the encoder's output for visible patches and a set of learnable "mask tokens" for the masked positions. It then attempts to reconstruct the original pixel values of the masked patches.
 $$ Z_{enc} = \text{Encoder}(\text{Embed}(P_{vis})) $$
 $$ \hat{P}_{rec} = \text{Decoder}(\text{Concat}(Z_{enc}, \text{MaskTokens})) $$
 
@@ -199,7 +199,7 @@ The powerful visual features learned by MAE can be used to build efficient and a
 
 ## Lab
 
-<LabEmbed url={""} title="MAE (Masked Autoencoder) Lab" />
+<LabEmbed url={""} title="MAE (Masked [Autoencoder](/algorithms/deep-learning/autoencoder)) Lab" />
 
 ## References
 

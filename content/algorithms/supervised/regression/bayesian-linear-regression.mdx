@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression) provides a probabilistic approach to the classic [Linear Regression](/algorithms/supervised/regression/linear-regression) problem, treating model parameters as random variables rather than fixed, unknown constants. It quantifies uncertainty in parameter estimates and predictions by incorporating prior beliefs about the parameters, which are then updated using observed data to yield a posterior distribution. This method offers a richer understanding of model confidence and can be particularly beneficial in scenarios with limited data or when incorporating expert knowledge is crucial.
+[Bayesian Linear Regression](/algorithms/supervised/bayesian-linear-regression) provides a probabilistic approach to the classic [Linear Regression](/algorithms/supervised/linear-regression) problem, treating model parameters as random variables rather than fixed, unknown constants. It quantifies uncertainty in parameter estimates and predictions by incorporating prior beliefs about the parameters, which are then updated using observed data to yield a posterior distribution. This method offers a richer understanding of model confidence and can be particularly beneficial in scenarios with limited data or when incorporating expert knowledge is crucial.
 
 ## History
 
@@ -36,7 +36,7 @@ Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression
 
 **1960** — George E. P. Box and George C. Tiao publish "[Bayesian Inference](https://en.wikipedia.org/wiki/Bayesian_inference) in Statistical Analysis" (1973), a seminal work that popularizes Bayesian methods for a wide range of statistical problems, including linear models.
 
-**1980** — The development and popularization of [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) methods, particularly the Gibbs sampler, by Gelfand and Smith (1990), revolutionize the ability to compute complex posterior distributions, making Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression) more widely applicable.
+**1980** — The development and popularization of [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) methods, particularly the Gibbs sampler, by Gelfand and Smith (1990), revolutionize the ability to compute complex posterior distributions, making Bayesian Linear Regression more widely applicable.
 
 **1990** — Increased computational power and sophisticated MCMC algorithms lead to a resurgence of interest and application of Bayesian methods across various scientific and engineering disciplines.
 
@@ -44,7 +44,7 @@ Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression
 
 ### Linear Model Formulation
 
-A [Linear Regression](/algorithms/supervised/regression/linear-regression) model assumes a linear relationship between a dependent variable $y$ and one or more independent variables $X$. For a dataset with $N$ observations and $D$ features, the model can be expressed as $y_i = \mathbf{x}_i^T \mathbf{w} + \epsilon_i$, where $\mathbf{w}$ is the vector of regression coefficients (weights), $\mathbf{x}_i$ is the feature vector for the $i$-th observation, and $\epsilon_i$ is the irreducible error term. Assuming $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, the likelihood of $y_i$ given $\mathbf{x}_i$ and $\mathbf{w}$ is $p(y_i | \mathbf{x}_i, \mathbf{w}, \sigma^2) = \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2)$.
+A Linear Regression model assumes a linear relationship between a dependent variable $y$ and one or more independent variables $X$. For a dataset with $N$ observations and $D$ features, the model can be expressed as $y_i = \mathbf{x}_i^T \mathbf{w} + \epsilon_i$, where $\mathbf{w}$ is the vector of regression coefficients (weights), $\mathbf{x}_i$ is the feature vector for the $i$-th observation, and $\epsilon_i$ is the irreducible error term. Assuming $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, the likelihood of $y_i$ given $\mathbf{x}_i$ and $\mathbf{w}$ is $p(y_i | \mathbf{x}_i, \mathbf{w}, \sigma^2) = \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2)$.
 $$ y = X\mathbf{w} + \mathbf{\epsilon} $$
 $$ \mathbf{\epsilon} \sim \mathcal{N}(0, \sigma^2 I) $$
 $$ p(y | X, \mathbf{w}, \sigma^2) = \prod_{i=1}^N \mathcal{N}(y_i | \mathbf{x}_i^T \mathbf{w}, \sigma^2) $$
@@ -80,7 +80,7 @@ $$
 
 ### Prior Distribution for Weights
 
-In Bayesian [Linear Regression](/algorithms/supervised/regression/linear-regression), the model parameters $\mathbf{w}$ are treated as random variables, and we specify a prior probability distribution $p(\mathbf{w})$ that reflects our initial beliefs about their values before observing any data. A common choice for the prior on $\mathbf{w}$ is a Gaussian distribution, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0)$, where $\mathbf{\mu}_0$ is the prior mean and $\Sigma_0$ is the prior covariance matrix. Often, a zero-mean isotropic Gaussian prior is used, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | 0, \alpha^{-1}I)$, where $\alpha$ is a precision parameter.
+In Bayesian Linear Regression, the model parameters $\mathbf{w}$ are treated as random variables, and we specify a prior probability distribution $p(\mathbf{w})$ that reflects our initial beliefs about their values before observing any data. A common choice for the prior on $\mathbf{w}$ is a Gaussian distribution, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0)$, where $\mathbf{\mu}_0$ is the prior mean and $\Sigma_0$ is the prior covariance matrix. Often, a zero-mean isotropic Gaussian prior is used, $p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | 0, \alpha^{-1}I)$, where $\alpha$ is a precision parameter.
 $$ p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{\mu}_0, \Sigma_0) $$
 $$ p(\mathbf{w}) = (2\pi)^{-D/2} |\Sigma_0|^{-1/2} \exp\left(-\frac{1}{2}(\mathbf{w} - \mathbf{\mu}_0)^T \Sigma_0^{-1} (\mathbf{w} - \mathbf{\mu}_0)\right) $$
 
@@ -174,7 +174,7 @@ $$
 - Provides a full probabilistic distribution for model parameters and predictions, quantifying uncertainty.
 - Allows for the incorporation of prior knowledge or expert beliefs into the model, which can be particularly valuable with limited data.
 - Less prone to overfitting compared to maximum likelihood estimation, especially when using informative priors or in high-dimensional settings.
-- Can naturally perform regularization by shrinking weight magnitudes towards the prior mean, similar to Ridge Regression.
+- Can naturally perform regularization by shrinking weight magnitudes towards the prior mean, similar to [Ridge Regression](/algorithms/supervised/ridge-regression).
 - Offers a principled framework for model comparison and selection through marginal likelihoods.
 - Can provide more robust estimates when data is sparse or noisy by leveraging prior information.
 

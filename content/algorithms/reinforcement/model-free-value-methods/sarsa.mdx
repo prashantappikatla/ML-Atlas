@@ -27,13 +27,13 @@ related:
 
 ## Overview
 
-SARSA (State-Action-Reward-State-Action) is an on-policy temporal difference control algorithm used in reinforcement learning to learn an optimal policy. It directly learns the action-value function $Q(s, a)$ for the policy it is currently following, making its updates dependent on the next action chosen by that same policy. This contrasts with off-policy methods like [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), which learn the optimal Q-function independently of the agent's current exploration strategy. SARSA is particularly well-suited for environments where the agent's exploration strategy directly impacts the learning process and safety is a significant concern.
+[SARSA](/algorithms/reinforcement/sarsa) (State-Action-Reward-State-Action) is an on-policy temporal difference control algorithm used in reinforcement learning to learn an optimal policy. It directly learns the action-value function $Q(s, a)$ for the policy it is currently following, making its updates dependent on the next action chosen by that same policy. This contrasts with off-policy methods like [Q-Learning](/algorithms/reinforcement/q-learning), which learn the optimal Q-function independently of the agent's current exploration strategy. SARSA is particularly well-suited for environments where the agent's exploration strategy directly impacts the learning process and safety is a significant concern.
 
 ## History
 
-**1994** — Gavin Rummery and Mahesan Niranjan introduced the foundational algorithm in their paper "On-line [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) using connectionist systems," laying the groundwork for on-policy temporal difference control.
+**1994** — Gavin Rummery and Mahesan Niranjan introduced the foundational algorithm in their paper "On-line Q-Learning using connectionist systems," laying the groundwork for on-policy temporal difference control.
 
-**1998** — Richard S. Sutton and Andrew G. Barto formally named the algorithm SARSA in their seminal textbook "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction," distinguishing it from [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) and popularizing its use.
+**1998** — Richard S. Sutton and Andrew G. Barto formally named the algorithm SARSA in their seminal textbook "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction," distinguishing it from Q-Learning and popularizing its use.
 
 **2000** — SARSA was widely adopted and studied in academic research for various control problems, particularly in robotics and autonomous agents, due to its on-policy nature.
 
@@ -43,7 +43,7 @@ SARSA (State-Action-Reward-State-Action) is an on-policy temporal difference con
 
 ### SARSA Temporal Difference Update
 
-The core of SARSA is its temporal difference (TD) update rule, which adjusts the action-value function $Q(S_t, A_t)$ based on the reward received and the estimated value of the next state-action pair. Unlike [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), the next action $A_{t+1}$ is chosen according to the *current policy* being followed by the agent. The update rule is given by:
+The core of SARSA is its temporal difference (TD) update rule, which adjusts the action-value function $Q(S_t, A_t)$ based on the reward received and the estimated value of the next state-action pair. Unlike Q-Learning, the next action $A_{t+1}$ is chosen according to the *current policy* being followed by the agent. The update rule is given by:
 $$Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)]$$
 Here, $S_t$ is the current state, $A_t$ is the action taken, $R_{t+1}$ is the reward received, $S_{t+1}$ is the next state, and $A_{t+1}$ is the next action chosen by the same policy. $\alpha$ is the learning rate, and $\gamma$ is the discount factor. The term $R_{t+1} + \gamma Q(S_{t+1}, A_{t+1})$ represents the target value, and the difference with $Q(S_t, A_t)$ is the TD error.
 

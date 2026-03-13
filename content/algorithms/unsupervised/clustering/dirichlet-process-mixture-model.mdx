@@ -30,7 +30,7 @@ related:
 
 ## Overview
 
-The Dirichlet Process Mixture Model (DPMM) is a non-parametric Bayesian approach to clustering that automatically infers the optimal number of clusters from the data. Unlike traditional mixture models that require a predefined number of components, DPMM leverages the Dirichlet Process as a prior over the infinite space of possible cluster assignments. This allows the model to adapt its complexity to the underlying data structure, making it particularly useful for exploratory data analysis where the number of groups is unknown.
+The [Dirichlet Process Mixture Model](/algorithms/unsupervised/dirichlet-process-mixture-model) (DPMM) is a non-parametric Bayesian approach to clustering that automatically infers the optimal number of clusters from the data. Unlike traditional mixture models that require a predefined number of components, DPMM leverages the Dirichlet Process as a prior over the infinite space of possible cluster assignments. This allows the model to adapt its complexity to the underlying data structure, making it particularly useful for exploratory data analysis where the number of groups is unknown.
 
 ## History
 
@@ -38,7 +38,7 @@ The Dirichlet Process Mixture Model (DPMM) is a non-parametric Bayesian approach
 
 **1994** — Radford M. Neal published 'Density Estimation Using Dirichlet Process Mixture Models,' detailing practical [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) methods for inference in DPMMs, making them computationally feasible.
 
-**2000** — The [Chinese Restaurant Process](/algorithms/probabilistic/bayesian-nonparametrics/chinese-restaurant-process) (CRP), an intuitive metaphor for the Dirichlet Process, gained prominence, simplifying the understanding and implementation of DPMMs, especially for Gibbs sampling.
+**2000** — The [Chinese Restaurant Process](/algorithms/probabilistic/chinese-restaurant-process) (CRP), an intuitive metaphor for the Dirichlet Process, gained prominence, simplifying the understanding and implementation of DPMMs, especially for Gibbs sampling.
 
 **2006** — David Blei and [Michael Jordan](https://en.wikipedia.org/wiki/Michael_I._Jordan), among others, developed variational inference methods for DPMMs, offering faster, deterministic alternatives to MCMC for approximate posterior inference.
 
@@ -58,7 +58,7 @@ $$
 
 ### Chinese Restaurant Process Analogy
 
-The [Chinese Restaurant Process](/algorithms/probabilistic/bayesian-nonparametrics/chinese-restaurant-process) (CRP) provides an intuitive metaphor for understanding the clustering behavior induced by the Dirichlet Process. Imagine customers entering a restaurant with an infinite number of tables. The first customer sits at the first table. Subsequent customers either sit at an existing table with probability proportional to the number of customers already at that table, or they start a new table with probability proportional to $\alpha$. Each table represents a cluster, and the customers at a table share the same cluster parameters. The concentration parameter $\alpha$ controls the propensity to create new clusters.
+The Chinese Restaurant Process (CRP) provides an intuitive metaphor for understanding the clustering behavior induced by the Dirichlet Process. Imagine customers entering a restaurant with an infinite number of tables. The first customer sits at the first table. Subsequent customers either sit at an existing table with probability proportional to the number of customers already at that table, or they start a new table with probability proportional to $\alpha$. Each table represents a cluster, and the customers at a table share the same cluster parameters. The concentration parameter $\alpha$ controls the propensity to create new clusters.
 
 ### Infinite Mixture Model Formulation
 
@@ -94,7 +94,7 @@ $$
 
 ## Algorithm Steps
 
-1. Initialize cluster assignments $z_i$ for each data point $x_i$ randomly or using a simple method like K-Means.
+1. Initialize cluster assignments $z_i$ for each data point $x_i$ randomly or using a simple method like [K-Means](/algorithms/unsupervised/k-means).
 2. For a specified number of MCMC iterations, perform the following steps:
 3. For each data point $x_i$ from $i=1$ to $N$:
 4. Temporarily remove $x_i$ from its current cluster, updating the cluster counts and parameters.

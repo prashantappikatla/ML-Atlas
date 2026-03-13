@@ -26,13 +26,13 @@ related:
 
 ## Overview
 
-DistilBERT is a smaller, faster, and lighter version of BERT, designed to reduce computational costs while retaining most of its language understanding capabilities. It achieves this through knowledge distillation, where a larger pre-trained BERT model acts as a teacher to guide the training of a smaller student model. This approach enables more efficient deployment of powerful [Transformer](/algorithms/deep-learning/transformers/transformer) models in resource-constrained environments.
+[DistilBERT](/algorithms/deep-learning/distilbert) is a smaller, faster, and lighter version of [BERT](/algorithms/deep-learning/bert), designed to reduce computational costs while retaining most of its language understanding capabilities. It achieves this through knowledge distillation, where a larger pre-trained BERT model acts as a teacher to guide the training of a smaller student model. This approach enables more efficient deployment of powerful [Transformer](/algorithms/deep-learning/transformer) models in resource-constrained environments.
 
 ## History
 
 **2018** — Devlin et al. introduce BERT (Bidirectional Encoder Representations from Transformers), a groundbreaking pre-training method for natural language understanding, demonstrating state-of-the-art performance across various NLP tasks.
 
-**2019** — Sanh et al. introduce DistilBERT, a distilled version of BERT, significantly reducing its size and computational requirements while preserving a substantial portion of its performance, making large [Transformer](/algorithms/deep-learning/transformers/transformer) models more accessible.
+**2019** — Sanh et al. introduce DistilBERT, a distilled version of BERT, significantly reducing its size and computational requirements while preserving a substantial portion of its performance, making large Transformer models more accessible.
 
 ## Mathematical Intuition
 
@@ -119,7 +119,7 @@ $$
 - Experiences a slight degradation in performance compared to the full BERT model, which might be critical for tasks requiring peak accuracy.
 - Requires a pre-trained teacher model, which itself is computationally expensive to train from scratch.
 - The distillation process, while yielding a smaller model, still demands significant computational resources and time for its own training.
-- May not perform as well as more recent, larger transformer models like RoBERTa or ELECTRA on certain complex NLP benchmarks.
+- May not perform as well as more recent, larger transformer models like [RoBERTa](/algorithms/deep-learning/roberta) or ELECTRA on certain complex NLP benchmarks.
 - The architecture is fixed to a specific reduction (e.g., half the layers), limiting flexibility in creating models with arbitrary sizes between BERT and DistilBERT.
 
 ## Use Cases

@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-Tweedie Regression is a type of [Generalized Linear Model](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLM) designed to model response variables that follow a Tweedie distribution. This algorithm is particularly effective for data exhibiting characteristics such as many zero values, right-skewness, and a variance that is proportional to a power of the mean. It provides a flexible framework to handle a continuum of distributions, bridging common models like Poisson, Gamma, and Normal distributions.
+[Tweedie Regression](/algorithms/supervised/tweedie-regression) is a type of Generalized Linear Model (GLM) designed to model response variables that follow a Tweedie distribution. This algorithm is particularly effective for data exhibiting characteristics such as many zero values, right-skewness, and a variance that is proportional to a power of the mean. It provides a flexible framework to handle a continuum of distributions, bridging common models like Poisson, Gamma, and Normal distributions.
 
 ## History
 
@@ -137,7 +137,7 @@ $$
 
 - Tweedie Regression effectively models response variables with a mass at zero and continuous positive values, which are common in many real-world datasets.
 - It offers flexibility by encompassing a range of common distributions (Normal, Poisson, Gamma) through its power parameter $p$, allowing adaptation to various data characteristics.
-- The model provides interpretable coefficients, similar to other Generalized Linear Models, making it easier to understand the impact of predictors.
+- The model provides interpretable coefficients, similar to other [Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model), making it easier to understand the impact of predictors.
 - It naturally handles right-skewed data without requiring explicit data transformations, simplifying the preprocessing pipeline.
 - The mean-variance relationship of the Tweedie distribution allows for robust modeling of heteroscedastic data where variance changes with the mean.
 
@@ -147,7 +147,7 @@ $$
 - Tweedie Regression assumes that the response variable follows a Tweedie distribution, which may not always hold true for all datasets.
 - The iterative estimation process can be computationally intensive for very large datasets or when a high degree of precision is required.
 - The model's performance can be sensitive to outliers, especially if they heavily influence the mean-variance relationship.
-- Interpretation of coefficients can be less straightforward than Ordinary Least Squares due to the non-linear link function.
+- Interpretation of coefficients can be less straightforward than [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) due to the non-linear link function.
 
 ## Use Cases
 

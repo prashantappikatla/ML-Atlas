@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-RankNet addresses the problem of learning to rank by transforming it into a pairwise classification task. It employs a neural network to predict a relevance score for individual items and optimizes these scores by minimizing a cross-entropy loss over pairs of documents, aiming to correctly order them based on their true relative relevance. This approach enables the model to learn complex non-linear ranking functions directly from preference data, making it a foundational algorithm in the learning-to-rank field.
+[RankNet](/algorithms/supervised/ranknet) addresses the problem of learning to rank by transforming it into a pairwise classification task. It employs a neural network to predict a relevance score for individual items and optimizes these scores by minimizing a cross-entropy loss over pairs of documents, aiming to correctly order them based on their true relative relevance. This approach enables the model to learn complex non-linear ranking functions directly from preference data, making it a foundational algorithm in the learning-to-rank field.
 
 ## History
 
@@ -33,7 +33,7 @@ RankNet addresses the problem of learning to rank by transforming it into a pair
 
 **2007** — RankNet serves as a foundational component for LambdaRank, which improves upon its gradient by incorporating non-differentiable ranking metrics like NDCG into the optimization process.
 
-**2008** — [LambdaMART](/algorithms/supervised/ranking/lambdamart), an extension of LambdaRank using Multiple Additive Regression Trees (MART), emerges as a highly effective and widely adopted ranking algorithm, building on the pairwise ranking principles established by RankNet.
+**2008** — [LambdaMART](/algorithms/supervised/lambdamart), an extension of LambdaRank using Multiple Additive Regression Trees (MART), emerges as a highly effective and widely adopted ranking algorithm, building on the pairwise ranking principles established by RankNet.
 
 ## Mathematical Intuition
 

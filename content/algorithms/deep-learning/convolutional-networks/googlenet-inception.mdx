@@ -31,7 +31,7 @@ GoogLeNet, also known as Inception v1, introduced the Inception module, a novel 
 
 ## History
 
-**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet)'s victory in the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) popularized Convolutional Neural Networks (CNNs) for image recognition.
+**2012** — [AlexNet](/algorithms/deep-learning/alexnet)'s victory in the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) popularized Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) for image recognition.
 
 **2014** — Szegedy et al. introduced GoogLeNet (Inception v1) at ILSVRC, achieving top performance by proposing the Inception module to optimize computational efficiency and feature extraction.
 
@@ -39,7 +39,7 @@ GoogLeNet, also known as Inception v1, introduced the Inception module, a novel 
 
 **2015** — Szegedy et al. published "Rethinking the Inception Architecture for [Computer Vision](https://en.wikipedia.org/wiki/Computer_vision)" (Inception v2/v3), introducing factorized convolutions and label smoothing for improved efficiency and accuracy.
 
-**2016** — Szegedy et al. further refined the architecture with "Inception-v4, Inception-[ResNet](/algorithms/deep-learning/convolutional-networks/resnet) and the Impact of Residual Connections on Learning," combining Inception modules with residual connections.
+**2016** — Szegedy et al. further refined the architecture with "Inception-v4, Inception-[ResNet](/algorithms/deep-learning/resnet) and the Impact of Residual Connections on Learning," combining Inception modules with residual connections.
 
 ## Mathematical Intuition
 
@@ -79,7 +79,7 @@ $$
 4. Integrate $1 \times 1$ convolutional layers within the Inception modules to reduce dimensionality before larger convolutions and after max pooling, acting as bottleneck layers.
 5. Add auxiliary classifiers at two intermediate stages of the network, each consisting of an average pooling layer, a $1 \times 1$ convolution, two fully connected layers, and a softmax classifier.
 6. Define the total loss function as a weighted sum of the main classifier's loss and the losses from the auxiliary classifiers.
-7. Train the network using an optimization algorithm like Stochastic Gradient Descent (SGD) with momentum or Adam, applying backpropagation to update weights based on the total loss.
+7. Train the network using an optimization algorithm like [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) (SGD) with momentum or [Adam](/algorithms/meta-learning/adam), applying backpropagation to update weights based on the total loss.
 8. During inference, remove the auxiliary classifiers and use only the main classifier at the end of the network to make predictions.
 
 ## Parameters
@@ -164,7 +164,7 @@ Indexing and searching large image databases based on visual similarity.
 
 ## Lab
 
-<LabEmbed url={""} title="GoogLeNet / Inception Lab" />
+<LabEmbed url={""} title="[GoogLeNet / Inception](/algorithms/deep-learning/googlenet-inception) Lab" />
 
 ## References
 

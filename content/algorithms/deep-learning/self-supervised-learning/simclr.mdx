@@ -24,19 +24,19 @@ related:
 
 ## Overview
 
-SimCLR (A Simple Framework for Contrastive Learning of Visual Representations) is a self-supervised learning framework designed to learn high-quality visual representations from unlabeled image data. It achieves this by maximizing agreement between differently augmented views of the same image instance via a contrastive loss function, without requiring specialized architectures or memory banks. The core idea is to learn an encoder that maps similar (augmented) images to nearby points in a latent space while pushing dissimilar images apart. This approach enables the pre-training of powerful visual encoders that transfer effectively to various downstream tasks.
+[SimCLR](/algorithms/deep-learning/simclr) (A Simple Framework for Contrastive Learning of Visual Representations) is a self-supervised learning framework designed to learn high-quality visual representations from unlabeled image data. It achieves this by maximizing agreement between differently augmented views of the same image instance via a contrastive loss function, without requiring specialized architectures or memory banks. The core idea is to learn an encoder that maps similar (augmented) images to nearby points in a latent space while pushing dissimilar images apart. This approach enables the pre-training of powerful visual encoders that transfer effectively to various downstream tasks.
 
 ## History
 
 **2017** — Oord et al. introduced Contrastive Predictive Coding (CPC), a general framework for learning representations by predicting future samples in latent space, laying groundwork for contrastive learning.
 
-**2019** — He et al. proposed [Momentum](/algorithms/meta-learning/optimization/momentum) Contrast (MoCo), which improved contrastive learning by using a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a large, dynamic dictionary as a queue of negative samples.
+**2019** — He et al. proposed [Momentum](/algorithms/meta-learning/momentum) Contrast ([MoCo](/algorithms/deep-learning/moco)), which improved contrastive learning by using a Momentum encoder and a large, dynamic dictionary as a queue of negative samples.
 
 **2020** — Chen et al. introduced SimCLR, simplifying contrastive learning by demonstrating that large batch sizes and a non-linear projection head can achieve state-of-the-art results without memory banks.
 
-**2020** — Grill et al. presented Bootstrap Your Own Latent (BYOL), a self-supervised method that avoids negative pairs by using two interacting neural networks, one of which is a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder.
+**2020** — Grill et al. presented Bootstrap Your Own Latent ([BYOL](/algorithms/deep-learning/byol)), a self-supervised method that avoids negative pairs by using two interacting neural networks, one of which is a Momentum encoder.
 
-**2021** — Chen and He introduced SimSiam, further simplifying self-supervised learning by showing that competitive performance can be achieved without negative sample pairs, large batches, or [Momentum](/algorithms/meta-learning/optimization/momentum) encoders.
+**2021** — Chen and He introduced SimSiam, further simplifying self-supervised learning by showing that competitive performance can be achieved without negative sample pairs, large batches, or Momentum encoders.
 
 ## Mathematical Intuition
 
@@ -56,7 +56,7 @@ $$
 
 ### Non-linear Projection Head
 
-After an encoder $f(\cdot)$ extracts a representation $h_i = f(x_i)$, a small non-linear projection head $g(\cdot)$ maps $h_i$ to a lower-dimensional space $z_i = g(h_i)$. The contrastive loss is applied in this $z$-space. The projection head is crucial because it allows the encoder $f$ to learn richer representations without being constrained by the specific requirements of the contrastive task, which might discard useful information. Typically, $g$ is a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) with one hidden layer.
+After an encoder $f(\cdot)$ extracts a representation $h_i = f(x_i)$, a small non-linear projection head $g(\cdot)$ maps $h_i$ to a lower-dimensional space $z_i = g(h_i)$. The contrastive loss is applied in this $z$-space. The projection head is crucial because it allows the encoder $f$ to learn richer representations without being constrained by the specific requirements of the contrastive task, which might discard useful information. Typically, $g$ is a multi-layer [Perceptron](/algorithms/supervised/perceptron) (MLP) with one hidden layer.
 $$ h_i = f(x_i) $$
 $$ z_i = g(h_i) = W_2 \sigma(W_1 h_i) $$
 where $W_1, W_2$ are weight matrices and $\sigma$ is a non-linear activation function (e.g., ReLU).
@@ -89,11 +89,11 @@ $$
 
 1. Sample a mini-batch of $N$ images, $\{x_k\}_{k=1}^N$, from the unlabeled dataset.
 2. For each image $x_k$, apply two distinct stochastic data augmentations, $t_1$ and $t_2$, to create two correlated views, $x_k'$ and $x_k''$.
-3. Pass each augmented view through a base encoder network $f(\cdot)$ (e.g., ResNet) to obtain representations $h_k' = f(x_k')$ and $h_k'' = f(x_k'')$.
+3. Pass each augmented view through a base encoder network $f(\cdot)$ (e.g., [ResNet](/algorithms/deep-learning/resnet)) to obtain representations $h_k' = f(x_k')$ and $h_k'' = f(x_k'')$.
 4. Apply a non-linear projection head $g(\cdot)$ to these representations to get $z_k' = g(h_k')$ and $z_k'' = g(h_k'')$.
 5. For each positive pair $(z_k', z_k'')$, compute the NT-Xent loss, which measures the similarity between $z_k'$ and $z_k''$ relative to all other $2(N-1)$ negative samples in the batch.
 6. Aggregate the loss over all $2N$ positive pairs in the batch and backpropagate through the projection head $g$ and the encoder $f$.
-7. Update the weights of both the encoder $f$ and the projection head $g$ using an optimizer (e.g., LARS or Adam).
+7. Update the weights of both the encoder $f$ and the projection head $g$ using an optimizer (e.g., LARS or [Adam](/algorithms/meta-learning/adam)).
 8. Repeat steps 1-7 for a specified number of epochs; after training, the projection head $g$ is discarded, and the encoder $f$ is used for downstream tasks.
 
 ## Parameters

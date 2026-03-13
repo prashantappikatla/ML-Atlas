@@ -102,7 +102,7 @@ $$
 5. Compute the squared Euclidean distances: $d_{AP} = ||f(A) - f(P)||_2^2$ and $d_{AN} = ||f(A) - f(N)||_2^2$.
 6. Calculate the Triplet Loss for each triplet using the formula $L(A, P, N) = \max(0, d_{AP} - d_{AN} + \alpha)$, where $\alpha$ is the margin hyperparameter.
 7. Average the loss over all triplets in the batch to obtain the total batch loss.
-8. Perform backpropagation to compute gradients and update the network's weights using an optimizer (e.g., Adam) to minimize the total loss.
+8. Perform backpropagation to compute gradients and update the network's weights using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the total loss.
 9. Repeat steps 2-8 for a specified number of epochs or until convergence.
 
 ## Parameters
@@ -187,7 +187,7 @@ Retrieving documents or queries that are semantically similar to a given input, 
 
 ## Lab
 
-<LabEmbed url={""} title="Triplet Network / Triplet Loss Lab" />
+<LabEmbed url={""} title="[Triplet Network / Triplet Loss](/algorithms/deep-learning/triplet-network-triplet-loss) Lab" />
 
 ## References
 

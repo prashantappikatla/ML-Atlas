@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Fuzzy C-Means (FCM) is an unsupervised clustering algorithm that assigns each data point a degree of membership to multiple clusters, rather than exclusively assigning it to a single cluster. It extends the concept of [K-Means](/algorithms/unsupervised/clustering/k-means) by introducing a fuzzification parameter that controls the "softness" of cluster boundaries. The algorithm iteratively optimizes an objective function that minimizes the sum of squared Euclidean distances between data points and cluster centers, weighted by their fuzzy membership values. This approach is particularly useful for datasets where clusters are overlapping or not clearly separated.
+[Fuzzy C-Means](/algorithms/unsupervised/fuzzy-c-means) (FCM) is an unsupervised clustering algorithm that assigns each data point a degree of membership to multiple clusters, rather than exclusively assigning it to a single cluster. It extends the concept of [K-Means](/algorithms/unsupervised/k-means) by introducing a fuzzification parameter that controls the "softness" of cluster boundaries. The algorithm iteratively optimizes an objective function that minimizes the sum of squared Euclidean distances between data points and cluster centers, weighted by their fuzzy membership values. This approach is particularly useful for datasets where clusters are overlapping or not clearly separated.
 
 ## History
 
@@ -71,7 +71,7 @@ $$
 
 ### Fuzzification Parameter m
 
-The parameter $m > 1$ controls the degree of fuzziness in the clustering. As $m$ approaches 1, the memberships become harder, approaching a [K-Means](/algorithms/unsupervised/clustering/k-means)-like hard assignment. As $m$ increases, the memberships become fuzzier, allowing data points to have more equal membership values across multiple clusters. A common choice for $m$ is 2.
+The parameter $m > 1$ controls the degree of fuzziness in the clustering. As $m$ approaches 1, the memberships become harder, approaching a K-Means-like hard assignment. As $m$ increases, the memberships become fuzzier, allowing data points to have more equal membership values across multiple clusters. A common choice for $m$ is 2.
 
 ## Algorithm Steps
 

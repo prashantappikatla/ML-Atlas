@@ -26,15 +26,15 @@ related:
 
 ## Overview
 
-Dueling Deep Q-Networks (Dueling DQN) is an extension of the Deep Q-Network (DQN) architecture that aims to improve the estimation of Q-values by explicitly separating the representation of state value and action advantage. This architectural modification allows the network to learn the value of states independently of the actions, which can lead to more robust and efficient learning, particularly in environments where many actions have similar effects. By decomposing the Q-value into a state-value function and an advantage function, Dueling DQN can generalize learning across actions more effectively.
+Dueling Deep Q-Networks ([Dueling DQN](/algorithms/reinforcement/dueling-dqn)) is an extension of the Deep Q-Network (DQN) architecture that aims to improve the estimation of Q-values by explicitly separating the representation of state value and action advantage. This architectural modification allows the network to learn the value of states independently of the actions, which can lead to more robust and efficient learning, particularly in environments where many actions have similar effects. By decomposing the Q-value into a state-value function and an advantage function, Dueling DQN can generalize learning across actions more effectively.
 
 ## History
 
-**2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., demonstrating the ability of deep neural networks to learn control policies directly from high-dimensional sensory input (e.g., pixels) using [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) and experience replay.
+**2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., demonstrating the ability of deep neural networks to learn control policies directly from high-dimensional sensory input (e.g., pixels) using [Q-Learning](/algorithms/reinforcement/q-learning) and experience replay.
 
-**2015** — Mnih et al. published an improved version of DQN in Nature, showcasing human-level performance on a wide range of Atari 2600 games, solidifying Deep Reinforcement Learning as a significant research area.
+**2015** — Mnih et al. published an improved version of DQN in Nature, showcasing human-level performance on a wide range of Atari 2600 games, solidifying Deep [Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning) as a significant research area.
 
-**2015** — Van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn), an extension to DQN that addresses the problem of overestimation of Q-values by decoupling the selection and evaluation of actions, leading to more stable learning.
+**2015** — Van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/double-dqn), an extension to DQN that addresses the problem of overestimation of Q-values by decoupling the selection and evaluation of actions, leading to more stable learning.
 
 **2016** — Wang et al. introduced Dueling DQN, a novel neural network architecture for model-free reinforcement learning that explicitly separates the estimation of state-value and action-advantage functions, improving learning efficiency and stability.
 

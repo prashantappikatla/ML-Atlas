@@ -30,15 +30,15 @@ related:
 
 ## Overview
 
-HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a density-based clustering algorithm that extends [DBSCAN](/algorithms/unsupervised/clustering/dbscan) and [OPTICS](/algorithms/unsupervised/clustering/optics). It identifies clusters of varying densities in noisy datasets without requiring the user to specify a global density threshold. By constructing a hierarchy of clusters and then extracting a flat partition based on cluster stability, HDBSCAN effectively handles complex data distributions and identifies outliers.
+[HDBSCAN](/algorithms/unsupervised/hdbscan) (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a density-based clustering algorithm that extends [DBSCAN](/algorithms/unsupervised/dbscan) and [OPTICS](/algorithms/unsupervised/optics). It identifies clusters of varying densities in noisy datasets without requiring the user to specify a global density threshold. By constructing a hierarchy of clusters and then extracting a flat partition based on cluster stability, HDBSCAN effectively handles complex data distributions and identifies outliers.
 
 ## History
 
-**1996** — [DBSCAN](/algorithms/unsupervised/clustering/dbscan) (Density-Based Spatial Clustering of Applications with Noise) was introduced by Ester et al., pioneering density-based clustering methods.
+**1996** — DBSCAN (Density-Based Spatial Clustering of Applications with Noise) was introduced by Ester et al., pioneering density-based clustering methods.
 
-**1999** — [OPTICS](/algorithms/unsupervised/clustering/optics) (Ordering Points To Identify the Clustering Structure) was proposed by Ankerst et al., addressing [DBSCAN](/algorithms/unsupervised/clustering/dbscan)'s limitation with varying density clusters by producing a reachability plot.
+**1999** — OPTICS (Ordering Points To Identify the Clustering Structure) was proposed by Ankerst et al., addressing DBSCAN's limitation with varying density clusters by producing a reachability plot.
 
-**2013** — HDBSCAN was introduced by Campello, Moulavi, and Sander, building upon [OPTICS](/algorithms/unsupervised/clustering/optics) to provide a robust, parameter-free (in terms of epsilon) density-based clustering method.
+**2013** — HDBSCAN was introduced by Campello, Moulavi, and Sander, building upon OPTICS to provide a robust, parameter-free (in terms of epsilon) density-based clustering method.
 
 ## Mathematical Intuition
 
@@ -64,7 +64,7 @@ $$
 
 ### Hierarchy Construction and Condensation
 
-A Minimum Spanning Tree (MST) is constructed using the mutual reachability distances as edge weights. This MST captures the density-based connectivity of the data. By sorting the edges of the MST by weight and iteratively merging components, a [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) structure (dendrogram) is formed. This hierarchy is then condensed by removing points that are not part of any significant cluster (noise) and merging small clusters into their parent clusters based on the `min_cluster_size` parameter, simplifying the structure for cluster extraction.
+A Minimum Spanning Tree (MST) is constructed using the mutual reachability distances as edge weights. This MST captures the density-based connectivity of the data. By sorting the edges of the MST by weight and iteratively merging components, a [Hierarchical Clustering](/algorithms/unsupervised/hierarchical-clustering) structure (dendrogram) is formed. This hierarchy is then condensed by removing points that are not part of any significant cluster (noise) and merging small clusters into their parent clusters based on the `min_cluster_size` parameter, simplifying the structure for cluster extraction.
 
 ### Cluster Selection by Stability
 
@@ -113,7 +113,7 @@ From the condensed hierarchy, HDBSCAN extracts a flat partitioning of clusters b
 
 ## Weaknesses
 
-- HDBSCAN's computational complexity can be high, especially for very large datasets, making it slower than algorithms like K-Means.
+- HDBSCAN's computational complexity can be high, especially for very large datasets, making it slower than algorithms like [K-Means](/algorithms/unsupervised/k-means).
 - The choice of `min_cluster_size` and `min_samples` can significantly impact the resulting clusters, requiring careful tuning.
 - It may struggle with very high-dimensional data due to the 'curse of dimensionality,' where distance metrics become less meaningful.
 - The algorithm's performance can be sensitive to the chosen distance metric, which must be appropriate for the data.

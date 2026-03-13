@@ -28,11 +28,11 @@ related:
 
 ## Overview
 
-Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a variant of the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) algorithm specifically designed to handle imbalanced datasets, particularly prevalent in text classification. Instead of directly modeling the probability of features given a class, it models the probability of features given the complement of a class. This approach helps mitigate the bias towards majority classes that can occur in standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) when dealing with skewed data distributions.
+[Complement Naive Bayes](/algorithms/supervised/complement-naive-bayes) is a variant of the [Naive Bayes](/algorithms/supervised/naive-bayes) algorithm specifically designed to handle imbalanced datasets, particularly prevalent in text classification. Instead of directly modeling the probability of features given a class, it models the probability of features given the complement of a class. This approach helps mitigate the bias towards majority classes that can occur in standard Naive Bayes when dealing with skewed data distributions.
 
 ## History
 
-**2003** — Jason D. Rennie, Lee Son, and David R. Moxon introduced Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) in their paper "Tackling the Poor Assumptions of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) Text Classifiers," addressing issues with standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes), particularly its sensitivity to class imbalance and feature independence assumptions in text classification.
+**2003** — Jason D. Rennie, Lee Son, and David R. Moxon introduced Complement Naive Bayes in their paper "Tackling the Poor Assumptions of Naive Bayes Text Classifiers," addressing issues with standard Naive Bayes, particularly its sensitivity to class imbalance and feature independence assumptions in text classification.
 
 **2006** — The algorithm gained further recognition and was included in popular machine learning libraries, demonstrating its practical utility for text classification tasks, especially for imbalanced data.
 
@@ -42,7 +42,7 @@ Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a
 
 ### Naive Bayes Classifier Review
 
-The standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier is based on Bayes' Theorem, which states that the posterior probability of a class $C_k$ given an instance $\mathbf{x} = (x_1, \dots, x_n)$ is $P(C_k | \mathbf{x}) = \frac{P(\mathbf{x} | C_k) P(C_k)}{P(\mathbf{x})}$. Due to the "naive" assumption of feature independence, the likelihood $P(\mathbf{x} | C_k)$ is simplified to a product of individual feature probabilities: $P(\mathbf{x} | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$. The classifier then assigns the instance to the class that maximizes this posterior probability: $\hat{C} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
+The standard Naive Bayes classifier is based on Bayes' Theorem, which states that the posterior probability of a class $C_k$ given an instance $\mathbf{x} = (x_1, \dots, x_n)$ is $P(C_k | \mathbf{x}) = \frac{P(\mathbf{x} | C_k) P(C_k)}{P(\mathbf{x})}$. Due to the "naive" assumption of feature independence, the likelihood $P(\mathbf{x} | C_k)$ is simplified to a product of individual feature probabilities: $P(\mathbf{x} | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$. The classifier then assigns the instance to the class that maximizes this posterior probability: $\hat{C} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$.
 
 $$
 P(C_k | \mathbf{x}) = \frac{P(\mathbf{x} | C_k) P(C_k)}{P(\mathbf{x})}
@@ -58,15 +58,15 @@ $$
 
 ### Addressing Class Imbalance
 
-A significant challenge for standard [Naive Bayes](/algorithms/supervised/classification/naive-bayes) arises with imbalanced datasets. When a class $C_k$ has very few training examples, the estimates for $P(x_i | C_k)$ can be unreliable, sparse, or even zero, especially with many features. This can lead to a strong bias towards the majority classes, as their likelihood estimates are more robust due to a larger number of samples, causing the classifier to misclassify minority class instances.
+A significant challenge for standard Naive Bayes arises with imbalanced datasets. When a class $C_k$ has very few training examples, the estimates for $P(x_i | C_k)$ can be unreliable, sparse, or even zero, especially with many features. This can lead to a strong bias towards the majority classes, as their likelihood estimates are more robust due to a larger number of samples, causing the classifier to misclassify minority class instances.
 
 ### Complementary Class Probabilities
 
-Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) addresses this by modeling the probability of features given the *complement* of a class, denoted as $\bar{C_k}$. The complement class $\bar{C_k}$ consists of all training samples that do *not* belong to class $C_k$. By using the complement, the model leverages a larger pool of data for each probability estimate, as $\bar{C_k}$ typically contains more samples than a minority class $C_k$. This leads to more robust and less biased estimates for $P(x_i | \bar{C_k})$.
+Complement Naive Bayes addresses this by modeling the probability of features given the *complement* of a class, denoted as $\bar{C_k}$. The complement class $\bar{C_k}$ consists of all training samples that do *not* belong to class $C_k$. By using the complement, the model leverages a larger pool of data for each probability estimate, as $\bar{C_k}$ typically contains more samples than a minority class $C_k$. This leads to more robust and less biased estimates for $P(x_i | \bar{C_k})$.
 
 ### Complement Naive Bayes Decision Rule
 
-Instead of maximizing $P(C_k | \mathbf{x})$, Complement [Naive Bayes](/algorithms/supervised/classification/naive-bayes) assigns an instance $\mathbf{x}$ to the class $C_k$ that minimizes the posterior probability of its complement, $P(\bar{C_k} | \mathbf{x})$. This is mathematically equivalent to maximizing $P(C_k | \mathbf{x})$. Using Bayes' Theorem and the naive assumption for the complement, we have $P(\bar{C_k} | \mathbf{x}) \propto P(\bar{C_k}) \prod_{i=1}^{n} P(x_i | \bar{C_k})$. The decision rule becomes to choose the class $C_k$ that minimizes the score $S_k = \log P(\bar{C_k}) + \sum_{i=1}^{n} \log P(x_i | \bar{C_k})$. The probabilities $P(x_i | \bar{C_k})$ are estimated from all samples not in $C_k$, often with additive smoothing.
+Instead of maximizing $P(C_k | \mathbf{x})$, Complement Naive Bayes assigns an instance $\mathbf{x}$ to the class $C_k$ that minimizes the posterior probability of its complement, $P(\bar{C_k} | \mathbf{x})$. This is mathematically equivalent to maximizing $P(C_k | \mathbf{x})$. Using Bayes' Theorem and the naive assumption for the complement, we have $P(\bar{C_k} | \mathbf{x}) \propto P(\bar{C_k}) \prod_{i=1}^{n} P(x_i | \bar{C_k})$. The decision rule becomes to choose the class $C_k$ that minimizes the score $S_k = \log P(\bar{C_k}) + \sum_{i=1}^{n} \log P(x_i | \bar{C_k})$. The probabilities $P(x_i | \bar{C_k})$ are estimated from all samples not in $C_k$, often with additive smoothing.
 
 $$
 P(\bar{C_k} | \mathbf{x}) \propto P(\bar{C_k}) \prod_{i=1}^{n} P(x_i | \bar{C_k})

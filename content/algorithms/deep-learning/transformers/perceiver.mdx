@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Perceiver is a general-purpose deep learning architecture designed to process arbitrary modalities and scale efficiently to very high-dimensional inputs. It achieves this by mapping diverse inputs to a fixed-size latent array via cross-attention, then performing self-attention within this latent space. This latent bottleneck architecture avoids the quadratic complexity of standard Transformers with respect to input sequence length, making it suitable for raw data like images, audio, and video.
+[Perceiver](/algorithms/deep-learning/perceiver) is a general-purpose deep learning architecture designed to process arbitrary modalities and scale efficiently to very high-dimensional inputs. It achieves this by mapping diverse inputs to a fixed-size latent array via cross-attention, then performing self-attention within this latent space. This latent bottleneck architecture avoids the quadratic complexity of standard Transformers with respect to input sequence length, making it suitable for raw data like images, audio, and video.
 
 ## History
 
-**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, based solely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
+**2017** — The [Transformer](/algorithms/deep-learning/transformer) architecture, based solely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
 
-**2020** — [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) (ViT) demonstrated the applicability of Transformers to image classification by treating images as sequences of patches, highlighting the potential for Transformers beyond NLP.
+**2020** — [Vision Transformer](/algorithms/deep-learning/vision-transformer) (ViT) demonstrated the applicability of Transformers to image classification by treating images as sequences of patches, highlighting the potential for Transformers beyond NLP.
 
 **2021** — Jaegle et al. introduced Perceiver, a novel architecture designed to process arbitrary modalities by using a latent bottleneck to manage computational complexity with large inputs.
 
@@ -57,7 +57,7 @@ $$
 
 ### Cross-Attention for Input Compression
 
-Perceiver addresses the quadratic complexity by introducing a fixed-size latent array $L \in \mathbb{R}^{M \times d_l}$, where $M \ll N$. The input $X$ is first mapped to this latent space using a cross-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism). Here, the latent array $L$ acts as the queries, while the input $X$ provides the keys and values. The query, key, and value projections are:$$ Q_L = L W_Q $$$$ K_X = X W_K $$$$ V_X = X W_V $$The updated latent representation $L'$ is then computed as:$$ L' = \text{softmax}\left(\frac{Q_L K_X^T}{\sqrt{d_k}}\right) V_X $$The computational complexity of this cross-attention step is $O(M \cdot N \cdot d_k)$, which is linear with respect to the input sequence length $N$ and quadratic with respect to the latent array size $M$. Since $M$ is typically small and fixed, this significantly reduces the overall complexity compared to $O(N^2)$.
+Perceiver addresses the quadratic complexity by introducing a fixed-size latent array $L \in \mathbb{R}^{M \times d_l}$, where $M \ll N$. The input $X$ is first mapped to this latent space using a cross-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism). Here, the latent array $L$ acts as the queries, while the input $X$ provides the keys and values. The query, key, and value projections are:$$ Q_L = L W_Q $$$$ K_X = X W_K $$$$ V_X = X W_V $$The updated latent representation $L'$ is then computed as:$$ L' = \text{softmax}\left(\frac{Q_L K_X^T}{\sqrt{d_k}}\right) V_X $$The computational complexity of this cross-attention step is $O(M \cdot N \cdot d_k)$, which is linear with respect to the input sequence length $N$ and quadratic with respect to the latent array size $M$. Since $M$ is typically small and fixed, this significantly reduces the overall complexity compared to $O(N^2)$.
 
 $$
 Q_L = L W_Q
@@ -81,7 +81,7 @@ $$
 
 ### Latent Self-Attention for Processing
 
-After the initial cross-attention compresses the input into the latent array, the Perceiver performs several layers of self-attention *within* the latent space. This allows the latent representations to interact and refine their understanding of the input without directly operating on the large input sequence. For a latent array $L'$, the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) computes:$$ Q_{L'} = L' W_Q $$$$ K_{L'} = L' W_K $$$$ V_{L'} = L' W_V $$The refined latent representation $L''$ is then:$$ L'' = \text{softmax}\left(\frac{Q_{L'} K_{L'}^T}{\sqrt{d_k}}\right) V_{L'} $$The computational complexity of this latent self-attention step is $O(M^2 d_k)$, which is constant with respect to the input sequence length $N$ and only depends on the fixed latent array size $M$. This allows for deep processing within the latent space without incurring $O(N^2)$ costs.
+After the initial cross-attention compresses the input into the latent array, the Perceiver performs several layers of self-attention *within* the latent space. This allows the latent representations to interact and refine their understanding of the input without directly operating on the large input sequence. For a latent array $L'$, the self-Attention Mechanism computes:$$ Q_{L'} = L' W_Q $$$$ K_{L'} = L' W_K $$$$ V_{L'} = L' W_V $$The refined latent representation $L''$ is then:$$ L'' = \text{softmax}\left(\frac{Q_{L'} K_{L'}^T}{\sqrt{d_k}}\right) V_{L'} $$The computational complexity of this latent self-attention step is $O(M^2 d_k)$, which is constant with respect to the input sequence length $N$ and only depends on the fixed latent array size $M$. This allows for deep processing within the latent space without incurring $O(N^2)$ costs.
 
 $$
 Q_{L'} = L' W_Q

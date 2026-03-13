@@ -28,27 +28,27 @@ related:
 
 ## Overview
 
-BERT (Bidirectional Encoder Representations from Transformers) is a powerful pre-training framework designed to learn deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. It revolutionized natural language processing by enabling state-of-the-art performance across a wide range of downstream tasks with minimal task-specific architecture modifications. Its core innovation lies in its novel pre-training objectives: Masked Language Model and Next Sentence Prediction.
+[BERT](/algorithms/deep-learning/bert) (Bidirectional Encoder Representations from Transformers) is a powerful pre-training framework designed to learn deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. It revolutionized natural language processing by enabling state-of-the-art performance across a wide range of downstream tasks with minimal task-specific architecture modifications. Its core innovation lies in its novel pre-training objectives: Masked Language Model and Next Sentence Prediction.
 
 ## History
 
-**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, relying solely on attention mechanisms, which became the foundational component for many subsequent NLP models.
+**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformer) architecture, relying solely on attention mechanisms, which became the foundational component for many subsequent NLP models.
 
 **2018** — ELMo (Embeddings from Language Models) by Peters et al. demonstrated the effectiveness of deep contextualized word representations learned from bidirectional LSTMs.
 
-**2018** — OpenAI's GPT (Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer)) by Radford et al. showed the power of generative pre-training using a [Transformer](/algorithms/deep-learning/transformers/transformer) decoder for various NLP tasks.
+**2018** — OpenAI's [GPT](/algorithms/deep-learning/gpt) (Generative Pre-trained Transformer) by Radford et al. showed the power of generative pre-training using a Transformer decoder for various NLP tasks.
 
-**2018** — Devlin et al. introduced BERT, proposing a bidirectional [Transformer](/algorithms/deep-learning/transformers/transformer) encoder pre-trained with Masked Language Modeling and Next Sentence Prediction objectives.
+**2018** — Devlin et al. introduced BERT, proposing a bidirectional Transformer encoder pre-trained with Masked Language Modeling and Next Sentence Prediction objectives.
 
-**2019** — [RoBERTa](/algorithms/deep-learning/transformers/roberta) (Liu et al.) improved BERT's pre-training by optimizing hyperparameters, removing the Next Sentence Prediction task, and training on more data for better performance.
+**2019** — [RoBERTa](/algorithms/deep-learning/roberta) (Liu et al.) improved BERT's pre-training by optimizing hyperparameters, removing the Next Sentence Prediction task, and training on more data for better performance.
 
-**2019** — [ALBERT](/algorithms/deep-learning/transformers/albert) (Lan et al.) introduced parameter-sharing techniques to significantly reduce BERT's memory footprint and increase its training speed.
+**2019** — [ALBERT](/algorithms/deep-learning/albert) (Lan et al.) introduced parameter-sharing techniques to significantly reduce BERT's memory footprint and increase its training speed.
 
 ## Mathematical Intuition
 
 ### Transformer Encoder Architecture
 
-The core of BERT is the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder, which processes input sequences using multi-head self-attention mechanisms. Each encoder layer consists of a multi-head self-attention sub-layer and a position-wise feed-forward network. The self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) computes a weighted sum of value vectors based on query-key similarity, allowing the model to weigh the importance of different words in the input sequence.
+The core of BERT is the Transformer encoder, which processes input sequences using multi-head self-attention mechanisms. Each encoder layer consists of a multi-head self-attention sub-layer and a position-wise feed-forward network. The self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism) computes a weighted sum of value vectors based on query-key similarity, allowing the model to weigh the importance of different words in the input sequence.
 $$Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}})V$$
 Here, $Q$, $K$, and $V$ are the query, key, and value matrices, respectively, derived from the input embeddings, and $d_k$ is the dimension of the key vectors. Multi-head attention performs this operation multiple times in parallel with different linear projections, then concatenates and linearly transforms their outputs.
 
@@ -95,7 +95,7 @@ $$
 5. Feed the combined input embeddings through a multi-layer Transformer encoder, which applies multi-head self-attention and feed-forward networks to produce contextualized representations for each token.
 6. Apply a prediction head (a feed-forward network followed by a softmax) on the output representation corresponding to the masked tokens to predict their original vocabulary IDs.
 7. Apply a prediction head (a feed-forward network followed by a softmax) on the output representation of the $[CLS]$ token to predict whether sentence B is the next sentence to A.
-8. Calculate the combined loss as the sum of the Masked Language Model loss and the Next Sentence Prediction loss, and update model parameters using an optimizer (e.g., Adam) to minimize this joint loss.
+8. Calculate the combined loss as the sum of the Masked Language Model loss and the Next Sentence Prediction loss, and update model parameters using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize this joint loss.
 
 ## Parameters
 

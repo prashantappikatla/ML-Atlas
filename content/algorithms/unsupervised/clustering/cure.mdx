@@ -29,13 +29,13 @@ related:
 
 ## Overview
 
-CURE (Clustering Using REpresentatives) is a [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) algorithm designed to identify clusters of arbitrary shapes and varying sizes. Unlike traditional centroid-based or all-points-based methods, CURE represents each cluster by a fixed number of representative points, which are then shrunk towards the cluster's centroid by a specified factor. This approach allows CURE to effectively handle non-spherical clusters and reduce the impact of outliers. It is particularly well-suited for large databases where efficiency is crucial.
+[CURE](/algorithms/unsupervised/cure) (Clustering Using REpresentatives) is a [Hierarchical Clustering](/algorithms/unsupervised/hierarchical-clustering) algorithm designed to identify clusters of arbitrary shapes and varying sizes. Unlike traditional centroid-based or all-points-based methods, CURE represents each cluster by a fixed number of representative points, which are then shrunk towards the cluster's centroid by a specified factor. This approach allows CURE to effectively handle non-spherical clusters and reduce the impact of outliers. It is particularly well-suited for large databases where efficiency is crucial.
 
 ## History
 
 **1998** — Sudipto Guha, Rajeev Rastogi, and Kyuseok Shim introduce CURE in their paper "CURE: An Efficient Clustering Algorithm for Large Databases" at SIGMOD. This marked a significant advancement in handling non-spherical and varying-sized clusters.
 
-**1999** — The CURE algorithm gains recognition for its ability to overcome limitations of earlier algorithms like [BIRCH](/algorithms/unsupervised/clustering/birch) and CLARANS, particularly in large databases, by offering better quality clusters for complex data distributions.
+**1999** — The CURE algorithm gains recognition for its ability to overcome limitations of earlier algorithms like [BIRCH](/algorithms/unsupervised/birch) and CLARANS, particularly in large databases, by offering better quality clusters for complex data distributions.
 
 **2001** — Further research and comparative studies highlight CURE's effectiveness in various data mining applications, including spatial data analysis and image segmentation tasks, due to its robustness to outliers and ability to find non-convex shapes.
 
@@ -63,7 +63,7 @@ $$
 
 ### Hierarchical Merging Process
 
-CURE employs an agglomerative [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) approach. Initially, each data point is treated as a distinct cluster. In each iteration, the two closest clusters, as determined by the minimum distance between their representative points, are merged into a new cluster. After a merge, new representative points for the combined cluster are selected and subsequently shrunk. This iterative merging process continues until the desired number of clusters is achieved or a predefined stopping criterion is met. The use of a limited number of representative points, rather than all data points, significantly reduces the computational complexity compared to traditional [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods, especially for large datasets.
+CURE employs an agglomerative Hierarchical Clustering approach. Initially, each data point is treated as a distinct cluster. In each iteration, the two closest clusters, as determined by the minimum distance between their representative points, are merged into a new cluster. After a merge, new representative points for the combined cluster are selected and subsequently shrunk. This iterative merging process continues until the desired number of clusters is achieved or a predefined stopping criterion is met. The use of a limited number of representative points, rather than all data points, significantly reduces the computational complexity compared to traditional Hierarchical Clustering methods, especially for large datasets.
 
 ## Algorithm Steps
 

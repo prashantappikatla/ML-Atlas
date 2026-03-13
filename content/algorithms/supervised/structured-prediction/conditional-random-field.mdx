@@ -37,7 +37,7 @@ Conditional Random Fields (CRFs) are a class of discriminative probabilistic mod
 
 **2006** — Wallach applies CRFs to information extraction from research papers, further extending their utility beyond basic sequence labeling to more complex structured prediction problems.
 
-**2008** — While deep learning models begin to emerge, CRFs continue to be a strong baseline and are often integrated into hybrid architectures, such as Bi-LSTM-CRF models, to enhance sequence labeling performance.
+**2008** — While deep learning models begin to emerge, CRFs continue to be a strong baseline and are often integrated into hybrid architectures, such as Bi-[LSTM](/algorithms/deep-learning/lstm)-CRF models, to enhance sequence labeling performance.
 
 ## Mathematical Intuition
 
@@ -97,7 +97,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `optimizer` | `string` | `lbfgs` | ['lbfgs', 'sgd', 'ap', 'pa', 'arow'] | The optimization algorithm used for learning the model parameters (e.g., L-BFGS, SGD, Averaged Perceptron). |
+| `optimizer` | `string` | `lbfgs` | ['lbfgs', 'sgd', 'ap', 'pa', 'arow'] | The optimization algorithm used for learning the model parameters (e.g., L-BFGS, SGD, Averaged [Perceptron](/algorithms/supervised/perceptron)). |
 | `l1_regularization` | `float` | `0.1` | float > 0 | Coefficient for L1 regularization, which encourages sparsity in feature weights and helps prevent overfitting. |
 | `l2_regularization` | `float` | `0.1` | float > 0 | Coefficient for L2 regularization, which penalizes large weights and helps prevent overfitting. |
 | `max_iterations` | `integer` | `100` | integer > 0 | Maximum number of iterations for the optimization algorithm to converge. |
@@ -183,7 +183,7 @@ print(classification_report(y_test, y_pred))
 
 ## Lab
 
-<LabEmbed url={""} title="Conditional Random Field Lab" />
+<LabEmbed url={""} title="[Conditional Random Field](/algorithms/supervised/conditional-random-field) Lab" />
 
 ## References
 

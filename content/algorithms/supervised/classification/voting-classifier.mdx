@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-The Voting Classifier is an ensemble meta-estimator that combines predictions from multiple individual machine learning classifiers to produce a more robust and often more accurate final prediction. It aggregates the outputs of diverse base models, either by majority vote (hard voting) or by averaging predicted probabilities (soft voting), to mitigate the weaknesses of individual models and leverage their collective strengths. This approach aims to reduce variance and bias, leading to improved generalization performance.
+The [Voting Classifier](/algorithms/supervised/voting-classifier) is an ensemble meta-estimator that combines predictions from multiple individual machine learning classifiers to produce a more robust and often more accurate final prediction. It aggregates the outputs of diverse base models, either by majority vote (hard voting) or by averaging predicted probabilities (soft voting), to mitigate the weaknesses of individual models and leverage their collective strengths. This approach aims to reduce variance and bias, leading to improved generalization performance.
 
 ## History
 
@@ -74,7 +74,7 @@ $$
 
 ## Algorithm Steps
 
-1. Define a set of $K$ diverse base classifiers (e.g., Logistic Regression, Support Vector Machine, Decision Tree) that will form the ensemble.
+1. Define a set of $K$ diverse base classifiers (e.g., [Logistic Regression](/algorithms/supervised/logistic-regression), [Support Vector Machine](/algorithms/supervised/support-vector-machine), [Decision Tree](https://en.wikipedia.org/wiki/Decision_tree_learning)) that will form the ensemble.
 2. Train each of the $K$ base classifiers independently on the same training dataset.
 3. For a new, unseen input $x$, each trained base classifier $h_k$ makes a prediction.
 4. If 'hard' voting is selected, each classifier $h_k$ outputs a discrete class label $c_j$. These labels are collected.
@@ -137,7 +137,7 @@ Combining different natural language processing models (e.g., rule-based, machin
 
 ### Image Classification
 
-Ensembling multiple Convolutional Neural Networks (CNNs) or other image classifiers to achieve state-of-the-art performance in tasks like object recognition.
+Ensembling multiple Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) or other image classifiers to achieve state-of-the-art performance in tasks like object recognition.
 
 ### Customer Churn Prediction
 

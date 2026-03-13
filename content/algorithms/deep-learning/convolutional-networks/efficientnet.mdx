@@ -27,11 +27,11 @@ related:
 
 ## Overview
 
-EfficientNet is a family of convolutional neural networks that achieves state-of-the-art accuracy with significantly fewer parameters and FLOPs compared to previous models. It introduces a novel compound scaling method that uniformly scales network depth, width, and resolution using a set of fixed scaling coefficients. This systematic approach allows for more efficient model scaling, leading to better performance across various resource constraints.
+[EfficientNet](/algorithms/deep-learning/efficientnet) is a family of convolutional neural networks that achieves state-of-the-art accuracy with significantly fewer parameters and FLOPs compared to previous models. It introduces a novel compound scaling method that uniformly scales network depth, width, and resolution using a set of fixed scaling coefficients. This systematic approach allows for more efficient model scaling, leading to better performance across various resource constraints.
 
 ## History
 
-**2019** — Mingxing Tan and Quoc V. Le from Google Brain introduced EfficientNet in their paper 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks'. They proposed a new compound scaling method and a family of models achieving superior accuracy and efficiency.
+**2019** — Mingxing Tan and Quoc V. Le from Google Brain introduced EfficientNet in their paper 'EfficientNet: Rethinking Model Scaling for Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)))'. They proposed a new compound scaling method and a family of models achieving superior accuracy and efficiency.
 
 **2019** — The original EfficientNet models (B0-B7) quickly became a new benchmark for image classification tasks, demonstrating that carefully balanced scaling could yield significant performance gains.
 
@@ -47,7 +47,7 @@ Traditional methods scale network dimensions (depth, width, resolution) independ
 $$ \text{depth}: d = \alpha^{\phi} \cdot d_0 $$
 $$ \text{width}: w = \beta^{\phi} \cdot w_0 $$
 $$ \text{resolution}: r = \gamma^{\phi} \cdot r_0 $$
-where $d_0, w_0, r_0$ are the parameters of the baseline network, and $\alpha, \beta, \gamma$ are coefficients determined by a small [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search) on the baseline model, subject to the constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$. This constraint ensures that the total FLOPs increase by approximately $2^{\phi}$.
+where $d_0, w_0, r_0$ are the parameters of the baseline network, and $\alpha, \beta, \gamma$ are coefficients determined by a small [Grid Search](/algorithms/meta-learning/grid-search) on the baseline model, subject to the constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$. This constraint ensures that the total FLOPs increase by approximately $2^{\phi}$.
 
 $$
 \text{depth}: d = \alpha^{\phi} \cdot d_0
@@ -71,7 +71,7 @@ The core building block of EfficientNet is the Mobile Inverted Bottleneck Convol
 
 ### Scaling Coefficients Determination
 
-The scaling coefficients $\alpha, \beta, \gamma$ are found by performing a small [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search) on the baseline model (EfficientNet-B0) under a fixed FLOPs budget. For EfficientNet-B0, the authors found $\alpha \approx 1.2$, $\beta \approx 1.1$, and $\gamma \approx 1.15$. These coefficients are then fixed for all larger models, and only the compound coefficient $\phi$ is varied to scale up the baseline network to create models like EfficientNet-B1 through B7. The constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$ is derived from the observation that doubling network depth, width, and resolution roughly quadruples FLOPs, and the goal is to keep the FLOPs increase proportional to $2^{\phi}$.
+The scaling coefficients $\alpha, \beta, \gamma$ are found by performing a small Grid Search on the baseline model (EfficientNet-B0) under a fixed FLOPs budget. For EfficientNet-B0, the authors found $\alpha \approx 1.2$, $\beta \approx 1.1$, and $\gamma \approx 1.15$. These coefficients are then fixed for all larger models, and only the compound coefficient $\phi$ is varied to scale up the baseline network to create models like EfficientNet-B1 through B7. The constraint $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$ is derived from the observation that doubling network depth, width, and resolution roughly quadruples FLOPs, and the goal is to keep the FLOPs increase proportional to $2^{\phi}$.
 
 $$
 \alpha \approx 1.2
@@ -96,7 +96,7 @@ $$
 3. Fix the determined $\alpha, \beta, \gamma$ coefficients.
 4. Scale up the baseline network by varying the compound coefficient $\phi$ (e.g., from 1 to 7) to generate a family of models (EfficientNet-B1 to B7).
 5. For each $\phi$, adjust the network depth $d = \alpha^{\phi} \cdot d_0$, width $w = \beta^{\phi} \cdot w_0$, and image resolution $r = \gamma^{\phi} \cdot r_0$ of the baseline model.
-6. Train the scaled EfficientNet model using standard deep learning optimization techniques, typically with techniques like RMSProp and a learning rate schedule.
+6. Train the scaled EfficientNet model using standard deep learning optimization techniques, typically with techniques like [RMSProp](/algorithms/meta-learning/rmsprop) and a learning rate schedule.
 
 ## Parameters
 

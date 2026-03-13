@@ -26,17 +26,17 @@ related:
 
 ## Overview
 
-Holt-Winters is a classical time series forecasting method that extends simple [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) to explicitly account for both trend and seasonality in data. It achieves this by maintaining three distinct smoothing components: level, trend, and seasonal, each updated iteratively based on past observations. This method is particularly effective for time series exhibiting clear patterns of growth/decline and recurring seasonal fluctuations.
+[Holt-Winters](/algorithms/time-series/holt-winters) is a classical time series forecasting method that extends simple [Exponential Smoothing](/algorithms/time-series/exponential-smoothing) to explicitly account for both trend and seasonality in data. It achieves this by maintaining three distinct smoothing components: level, trend, and seasonal, each updated iteratively based on past observations. This method is particularly effective for time series exhibiting clear patterns of growth/decline and recurring seasonal fluctuations.
 
 ## History
 
-**1957** — Charles C. Holt published 'Forecasting Trends and Seasonals by Exponentially Weighted Moving Averages,' introducing linear [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) to handle both level and trend components.
+**1957** — Charles C. Holt published 'Forecasting Trends and Seasonals by Exponentially Weighted Moving Averages,' introducing linear Exponential Smoothing to handle both level and trend components.
 
-**1960** — Peter R. Winters extended Holt's method to incorporate a seasonal component, resulting in the full Holt-Winters [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) model, capable of handling level, trend, and seasonality.
+**1960** — Peter R. Winters extended Holt's method to incorporate a seasonal component, resulting in the full Holt-Winters Exponential Smoothing model, capable of handling level, trend, and seasonality.
 
 **1978** — Gardner and McKenzie introduced damped trend models, which allow the trend to flatten out over longer forecast horizons, improving accuracy for many real-world series.
 
-**2002** — Hyndman et al. formalized a taxonomy of [Exponential Smoothing](/algorithms/time-series/classical-forecasting/exponential-smoothing) models using state space representations, including Holt-Winters, which facilitated automatic model selection and improved statistical properties.
+**2002** — Hyndman et al. formalized a taxonomy of Exponential Smoothing models using state space representations, including Holt-Winters, which facilitated automatic model selection and improved statistical properties.
 
 ## Mathematical Intuition
 

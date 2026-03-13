@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-ALBERT (A Lite BERT) is a language model that significantly reduces the number of parameters in BERT-like architectures while maintaining or improving performance. It achieves this through two primary parameter reduction techniques: factorized embedding parameterization and cross-layer parameter sharing. ALBERT is designed for efficient pre-training and fine-tuning on various natural language processing tasks, making large-scale [Transformer](/algorithms/deep-learning/transformers/transformer) models more accessible.
+[ALBERT](/algorithms/deep-learning/albert) (A Lite [BERT](/algorithms/deep-learning/bert)) is a language model that significantly reduces the number of parameters in BERT-like architectures while maintaining or improving performance. It achieves this through two primary parameter reduction techniques: factorized embedding parameterization and cross-layer parameter sharing. ALBERT is designed for efficient pre-training and fine-tuning on various natural language processing tasks, making large-scale [Transformer](/algorithms/deep-learning/transformer) models more accessible.
 
 ## History
 
@@ -69,7 +69,7 @@ $$
 
 ### Cross-layer Parameter Sharing
 
-ALBERT shares all parameters across all [Transformer](/algorithms/deep-learning/transformers/transformer) encoder layers, including feed-forward network parameters and attention parameters. This means that instead of having $N$ distinct layers with $N$ sets of parameters, there is effectively only one set of parameters that is reused $N$ times. This drastically reduces the total number of parameters from $O(N \times H^2)$ to $O(H^2)$, where $N$ is the number of layers and $H$ is the hidden size.
+ALBERT shares all parameters across all Transformer encoder layers, including feed-forward network parameters and attention parameters. This means that instead of having $N$ distinct layers with $N$ sets of parameters, there is effectively only one set of parameters that is reused $N$ times. This drastically reduces the total number of parameters from $O(N \times H^2)$ to $O(H^2)$, where $N$ is the number of layers and $H$ is the hidden size.
 
 $$ \text{For all layers } i=1, \dots, N: W_{FFN}^{(i)} = W_{FFN}, W_{Attn}^{(i)} = W_{Attn} $$
 
@@ -106,7 +106,7 @@ $$
 3. Pass the token embeddings, position embeddings, and segment embeddings through the factorized embedding layer to obtain the initial hidden states.
 4. Process the hidden states through multiple layers of a Transformer encoder, where all layers share the same parameters (attention weights and feed-forward network weights).
 5. Compute the MLM loss by predicting masked tokens and the SOP loss by classifying sentence order.
-6. Optimize the combined loss function using an Adam optimizer with a linear learning rate decay schedule.
+6. Optimize the combined loss function using an [Adam](/algorithms/meta-learning/adam) optimizer with a linear learning rate decay schedule.
 7. After pre-training, fine-tune the ALBERT model on downstream NLP tasks by adding a task-specific head and training with labeled data.
 
 ## Parameters

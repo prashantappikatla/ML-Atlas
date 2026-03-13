@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Decision Tree Regression models the relationship between input features and a continuous target variable by partitioning the feature space into a set of rectangular regions. For any given input, the prediction is the average target value of the training samples within the corresponding region. This non-parametric method constructs a tree-like structure of decisions, making it highly interpretable for understanding feature interactions and their impact on the outcome.
+[Decision Tree Regression](/algorithms/supervised/decision-tree-regression) models the relationship between input features and a continuous target variable by partitioning the feature space into a set of rectangular regions. For any given input, the prediction is the average target value of the training samples within the corresponding region. This non-parametric method constructs a tree-like structure of decisions, making it highly interpretable for understanding feature interactions and their impact on the outcome.
 
 ## History
 
@@ -37,7 +37,7 @@ Decision Tree Regression models the relationship between input features and a co
 
 ### Recursive Binary Splitting
 
-The core idea of Decision Tree Regression is to recursively partition the feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively searches for the best feature and split point (threshold) to divide the data into two child nodes. This process continues until a stopping criterion is met, resulting in a tree structure where each leaf node represents a final region in the feature space.
+The core idea of [Decision Tree](https://en.wikipedia.org/wiki/Decision_tree_learning) Regression is to recursively partition the feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively searches for the best feature and split point (threshold) to divide the data into two child nodes. This process continues until a stopping criterion is met, resulting in a tree structure where each leaf node represents a final region in the feature space.
 
 ### Impurity Measure: Mean Squared Error
 

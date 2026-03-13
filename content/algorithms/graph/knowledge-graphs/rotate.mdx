@@ -25,19 +25,19 @@ related:
 
 ## Overview
 
-RotatE is a knowledge graph embedding model that represents entities and relations as vectors in a complex vector space. It models relations as element-wise rotations from head entities to tail entities, enabling it to capture various relation patterns such as symmetry, anti-symmetry, inversion, and composition. This rotational transformation provides a highly expressive mechanism for learning complex relational structures within knowledge graphs, leading to state-of-the-art performance on link prediction tasks.
+[RotatE](/algorithms/graph/rotate) is a knowledge graph embedding model that represents entities and relations as vectors in a complex vector space. It models relations as element-wise rotations from head entities to tail entities, enabling it to capture various relation patterns such as symmetry, anti-symmetry, inversion, and composition. This rotational transformation provides a highly expressive mechanism for learning complex relational structures within knowledge graphs, leading to state-of-the-art performance on link prediction tasks.
 
 ## History
 
-**2013** — [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec) by Mikolov et al. introduced skip-gram and CBOW models for learning word embeddings, inspiring subsequent work on entity and relation embeddings in knowledge graphs.
+**2013** — [Word2Vec](/algorithms/deep-learning/word2vec) by Mikolov et al. introduced skip-gram and CBOW models for learning word embeddings, inspiring subsequent work on entity and relation embeddings in knowledge graphs.
 
-**2014** — [TransE](/algorithms/graph/knowledge-graphs/transe) by Bordes et al. proposed a foundational translational model for knowledge graph embeddings, representing relations as translations in a real vector space.
+**2014** — [TransE](/algorithms/graph/transe) by Bordes et al. proposed a foundational translational model for knowledge graph embeddings, representing relations as translations in a real vector space.
 
 **2016** — ComplEx by Trouillon et al. extended knowledge graph embedding models to complex vector spaces, allowing for better modeling of symmetric and anti-symmetric relations by representing entities and relations as complex vectors.
 
 **2019** — RotatE was introduced by Sun et al., pioneering the concept of modeling relations as element-wise rotations in a complex vector space, significantly enhancing the ability to capture diverse relational patterns.
 
-**2020** — HAKE by Zhang et al. built upon RotatE by introducing a hierarchical [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) to better distinguish entities at different levels of abstraction within knowledge graphs.
+**2020** — HAKE by Zhang et al. built upon RotatE by introducing a hierarchical [Attention Mechanism](/algorithms/deep-learning/attention-mechanism) to better distinguish entities at different levels of abstraction within knowledge graphs.
 
 ## Mathematical Intuition
 
@@ -93,7 +93,7 @@ $$
 4. For each positive triple, generate a set of negative triples by corrupting either the head entity (e.g., $(h', r, t)$) or the tail entity (e.g., $(h, r, t')$) with randomly chosen entities.
 5. Compute the score $f(h, r, t) = -\|h \circ r - t\|_{L_1}$ for positive triples and $f(h', r', t')$ for negative triples.
 6. Calculate the margin-based ranking loss: $\mathcal{L} = \sum \max(0, \gamma + f(h,r,t) - f(h',r',t'))$, where $\gamma$ is the margin hyperparameter.
-7. Update entity and relation embeddings using an optimizer (e.g., Adam) to minimize the loss function through backpropagation.
+7. Update entity and relation embeddings using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the loss function through backpropagation.
 8. After each update, re-normalize the modulus of each component of the relation embeddings to 1 to maintain the rotational property.
 
 ## Parameters

@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Glow is a generative model that learns an invertible mapping from data space to a simple latent space, enabling exact log-likelihood computation and efficient sampling. It achieves this by [Stacking](/algorithms/supervised/classification/stacking) a series of invertible transformations, primarily based on affine coupling layers, which allow for both forward (density estimation) and inverse (sampling) passes. This architecture facilitates high-quality image synthesis and latent space manipulation while maintaining tractability of the likelihood function.
+[Glow](/algorithms/generative/glow) is a generative model that learns an invertible mapping from data space to a simple latent space, enabling exact log-likelihood computation and efficient sampling. It achieves this by [Stacking](/algorithms/supervised/stacking) a series of invertible transformations, primarily based on affine coupling layers, which allow for both forward (density estimation) and inverse (sampling) passes. This architecture facilitates high-quality image synthesis and latent space manipulation while maintaining tractability of the likelihood function.
 
 ## History
 
@@ -125,7 +125,7 @@ $$
 4. At certain points in the flow, apply a splitting operation, where half of the channels are directly mapped to a latent variable $z_i$ and assumed to follow a standard Gaussian distribution $p(z_i) = \mathcal{N}(0, I)$.
 5. The other half of the channels continue through subsequent flow steps, with the final output being a latent variable $z_L$, also assumed to follow a standard Gaussian distribution $p(z_L) = \mathcal{N}(0, I)$.
 6. Compute the negative log-likelihood for the input image $x$ as: $-\log p_X(x) = -\sum_{i} \log p(z_i) - \log p(z_L) - \sum_{k} \log |\det(\partial h_k / \partial h_{k-1})|$.
-7. Optimize the model parameters using an optimizer (e.g., Adam) to minimize the negative log-likelihood.
+7. Optimize the model parameters using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the negative log-likelihood.
 8. For sampling, generate a latent vector $z$ from a standard Gaussian distribution and pass it through the inverse of the flow transformations to reconstruct an image $x$.
 
 ## Parameters
@@ -158,7 +158,7 @@ $$
 - The model is fully invertible, enabling both efficient sampling from the latent space to data space and exact inference from data space to latent space.
 - Glow can generate high-quality and diverse samples, particularly for image data, due to its expressive invertible transformations.
 - The latent space learned by Glow is often well-structured and disentangled, allowing for meaningful interpolations and manipulations of generated samples.
-- It does not suffer from mode collapse, a common issue in Generative Adversarial Networks, as it directly optimizes the data likelihood.
+- It does not suffer from mode collapse, a common issue in [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network), as it directly optimizes the data likelihood.
 - The architecture is inherently parallelizable, allowing for efficient training on modern hardware.
 
 ## Weaknesses

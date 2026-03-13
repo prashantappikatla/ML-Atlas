@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (SAC) is an off-policy deep reinforcement learning algorithm designed for continuous control tasks. It distinguishes itself by optimizing a stochastic policy within a maximum entropy framework, encouraging exploration and robustness. This approach leads to improved sample efficiency and more stable learning compared to many other [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods. SAC is particularly effective in environments requiring fine-grained control and adaptability.
+[Soft Actor-Critic](/algorithms/reinforcement/soft-actor-critic) (SAC) is an off-policy deep reinforcement learning algorithm designed for continuous control tasks. It distinguishes itself by optimizing a stochastic policy within a maximum entropy framework, encouraging exploration and robustness. This approach leads to improved sample efficiency and more stable learning compared to many other [Actor-Critic](/algorithms/reinforcement/actor-critic) methods. SAC is particularly effective in environments requiring fine-grained control and adaptability.
 
 ## History
 
-**2018** — Tuomas Haarnoja, Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Kumar Krishna Agrawal, Yan Duan, Henry Zhu, Abhishek Gupta, [Pieter Abbeel](https://en.wikipedia.org/wiki/Pieter_Abbeel), and [Sergey Levine](https://en.wikipedia.org/wiki/Sergey_Levine) introduced Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic), combining maximum entropy reinforcement learning with an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture.
+**2018** — Tuomas Haarnoja, Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Kumar Krishna Agrawal, Yan Duan, Henry Zhu, Abhishek Gupta, [Pieter Abbeel](https://en.wikipedia.org/wiki/Pieter_Abbeel), and [Sergey Levine](https://en.wikipedia.org/wiki/Sergey_Levine) introduced Soft Actor-Critic, combining maximum entropy reinforcement learning with an off-policy Actor-Critic architecture.
 
-**2018** — The original SAC paper demonstrated its effectiveness on challenging continuous control benchmarks, showcasing its superior sample efficiency and performance compared to prior state-of-the-art methods like DDPG and TD3.
+**2018** — The original SAC paper demonstrated its effectiveness on challenging continuous control benchmarks, showcasing its superior sample efficiency and performance compared to prior state-of-the-art methods like [DDPG](/algorithms/reinforcement/ddpg) and [TD3](/algorithms/reinforcement/td3).
 
 **2018** — A key innovation of SAC was the automatic tuning of the temperature parameter $\alpha$, which controls the trade-off between maximizing reward and maximizing entropy, simplifying hyperparameter tuning and improving robustness.
 

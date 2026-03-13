@@ -28,11 +28,11 @@ related:
 
 ## Overview
 
-AlexNet significantly advanced the field of computer vision by demonstrating the power of deep convolutional neural networks (CNNs) for large-scale image classification. It achieved a breakthrough performance on the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) in 2012, showcasing the efficacy of deeper architectures, ReLU activation functions, and GPU-accelerated training. The network's architecture, featuring five convolutional layers followed by three fully connected layers, became a foundational model for subsequent deep learning research.
+[AlexNet](/algorithms/deep-learning/alexnet) significantly advanced the field of computer vision by demonstrating the power of deep convolutional neural networks (CNNs) for large-scale image classification. It achieved a breakthrough performance on the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) in 2012, showcasing the efficacy of deeper architectures, ReLU activation functions, and GPU-accelerated training. The network's architecture, featuring five convolutional layers followed by three fully connected layers, became a foundational model for subsequent deep learning research.
 
 ## History
 
-**1998** — Yann LeCun et al. introduced [LeNet](/algorithms/deep-learning/convolutional-networks/lenet)-5, an early convolutional neural network for document recognition, laying foundational concepts for CNNs.
+**1998** — Yann LeCun et al. introduced [LeNet](/algorithms/deep-learning/lenet)-5, an early convolutional neural network for document recognition, laying foundational concepts for CNNs.
 
 **2009** — The ImageNet dataset was released, providing millions of labeled images and a crucial benchmark for large-scale visual recognition tasks.
 
@@ -40,7 +40,7 @@ AlexNet significantly advanced the field of computer vision by demonstrating the
 
 **2014** — VGGNet and GoogLeNet were introduced, further deepening CNN architectures and improving performance on ImageNet, building upon AlexNet's success.
 
-**2015** — [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) (Residual Network) was introduced by Kaiming He et al., enabling the training of extremely deep networks through residual connections and achieving state-of-the-art results.
+**2015** — [ResNet](/algorithms/deep-learning/resnet) (Residual Network) was introduced by Kaiming He et al., enabling the training of extremely deep networks through residual connections and achieving state-of-the-art results.
 
 ## Mathematical Intuition
 
@@ -92,7 +92,7 @@ Dropout is a regularization technique applied to fully connected layers to preve
 | `kernel_size_conv2` | `string` | `5x5` | e.g., '5x5' | Spatial dimensions of the filters in the second convolutional layer. |
 | `dropout_rate` | `float` | `0.5` | 0.0 to 1.0 | Probability of dropping out a neuron in the fully connected layers during training. |
 | `learning_rate` | `float` | `0.01` | positive float | Initial learning rate for the stochastic gradient descent optimizer. |
-| `momentum` | `float` | `0.9` | 0.0 to 1.0 | Momentum factor for the stochastic gradient descent optimizer. |
+| `momentum` | `float` | `0.9` | 0.0 to 1.0 | [Momentum](/algorithms/meta-learning/momentum) factor for the stochastic gradient descent optimizer. |
 | `batch_size` | `integer` | `128` | positive integer | Number of samples processed before the model's parameters are updated. |
 
 ## Compatibility

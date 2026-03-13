@@ -27,15 +27,15 @@ related:
 
 ## Overview
 
-The Temporal Fusion [Transformer](/algorithms/deep-learning/transformers/transformer) (TFT) is a novel deep learning architecture designed for high-performance multi-horizon time series forecasting. It leverages self-attention mechanisms and specialized gating layers to achieve state-of-the-art accuracy while providing interpretable insights into temporal dynamics and feature importance. TFT effectively handles both static and time-varying exogenous inputs, distinguishing between known future inputs and unknown future inputs.
+The [Temporal Fusion Transformer](/algorithms/time-series/temporal-fusion-transformer) (TFT) is a novel deep learning architecture designed for high-performance multi-horizon time series forecasting. It leverages self-attention mechanisms and specialized gating layers to achieve state-of-the-art accuracy while providing interpretable insights into temporal dynamics and feature importance. TFT effectively handles both static and time-varying exogenous inputs, distinguishing between known future inputs and unknown future inputs.
 
 ## History
 
-**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, revolutionizing sequence modeling with self-attention. This foundational work laid the groundwork for subsequent [Transformer](/algorithms/deep-learning/transformers/transformer)-based models in various domains.
+**2017** — Vaswani et al. introduce the [Transformer](/algorithms/deep-learning/transformer) architecture, revolutionizing sequence modeling with self-attention. This foundational work laid the groundwork for subsequent Transformer-based models in various domains.
 
-**2020** — Bryan Lim, Sercan Ö. Arik, Nicolas Loeff, and Tomas Pfister publish "Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting". This paper introduces the TFT, specifically adapting the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture for time series data and emphasizing interpretability.
+**2020** — Bryan Lim, Sercan Ö. Arik, Nicolas Loeff, and Tomas Pfister publish "Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting". This paper introduces the TFT, specifically adapting the Transformer architecture for time series data and emphasizing interpretability.
 
-**2020** — Following its introduction, TFT gains significant traction in research and industry due to its strong performance and interpretability features, leading to its adoption in various forecasting applications and inspiring further research into [Transformer](/algorithms/deep-learning/transformers/transformer)-based time series models.
+**2020** — Following its introduction, TFT gains significant traction in research and industry due to its strong performance and interpretability features, leading to its adoption in various forecasting applications and inspiring further research into Transformer-based time series models.
 
 ## Mathematical Intuition
 
@@ -49,7 +49,7 @@ $$
 
 ### Multi-Head Self-Attention
 
-The core temporal processing in TFT uses a multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) to capture long-range dependencies and complex temporal patterns. This allows the model to weigh the importance of different time steps in the input sequence when making a prediction. Multi-head attention applies the scaled dot-product [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) multiple times in parallel with different linear projections of query ($Q$), key ($K$), and value ($V$) matrices, then concatenates and linearly transforms the outputs.
+The core temporal processing in TFT uses a multi-head self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism) to capture long-range dependencies and complex temporal patterns. This allows the model to weigh the importance of different time steps in the input sequence when making a prediction. Multi-head attention applies the scaled dot-product Attention Mechanism multiple times in parallel with different linear projections of query ($Q$), key ($K$), and value ($V$) matrices, then concatenates and linearly transforms the outputs.
 
 $$
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
@@ -57,7 +57,7 @@ $$
 
 ### Variable Selection Networks
 
-To enhance interpretability and focus on important features, TFT incorporates Variable Selection Networks at both the static and temporal levels. These networks learn a set of weights for each input feature, effectively determining its relevance. The input features $x_i$ are passed through a Multi-Layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) to generate scores, which are then normalized by a softmax function to produce attention-like weights. These weights are used to scale the input features, allowing the model to prioritize more informative variables.
+To enhance interpretability and focus on important features, TFT incorporates Variable Selection Networks at both the static and temporal levels. These networks learn a set of weights for each input feature, effectively determining its relevance. The input features $x_i$ are passed through a Multi-Layer [Perceptron](/algorithms/supervised/perceptron) (MLP) to generate scores, which are then normalized by a softmax function to produce attention-like weights. These weights are used to scale the input features, allowing the model to prioritize more informative variables.
 
 $$
 \text{Weights}_i = \text{softmax}(\text{MLP}(x_i))

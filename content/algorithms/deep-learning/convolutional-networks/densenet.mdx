@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-DenseNet, or Densely Connected Convolutional Network, addresses the vanishing-gradient problem and encourages feature reuse by connecting each layer to every other layer in a feed-forward fashion within a dense block. Unlike [ResNet](/algorithms/deep-learning/convolutional-networks/resnet), which sums features from previous layers, DenseNet concatenates them, leading to a more compact model with fewer parameters and improved representational power. This architecture facilitates direct access to gradients from the loss function and original input, enhancing information flow throughout the network.
+[DenseNet](/algorithms/deep-learning/densenet), or Densely Connected Convolutional Network, addresses the vanishing-gradient problem and encourages feature reuse by connecting each layer to every other layer in a feed-forward fashion within a dense block. Unlike [ResNet](/algorithms/deep-learning/resnet), which sums features from previous layers, DenseNet concatenates them, leading to a more compact model with fewer parameters and improved representational power. This architecture facilitates direct access to gradients from the loss function and original input, enhancing information flow throughout the network.
 
 ## History
 
@@ -76,7 +76,7 @@ $$
 4. Between dense blocks, transition layers are applied, consisting of a $1 \times 1$ Convolution (to reduce feature map count) and a $2 \times 2$ average pooling layer (to reduce spatial dimensions).
 5. After the final dense block, a global average pooling layer is applied to reduce each feature map to a single value.
 6. The resulting feature vector is then fed into a fully connected softmax layer for classification.
-7. The network is trained end-to-end using backpropagation and an optimization algorithm (e.g., SGD, Adam) to minimize a loss function (e.g., cross-entropy for classification).
+7. The network is trained end-to-end using backpropagation and an optimization algorithm (e.g., SGD, [Adam](/algorithms/meta-learning/adam)) to minimize a loss function (e.g., cross-entropy for classification).
 
 ## Parameters
 
@@ -127,7 +127,7 @@ It serves as a powerful backbone network in object detection frameworks (e.g., F
 
 ### Semantic Segmentation
 
-DenseNet architectures are adapted for pixel-level classification tasks, such as segmenting different regions or objects in an image, often integrated into [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) or FCN-like structures.
+DenseNet architectures are adapted for pixel-level classification tasks, such as segmenting different regions or objects in an image, often integrated into [U-Net](/algorithms/deep-learning/u-net) or FCN-like structures.
 
 ### Medical Image Analysis
 

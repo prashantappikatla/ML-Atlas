@@ -25,17 +25,17 @@ related:
 
 ## Overview
 
-The Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) (UKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) designed for state estimation in dynamic systems where the process or measurement models are nonlinear. Unlike the [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) which linearizes nonlinear functions using Jacobians, the UKF employs the Unscented Transform to approximate the probability distribution of the state. This method propagates a carefully chosen set of "sigma points" through the true nonlinear functions, capturing the posterior mean and covariance more accurately, especially for highly nonlinear systems.
+The [Unscented Kalman Filter](/algorithms/probabilistic/unscented-kalman-filter) (UKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/kalman-filter) designed for state estimation in dynamic systems where the process or measurement models are nonlinear. Unlike the [Extended Kalman Filter](/algorithms/probabilistic/extended-kalman-filter) (EKF) which linearizes nonlinear functions using Jacobians, the UKF employs the Unscented Transform to approximate the probability distribution of the state. This method propagates a carefully chosen set of "sigma points" through the true nonlinear functions, capturing the posterior mean and covariance more accurately, especially for highly nonlinear systems.
 
 ## History
 
-**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), foundational for subsequent extensions.
+**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the linear Kalman Filter, foundational for subsequent extensions.
 
-**1960** — The [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) is developed as an extension for nonlinear systems, using linearization via first-order Taylor series expansion.
+**1960** — The Extended Kalman Filter (EKF) is developed as an extension for nonlinear systems, using linearization via first-order Taylor series expansion.
 
 **1995** — Simon J. Julier and Jeffrey K. Uhlmann introduce the concept of the Unscented Transform in their work on nonlinear transformations of random variables.
 
-**1997** — Julier and Uhlmann publish "A New Extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) to Nonlinear Systems," formally introducing the Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter).
+**1997** — Julier and Uhlmann publish "A New Extension of the Kalman Filter to Nonlinear Systems," formally introducing the Unscented Kalman Filter.
 
 **2000** — The UKF gains significant traction in various fields due to its improved accuracy over EKF for many nonlinear problems and its derivative-free nature.
 
@@ -43,7 +43,7 @@ The Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kal
 
 ### Nonlinear State Estimation Problem
 
-Kalman filters are optimal for linear systems with Gaussian noise. When system dynamics $x_k = f(x_{k-1}, u_k) + w_k$ or measurement models $z_k = h(x_k) + v_k$ are nonlinear, the Gaussian assumption of the posterior state distribution is violated after transformation. The [Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/extended-kalman-filter) (EKF) approximates these nonlinear functions with first-order Taylor series expansions, leading to potential inaccuracies, especially for highly nonlinear systems, and requires computing Jacobians.
+Kalman filters are optimal for linear systems with Gaussian noise. When system dynamics $x_k = f(x_{k-1}, u_k) + w_k$ or measurement models $z_k = h(x_k) + v_k$ are nonlinear, the Gaussian assumption of the posterior state distribution is violated after transformation. The Extended Kalman Filter (EKF) approximates these nonlinear functions with first-order Taylor series expansions, leading to potential inaccuracies, especially for highly nonlinear systems, and requires computing Jacobians.
 
 $$
 x_k = f(x_{k-1}, u_k) + w_k

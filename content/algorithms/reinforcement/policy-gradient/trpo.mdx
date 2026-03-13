@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Trust Region Policy Optimization (TRPO) is a policy gradient method designed to ensure stable and monotonic improvement in reinforcement learning by restricting policy updates within a "trust region." It addresses the instability of vanilla policy gradient methods by imposing a Kullback-Leibler (KL) divergence constraint between the new and old policies. TRPO optimizes a surrogate objective function while ensuring that the new policy does not deviate too far from the old one, thereby preventing catastrophic policy collapse. This approach provides a strong theoretical guarantee for policy improvement, making it robust for complex control tasks.
+Trust Region Policy Optimization ([TRPO](/algorithms/reinforcement/trpo)) is a policy gradient method designed to ensure stable and monotonic improvement in reinforcement learning by restricting policy updates within a "trust region." It addresses the instability of vanilla policy gradient methods by imposing a Kullback-Leibler (KL) divergence constraint between the new and old policies. TRPO optimizes a surrogate objective function while ensuring that the new policy does not deviate too far from the old one, thereby preventing catastrophic policy collapse. This approach provides a strong theoretical guarantee for policy improvement, making it robust for complex control tasks.
 
 ## History
 
@@ -31,7 +31,7 @@ Trust Region Policy Optimization (TRPO) is a policy gradient method designed to 
 
 **2016** — TRPO gained significant attention for its strong performance in continuous control tasks, becoming a foundational algorithm for many subsequent advancements in deep reinforcement learning, particularly in robotics and simulated environments.
 
-**2017** — Proximal Policy Optimization (PPO), a simpler and more computationally efficient variant of TRPO, was introduced by John Schulman et al., largely superseding TRPO in practical applications due to its comparable performance and ease of implementation.
+**2017** — Proximal Policy Optimization ([PPO](/algorithms/reinforcement/ppo)), a simpler and more computationally efficient variant of TRPO, was introduced by John Schulman et al., largely superseding TRPO in practical applications due to its comparable performance and ease of implementation.
 
 ## Mathematical Intuition
 

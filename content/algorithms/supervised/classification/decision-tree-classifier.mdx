@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Decision Tree Classifier is a non-parametric supervised learning method used for classification tasks. It partitions the feature space into a set of rectangular regions, assigning a class label to each region based on the majority class of the training samples falling within it. The algorithm constructs a tree-like model of decisions, where each internal node represents a test on an attribute, each branch represents an outcome of the test, and each leaf node represents a class label. This structure makes decision trees highly interpretable and easy to visualize.
+[Decision Tree Classifier](/algorithms/supervised/decision-tree-classifier) is a non-parametric supervised learning method used for classification tasks. It partitions the feature space into a set of rectangular regions, assigning a class label to each region based on the majority class of the training samples falling within it. The algorithm constructs a tree-like model of decisions, where each internal node represents a test on an attribute, each branch represents an outcome of the test, and each leaf node represents a class label. This structure makes decision trees highly interpretable and easy to visualize.
 
 ## History
 
@@ -45,7 +45,7 @@ Decision Tree Classifier is a non-parametric supervised learning method used for
 
 ### Recursive Partitioning Principle
 
-Decision Tree Classifiers operate by recursively partitioning the input feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively selects the "best" feature and split point to divide the data into two or more subsets. This process continues until a stopping criterion is met, such as reaching a maximum depth or having a sufficiently pure node. Each split aims to maximize the homogeneity of the target variable within the resulting child nodes.
+[Decision Tree](https://en.wikipedia.org/wiki/Decision_tree_learning) Classifiers operate by recursively partitioning the input feature space into smaller, more homogeneous regions. Starting with the entire dataset at the root node, the algorithm iteratively selects the "best" feature and split point to divide the data into two or more subsets. This process continues until a stopping criterion is met, such as reaching a maximum depth or having a sufficiently pure node. Each split aims to maximize the homogeneity of the target variable within the resulting child nodes.
 
 ### Measuring Node Impurity
 
@@ -61,7 +61,7 @@ $$
 
 ### Splitting Criterion: Information Gain
 
-The algorithm selects the feature and split point that results in the greatest reduction in impurity, often referred to as [Information Gain](https://en.wikipedia.org/wiki/Information_gain_(decision_tree)) (when using entropy) or Gini Gain (when using Gini impurity). Information Gain for a split on feature $A$ is calculated as:$$IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)$$where $S$ is the parent node's dataset, $S_v$ is the subset for value $v$ of feature $A$, $|S|$ and $|S_v|$ are the number of samples in $S$ and $S_v$ respectively, and $H$ is the entropy. The split that maximizes this gain is chosen.
+The algorithm selects the feature and split point that results in the greatest reduction in impurity, often referred to as [Information Gain](https://en.wikipedia.org/wiki/Information_gain_(decision_tree)))) (when using entropy) or Gini Gain (when using Gini impurity). Information Gain for a split on feature $A$ is calculated as:$$IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)$$where $S$ is the parent node's dataset, $S_v$ is the subset for value $v$ of feature $A$, $|S|$ and $|S_v|$ are the number of samples in $S$ and $S_v$ respectively, and $H$ is the entropy. The split that maximizes this gain is chosen.
 
 $$
 IG(S, A) = H(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} H(S_v)

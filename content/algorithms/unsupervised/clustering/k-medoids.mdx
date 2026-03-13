@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-K-Medoids is a partitioning clustering algorithm that groups data points into $k$ clusters, where each cluster is represented by one of the data points within the cluster, known as a medoid. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), which uses the mean of cluster points as its centroid, K-Medoids selects an actual data point as the representative, making it more robust to noise and outliers. It aims to minimize the sum of dissimilarities between data points and their assigned medoids, offering flexibility with various distance metrics.
+[K-Medoids](/algorithms/unsupervised/k-medoids) is a partitioning clustering algorithm that groups data points into $k$ clusters, where each cluster is represented by one of the data points within the cluster, known as a medoid. Unlike [K-Means](/algorithms/unsupervised/k-means), which uses the mean of cluster points as its centroid, K-Medoids selects an actual data point as the representative, making it more robust to noise and outliers. It aims to minimize the sum of dissimilarities between data points and their assigned medoids, offering flexibility with various distance metrics.
 
 ## History
 
@@ -52,7 +52,7 @@ $$
 
 ### Medoid Definition
 
-A medoid is an actual data point within a cluster that is chosen as the most centrally located point, minimizing the sum of dissimilarities to all other points in that cluster. This contrasts with centroids in [K-Means](/algorithms/unsupervised/clustering/k-means), which are often not actual data points. The use of medoids makes the algorithm robust to outliers, as a single outlier will not significantly shift the medoid's position.
+A medoid is an actual data point within a cluster that is chosen as the most centrally located point, minimizing the sum of dissimilarities to all other points in that cluster. This contrasts with centroids in K-Means, which are often not actual data points. The use of medoids makes the algorithm robust to outliers, as a single outlier will not significantly shift the medoid's position.
 
 ### Dissimilarity Measures
 

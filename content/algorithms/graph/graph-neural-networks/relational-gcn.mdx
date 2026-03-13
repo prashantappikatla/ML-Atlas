@@ -28,7 +28,7 @@ Relational Graph Convolutional Networks (R-GCNs) extend the concept of Graph Con
 
 ## History
 
-**2013** — [DeepWalk](/algorithms/graph/graph-embeddings/deepwalk), introduced by Perozzi et al., pioneered the idea of learning latent representations of nodes in networks using random walks and neural networks.
+**2013** — [DeepWalk](/algorithms/graph/deepwalk), introduced by Perozzi et al., pioneered the idea of learning latent representations of nodes in networks using random walks and neural networks.
 
 **2016** — Thomas Kipf and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduced Graph Convolutional Networks (GCNs), providing a foundational spectral-based approach to message passing that significantly advanced the field of graph neural networks.
 
@@ -40,7 +40,7 @@ Relational Graph Convolutional Networks (R-GCNs) extend the concept of Graph Con
 
 ### Graph Convolution Layer
 
-The core of many Graph Neural Networks is the message passing scheme, where a node's representation is updated by aggregating information from its neighbors. For a standard GCN, the update rule for node $v$ in layer $l+1$ is often given by:
+The core of many Graph [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) is the message passing scheme, where a node's representation is updated by aggregating information from its neighbors. For a standard [GCN](/algorithms/graph/gcn), the update rule for node $v$ in layer $l+1$ is often given by:
 $$h_v^{(l+1)} = \sigma \left( \sum_{u \in \mathcal{N}(v) \cup \{v\}} \frac{1}{\sqrt{|\mathcal{N}(u)||\mathcal{N}(v)|}} W^{(l)} h_u^{(l)} \right)$$
 where $h_v^{(l)}$ is the feature vector of node $v$ at layer $l$, $\mathcal{N}(v)$ are the neighbors of $v$, $W^{(l)}$ is a learnable weight matrix, and $\sigma$ is an activation function. This formulation assumes a single type of edge.
 
@@ -92,7 +92,7 @@ $$
 6. Apply a non-linear activation function $\sigma$ (e.g., ReLU) to the result to obtain the updated node representation $h_v^{(l+1)}$.
 7. Stack multiple R-GCN layers to capture higher-order neighborhood information.
 8. Define a task-specific loss function (e.g., cross-entropy for node classification, negative sampling for link prediction) based on the final node representations.
-9. Train the network using an optimization algorithm (e.g., Adam) to minimize the loss function via backpropagation, updating all learnable parameters.
+9. Train the network using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the loss function via backpropagation, updating all learnable parameters.
 
 ## Parameters
 
@@ -177,7 +177,7 @@ R-GCNs can process RDF graphs, which are inherently multi-relational, to perform
 
 ## Lab
 
-<LabEmbed url={""} title="Relational GCN Lab" />
+<LabEmbed url={""} title="[Relational GCN](/algorithms/graph/relational-gcn) Lab" />
 
 ## References
 

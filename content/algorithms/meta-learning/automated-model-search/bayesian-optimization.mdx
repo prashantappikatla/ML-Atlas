@@ -25,15 +25,15 @@ related:
 
 ## Overview
 
-Bayesian Optimization is a sequential strategy for global optimization of expensive, black-box functions that are typically noisy and lack analytical gradients. It constructs a probabilistic surrogate model of the objective function, often a [Gaussian Process](https://en.wikipedia.org/wiki/Gaussian_process), and uses an acquisition function to determine the next most promising point to evaluate. This approach efficiently explores the search space by balancing exploration of uncertain regions and exploitation of known good regions, aiming to find the global optimum with a minimal number of function evaluations.
+[Bayesian Optimization](/algorithms/meta-learning/bayesian-optimization) is a sequential strategy for global optimization of expensive, black-box functions that are typically noisy and lack analytical gradients. It constructs a probabilistic surrogate model of the objective function, often a Gaussian Process, and uses an acquisition function to determine the next most promising point to evaluate. This approach efficiently explores the search space by balancing exploration of uncertain regions and exploitation of known good regions, aiming to find the global optimum with a minimal number of function evaluations.
 
 ## History
 
 **1998** — Jones, Schonlau, and Welch published "Efficient Global Optimization of Expensive Black-Box Functions," formally introducing the framework of using a surrogate model (Kriging/Gaussian Process) and an acquisition function (Expected Improvement) for global optimization.
 
-**2000** — Research expanded on various acquisition functions, including Probability of Improvement (PI) and Upper Confidence Bound (UCB), enhancing the flexibility and performance of the optimization process.
+**2000** — Research expanded on various acquisition functions, including Probability of Improvement (PI) and Upper Confidence Bound ([UCB](/algorithms/reinforcement/ucb)), enhancing the flexibility and performance of the optimization process.
 
-**2012** — Snoek, Larochelle, and Adams' paper "Practical Bayesian Optimization of Machine Learning Algorithms" significantly popularized the method for hyperparameter optimization in machine learning, demonstrating its effectiveness on complex models.
+**2012** — Snoek, Larochelle, and Adams' paper "Practical Bayesian Optimization of [Machine Learning](https://en.wikipedia.org/wiki/Machine_learning) Algorithms" significantly popularized the method for hyperparameter optimization in machine learning, demonstrating its effectiveness on complex models.
 
 **2014** — The development of open-source libraries like Spearmint and GPyOpt made Bayesian Optimization more accessible to practitioners, fostering wider adoption in various fields.
 
@@ -104,7 +104,7 @@ The Bayesian Optimization process is iterative. At each step, the acquisition fu
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `dimensions` | `list or tuple` | `None` | list of (lower_bound, upper_bound) or list of categories | Defines the search space for the optimization, specifying the bounds and types (real, integer, categorical) for each hyperparameter. |
-| `base_estimator` | `str or sklearn.base.BaseEstimator` | `'GP'` | ['GP', 'RF', 'ET'] or a custom estimator | The surrogate model used to approximate the objective function. Common choices are Gaussian Process ('GP'), Random Forest ('RF'), or Extra Trees ('ET'). |
+| `base_estimator` | `str or sklearn.base.BaseEstimator` | `'GP'` | ['GP', 'RF', 'ET'] or a custom estimator | The surrogate model used to approximate the objective function. Common choices are Gaussian Process ('GP'), [Random Forest](https://en.wikipedia.org/wiki/Random_forest) ('RF'), or Extra Trees ('ET'). |
 | `n_calls` | `int` | `100` | int > 0 | The total number of evaluations of the objective function, including the initial random points. |
 | `n_initial_points` | `int` | `10` | int > 0 | The number of random points to sample before the Bayesian Optimization procedure begins. |
 | `acq_func` | `str` | `'GP_EI'` | ['GP_EI', 'GP_LCB', 'GP_PI', 'EI', 'LCB', 'PI'] | The acquisition function used to propose the next point to evaluate. Options include Expected Improvement ('GP_EI'), Lower Confidence Bound ('GP_LCB'), or Probability of Improvement ('GP_PI'). |
@@ -133,7 +133,7 @@ The Bayesian Optimization process is iterative. At each step, the acquisition fu
 
 ## Weaknesses
 
-- Scalability issues arise in high-dimensional search spaces, as the performance of Gaussian Processes degrades with increasing dimensionality.
+- Scalability issues arise in high-dimensional search spaces, as the performance of [Gaussian Processes](https://en.wikipedia.org/wiki/Gaussian_process) degrades with increasing dimensionality.
 - The computational cost of updating the Gaussian Process model and maximizing the acquisition function can be high, especially with many observed points.
 - The choice of kernel function for the Gaussian Process can significantly impact performance and requires domain knowledge or careful tuning.
 - Can be sensitive to the initial set of random evaluations, potentially leading to suboptimal results if the initial points are poorly chosen.

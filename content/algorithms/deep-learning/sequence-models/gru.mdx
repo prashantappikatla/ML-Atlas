@@ -25,15 +25,15 @@ related:
 
 ## Overview
 
-Gated Recurrent Units (GRUs) are a type of [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) designed to capture dependencies in sequential data, addressing the vanishing gradient problem prevalent in traditional RNNs. They achieve this by employing gating mechanisms that regulate the flow of information, allowing the network to selectively remember or forget past information. GRUs offer a simpler architecture compared to Long Short-Term Memory (LSTM) networks, utilizing only two gates—an update gate and a reset gate—which often results in comparable performance with fewer parameters and faster computation.
+Gated Recurrent Units (GRUs) are a type of [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) (RNN) designed to capture dependencies in sequential data, addressing the vanishing gradient problem prevalent in traditional RNNs. They achieve this by employing gating mechanisms that regulate the flow of information, allowing the network to selectively remember or forget past information. GRUs offer a simpler architecture compared to Long Short-Term Memory ([LSTM](/algorithms/deep-learning/lstm)) networks, utilizing only two gates—an update gate and a reset gate—which often results in comparable performance with fewer parameters and faster computation.
 
 ## History
 
-**2014** — The Gated Recurrent Unit (GRU) was introduced by Kyunghyun Cho et al. in their seminal paper "Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation," proposing a novel architecture for sequence modeling.
+**2014** — The Gated Recurrent Unit ([GRU](/algorithms/deep-learning/gru)) was introduced by Kyunghyun Cho et al. in their seminal paper "Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation," proposing a novel architecture for sequence modeling.
 
 **2014** — The GRU quickly gained recognition as an effective and computationally efficient alternative to Long Short-Term Memory (LSTM) networks, particularly in tasks like machine translation.
 
-**2015** — Following its introduction, GRUs were rapidly integrated into major deep learning frameworks and became a standard component in various sequence-to-sequence models and [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) architectures.
+**2015** — Following its introduction, GRUs were rapidly integrated into major deep learning frameworks and became a standard component in various sequence-to-sequence models and Recurrent Neural Network architectures.
 
 **2015** — Research began to explore the comparative performance of GRUs and LSTMs across different tasks, often finding them to be competitive, with GRUs sometimes offering advantages in terms of training speed due to fewer parameters.
 
@@ -116,7 +116,7 @@ $$
 
 - Can still struggle with extremely long sequences where dependencies span thousands of time steps, although less so than vanilla RNNs.
 - Performance can be sensitive to hyperparameter tuning, particularly the learning rate, hidden state size, and dropout rates.
-- While simpler than LSTMs, GRUs are still more computationally intensive than traditional feedforward networks or vanilla Recurrent Neural Networks.
+- While simpler than LSTMs, GRUs are still more computationally intensive than traditional feedforward networks or vanilla Recurrent [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)).
 - The interpretability of the learned gate values can be challenging, making it difficult to precisely understand how the network makes memory decisions.
 
 ## Use Cases

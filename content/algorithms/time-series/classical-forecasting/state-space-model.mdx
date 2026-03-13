@@ -32,11 +32,11 @@ State Space Models provide a powerful and flexible framework for modeling dynami
 
 ## History
 
-**1960** — Rudolf E. Kalman published "A New Approach to Linear Filtering and Prediction Problems," introducing the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), which is a cornerstone for state estimation in linear Gaussian state space models.
+**1960** — Rudolf E. Kalman published "A New Approach to Linear Filtering and Prediction Problems," introducing the [Kalman Filter](/algorithms/probabilistic/kalman-filter), which is a cornerstone for state estimation in linear Gaussian state space models.
 
-**1961** — Kalman and R. S. Bucy extended the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) theory to continuous-time systems, further solidifying its mathematical foundations and applicability.
+**1961** — Kalman and R. S. Bucy extended the Kalman Filter theory to continuous-time systems, further solidifying its mathematical foundations and applicability.
 
-**1988** — Andrew Harvey's book "Forecasting, Structural Time Series Models and the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)" popularized the use of state space models and the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) in econometrics and time series analysis.
+**1988** — Andrew Harvey's book "Forecasting, Structural Time Series Models and the Kalman Filter" popularized the use of state space models and the Kalman Filter in econometrics and time series analysis.
 
 **2001** — S. J. Koopman and J. Durbin published "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series) by State Space Methods," providing a comprehensive and unified treatment of state space models for a wide range of time series applications, including non-Gaussian and non-linear cases.
 
@@ -44,7 +44,7 @@ State Space Models provide a powerful and flexible framework for modeling dynami
 
 ### Core State Space Representation
 
-A State Space Model describes a system using two primary equations: a state equation and a measurement equation. The state equation describes the evolution of the unobserved state vector $x_t$ over time, while the measurement equation relates the observed data $y_t$ to the current state. For a linear Gaussian system, these are typically given by:
+A [State Space Model](/algorithms/time-series/state-space-model) describes a system using two primary equations: a state equation and a measurement equation. The state equation describes the evolution of the unobserved state vector $x_t$ over time, while the measurement equation relates the observed data $y_t$ to the current state. For a linear Gaussian system, these are typically given by:
 $$x_t = F_t x_{t-1} + B_t u_t + w_t$$
 $$y_t = H_t x_t + v_t$$
 Here, $x_t$ is the $k$-dimensional state vector at time $t$, $y_t$ is the $m$-dimensional observation vector, and $u_t$ is an optional $l$-dimensional control input vector. The matrices $F_t$, $B_t$, and $H_t$ are the state transition, control input, and observation matrices, respectively. The terms $w_t$ and $v_t$ represent process noise and measurement noise.
@@ -88,7 +88,7 @@ $$
 3. Formulate the measurement equation $y_t = H_t x_t + v_t$, specifying the observation matrix $H_t$.
 4. Specify the initial state mean $x_0$ and its covariance matrix $P_0$.
 5. Specify the covariance matrices for the process noise $Q_t$ and measurement noise $R_t$.
-6. Estimate the unknown parameters of the model (e.g., elements of $F_t, H_t, Q_t, R_t$) using methods such as Maximum Likelihood Estimation (MLE), often implemented via the Kalman filter and smoother algorithms.
+6. Estimate the unknown parameters of the model (e.g., elements of $F_t, H_t, Q_t, R_t$) using methods such as [Maximum Likelihood Estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) (MLE), often implemented via the Kalman filter and smoother algorithms.
 7. Utilize the estimated model for state estimation (filtering or smoothing) or for forecasting future observations and states.
 
 ## Parameters

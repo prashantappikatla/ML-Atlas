@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that optimizes a stochastic policy in an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework. It aims to achieve the data efficiency and reliable performance of Trust Region Policy Optimization (TRPO) while using only first-order optimization, making it simpler to implement and more computationally efficient. PPO constrains policy updates by introducing a clipped objective function, preventing large, destabilizing changes to the policy during training.
+Proximal Policy Optimization ([PPO](/algorithms/reinforcement/ppo)) is a reinforcement learning algorithm that optimizes a stochastic policy in an [Actor-Critic](/algorithms/reinforcement/actor-critic) framework. It aims to achieve the data efficiency and reliable performance of Trust Region Policy Optimization ([TRPO](/algorithms/reinforcement/trpo)) while using only first-order optimization, making it simpler to implement and more computationally efficient. PPO constrains policy updates by introducing a clipped objective function, preventing large, destabilizing changes to the policy during training.
 
 ## History
 
 **2015** — [John Schulman](https://en.wikipedia.org/wiki/John_Schulman) et al. introduced Trust Region Policy Optimization (TRPO), a precursor to PPO, which used second-order optimization to ensure policy updates were not too large, improving stability.
 
-**2016** — Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) was introduced by Mnih et al., demonstrating the power of parallel training and [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods, influencing subsequent policy gradient algorithms.
+**2016** — Asynchronous Advantage Actor-Critic ([A3C](/algorithms/reinforcement/a3c)) was introduced by Mnih et al., demonstrating the power of parallel training and Actor-Critic methods, influencing subsequent policy gradient algorithms.
 
 **2017** — John Schulman et al. published 'Proximal Policy Optimization Algorithms,' introducing PPO as a simpler, more general-purpose, and equally effective alternative to TRPO, quickly becoming a benchmark algorithm.
 
@@ -101,10 +101,10 @@ $$
 
 ### Combined Actor-Critic Loss
 
-PPO typically uses an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture where a policy network (actor) and a value network (critic) share parameters or are separate. The full objective function for PPO combines the clipped surrogate objective for the actor, a value function error term for the critic, and an entropy bonus to encourage exploration: $$ L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S[\pi_\theta](s) $$ where $L^{VF}(\theta)$ is the squared-error loss for the value function (e.g., $(V(s) - V_{target})^2$), $S[\pi_\theta](s)$ is the entropy of the policy, and $c_1, c_2$ are coefficients. This combined loss allows for end-to-end training of both actor and critic networks.
+PPO typically uses an Actor-Critic architecture where a policy network (actor) and a value network (critic) share parameters or are separate. The full objective function for PPO combines the clipped surrogate objective for the actor, a value function error term for the critic, and an entropy bonus to encourage exploration: $$ L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S\pi_\theta $$ where $L^{VF}(\theta)$ is the squared-error loss for the value function (e.g., $(V(s) - V_{target})^2$), $S\pi_\theta$ is the entropy of the policy, and $c_1, c_2$ are coefficients. This combined loss allows for end-to-end training of both actor and critic networks.
 
 $$
-L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S[\pi_\theta](s)
+L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S\pi_\theta
 $$
 
 $$
@@ -112,7 +112,7 @@ L^{VF}(\theta)
 $$
 
 $$
-S[\pi_\theta](s)
+S\pi_\theta
 $$
 
 $$
@@ -129,7 +129,7 @@ $$
 2. For each iteration, collect a set of trajectories (rollouts) by running the current policy $\pi_{\theta_{old}}$ in the environment for $N$ timesteps.
 3. For each timestep in the collected trajectories, compute the advantage estimates $\hat{A}_t$ using Generalized Advantage Estimation (GAE) based on the current value function $V_{\phi_{old}}$.
 4. Construct the PPO surrogate objective $L^{CLIP}(\theta)$ and the value function loss $L^{VF}(\phi)$ using the collected data and advantage estimates.
-5. Optimize the combined objective $L(\theta, \phi)$ for $K$ epochs using mini-batch stochastic gradient descent (e.g., Adam optimizer), updating both policy and value function parameters.
+5. Optimize the combined objective $L(\theta, \phi)$ for $K$ epochs using mini-batch stochastic gradient descent (e.g., [Adam](/algorithms/meta-learning/adam) optimizer), updating both policy and value function parameters.
 6. Update the old policy parameters $\theta_{old}$ to the new policy parameters $\theta$ for the next iteration.
 7. Repeat steps 2-6 until convergence or maximum training steps are reached.
 

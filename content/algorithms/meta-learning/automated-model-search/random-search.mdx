@@ -27,11 +27,11 @@ related:
 
 ## Overview
 
-Random Search is a hyperparameter optimization technique that samples hyperparameter configurations from specified distributions. It aims to find optimal hyperparameters for a machine learning model by exploring a subset of the search space randomly. This method is particularly effective in high-dimensional search spaces where only a few hyperparameters significantly impact model performance, offering a more efficient exploration than exhaustive [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search).
+[Random Search](/algorithms/meta-learning/random-search) is a hyperparameter optimization technique that samples hyperparameter configurations from specified distributions. It aims to find optimal hyperparameters for a machine learning model by exploring a subset of the search space randomly. This method is particularly effective in high-dimensional search spaces where only a few hyperparameters significantly impact model performance, offering a more efficient exploration than exhaustive [Grid Search](/algorithms/meta-learning/grid-search).
 
 ## History
 
-**2012** — James Bergstra and [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio) published "Random Search for Hyper-Parameter Optimization" in the Journal of Machine Learning Research. This seminal paper empirically demonstrated that random sampling of hyperparameters is often more efficient than [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search), especially in high-dimensional spaces where only a few hyperparameters significantly influence performance.
+**2012** — James Bergstra and [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio) published "Random Search for Hyper-Parameter Optimization" in the Journal of [Machine Learning](https://en.wikipedia.org/wiki/Machine_learning) Research. This seminal paper empirically demonstrated that random sampling of hyperparameters is often more efficient than Grid Search, especially in high-dimensional spaces where only a few hyperparameters significantly influence performance.
 
 ## Mathematical Intuition
 
@@ -49,7 +49,7 @@ $$
 
 ### Probabilistic Guarantees
 
-Bergstra and Bengio (2012) showed that for a search space with $D$ hyperparameters, if only $k$ of them are truly important, Random Search can find a configuration within the top $p$ percentile of performance with high probability. Specifically, to be $95\%$ sure of finding a configuration within the top $5\%$ of the search space, Random Search requires approximately $60$ iterations, regardless of the total number of hyperparameters $D$. This is because it is likely to explore the effective subspace more thoroughly than [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search).
+Bergstra and Bengio (2012) showed that for a search space with $D$ hyperparameters, if only $k$ of them are truly important, Random Search can find a configuration within the top $p$ percentile of performance with high probability. Specifically, to be $95\%$ sure of finding a configuration within the top $5\%$ of the search space, Random Search requires approximately $60$ iterations, regardless of the total number of hyperparameters $D$. This is because it is likely to explore the effective subspace more thoroughly than Grid Search.
 
 $$
 D
@@ -65,7 +65,7 @@ $$
 
 ### Efficiency Compared to Grid Search
 
-Unlike [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search), which evaluates all combinations of hyperparameters on a predefined grid, Random Search does not suffer from the "curse of dimensionality" in the same way. If a hyperparameter has little impact on performance, [Grid Search](/algorithms/meta-learning/automated-model-search/grid-search) still expends resources evaluating many values for it. Random Search, by randomly sampling, is more likely to explore the effective dimensions of the search space, making it more efficient when only a few hyperparameters are critical.
+Unlike Grid Search, which evaluates all combinations of hyperparameters on a predefined grid, Random Search does not suffer from the "curse of dimensionality" in the same way. If a hyperparameter has little impact on performance, Grid Search still expends resources evaluating many values for it. Random Search, by randomly sampling, is more likely to explore the effective dimensions of the search space, making it more efficient when only a few hyperparameters are critical.
 
 ## Algorithm Steps
 
@@ -112,14 +112,14 @@ Unlike [Grid Search](/algorithms/meta-learning/automated-model-search/grid-searc
 
 - It offers no systematic way to improve the search direction based on past evaluations, potentially wasting trials in unpromising regions.
 - The number of iterations $n_{iter}$ must be chosen empirically, and an insufficient number may lead to suboptimal results.
-- It can be less efficient than more sophisticated methods like Bayesian Optimization when the evaluation of each configuration is very expensive.
+- It can be less efficient than more sophisticated methods like [Bayesian Optimization](/algorithms/meta-learning/bayesian-optimization) when the evaluation of each configuration is very expensive.
 - Performance can be highly dependent on the quality of the defined hyperparameter distributions.
 
 ## Use Cases
 
 ### Computer Vision
 
-Optimizing learning rates, batch sizes, and regularization strengths for Convolutional Neural Networks (CNNs) in image classification tasks.
+Optimizing learning rates, batch sizes, and regularization strengths for Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) in image classification tasks.
 
 ### Natural Language Processing
 
@@ -135,7 +135,7 @@ Optimizing parameters for molecular docking simulations or machine learning mode
 
 ### Financial Modeling
 
-Tuning parameters for time series forecasting models (e.g., [ARIMA](/algorithms/time-series/classical-forecasting/arima), [Prophet](/algorithms/time-series/prophet-style-models/prophet)) to predict stock prices or market trends.
+Tuning parameters for time series forecasting models (e.g., [ARIMA](/algorithms/time-series/arima), [Prophet](/algorithms/time-series/prophet)) to predict stock prices or market trends.
 
 ### Recommender Systems
 

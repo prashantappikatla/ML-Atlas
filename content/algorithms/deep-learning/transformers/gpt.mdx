@@ -27,13 +27,13 @@ related:
 
 ## Overview
 
-Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer) (GPT) models are a family of large language models primarily designed for natural language generation and understanding tasks. They leverage a decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, pre-trained on vast amounts of text data using an unsupervised language modeling objective. This pre-training enables GPT models to learn complex linguistic patterns, factual knowledge, and reasoning abilities, which can then be fine-tuned for various downstream applications or used directly for zero-shot and few-shot learning.
+Generative Pre-trained [Transformer](/algorithms/deep-learning/transformer) ([GPT](/algorithms/deep-learning/gpt)) models are a family of large language models primarily designed for natural language generation and understanding tasks. They leverage a decoder-only Transformer architecture, pre-trained on vast amounts of text data using an unsupervised language modeling objective. This pre-training enables GPT models to learn complex linguistic patterns, factual knowledge, and reasoning abilities, which can then be fine-tuned for various downstream applications or used directly for zero-shot and few-shot learning.
 
 ## History
 
-**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture was introduced by Vaswani et al. in 'Attention Is All You Need', laying the foundational self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) for GPT models.
+**2017** — The Transformer architecture was introduced by Vaswani et al. in 'Attention Is All You Need', laying the foundational self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism) for GPT models.
 
-**2018** — OpenAI introduced GPT-1 in 'Improving Language Understanding by Generative Pre-Training', demonstrating the effectiveness of pre-training a large [Transformer](/algorithms/deep-learning/transformers/transformer) decoder on diverse text and then fine-tuning for specific tasks.
+**2018** — OpenAI introduced GPT-1 in 'Improving Language Understanding by Generative Pre-Training', demonstrating the effectiveness of pre-training a large Transformer decoder on diverse text and then fine-tuning for specific tasks.
 
 **2019** — GPT-2 was released by OpenAI, significantly increasing model size and demonstrating impressive zero-shot generalization capabilities across various NLP tasks without explicit fine-tuning.
 
@@ -47,7 +47,7 @@ Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/tran
 
 ### Transformer Decoder Architecture
 
-The GPT model is built upon the [Transformer](/algorithms/deep-learning/transformers/transformer)'s decoder-only architecture. Each decoder block typically consists of a masked multi-head self-attention layer, followed by a position-wise feed-forward network. Residual connections and layer normalization are applied after each sub-layer to facilitate training of deep networks. The masking in self-attention ensures that a token can only attend to previous tokens in the sequence, which is crucial for generative language modeling.
+The GPT model is built upon the Transformer's decoder-only architecture. Each decoder block typically consists of a masked multi-head self-attention layer, followed by a position-wise feed-forward network. Residual connections and layer normalization are applied after each sub-layer to facilitate training of deep networks. The masking in self-attention ensures that a token can only attend to previous tokens in the sequence, which is crucial for generative language modeling.
 
 $$
 \text{Output} = \text{LayerNorm}(\text{Input} + \text{Sublayer}(\text{Input}))
@@ -55,7 +55,7 @@ $$
 
 ### Masked Multi-Head Self-Attention
 
-The core of the [Transformer](/algorithms/deep-learning/transformers/transformer) decoder is the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which allows the model to weigh the importance of different tokens in the input sequence when processing each token. For each token, three vectors are derived: Query ($Q$), Key ($K$), and Value ($V$). The attention scores are computed as a scaled dot product between $Q$ and $K$, followed by a softmax function. This is then multiplied by $V$. Masking is applied to prevent attention to future tokens. Multi-head attention performs this process in parallel with different learned linear projections, then concatenates and linearly transforms the results.
+The core of the Transformer decoder is the self-Attention Mechanism, which allows the model to weigh the importance of different tokens in the input sequence when processing each token. For each token, three vectors are derived: Query ($Q$), Key ($K$), and Value ($V$). The attention scores are computed as a scaled dot product between $Q$ and $K$, followed by a softmax function. This is then multiplied by $V$. Masking is applied to prevent attention to future tokens. Multi-head attention performs this process in parallel with different learned linear projections, then concatenates and linearly transforms the results.
 
 $$
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
@@ -79,7 +79,7 @@ $$
 
 ### Positional Encoding Integration
 
-Since the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture does not inherently process sequence order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens in the sequence. These encodings can be learned or fixed (e.g., sinusoidal functions) and are summed with the token embeddings before being fed into the first decoder block.
+Since the Transformer architecture does not inherently process sequence order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens in the sequence. These encodings can be learned or fixed (e.g., sinusoidal functions) and are summed with the token embeddings before being fed into the first decoder block.
 
 $$
 PE_{(pos, 2i)} = \sin(pos / 10000^{2i/d_{model}})
@@ -96,7 +96,7 @@ $$
 3. During the pre-training phase, feed input token sequences to the model, applying masked self-attention to ensure each token can only attend to preceding tokens.
 4. The model predicts the next token in the sequence based on the context provided by previous tokens, outputting a probability distribution over the vocabulary.
 5. Compute the negative log-likelihood (cross-entropy) loss between the predicted probability distribution and the actual next token.
-6. Perform backpropagation to calculate gradients and update model parameters using an optimizer like Adam.
+6. Perform backpropagation to calculate gradients and update model parameters using an optimizer like [Adam](/algorithms/meta-learning/adam).
 7. Optionally, fine-tune the pre-trained model on a smaller, task-specific dataset with a supervised objective, adapting its learned representations for specific applications.
 8. For inference, provide a prompt to the model and iteratively sample subsequent tokens based on the model's predictions, generating coherent and contextually relevant text.
 

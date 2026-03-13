@@ -35,15 +35,15 @@ related:
 
 **2014** — Goodfellow et al. introduced the concept of Generative Adversarial Networks, proposing a novel framework for estimating generative models via an adversarial process.
 
-**2015** — Deep Convolutional GANs ([DCGAN](/algorithms/generative/adversarial/dcgan)) by Radford et al. established architectural guidelines for stable training of GANs using convolutional layers, significantly improving image generation quality.
+**2015** — Deep Convolutional GANs ([DCGAN](/algorithms/generative/dcgan)) by Radford et al. established architectural guidelines for stable training of GANs using convolutional layers, significantly improving image generation quality.
 
-**2017** — Wasserstein GAN (WGAN) by Arjovsky et al. introduced the Earth Mover's distance as a cost function, addressing issues of training instability and mode collapse prevalent in earlier GAN formulations.
+**2017** — Wasserstein [GAN](/algorithms/generative/gan) ([WGAN](/algorithms/generative/wgan)) by Arjovsky et al. introduced the Earth Mover's distance as a cost function, addressing issues of training instability and mode collapse prevalent in earlier GAN formulations.
 
-**2017** — Cycle-Consistent Adversarial Networks ([CycleGAN](/algorithms/generative/adversarial/cyclegan)) by Zhu et al. enabled unpaired image-to-image translation by introducing a cycle consistency loss, removing the need for paired training data.
+**2017** — Cycle-Consistent Adversarial Networks ([CycleGAN](/algorithms/generative/cyclegan)) by Zhu et al. enabled unpaired image-to-image translation by introducing a cycle consistency loss, removing the need for paired training data.
 
 **2018** — BigGAN by Brock et al. demonstrated the ability to generate high-fidelity, diverse images at high resolutions by scaling up model capacity and batch sizes, leveraging self-attention.
 
-**2019** — [StyleGAN](/algorithms/generative/adversarial/stylegan) by Karras et al. introduced a novel generator architecture that allows for intuitive, disentangled control over various aspects of image synthesis, producing highly realistic human faces.
+**2019** — [StyleGAN](/algorithms/generative/stylegan) by Karras et al. introduced a novel generator architecture that allows for intuitive, disentangled control over various aspects of image synthesis, producing highly realistic human faces.
 
 ## Mathematical Intuition
 
@@ -110,7 +110,7 @@ $$
 | `batch_size` | `int` | `64` | positive integer | Number of samples processed in each training iteration. |
 | `latent_dim` | `int` | `100` | positive integer | Dimensionality of the latent space vector $z$ from which the generator samples. |
 | `n_epochs` | `int` | `100` | positive integer | Total number of full passes through the training dataset. |
-| `beta1` | `float` | `0.5` | 0.0 to 1.0 | The exponential decay rate for the first moment estimates in the Adam optimizer, often adjusted for GANs. |
+| `beta1` | `float` | `0.5` | 0.0 to 1.0 | The exponential decay rate for the first moment estimates in the [Adam](/algorithms/meta-learning/adam) optimizer, often adjusted for GANs. |
 | `n_critic` | `int` | `1` | positive integer | Number of discriminator (critic) updates per generator update, common in WGANs. |
 
 ## Compatibility

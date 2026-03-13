@@ -30,25 +30,25 @@ related:
 
 ## Overview
 
-Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm particularly suited for discrete features that are binary or boolean-valued. It operates under the 'naive' assumption of conditional independence between features given the class label, simplifying the computation of posterior probabilities. This variant of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) models the presence or absence of specific features, making it effective for tasks where feature occurrence, rather than frequency, is the primary signal.
+[Bernoulli Naive Bayes](/algorithms/supervised/bernoulli-naive-bayes) is a probabilistic classification algorithm particularly suited for discrete features that are binary or boolean-valued. It operates under the 'naive' assumption of conditional independence between features given the class label, simplifying the computation of posterior probabilities. This variant of [Naive Bayes](/algorithms/supervised/naive-bayes) models the presence or absence of specific features, making it effective for tasks where feature occurrence, rather than frequency, is the primary signal.
 
 ## History
 
-**1950** — The foundational principles of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classification emerged from early work in statistical pattern recognition, leveraging Bayes' Theorem for probabilistic inference.
+**1950** — The foundational principles of Naive Bayes classification emerged from early work in statistical pattern recognition, leveraging Bayes' Theorem for probabilistic inference.
 
-**1960** — Early applications of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) were explored, particularly in medical diagnosis and document classification, demonstrating its utility despite the strong independence assumption.
+**1960** — Early applications of Naive Bayes were explored, particularly in medical diagnosis and document classification, demonstrating its utility despite the strong independence assumption.
 
-**1990** — With the rise of machine learning and increased computational power, [Naive Bayes](/algorithms/supervised/classification/naive-bayes) experienced a resurgence, becoming a popular baseline algorithm, especially for text classification tasks.
+**1990** — With the rise of machine learning and increased computational power, Naive Bayes experienced a resurgence, becoming a popular baseline algorithm, especially for text classification tasks.
 
-**2000** — The specific application of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) to binary event modeling, where features represent the presence or absence of attributes (e.g., words in a document), gained prominence, leading to the formalization of Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes).
+**2000** — The specific application of Naive Bayes to binary event modeling, where features represent the presence or absence of attributes (e.g., words in a document), gained prominence, leading to the formalization of Bernoulli Naive Bayes.
 
-**2007** — The scikit-learn project was initiated, later including an efficient implementation of Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), making it readily accessible to a wider machine learning community.
+**2007** — The scikit-learn project was initiated, later including an efficient implementation of Bernoulli Naive Bayes, making it readily accessible to a wider machine learning community.
 
 ## Mathematical Intuition
 
 ### Bayes' Theorem Foundation
 
-Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), like all [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifiers, is rooted in Bayes' Theorem, which describes the probability of an event, based on prior knowledge of conditions that might be related to the event. For a class $C_k$ and a feature vector $x = (x_1, x_2, ..., x_n)$, Bayes' Theorem states the posterior probability as:$$P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}$$The goal is to find the class $C_k$ that maximizes $P(C_k | x)$. Since $P(x)$ is constant for all classes, we only need to maximize $P(x | C_k) P(C_k)$.
+Bernoulli Naive Bayes, like all Naive Bayes classifiers, is rooted in Bayes' Theorem, which describes the probability of an event, based on prior knowledge of conditions that might be related to the event. For a class $C_k$ and a feature vector $x = (x_1, x_2, ..., x_n)$, Bayes' Theorem states the posterior probability as:$$P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}$$The goal is to find the class $C_k$ that maximizes $P(C_k | x)$. Since $P(x)$ is constant for all classes, we only need to maximize $P(x | C_k) P(C_k)$.
 
 $$
 P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}
@@ -56,7 +56,7 @@ $$
 
 ### Naive Independence Assumption
 
-The 'naive' aspect of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) comes from the assumption that all features $x_i$ are conditionally independent given the class $C_k$. This simplifies the likelihood term $P(x | C_k)$ significantly:$$P(x | C_k) = P(x_1, x_2, ..., x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$$This assumption, while often violated in real-world data, makes the model computationally tractable and surprisingly effective in many applications.
+The 'naive' aspect of Naive Bayes comes from the assumption that all features $x_i$ are conditionally independent given the class $C_k$. This simplifies the likelihood term $P(x | C_k)$ significantly:$$P(x | C_k) = P(x_1, x_2, ..., x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$$This assumption, while often violated in real-world data, makes the model computationally tractable and surprisingly effective in many applications.
 
 $$
 P(x | C_k) = \prod_{i=1}^{n} P(x_i | C_k)
@@ -64,7 +64,7 @@ $$
 
 ### Bernoulli Feature Distribution
 
-For Bernoulli [Naive Bayes](/algorithms/supervised/classification/naive-bayes), each feature $x_i$ is assumed to be a binary variable (0 or 1), following a Bernoulli distribution. The probability of a feature $x_i$ taking a specific value (0 or 1) given a class $C_k$ is modeled as:$$P(x_i | C_k) = p_{ik}^{x_i} (1 - p_{ik})^{1 - x_i}$$where $p_{ik}$ is the probability that feature $x_i$ is present (i.e., $x_i=1$) given class $C_k$. If $x_i=1$, the term is $p_{ik}$; if $x_i=0$, the term is $(1 - p_{ik})$.
+For Bernoulli Naive Bayes, each feature $x_i$ is assumed to be a binary variable (0 or 1), following a Bernoulli distribution. The probability of a feature $x_i$ taking a specific value (0 or 1) given a class $C_k$ is modeled as:$$P(x_i | C_k) = p_{ik}^{x_i} (1 - p_{ik})^{1 - x_i}$$where $p_{ik}$ is the probability that feature $x_i$ is present (i.e., $x_i=1$) given class $C_k$. If $x_i=1$, the term is $p_{ik}$; if $x_i=0$, the term is $(1 - p_{ik})$.
 
 $$
 P(x_i | C_k) = p_{ik}^{x_i} (1 - p_{ik})^{1 - x_i}

@@ -24,15 +24,15 @@ related:
 
 ## Overview
 
-MobileNet is a family of efficient convolutional neural networks designed for mobile and embedded vision applications. It achieves high accuracy with significantly reduced computational cost and model size by primarily employing depthwise separable convolutions. This architectural innovation enables deployment on resource-constrained devices while maintaining competitive performance for various computer vision tasks.
+[MobileNet](/algorithms/deep-learning/mobilenet) is a family of efficient convolutional neural networks designed for mobile and embedded vision applications. It achieves high accuracy with significantly reduced computational cost and model size by primarily employing depthwise separable convolutions. This architectural innovation enables deployment on resource-constrained devices while maintaining competitive performance for various computer vision tasks.
 
 ## History
 
-**2017** — Howard et al. introduced MobileNetV1, proposing depthwise separable convolutions as a core building block for efficient CNNs in their paper 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications'.
+**2017** — Howard et al. introduced MobileNetV1, proposing depthwise separable convolutions as a core building block for efficient CNNs in their paper 'MobileNets: Efficient Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) for Mobile Vision Applications'.
 
 **2018** — Sandler et al. published MobileNetV2, which introduced the inverted residual block with linear bottlenecks to further improve performance and efficiency, detailed in 'MobileNetV2: Inverted Residuals and Linear Bottlenecks'.
 
-**2019** — Howard et al. released MobileNetV3, leveraging neural architecture search (NAS) and novel activation functions like h-swish to further optimize for mobile platforms, as described in 'Searching for MobileNetV3'.
+**2019** — Howard et al. released MobileNetV3, leveraging neural architecture search ([NAS](/algorithms/meta-learning/nas)) and novel activation functions like h-swish to further optimize for mobile platforms, as described in 'Searching for MobileNetV3'.
 
 ## Mathematical Intuition
 
@@ -102,7 +102,7 @@ $$
 2. Optionally apply width multiplier ($\alpha$) and resolution multiplier ($\rho$) to scale the model's size and computational cost according to deployment constraints.
 3. Initialize the network weights, often using pre-trained weights from a larger dataset like ImageNet for transfer learning.
 4. Prepare the training dataset, applying necessary augmentations and normalization to input images.
-5. Train the model using an optimization algorithm like SGD or Adam, minimizing a loss function such as categorical cross-entropy for classification tasks.
+5. Train the model using an optimization algorithm like SGD or [Adam](/algorithms/meta-learning/adam), minimizing a loss function such as categorical cross-entropy for classification tasks.
 6. Monitor validation performance and adjust learning rate schedules or other hyperparameters as needed.
 7. Fine-tune the model on the target dataset if using transfer learning, unfreezing more layers gradually.
 8. Evaluate the trained model on a test set to assess its performance metrics like accuracy, precision, and recall.
@@ -141,7 +141,7 @@ $$
 
 ## Weaknesses
 
-- MobileNet models generally achieve lower peak accuracy compared to larger, more complex state-of-the-art models like EfficientNet or ResNeXt.
+- MobileNet models generally achieve lower peak accuracy compared to larger, more complex state-of-the-art models like [EfficientNet](/algorithms/deep-learning/efficientnet) or [ResNeXt](/algorithms/deep-learning/resnext).
 - The aggressive reduction in parameters can sometimes lead to a loss of fine-grained feature representation, especially in earlier versions.
 - Performance can be sensitive to the choice of width and resolution multipliers, requiring careful tuning for optimal results on specific tasks.
 - The architectural innovations, while efficient, can be more complex to understand and implement from scratch compared to simpler CNNs.

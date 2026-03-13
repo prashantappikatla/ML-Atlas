@@ -28,21 +28,21 @@ related:
 
 ## Overview
 
-DALL·E-style diffusion/decoder models are a class of generative artificial intelligence systems primarily designed for high-fidelity text-to-image synthesis. These models leverage a two-stage process, often involving a text encoder to create semantic embeddings and a [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) to iteratively denoise random noise into an image conditioned on these embeddings. They excel at generating diverse and novel visual content from natural language prompts, demonstrating a profound understanding of semantic concepts and visual composition.
+DALL·E-style diffusion/decoder models are a class of generative artificial intelligence systems primarily designed for high-fidelity text-to-image synthesis. These models leverage a two-stage process, often involving a text encoder to create semantic embeddings and a [Diffusion Model](/algorithms/generative/diffusion-model) to iteratively denoise random noise into an image conditioned on these embeddings. They excel at generating diverse and novel visual content from natural language prompts, demonstrating a profound understanding of semantic concepts and visual composition.
 
 ## History
 
 **2015** — Denoising Diffusion Probabilistic Models (DDPMs) were introduced by Sohl-Dickstein et al., laying the theoretical groundwork for diffusion models by framing image generation as a reverse Markov chain.
 
-**2020** — Ho et al. significantly advanced DDPMs, demonstrating their capability to generate high-quality images by training a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) to predict noise at each step of the reverse process.
+**2020** — Ho et al. significantly advanced DDPMs, demonstrating their capability to generate high-quality images by training a [U-Net](/algorithms/deep-learning/u-net) to predict noise at each step of the reverse process.
 
-**2021** — OpenAI released DALL·E, a pioneering text-to-image model that combined a VQ-VAE with a [Transformer](/algorithms/deep-learning/transformers/transformer), showcasing the potential for generating diverse images from text prompts.
+**2021** — OpenAI released DALL·E, a pioneering text-to-image model that combined a VQ-VAE with a [Transformer](/algorithms/deep-learning/transformer), showcasing the potential for generating diverse images from text prompts.
 
-**2021** — OpenAI also introduced GLIDE, a text-conditional [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) that demonstrated superior image quality and photorealism compared to earlier generative models, further validating the diffusion paradigm.
+**2021** — OpenAI also introduced GLIDE, a text-conditional Diffusion Model that demonstrated superior image quality and photorealism compared to earlier generative models, further validating the diffusion paradigm.
 
-**2022** — DALL·E 2 was unveiled by OpenAI, integrating a [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) for both the prior (mapping text to image embeddings) and the decoder (generating images from embeddings), achieving unprecedented photorealism and conceptual understanding.
+**2022** — DALL·E 2 was unveiled by OpenAI, integrating a Diffusion Model for both the prior (mapping text to image embeddings) and the decoder (generating images from embeddings), achieving unprecedented photorealism and conceptual understanding.
 
-**2022** — Stability AI released [Stable Diffusion](/algorithms/generative/diffusion/stable-diffusion), a [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) model that significantly reduced computational requirements by operating in a compressed latent space, making high-quality text-to-image generation widely accessible.
+**2022** — Stability AI released [Stable Diffusion](/algorithms/generative/stable-diffusion), a [Latent Diffusion](/algorithms/generative/latent-diffusion) model that significantly reduced computational requirements by operating in a compressed latent space, making high-quality text-to-image generation widely accessible.
 
 ## Mathematical Intuition
 
@@ -69,7 +69,7 @@ $$
 
 ### Reverse Denoising Process
 
-The core idea is to learn the reverse process, which transforms pure Gaussian noise $x_T$ back into a clean image $x_0$. This is achieved by training a neural network, typically a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net), to predict the noise $\epsilon_t$ added at each step $t$. Given $x_t$, the model $\epsilon_\theta(x_t, t)$ estimates $\epsilon$. The denoised sample $x_{t-1}$ can then be estimated using the predicted noise. The objective function often minimizes the mean squared error between the true noise and the predicted noise: $L = E_{t, x_0, \epsilon} [||\epsilon - \epsilon_\theta(\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t)||^2]$. 
+The core idea is to learn the reverse process, which transforms pure Gaussian noise $x_T$ back into a clean image $x_0$. This is achieved by training a neural network, typically a U-Net, to predict the noise $\epsilon_t$ added at each step $t$. Given $x_t$, the model $\epsilon_\theta(x_t, t)$ estimates $\epsilon$. The denoised sample $x_{t-1}$ can then be estimated using the predicted noise. The objective function often minimizes the mean squared error between the true noise and the predicted noise: $L = E_{t, x_0, \epsilon} [||\epsilon - \epsilon_\theta(\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t)||^2]$. 
 $$L = E_{t, x_0, \epsilon} [||\epsilon - \epsilon_\theta(\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t)||^2]$$
 
 $$
@@ -82,7 +82,7 @@ $$
 
 ### Conditional Generation with Text
 
-To enable text-to-image generation, the [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) is conditioned on text embeddings. A separate text encoder (e.g., CLIP's text encoder) transforms the input text prompt into a rich embedding $c$. This embedding is then incorporated into the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture, typically through cross-attention mechanisms, allowing the denoising process to be guided by the semantic content of the text. Classifier-free guidance further enhances the alignment between text and image by combining predictions from a conditional model $\epsilon_\theta(x_t, t, c)$ and an unconditional model $\epsilon_\theta(x_t, t)$ during inference.
+To enable text-to-image generation, the Diffusion Model is conditioned on text embeddings. A separate text encoder (e.g., CLIP's text encoder) transforms the input text prompt into a rich embedding $c$. This embedding is then incorporated into the U-Net architecture, typically through cross-attention mechanisms, allowing the denoising process to be guided by the semantic content of the text. Classifier-free guidance further enhances the alignment between text and image by combining predictions from a conditional model $\epsilon_\theta(x_t, t, c)$ and an unconditional model $\epsilon_\theta(x_t, t)$ during inference.
 
 $$
 \epsilon_\theta(x_t, t, c)
@@ -90,7 +90,7 @@ $$
 
 ### Latent Space Diffusion
 
-Many modern DALL·E-style models, such as [Stable Diffusion](/algorithms/generative/diffusion/stable-diffusion), perform the diffusion process not directly on high-resolution pixel space but within a compressed latent space. An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) first encodes the original image $x_0$ into a lower-dimensional latent representation $z_0$. The diffusion process then operates on $z_0$, and the denoised latent $z_0'$ is subsequently decoded back into pixel space by the [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)'s decoder. This significantly reduces computational cost and memory requirements while maintaining high image quality.
+Many modern DALL·E-style models, such as Stable Diffusion, perform the diffusion process not directly on high-resolution pixel space but within a compressed latent space. An [Autoencoder](/algorithms/deep-learning/autoencoder) first encodes the original image $x_0$ into a lower-dimensional latent representation $z_0$. The diffusion process then operates on $z_0$, and the denoised latent $z_0'$ is subsequently decoded back into pixel space by the Autoencoder's decoder. This significantly reduces computational cost and memory requirements while maintaining high image quality.
 
 $$
 x_0 \rightarrow z_0
@@ -193,7 +193,7 @@ Developers can generate assets, character concepts, or environmental textures fo
 
 ## Lab
 
-<LabEmbed url={""} title="DALL-E-style diffusion/decoder models Lab" />
+<LabEmbed url={""} title="[DALL-E-style diffusion/decoder models](/algorithms/generative/dall-e-style-diffusion-decoder-models) Lab" />
 
 ## References
 

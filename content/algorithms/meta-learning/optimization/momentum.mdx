@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Momentum is an optimization algorithm designed to accelerate gradient descent by accumulating a velocity of past gradients. It helps the optimizer navigate flat regions of the loss landscape and overcome shallow local minima more efficiently. By dampening oscillations and maintaining movement in consistent directions, Momentum often leads to faster convergence and improved training stability for deep learning models. This technique effectively adds inertia to the parameter updates, allowing the optimization process to 'roll' through small obstacles.
+[Momentum](/algorithms/meta-learning/momentum) is an optimization algorithm designed to accelerate gradient descent by accumulating a velocity of past gradients. It helps the optimizer navigate flat regions of the loss landscape and overcome shallow local minima more efficiently. By dampening oscillations and maintaining movement in consistent directions, Momentum often leads to faster convergence and improved training stability for deep learning models. This technique effectively adds inertia to the parameter updates, allowing the optimization process to 'roll' through small obstacles.
 
 ## History
 
@@ -37,13 +37,13 @@ Momentum is an optimization algorithm designed to accelerate gradient descent by
 
 **1990** — Qian's paper 'On the momentum term in backpropagation learning' provided a detailed analysis of the momentum term's role in accelerating convergence and stabilizing learning in neural networks.
 
-**2013** — Sutskever et al. demonstrated the significant benefits of using a high momentum value (e.g., 0.9 or 0.99) with [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) for training very deep neural networks, showcasing its practical effectiveness in modern deep learning.
+**2013** — Sutskever et al. demonstrated the significant benefits of using a high momentum value (e.g., 0.9 or 0.99) with [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) for training very deep neural networks, showcasing its practical effectiveness in modern deep learning.
 
 ## Mathematical Intuition
 
 ### Standard Gradient Descent
 
-[Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD) updates parameters $\theta$ by moving in the opposite direction of the gradient of the loss function $L$ with respect to $\theta$, scaled by a learning rate $\eta$. This update rule can be expressed as:
+Stochastic [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent) (SGD) updates parameters $\theta$ by moving in the opposite direction of the gradient of the loss function $L$ with respect to $\theta$, scaled by a learning rate $\eta$. This update rule can be expressed as:
 
 $$
 \theta_{t+1} = \theta_t - \eta \nabla L(\theta_t)
@@ -85,7 +85,7 @@ The momentum coefficient $\beta$ acts like a 'friction' term. A higher $\beta$ v
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `learning_rate` | `float` | `0.01` | (0, inf) | The step size multiplier for the gradient or velocity update at each iteration. A higher learning rate leads to larger steps. |
-| `momentum` | `float` | `0.9` | [0, 1) | The momentum factor, which determines how much of the previous velocity is retained and added to the current update. Higher values mean more inertia. |
+| `momentum` | `float` | `0.9` | 0, 1) | The momentum factor, which determines how much of the previous velocity is retained and added to the current update. Higher values mean more inertia. |
 | `nesterov` | `boolean` | `False` | True, False | Whether to apply Nesterov Accelerated Gradient (NAG). NAG computes the gradient at a 'lookahead' position, often leading to slightly better convergence. |
 
 ## Compatibility
@@ -123,7 +123,7 @@ Widely used for training deep convolutional neural networks (CNNs) in tasks such
 
 ### Natural Language Processing
 
-Applied to optimize recurrent neural networks (RNNs), LSTMs, and [Transformer](/algorithms/deep-learning/transformers/transformer) models for tasks like machine translation, text generation, and sentiment analysis, improving training efficiency.
+Applied to optimize recurrent neural networks (RNNs), LSTMs, and [[Transformer](/algorithms/deep-learning/transformer) models for tasks like machine translation, text generation, and sentiment analysis, improving training efficiency.
 
 ### Speech Recognition
 

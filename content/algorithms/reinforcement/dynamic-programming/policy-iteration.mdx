@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Policy Iteration is a dynamic programming algorithm used to find an optimal policy for a given [Markov Decision Process](https://en.wikipedia.org/wiki/Markov_decision_process) (MDP). It iteratively improves a policy by alternating between two steps: policy evaluation, which computes the value function for the current policy, and policy improvement, which updates the policy to be greedy with respect to the evaluated value function. This process guarantees convergence to an optimal policy and its corresponding optimal value function. It is a model-based method, requiring full knowledge of the environment's transition probabilities and reward function.
+[Policy Iteration](/algorithms/reinforcement/policy-iteration) is a dynamic programming algorithm used to find an optimal policy for a given [Markov Decision Process](https://en.wikipedia.org/wiki/Markov_decision_process) (MDP). It iteratively improves a policy by alternating between two steps: policy evaluation, which computes the value function for the current policy, and policy improvement, which updates the policy to be greedy with respect to the evaluated value function. This process guarantees convergence to an optimal policy and its corresponding optimal value function. It is a model-based method, requiring full knowledge of the environment's transition probabilities and reward function.
 
 ## History
 
@@ -40,7 +40,7 @@ Policy Iteration is a dynamic programming algorithm used to find an optimal poli
 
 ### Markov Decision Process Fundamentals
 
-An MDP is defined by a tuple $(S, A, P, R, \gamma)$, where $S$ is the set of states, $A$ is the set of actions, $P(s'|s,a)$ is the transition probability from state $s$ to $s'$ when taking action $a$, $R(s,a,s')$ is the reward received, and $\gamma \in [0,1)$ is the discount factor. The objective is to find a policy $\pi(a|s)$ that maximizes the expected cumulative discounted reward.
+An MDP is defined by a tuple $(S, A, P, R, \gamma)$, where $S$ is the set of states, $A$ is the set of actions, $P(s'|s,a)$ is the transition probability from state $s$ to $s'$ when taking action $a$, $R(s,a,s')$ is the reward received, and $\gamma \in 0,1)$ is the discount factor. The objective is to find a policy $\pi(a|s)$ that maximizes the expected cumulative discounted reward.
 
 $$
 P(s'|s,a)
@@ -51,7 +51,7 @@ R(s,a,s')
 $$
 
 $$
-\gamma \in [0,1)
+\gamma \in 0,1)
 $$
 
 ### Policy Evaluation: Value Function
@@ -116,7 +116,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `gamma` | `float` | `0.99` | [0.0, 1.0) | The discount factor, which determines the present value of future rewards. Must be in the range $[0, 1)$. |
+| `gamma` | `float` | `0.99` | 0.0, 1.0) | The discount factor, which determines the present value of future rewards. Must be in the range $[0, 1)$. |
 | `theta` | `float` | `1e-6` | (0.0, inf) | A small positive number used as a threshold for policy evaluation convergence, indicating the maximum allowed change in the value function. |
 | `max_iter_eval` | `int` | `1000` | [1, inf) | Maximum number of iterations for the policy evaluation step to prevent infinite loops in cases where convergence is slow or $\theta$ is too small. |
 | `max_iter_policy` | `int` | `100` | [1, inf) | Maximum number of policy improvement iterations. The algorithm typically converges in fewer iterations for finite MDPs. |
@@ -136,7 +136,7 @@ $$
 
 - Policy Iteration is guaranteed to converge to the optimal policy and value function for finite Markov Decision Processes.
 - It provides the exact optimal policy, unlike approximation methods that might only find a near-optimal solution.
-- The algorithm can converge in fewer iterations than Value Iteration, especially when starting with a reasonably good initial policy.
+- The algorithm can converge in fewer iterations than [[[[Value Iteration](/algorithms/reinforcement/value-iteration), especially when starting with a reasonably good initial policy.
 - It effectively handles stochastic environments where the outcomes of actions are probabilistic.
 - The policy improvement step is deterministic once the value function is accurately known.
 

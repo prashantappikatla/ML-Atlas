@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-DeepAR is a deep learning-based probabilistic forecasting model designed for time series data. It leverages recurrent neural networks (RNNs), specifically LSTMs or GRUs, to learn global patterns across a large collection of related time series. By modeling the conditional distribution of future values given past observations and covariates, DeepAR provides full probabilistic forecasts, including prediction intervals, rather than just point estimates.
+[DeepAR](/algorithms/time-series/deepar) is a deep learning-based probabilistic forecasting model designed for time series data. It leverages recurrent neural networks (RNNs), specifically LSTMs or GRUs, to learn global patterns across a large collection of related time series. By modeling the conditional distribution of future values given past observations and covariates, DeepAR provides full probabilistic forecasts, including prediction intervals, rather than just point estimates.
 
 ## History
 
@@ -57,7 +57,7 @@ $$
 
 ### Recurrent Neural Network Core
 
-At the heart of DeepAR is a [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN), typically an LSTM or GRU. The RNN processes the time series sequentially, maintaining a hidden state $h_t$ that encapsulates information from past observations and covariates. At each time step $t$, the RNN takes the previous hidden state $h_{t-1}$, the current target value $z_{t-1}$ (or a sampled value during prediction), and current covariates $x_t$ as input to compute the new hidden state $h_t$: $$h_t = f(h_{t-1}, z_{t-1}, x_t; \theta_{RNN})$$ where $f$ is the RNN cell function and $\theta_{RNN}$ are its parameters. This hidden state $h_t$ then informs the parameters of the output distribution.
+At the heart of DeepAR is a [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) (RNN), typically an [LSTM](/algorithms/deep-learning/lstm) or [GRU](/algorithms/deep-learning/gru). The RNN processes the time series sequentially, maintaining a hidden state $h_t$ that encapsulates information from past observations and covariates. At each time step $t$, the RNN takes the previous hidden state $h_{t-1}$, the current target value $z_{t-1}$ (or a sampled value during prediction), and current covariates $x_t$ as input to compute the new hidden state $h_t$: $$h_t = f(h_{t-1}, z_{t-1}, x_t; \theta_{RNN})$$ where $f$ is the RNN cell function and $\theta_{RNN}$ are its parameters. This hidden state $h_t$ then informs the parameters of the output distribution.
 
 $$
 h_t
@@ -136,7 +136,7 @@ $$
 1. Prepare the time series data, including any static or dynamic covariates, ensuring consistent formatting across all series.
 2. Define the recurrent neural network architecture (e.g., LSTM or GRU) and its hyperparameters, such as the number of layers and hidden units.
 3. Select an appropriate likelihood distribution (e.g., Gaussian, Negative Binomial) based on the characteristics of the target variable.
-4. Initialize the model parameters randomly and define an optimizer (e.g., Adam) and a learning rate.
+4. Initialize the model parameters randomly and define an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) and a learning rate.
 5. Train the model by iteratively feeding batches of historical time series data through the RNN, computing the negative log-likelihood loss, and updating parameters via backpropagation.
 6. During training, the RNN learns to map past observations $z_{1:t-1}$ and covariates $x_{1:T}$ to the parameters of the likelihood distribution $P(z_t | \theta_t)$ for each time step $t$.
 7. To generate forecasts, provide the model with the historical context window and covariates for the prediction horizon.

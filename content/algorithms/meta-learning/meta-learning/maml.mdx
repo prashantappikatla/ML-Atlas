@@ -23,13 +23,13 @@ related:
 
 ## Overview
 
-Model-Agnostic Meta-Learning (MAML) is a meta-learning algorithm designed to learn an initial set of model parameters that can quickly adapt to new, unseen tasks with only a few gradient updates and limited training data. Its core innovation lies in optimizing for a model initialization that is highly sensitive to changes in task-specific loss functions, enabling rapid and efficient adaptation. This approach allows a single model to generalize across a distribution of tasks rather than specializing in one.
+Model-Agnostic Meta-Learning ([MAML](/algorithms/meta-learning/maml)) is a meta-learning algorithm designed to learn an initial set of model parameters that can quickly adapt to new, unseen tasks with only a few gradient updates and limited training data. Its core innovation lies in optimizing for a model initialization that is highly sensitive to changes in task-specific loss functions, enabling rapid and efficient adaptation. This approach allows a single model to generalize across a distribution of tasks rather than specializing in one.
 
 ## History
 
 **2017** — Chelsea Finn, [Pieter Abbeel](https://en.wikipedia.org/wiki/Pieter_Abbeel), and [Sergey Levine](https://en.wikipedia.org/wiki/Sergey_Levine) introduce Model-Agnostic Meta-Learning (MAML) in their seminal paper "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks," establishing a powerful gradient-based meta-learning framework.
 
-**2018** — Alex Nichol and [John Schulman](https://en.wikipedia.org/wiki/John_Schulman) propose [Reptile](/algorithms/meta-learning/meta-learning/reptile), a simpler first-order meta-learning algorithm that approximates MAML's objective, reducing computational complexity while maintaining strong performance.
+**2018** — Alex Nichol and [John Schulman](https://en.wikipedia.org/wiki/John_Schulman) propose [Reptile](/algorithms/meta-learning/reptile), a simpler first-order meta-learning algorithm that approximates MAML's objective, reducing computational complexity while maintaining strong performance.
 
 **2019** — Further research explores approximations to MAML, such as FOMAML (First-Order MAML), which avoids computing second-order derivatives to improve computational efficiency.
 
@@ -92,7 +92,7 @@ $$
 5.   b. Perform one or more gradient descent steps on $D_i^{train}$ to adapt $\theta$ to task-specific parameters $\theta_i'$, using the inner loop learning rate $\alpha$. For a single step, $\theta_i' = \theta - \alpha \nabla_{\theta} \mathcal{L}_{\mathcal{T}_i}(f_{\theta}; D_i^{train})$.
 6.   c. Compute the loss $\mathcal{L}_{\mathcal{T}_i}(f_{\theta_i'}; D_i^{test})$ on the query set $D_i^{test}$ using the adapted parameters $\theta_i'$.
 7. Compute the meta-gradient by summing the gradients of the query losses with respect to the initial parameters $\theta$ across all tasks in the batch, which requires computing second-order derivatives.
-8. Update the initial meta-parameters $\theta$ using an outer loop optimizer (e.g., Adam) with the meta-learning rate $\beta$ and the computed meta-gradient.
+8. Update the initial meta-parameters $\theta$ using an outer loop optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) with the meta-learning rate $\beta$ and the computed meta-gradient.
 9. Repeat steps 2-5 until convergence or a predefined number of meta-iterations.
 
 ## Parameters

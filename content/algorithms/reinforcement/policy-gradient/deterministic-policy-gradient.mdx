@@ -25,17 +25,17 @@ related:
 
 ## Overview
 
-Deterministic Policy Gradient (DPG) is an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) reinforcement learning algorithm designed to learn policies in environments with continuous action spaces. It learns a deterministic policy that maps states directly to actions, contrasting with stochastic policy gradient methods that learn a distribution over actions. DPG leverages a Q-function to estimate the action-value and guide the policy updates, aiming for more efficient learning in high-dimensional continuous control tasks.
+[Deterministic Policy Gradient](/algorithms/reinforcement/deterministic-policy-gradient) (DPG) is an off-policy [Actor-Critic](/algorithms/reinforcement/actor-critic) reinforcement learning algorithm designed to learn policies in environments with continuous action spaces. It learns a deterministic policy that maps states directly to actions, contrasting with stochastic policy gradient methods that learn a distribution over actions. DPG leverages a Q-function to estimate the action-value and guide the policy updates, aiming for more efficient learning in high-dimensional continuous control tasks.
 
 ## History
 
-**1999** — Konda and Tsitsiklis introduced the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, combining policy-based and value-based methods for reinforcement learning.
+**1999** — Konda and Tsitsiklis introduced the Actor-Critic architecture, combining policy-based and value-based methods for reinforcement learning.
 
 **2000** — Sutton et al. formalized the Policy Gradient Theorem, providing a theoretical foundation for policy-based reinforcement learning algorithms.
 
 **2014** — Silver et al. published "Deterministic Policy Gradient Algorithms," introducing the DPG theorem and demonstrating its effectiveness for continuous control tasks.
 
-**2016** — Lillicrap et al. extended DPG to Deep Deterministic Policy Gradient (DDPG), integrating deep neural networks and techniques like target networks and experience replay, significantly improving performance in complex environments.
+**2016** — Lillicrap et al. extended DPG to Deep Deterministic Policy Gradient ([DDPG](/algorithms/reinforcement/ddpg)), integrating deep neural networks and techniques like target networks and experience replay, significantly improving performance in complex environments.
 
 ## Mathematical Intuition
 
@@ -57,7 +57,7 @@ $$
 
 ### Actor-Critic Architecture
 
-DPG employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, where the "actor" is the deterministic policy $\mu_\theta(s)$ parameterized by $\theta$, and the "critic" is the action-value function $Q_w(s,a)$ parameterized by $w$. The critic evaluates the actions taken by the actor, providing a signal for the actor to improve its policy. The actor's goal is to maximize the critic's output, while the critic's goal is to accurately estimate the action-value function.
+DPG employs an Actor-Critic architecture, where the "actor" is the deterministic policy $\mu_\theta(s)$ parameterized by $\theta$, and the "critic" is the action-value function $Q_w(s,a)$ parameterized by $w$. The critic evaluates the actions taken by the actor, providing a signal for the actor to improve its policy. The actor's goal is to maximize the critic's output, while the critic's goal is to accurately estimate the action-value function.
 
 ### Q-function Learning
 

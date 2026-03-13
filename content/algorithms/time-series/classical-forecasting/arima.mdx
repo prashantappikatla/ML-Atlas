@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-Autoregressive Integrated Moving Average (ARIMA) is a statistical model used for time series forecasting. It combines autoregressive (AR), differencing (I for integrated), and moving average (MA) components to capture various patterns in time-dependent data. ARIMA models are particularly effective for univariate time series that exhibit trends or seasonality, transforming non-stationary data into a stationary form for prediction.
+Autoregressive Integrated Moving Average ([ARIMA](/algorithms/time-series/arima)) is a statistical model used for time series forecasting. It combines autoregressive ([AR](/algorithms/time-series/ar)), differencing (I for integrated), and moving average ([MA](/algorithms/time-series/ma)) components to capture various patterns in time-dependent data. ARIMA models are particularly effective for univariate time series that exhibit trends or seasonality, transforming non-stationary data into a stationary form for prediction.
 
 ## History
 
@@ -93,7 +93,7 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `order` | `tuple` | `(0, 0, 0)` | tuple of non-negative integers | The $(p, d, q)$ order of the model for the number of AR parameters, differences, and MA parameters, respectively. |
-| `seasonal_order` | `tuple` | `(0, 0, 0, 0)` | tuple of non-negative integers | The $(P, D, Q, S)$ order of the seasonal component of the model for the seasonal AR parameters, seasonal differences, seasonal MA parameters, and periodicity, respectively. If non-zero, this effectively makes the model a SARIMA. |
+| `seasonal_order` | `tuple` | `(0, 0, 0, 0)` | tuple of non-negative integers | The $(P, D, Q, S)$ order of the seasonal component of the model for the seasonal AR parameters, seasonal differences, seasonal MA parameters, and periodicity, respectively. If non-zero, this effectively makes the model a [SARIMA](/algorithms/time-series/sarima). |
 | `trend` | `str or None` | `None` | ['n', 'c', 't', 'ct'] or None | Parameter controlling the deterministic trend polynomial. Options include 'n' (no trend), 'c' (constant), 't' (linear trend), 'ct' (constant and linear trend). |
 | `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the AR parameters during estimation. |
 | `enforce_invertibility` | `bool` | `True` | True, False | Whether to enforce invertibility of the MA parameters during estimation. |

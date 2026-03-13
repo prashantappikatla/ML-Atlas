@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-REINFORCE, also known as Monte Carlo Policy Gradient, is a fundamental policy gradient algorithm in reinforcement learning that directly optimizes a parameterized policy function. It aims to maximize the expected return by adjusting policy parameters based on the observed returns from complete episodes. Unlike value-based methods, REINFORCE learns a stochastic policy that maps states to a probability distribution over actions, making it suitable for continuous action spaces and inherently stochastic environments.
+[REINFORCE](/algorithms/reinforcement/reinforce), also known as Monte Carlo Policy Gradient, is a fundamental policy gradient algorithm in reinforcement learning that directly optimizes a parameterized policy function. It aims to maximize the expected return by adjusting policy parameters based on the observed returns from complete episodes. Unlike value-based methods, REINFORCE learns a stochastic policy that maps states to a probability distribution over actions, making it suitable for continuous action spaces and inherently stochastic environments.
 
 ## History
 
@@ -36,9 +36,9 @@ REINFORCE, also known as Monte Carlo Policy Gradient, is a fundamental policy gr
 
 **1999** — The theoretical underpinnings of policy gradient methods were further formalized by Sutton et al. with the introduction of the Policy Gradient Theorem, which REINFORCE is a direct application of.
 
-**2000** — The concept of [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods emerged, combining policy gradients (actor) with value function estimation (critic) to reduce variance, building upon the ideas introduced by REINFORCE.
+**2000** — The concept of [Actor-Critic](/algorithms/reinforcement/actor-critic) methods emerged, combining policy gradients (actor) with value function estimation (critic) to reduce variance, building upon the ideas introduced by REINFORCE.
 
-**2016** — Deep Reinforcement Learning gained significant traction, with REINFORCE being applied to deep neural networks as policy approximators, demonstrating its scalability to complex tasks like Atari games.
+**2016** — Deep [Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning) gained significant traction, with REINFORCE being applied to deep neural networks as policy approximators, demonstrating its scalability to complex tasks like Atari games.
 
 ## Mathematical Intuition
 
@@ -97,7 +97,7 @@ $$
 3. For each time step $t$ in the trajectory, calculate the discounted return $G_t = \sum_{k=t}^T \gamma^{k-t} r_k$.
 4. Compute the policy gradient estimate for the episode: $\nabla_\theta J(\theta) = \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t|s_t) G_t$. If a baseline $b(s_t)$ is used, replace $G_t$ with $(G_t - b(s_t))$.
 5. Accumulate gradients over a batch of episodes (optional, for batch updates).
-6. Update the policy parameters $\theta$ using an optimization algorithm (e.g., Adam) with the computed gradient: $\theta \leftarrow \theta + \alpha \nabla_\theta J(\theta)$.
+6. Update the policy parameters $\theta$ using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam)) with the computed gradient: $\theta \leftarrow \theta + \alpha \nabla_\theta J(\theta)$.
 7. Repeat steps 2-6 until convergence or a maximum number of episodes is reached.
 
 ## Parameters

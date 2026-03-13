@@ -24,11 +24,11 @@ related:
 
 ## Overview
 
-Vector Autoregressive Moving Average (VARMA) models extend the univariate ARMA framework to multiple interdependent time series. This statistical model captures the linear interdependencies among several time series variables by modeling each variable as a linear combination of its own past values, past values of other series, and past forecast errors from all series. It is particularly useful for understanding and forecasting the dynamic relationships within a system of multiple time-varying components.
+Vector Autoregressive Moving Average ([VARMA](/algorithms/time-series/varma)) models extend the univariate [ARMA](/algorithms/time-series/arma) framework to multiple interdependent time series. This statistical model captures the linear interdependencies among several time series variables by modeling each variable as a linear combination of its own past values, past values of other series, and past forecast errors from all series. It is particularly useful for understanding and forecasting the dynamic relationships within a system of multiple time-varying components.
 
 ## History
 
-**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins publish "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," formalizing univariate [ARIMA](/algorithms/time-series/classical-forecasting/arima) models and laying the theoretical groundwork for multivariate extensions.
+**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins publish "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," formalizing univariate [ARIMA](/algorithms/time-series/arima) models and laying the theoretical groundwork for multivariate extensions.
 
 **1980** — The concept of Vector Autoregressive Moving Average (VARMA) models is introduced in the econometric and statistical literature as a generalization of univariate ARMA to multiple interdependent series.
 
@@ -72,7 +72,7 @@ $$
 
 ### Parameter Estimation via MLE
 
-The parameters of a VARMA model, including the constant vector $c$, the autoregressive matrices $\Phi_i$, the moving average matrices $\Theta_j$, and the error covariance matrix $\Sigma$, are typically estimated using maximum likelihood estimation (MLE). This involves maximizing the likelihood function of the observed data, often under the assumption that the error terms $\epsilon_t$ follow a multivariate normal distribution. Due to the complexity of the likelihood function for VARMA models, numerical optimization techniques, such as the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) for state-space representation, are commonly employed to find the parameter estimates that best fit the data.
+The parameters of a VARMA model, including the constant vector $c$, the autoregressive matrices $\Phi_i$, the moving average matrices $\Theta_j$, and the error covariance matrix $\Sigma$, are typically estimated using maximum likelihood estimation (MLE). This involves maximizing the likelihood function of the observed data, often under the assumption that the error terms $\epsilon_t$ follow a multivariate normal distribution. Due to the complexity of the likelihood function for VARMA models, numerical optimization techniques, such as the [Kalman Filter](/algorithms/probabilistic/kalman-filter) for state-space representation, are commonly employed to find the parameter estimates that best fit the data.
 
 ### Forecasting Future Values
 
@@ -106,8 +106,8 @@ $$
 | `order` | `tuple` | `(1, 0)` | p >= 0, q >= 0 | The (p, q) order of the VARMA model, where p is the autoregressive order and q is the moving average order. |
 | `trend` | `str` | `c` | 'n', 'c', 't', 'ct' | Type of trend component to include in the model. 'n' for no trend, 'c' for constant, 't' for linear trend, 'ct' for constant and linear trend. |
 | `initialization` | `str` | `approximate_diffuse` | 'approximate_diffuse', 'stationary' | Method for initializing the state space representation of the model. Options include 'approximate_diffuse' for a diffuse prior or 'stationary' for a stationary initialization. |
-| `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the autoregressive parameters during estimation, ensuring that the roots of the AR characteristic polynomial lie outside the unit circle. |
-| `enforce_invertibility` | `bool` | `True` | True, False | Whether to enforce invertibility of the moving average parameters during estimation, ensuring that the roots of the MA characteristic polynomial lie outside the unit circle. |
+| `enforce_stationarity` | `bool` | `True` | True, False | Whether to enforce stationarity of the autoregressive parameters during estimation, ensuring that the roots of the [AR](/algorithms/time-series/ar) characteristic polynomial lie outside the unit circle. |
+| `enforce_invertibility` | `bool` | `True` | True, False | Whether to enforce invertibility of the moving average parameters during estimation, ensuring that the roots of the [MA](/algorithms/time-series/ma) characteristic polynomial lie outside the unit circle. |
 
 ## Compatibility
 

@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-The Indian Buffet Process (IBP) is a non-parametric Bayesian prior over binary matrices, designed to model data as arising from an unknown, potentially infinite number of latent features. It provides a probabilistic framework for discovering shared features among observations without pre-specifying the number of features. This process generates sparse binary matrices where rows represent observations and columns represent features, with entries indicating the presence or absence of a feature. The IBP is particularly useful for unsupervised learning tasks where the underlying generative factors are unknown.
+The [Indian Buffet Process](/algorithms/probabilistic/indian-buffet-process) (IBP) is a non-parametric Bayesian prior over binary matrices, designed to model data as arising from an unknown, potentially infinite number of latent features. It provides a probabilistic framework for discovering shared features among observations without pre-specifying the number of features. This process generates sparse binary matrices where rows represent observations and columns represent features, with entries indicating the presence or absence of a feature. The IBP is particularly useful for unsupervised learning tasks where the underlying generative factors are unknown.
 
 ## History
 
@@ -81,7 +81,7 @@ $$
 3. For each observation $n$: propose adding new features based on the Poisson($\alpha/N$) rate, and for each proposed new feature, calculate its probability of being active for observation $n$ and sample accordingly.
 4. Remove any features (columns of $Z$) that are no longer active for any observation after the sampling steps.
 5. Update the parameters of the likelihood model (e.g., feature weights, noise variance) given the current feature assignments $Z$ and the observed data.
-6. Repeat steps 2-5 for a sufficient number of Markov Chain Monte Carlo (MCMC) iterations to converge to the posterior distribution of $Z$ and model parameters.
+6. Repeat steps 2-5 for a sufficient number of [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) iterations to converge to the posterior distribution of $Z$ and model parameters.
 
 ## Parameters
 
@@ -131,7 +131,7 @@ Learning compositional object representations or shared visual features in image
 
 ### Topic Modeling
 
-Inferring latent topics in text documents, similar to [Latent Dirichlet Allocation](/algorithms/unsupervised/topic-modeling/latent-dirichlet-allocation) but with an unknown and adaptively determined number of topics.
+Inferring latent topics in text documents, similar to [Latent Dirichlet Allocation](/algorithms/unsupervised/latent-dirichlet-allocation) but with an unknown and adaptively determined number of topics.
 
 ### Signal Processing
 
@@ -139,7 +139,7 @@ Decomposing complex signals into a sparse set of underlying components, where th
 
 ### Factor Analysis
 
-Providing a non-parametric Bayesian alternative to traditional [Factor Analysis](/algorithms/unsupervised/dimensionality-reduction/factor-analysis) for discovering latent factors in multivariate data.
+Providing a non-parametric Bayesian alternative to traditional [Factor Analysis](/algorithms/unsupervised/factor-analysis) for discovering latent factors in multivariate data.
 
 ## Implementation
 

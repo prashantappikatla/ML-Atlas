@@ -24,15 +24,15 @@ related:
 
 ## Overview
 
-FP-Growth is an efficient algorithm for mining frequent itemsets from transactional databases without generating candidate itemsets. It constructs a compact Frequent Pattern Tree (FP-Tree) to store transaction information, significantly reducing the search space compared to [Apriori](/algorithms/unsupervised/association-rules/apriori)-like algorithms. This tree-based approach enables faster discovery of patterns that meet a user-defined minimum support threshold. The algorithm operates in two phases: FP-Tree construction and recursive FP-Tree mining.
+[FP-Growth](/algorithms/unsupervised/fp-growth) is an efficient algorithm for mining frequent itemsets from transactional databases without generating candidate itemsets. It constructs a compact Frequent Pattern Tree (FP-Tree) to store transaction information, significantly reducing the search space compared to [Apriori](/algorithms/unsupervised/apriori)-like algorithms. This tree-based approach enables faster discovery of patterns that meet a user-defined minimum support threshold. The algorithm operates in two phases: FP-Tree construction and recursive FP-Tree mining.
 
 ## History
 
-**1993** — R. Agrawal, T. Imieliński, and A. Swami introduced the [Apriori](/algorithms/unsupervised/association-rules/apriori) algorithm, a seminal work for frequent itemset mining, which relies on candidate generation and pruning.
+**1993** — R. Agrawal, T. Imieliński, and A. Swami introduced the Apriori algorithm, a seminal work for frequent itemset mining, which relies on candidate generation and pruning.
 
-**1994** — R. Agrawal and R. Srikant extended [Apriori](/algorithms/unsupervised/association-rules/apriori) to mine association rules, formally defining the concepts of support and confidence which became fundamental to the field.
+**1994** — R. Agrawal and R. Srikant extended Apriori to mine association rules, formally defining the concepts of support and confidence which became fundamental to the field.
 
-**2000** — J. Han, J. Pei, and Y. Yin proposed the FP-Growth algorithm, an alternative to [Apriori](/algorithms/unsupervised/association-rules/apriori) that avoids candidate generation by using a compact tree structure for efficient frequent itemset discovery.
+**2000** — J. Han, J. Pei, and Y. Yin proposed the FP-Growth algorithm, an alternative to Apriori that avoids candidate generation by using a compact tree structure for efficient frequent itemset discovery.
 
 **2003** — J. Han, J. Pei, and M. Kamber published "Data Mining: Concepts and Techniques," which popularized FP-Growth and other data mining algorithms, establishing it as a standard method.
 

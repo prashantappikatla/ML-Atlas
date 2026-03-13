@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-RealNVP (Real-valued Non-Volume Preserving) is a type of [Normalizing Flow](/algorithms/generative/flow-based/normalizing-flow) model designed for density estimation and generative modeling. It transforms a simple base distribution (e.g., a Gaussian) into a complex target distribution by applying a sequence of invertible and differentiable transformations. Its key innovation lies in the use of affine coupling layers, which allow for efficient computation of both the forward pass and the log-determinant of the Jacobian, enabling exact likelihood estimation.
+[RealNVP](/algorithms/generative/realnvp) (Real-valued Non-Volume Preserving) is a type of [Normalizing Flow](/algorithms/generative/normalizing-flow) model designed for density estimation and generative modeling. It transforms a simple base distribution (e.g., a Gaussian) into a complex target distribution by applying a sequence of invertible and differentiable transformations. Its key innovation lies in the use of affine coupling layers, which allow for efficient computation of both the forward pass and the log-determinant of the Jacobian, enabling exact likelihood estimation.
 
 ## History
 
@@ -36,7 +36,7 @@ RealNVP (Real-valued Non-Volume Preserving) is a type of [Normalizing Flow](/alg
 
 **2017** — Laurent Dinh, Jascha Sohl-Dickstein, and Samy Bengio introduce RealNVP, improving upon NICE by using affine coupling layers instead of additive ones, which allows for more flexible transformations and better performance.
 
-**2018** — Diederik P. Kingma and Prafulla Dhariwal introduce Glow, a further advancement building on RealNVP's affine coupling layers, incorporating invertible $1 	imes 1$ convolutions and demonstrating high-quality image generation.
+**2018** — Diederik P. Kingma and Prafulla Dhariwal introduce [Glow](/algorithms/generative/glow), a further advancement building on RealNVP's affine coupling layers, incorporating invertible $1 	imes 1$ convolutions and demonstrating high-quality image generation.
 
 ## Mathematical Intuition
 
@@ -109,7 +109,7 @@ $$
 2. Construct a sequence of $K$ invertible affine coupling layers $f_k$ to form the overall transformation $f = f_K \circ \dots \circ f_1$. Each layer uses a different masking strategy (e.g., alternating which half of dimensions are transformed).
 3. For each training data point $x$, compute the corresponding latent representation $z = f^{-1}(x)$ by passing $x$ through the inverse of the flow layers.
 4. Calculate the log-likelihood of $x$ using the change of variables formula: $\log p_X(x) = \log p_Z(z) + \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(y_{k-1})}{\partial y_{k-1}} \right) \right|$, where $y_0=z$ and $y_k = f_k(y_{k-1})$.
-5. Train the neural networks within the scaling and translation functions $s(\cdot)$ and $t(\cdot)$ of each coupling layer by maximizing the average log-likelihood of the training data using gradient-based optimization (e.g., Adam).
+5. Train the neural networks within the scaling and translation functions $s(\cdot)$ and $t(\cdot)$ of each coupling layer by maximizing the average log-likelihood of the training data using gradient-based optimization (e.g., [Adam](/algorithms/meta-learning/adam)).
 6. To generate new samples, first sample a latent vector $z \sim p_Z(z)$ from the base distribution.
 7. Then, pass $z$ through the forward flow $x = f(z)$ to obtain a new sample from the learned data distribution $p_X(x)$.
 

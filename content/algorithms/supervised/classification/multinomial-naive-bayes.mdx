@@ -30,25 +30,25 @@ related:
 
 ## Overview
 
-Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm particularly well-suited for discrete features, such as word counts in text classification. It operates on Bayes' theorem with a strong "naive" assumption of conditional independence between features given the class. This simplicity allows for efficient training and prediction, making it a popular choice for high-dimensional datasets like those found in natural language processing. Its generative approach models the distribution of features for each class.
+[Multinomial Naive Bayes](/algorithms/supervised/multinomial-naive-bayes) is a probabilistic classification algorithm particularly well-suited for discrete features, such as word counts in text classification. It operates on Bayes' theorem with a strong "naive" assumption of conditional independence between features given the class. This simplicity allows for efficient training and prediction, making it a popular choice for high-dimensional datasets like those found in natural language processing. Its generative approach models the distribution of features for each class.
 
 ## History
 
-**1950** — The foundational concept of [Naive Bayes](/algorithms/supervised/classification/naive-bayes), based on Bayes' theorem and the assumption of feature independence, began to emerge in early pattern recognition and statistical classification literature.
+**1950** — The foundational concept of [Naive Bayes](/algorithms/supervised/naive-bayes), based on Bayes' theorem and the assumption of feature independence, began to emerge in early pattern recognition and statistical classification literature.
 
-**1960** — Early applications of probabilistic classifiers, including those implicitly using [Naive Bayes](/algorithms/supervised/classification/naive-bayes) principles, appeared in fields like medical diagnosis and document retrieval.
+**1960** — Early applications of probabilistic classifiers, including those implicitly using Naive Bayes principles, appeared in fields like medical diagnosis and document retrieval.
 
-**1990** — With the rise of the internet and large text corpora, [Naive Bayes](/algorithms/supervised/classification/naive-bayes), particularly its multinomial variant, gained significant prominence in text classification tasks such as spam filtering and document categorization.
+**1990** — With the rise of the internet and large text corpora, Naive Bayes, particularly its multinomial variant, gained significant prominence in text classification tasks such as spam filtering and document categorization.
 
-**1998** — Andrew McCallum and Kamal Nigam published "A Comparison of Event Models for [Naive Bayes](/algorithms/supervised/classification/naive-bayes) Text Classification," which rigorously compared different event models, including the multinomial model, solidifying its theoretical and practical understanding in NLP.
+**1998** — Andrew McCallum and Kamal Nigam published "A Comparison of Event Models for Naive Bayes Text Classification," which rigorously compared different event models, including the multinomial model, solidifying its theoretical and practical understanding in NLP.
 
-**2000** — Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes) was widely adopted and implemented in various machine learning libraries and tools due to its simplicity, efficiency, and competitive performance on many text-related problems.
+**2000** — Multinomial Naive Bayes was widely adopted and implemented in various machine learning libraries and tools due to its simplicity, efficiency, and competitive performance on many text-related problems.
 
 ## Mathematical Intuition
 
 ### Bayes' Theorem Foundation
 
-The core of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is Bayes' Theorem, which allows us to calculate the posterior probability of a class $C_k$ given a feature vector $x = (x_1, x_2, \dots, x_n)$.
+The core of Naive Bayes is Bayes' Theorem, which allows us to calculate the posterior probability of a class $C_k$ given a feature vector $x = (x_1, x_2, \dots, x_n)$.
 $$P(C_k | x) = \frac{P(x | C_k) P(C_k)}{P(x)}$$
 For classification, we are interested in finding the class $C_k$ that maximizes this posterior probability. Since $P(x)$ is constant for all classes, we can simplify the decision rule to:
 $$C_{predict} = \arg\max_{C_k} P(x | C_k) P(C_k)$$
@@ -65,7 +65,7 @@ $$
 
 The "naive" part comes from assuming that all features $x_i$ are conditionally independent of each other given the class $C_k$. This simplifies the likelihood $P(x | C_k)$ significantly:
 $$P(x | C_k) = P(x_1, x_2, \dots, x_n | C_k) = \prod_{i=1}^{n} P(x_i | C_k)$$
-Substituting this into the classification rule yields the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier:
+Substituting this into the classification rule yields the Naive Bayes classifier:
 $$C_{predict} = \arg\max_{C_k} P(C_k) \prod_{i=1}^{n} P(x_i | C_k)$$
 To avoid numerical underflow with many small probabilities, the product is often computed in the log-domain:
 $$C_{predict} = \arg\max_{C_k} \left[ \log P(C_k) + \sum_{i=1}^{n} \log P(x_i | C_k) \right]$$
@@ -84,7 +84,7 @@ $$
 
 ### Multinomial Feature Model
 
-For Multinomial [Naive Bayes](/algorithms/supervised/classification/naive-bayes), features $x_i$ typically represent counts (e.g., word occurrences in a document). The likelihood $P(x_i | C_k)$ is modeled using a multinomial distribution. Specifically, for a document $d$ and a class $C_k$, the probability of observing a word $w_j$ is estimated as:
+For Multinomial Naive Bayes, features $x_i$ typically represent counts (e.g., word occurrences in a document). The likelihood $P(x_i | C_k)$ is modeled using a multinomial distribution. Specifically, for a document $d$ and a class $C_k$, the probability of observing a word $w_j$ is estimated as:
 $$P(w_j | C_k) = \frac{\text{count}(w_j, C_k) + \alpha}{\sum_{w \in V} (\text{count}(w, C_k) + \alpha)}$$
 where $\text{count}(w_j, C_k)$ is the number of times word $w_j$ appears in all documents of class $C_k$, $V$ is the vocabulary, and $\alpha$ is the Laplace smoothing parameter (typically $\alpha=1$). The likelihood of a document $x$ (represented as a bag of words) given a class $C_k$ is then:
 $$P(x | C_k) = P(\text{document } d | C_k) = \frac{(\sum_{i=1}^{n} x_i)!}{\prod_{i=1}^{n} x_i!} \prod_{i=1}^{n} P(w_i | C_k)^{x_i}$$

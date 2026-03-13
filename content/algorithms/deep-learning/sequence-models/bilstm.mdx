@@ -24,19 +24,19 @@ related:
 
 ## Overview
 
-Bidirectional Long Short-Term Memory (BiLSTM) networks extend the capabilities of standard LSTMs by processing sequential data in both forward and backward directions simultaneously. This architecture allows the model to capture context from both past and future elements within a sequence, providing a more comprehensive understanding of the entire input. BiLSTMs are particularly effective for tasks where the output at any given time step depends on information from the complete input sequence, not just preceding elements.
+Bidirectional Long Short-Term Memory ([BiLSTM](/algorithms/deep-learning/bilstm)) networks extend the capabilities of standard LSTMs by processing sequential data in both forward and backward directions simultaneously. This architecture allows the model to capture context from both past and future elements within a sequence, providing a more comprehensive understanding of the entire input. BiLSTMs are particularly effective for tasks where the output at any given time step depends on information from the complete input sequence, not just preceding elements.
 
 ## History
 
-**1997** — Long Short-Term Memory (LSTM) networks were introduced by [Sepp Hochreiter](https://en.wikipedia.org/wiki/Sepp_Hochreiter) and Jürgen Schmidhuber, addressing the vanishing gradient problem in traditional RNNs.
+**1997** — Long Short-Term Memory ([LSTM](/algorithms/deep-learning/lstm)) networks were introduced by [Sepp Hochreiter](https://en.wikipedia.org/wiki/Sepp_Hochreiter) and Jürgen Schmidhuber, addressing the vanishing gradient problem in traditional RNNs.
 
-**1997** — Bidirectional Recurrent Neural Networks (BRNNs) were proposed by Mike Schuster and Kuldip K. Paliwal, enabling RNNs to process sequences in both forward and backward directions.
+**1997** — Bidirectional Recurrent [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (BRNNs) were proposed by Mike Schuster and Kuldip K. Paliwal, enabling RNNs to process sequences in both forward and backward directions.
 
 **2005** — Alex Graves and Jürgen Schmidhuber applied BiLSTMs to handwriting recognition, demonstrating their effectiveness in practical applications and popularizing the combined architecture.
 
 **2013** — BiLSTMs gained significant traction in natural language processing tasks, particularly after their successful application in speech recognition and machine translation, becoming a standard component in many state-of-the-art models.
 
-**2015** — Deep BiLSTMs, [Stacking](/algorithms/supervised/classification/stacking) multiple BiLSTM layers, became common for more complex sequence modeling tasks, further enhancing their representational power for hierarchical feature learning.
+**2015** — Deep BiLSTMs, [Stacking](/algorithms/supervised/stacking) multiple BiLSTM layers, became common for more complex sequence modeling tasks, further enhancing their representational power for hierarchical feature learning.
 
 ## Mathematical Intuition
 
@@ -115,7 +115,7 @@ $$
 4. At each time step $t$, combine the forward hidden state $\vec{h}_t$ and the backward hidden state $\overleftarrow{h}_t$ to form a single output representation $h_t$, typically by concatenation: $h_t = [\vec{h}_t; \overleftarrow{h}_t]$.
 5. Pass the sequence of combined hidden states $(h_1, h_2, ..., h_T)$ through a final output layer (e.g., a dense layer with softmax for classification) to generate predictions for each time step.
 6. Calculate the loss between the model's predictions and the true labels using an appropriate loss function.
-7. Update the model's weights and biases for both LSTM layers and the output layer using an optimization algorithm (e.g., Adam, RMSprop) via backpropagation through time.
+7. Update the model's weights and biases for both LSTM layers and the output layer using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam), RMSprop) via backpropagation through time.
 
 ## Parameters
 

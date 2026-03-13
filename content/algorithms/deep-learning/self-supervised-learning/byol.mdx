@@ -27,19 +27,19 @@ related:
 
 ## Overview
 
-BYOL (Bootstrap Your Own Latent) is a self-supervised learning method that learns representations by predicting the output of a target network from an online network, where both networks are trained on augmented views of the same image. A key distinction is its ability to avoid representational collapse without relying on negative pairs or explicit contrastive terms. It achieves this by employing a stop-gradient operation and an exponential moving average update for the target network's weights.
+[BYOL](/algorithms/deep-learning/byol) (Bootstrap Your Own Latent) is a self-supervised learning method that learns representations by predicting the output of a target network from an online network, where both networks are trained on augmented views of the same image. A key distinction is its ability to avoid representational collapse without relying on negative pairs or explicit contrastive terms. It achieves this by employing a stop-gradient operation and an exponential moving average update for the target network's weights.
 
 ## History
 
 **2018** — Contrastive Predictive Coding (CPC) by Oord et al. introduced the idea of learning representations by predicting future, present, or past information in a latent space, laying groundwork for contrastive learning.
 
-**2019** — [Momentum](/algorithms/meta-learning/optimization/momentum) Contrast (MoCo) by He et al. proposed using a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a large dynamic dictionary for contrastive learning, enabling larger batch sizes effectively.
+**2019** — [Momentum](/algorithms/meta-learning/momentum) Contrast ([MoCo](/algorithms/deep-learning/moco)) by He et al. proposed using a Momentum encoder and a large dynamic dictionary for contrastive learning, enabling larger batch sizes effectively.
 
-**2020** — [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr) by Chen et al. demonstrated the power of large batch sizes and strong data augmentations in contrastive self-supervised learning, achieving state-of-the-art results.
+**2020** — [SimCLR](/algorithms/deep-learning/simclr) by Chen et al. demonstrated the power of large batch sizes and strong data augmentations in contrastive self-supervised learning, achieving state-of-the-art results.
 
 **2020** — Bootstrap Your Own Latent (BYOL) by Grill et al. was introduced, demonstrating that high-quality representations could be learned without negative pairs, challenging prevailing assumptions in self-supervised learning.
 
-**2021** — DINO (Self-distillation with no labels) by Caron et al. extended the BYOL paradigm by using self-distillation with a [Vision [Transformer](/algorithms/deep-learning/transformers/transformer)](/algorithms/deep-learning/transformers/vision-[Transformer](/algorithms/deep-learning/transformers/transformer)) architecture, achieving impressive performance.
+**2021** — DINO (Self-distillation with no labels) by Caron et al. extended the BYOL paradigm by using self-distillation with a [Vision Transformer](/algorithms/deep-learning/vision-transformer)) architecture, achieving impressive performance.
 
 ## Mathematical Intuition
 
@@ -90,7 +90,7 @@ Unlike many contrastive learning methods, BYOL does not explicitly use negative 
 3. Pass $v'$ through the target network to obtain its representation $z_t = g_\xi(f_\xi(v'))$.
 4. Compute the mean squared error loss between the $L_2$-normalized $p_o$ and $L_2$-normalized $z_t$.
 5. Repeat steps 2-4 for the symmetric case, passing $v'$ through the online network and $v$ through the target network, and sum the losses.
-6. Update the online network's parameters $\theta_o$ using an optimizer (e.g., SGD or Adam) based on the computed loss.
+6. Update the online network's parameters $\theta_o$ using an optimizer (e.g., SGD or [Adam](/algorithms/meta-learning/adam)) based on the computed loss.
 7. Update the target network's parameters $\theta_t$ as an exponential moving average of the online network's parameters $\theta_o$ using a decay rate $\tau$.
 
 ## Parameters

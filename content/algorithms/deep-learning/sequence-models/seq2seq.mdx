@@ -24,17 +24,17 @@ related:
 
 ## Overview
 
-Seq2Seq (Sequence-to-Sequence) models are a class of deep learning architectures designed to transform input sequences into output sequences of potentially different lengths. They typically consist of an encoder that processes the input sequence into a fixed-dimensional context vector, and a decoder that generates the output sequence based on this context vector. This architecture is particularly effective for tasks requiring mapping one sequence to another, such as machine translation or text summarization. Its power lies in its ability to learn complex, non-linear mappings between variable-length sequences.
+[Seq2Seq](/algorithms/deep-learning/seq2seq) (Sequence-to-Sequence) models are a class of deep learning architectures designed to transform input sequences into output sequences of potentially different lengths. They typically consist of an encoder that processes the input sequence into a fixed-dimensional context vector, and a decoder that generates the output sequence based on this context vector. This architecture is particularly effective for tasks requiring mapping one sequence to another, such as machine translation or text summarization. Its power lies in its ability to learn complex, non-linear mappings between variable-length sequences.
 
 ## History
 
-**2014** — Sutskever, Vinyals, and Le introduced the Sequence to Sequence Learning with [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)) model, demonstrating its effectiveness for machine translation using LSTMs.
+**2014** — Sutskever, Vinyals, and Le introduced the Sequence to Sequence Learning with [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)))) model, demonstrating its effectiveness for machine translation using LSTMs.
 
 **2014** — Cho et al. concurrently proposed a similar encoder-decoder framework using GRUs, highlighting its application in phrase representation and machine translation.
 
-**2015** — Bahdanau, Cho, and Bengio introduced the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), significantly improving Seq2Seq models by allowing the decoder to focus on relevant parts of the input sequence.
+**2015** — Bahdanau, Cho, and Bengio introduced the [Attention Mechanism](/algorithms/deep-learning/attention-mechanism), significantly improving Seq2Seq models by allowing the decoder to focus on relevant parts of the input sequence.
 
-**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, which replaced recurrent layers with self-attention mechanisms, becoming the dominant model for many sequence tasks and influencing subsequent Seq2Seq developments.
+**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformer) architecture, which replaced recurrent layers with self-attention mechanisms, becoming the dominant model for many sequence tasks and influencing subsequent Seq2Seq developments.
 
 ## Mathematical Intuition
 
@@ -55,7 +55,7 @@ $$
 
 ### Recurrent Neural Network Cells
 
-Both the encoder and decoder typically employ Recurrent Neural Networks (RNNs), often Long Short-Term Memory (LSTM) units or Gated Recurrent Units (GRU), to process sequences. An RNN cell updates its hidden state $h_t$ based on the current input $x_t$ and the previous hidden state $h_{t-1}$. For a simple RNN:
+Both the encoder and decoder typically employ Recurrent Neural Networks (RNNs), often Long Short-Term Memory ([LSTM](/algorithms/deep-learning/lstm)) units or Gated Recurrent Units ([GRU](/algorithms/deep-learning/gru)), to process sequences. An RNN cell updates its hidden state $h_t$ based on the current input $x_t$ and the previous hidden state $h_{t-1}$. For a simple RNN:
 $$ h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h) $$
 The encoder's final hidden state (or a transformation thereof) often serves as the initial context vector for the decoder.
 
@@ -96,10 +96,10 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `hidden_size` | `integer` | `256` | positive integer | The number of features in the hidden state of the RNN cells in both the encoder and decoder. |
-| `num_layers` | `integer` | `1` | positive integer | The number of recurrent layers in the encoder and decoder. Stacking layers can increase model capacity. |
+| `num_layers` | `integer` | `1` | positive integer | The number of recurrent layers in the encoder and decoder. [Stacking](/algorithms/supervised/stacking) layers can increase model capacity. |
 | `dropout_rate` | `float` | `0.0` | 0.0 to 1.0 | The dropout probability applied to the output of each RNN layer, used for regularization. |
 | `learning_rate` | `float` | `0.001` | positive float | The step size for the optimizer during training, controlling how much the model weights are adjusted. |
-| `optimizer_type` | `string` | `Adam` | ['Adam', 'SGD', 'RMSprop'] | The optimization algorithm used to update model weights (e.g., 'Adam', 'SGD', 'RMSprop'). |
+| `optimizer_type` | `string` | `Adam` | '[[Adam](/algorithms/meta-learning/adam)', 'SGD', 'RMSprop'] | The optimization algorithm used to update model weights (e.g., 'Adam', 'SGD', 'RMSprop'). |
 | `embedding_dim` | `integer` | `128` | positive integer | The dimension of the word embeddings used for input tokens. |
 | `max_output_length` | `integer` | `50` | positive integer | The maximum length of the sequence that the decoder is allowed to generate during inference. |
 

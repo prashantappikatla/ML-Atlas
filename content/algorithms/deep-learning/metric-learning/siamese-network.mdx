@@ -38,7 +38,7 @@ Siamese Networks are a class of neural network architectures designed for metric
 
 ### Shared Weights and Feature Extraction
 
-The core idea of a Siamese Network is to use two identical sub-networks, $G_W$, which share the same weights $W$. Given two input samples, $x_1$ and $x_2$, each sub-network maps its input to a lower-dimensional feature vector, $h_1 = G_W(x_1)$ and $h_2 = G_W(x_2)$. The similarity or dissimilarity between $x_1$ and $x_2$ is then determined by a distance metric (e.g., Euclidean distance) applied to their respective feature vectors: $D(x_1, x_2) = ||G_W(x_1) - G_W(x_2)||_p$. The network is trained to minimize this distance for similar pairs and maximize it for dissimilar pairs.
+The core idea of a [Siamese Network](/algorithms/deep-learning/siamese-network) is to use two identical sub-networks, $G_W$, which share the same weights $W$. Given two input samples, $x_1$ and $x_2$, each sub-network maps its input to a lower-dimensional feature vector, $h_1 = G_W(x_1)$ and $h_2 = G_W(x_2)$. The similarity or dissimilarity between $x_1$ and $x_2$ is then determined by a distance metric (e.g., Euclidean distance) applied to their respective feature vectors: $D(x_1, x_2) = ||G_W(x_1) - G_W(x_2)||_p$. The network is trained to minimize this distance for similar pairs and maximize it for dissimilar pairs.
 
 $$
 h_1 = G_W(x_1)
@@ -80,7 +80,7 @@ $$
 4. Prepare training data as pairs $(x_1, x_2, y)$ for Contrastive Loss or triplets $(x_a, x_p, x_n)$ for Triplet Loss.
 5. For each training step, feed $x_1$ and $x_2$ (or $x_a, x_p, x_n$) into their respective sub-networks to obtain embeddings $G_W(x_1)$ and $G_W(x_2)$ (or $G_W(x_a), G_W(x_p), G_W(x_n)$).
 6. Calculate the distance between the embeddings (e.g., Euclidean distance) and then compute the chosen loss function.
-7. Perform backpropagation to compute gradients with respect to the shared weights $W$ and update $W$ using an optimizer (e.g., Adam, SGD).
+7. Perform backpropagation to compute gradients with respect to the shared weights $W$ and update $W$ using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam), SGD).
 8. Repeat steps 4-7 for a specified number of epochs or until convergence, refining the embedding space such that similar items are close and dissimilar items are far apart.
 
 ## Parameters

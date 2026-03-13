@@ -1,0 +1,1943 @@
+{
+  "version": "1.0",
+  "generated": "2026-03-12",
+  "algorithms": {
+    "A2C": {
+      "slug": "a2c",
+      "url": "/algorithms/reinforcement/a2c",
+      "category": "reinforcement",
+      "name": "A2C"
+    },
+    "A3C": {
+      "slug": "a3c",
+      "url": "/algorithms/reinforcement/a3c",
+      "category": "reinforcement",
+      "name": "A3C"
+    },
+    "ALBERT": {
+      "slug": "albert",
+      "url": "/algorithms/deep-learning/albert",
+      "category": "deep-learning",
+      "name": "ALBERT"
+    },
+    "ANFIS": {
+      "slug": "anfis",
+      "url": "/algorithms/evolutionary/anfis",
+      "category": "evolutionary",
+      "name": "ANFIS"
+    },
+    "AR": {
+      "slug": "ar",
+      "url": "/algorithms/time-series/ar",
+      "category": "time-series",
+      "name": "AR"
+    },
+    "ARCH": {
+      "slug": "arch",
+      "url": "/algorithms/time-series/arch",
+      "category": "time-series",
+      "name": "ARCH"
+    },
+    "ARIMA": {
+      "slug": "arima",
+      "url": "/algorithms/time-series/arima",
+      "category": "time-series",
+      "name": "ARIMA"
+    },
+    "ARMA": {
+      "slug": "arma",
+      "url": "/algorithms/time-series/arma",
+      "category": "time-series",
+      "name": "ARMA"
+    },
+    "Actor-Critic": {
+      "slug": "actor-critic",
+      "url": "/algorithms/reinforcement/actor-critic",
+      "category": "reinforcement",
+      "name": "Actor-Critic"
+    },
+    "AdaBoost": {
+      "slug": "adaboost",
+      "url": "/algorithms/supervised/adaboost",
+      "category": "supervised",
+      "name": "AdaBoost"
+    },
+    "AdaBoost Regression": {
+      "slug": "adaboost-regression",
+      "url": "/algorithms/supervised/adaboost-regression",
+      "category": "supervised",
+      "name": "AdaBoost Regression"
+    },
+    "AdaGrad": {
+      "slug": "adagrad",
+      "url": "/algorithms/meta-learning/adagrad",
+      "category": "meta-learning",
+      "name": "AdaGrad"
+    },
+    "Adam": {
+      "slug": "adam",
+      "url": "/algorithms/meta-learning/adam",
+      "category": "meta-learning",
+      "name": "Adam"
+    },
+    "AdamW": {
+      "slug": "adamw",
+      "url": "/algorithms/meta-learning/adamw",
+      "category": "meta-learning",
+      "name": "AdamW"
+    },
+    "Affinity Propagation": {
+      "slug": "affinity-propagation",
+      "url": "/algorithms/unsupervised/affinity-propagation",
+      "category": "unsupervised",
+      "name": "Affinity Propagation"
+    },
+    "Agglomerative Clustering": {
+      "slug": "agglomerative-clustering",
+      "url": "/algorithms/unsupervised/agglomerative-clustering",
+      "category": "unsupervised",
+      "name": "Agglomerative Clustering"
+    },
+    "AlexNet": {
+      "slug": "alexnet",
+      "url": "/algorithms/deep-learning/alexnet",
+      "category": "deep-learning",
+      "name": "AlexNet"
+    },
+    "Ant Colony Optimization": {
+      "slug": "ant-colony-optimization",
+      "url": "/algorithms/evolutionary/ant-colony-optimization",
+      "category": "evolutionary",
+      "name": "Ant Colony Optimization"
+    },
+    "Apriori": {
+      "slug": "apriori",
+      "url": "/algorithms/unsupervised/apriori",
+      "category": "unsupervised",
+      "name": "Apriori"
+    },
+    "Attention Mechanism": {
+      "slug": "attention-mechanism",
+      "url": "/algorithms/deep-learning/attention-mechanism",
+      "category": "deep-learning",
+      "name": "Attention Mechanism"
+    },
+    "Autoencoder": {
+      "slug": "autoencoder",
+      "url": "/algorithms/deep-learning/autoencoder",
+      "category": "deep-learning",
+      "name": "Autoencoder"
+    },
+    "Autoencoder-based Anomaly Detection": {
+      "slug": "autoencoder-based-anomaly-detection",
+      "url": "/algorithms/unsupervised/autoencoder-based-anomaly-detection",
+      "category": "unsupervised",
+      "name": "Autoencoder-based Anomaly Detection"
+    },
+    "BERT": {
+      "slug": "bert",
+      "url": "/algorithms/deep-learning/bert",
+      "category": "deep-learning",
+      "name": "BERT"
+    },
+    "BIRCH": {
+      "slug": "birch",
+      "url": "/algorithms/unsupervised/birch",
+      "category": "unsupervised",
+      "name": "BIRCH"
+    },
+    "BOHB": {
+      "slug": "bohb",
+      "url": "/algorithms/meta-learning/bohb",
+      "category": "meta-learning",
+      "name": "BOHB"
+    },
+    "BYOL": {
+      "slug": "byol",
+      "url": "/algorithms/deep-learning/byol",
+      "category": "deep-learning",
+      "name": "BYOL"
+    },
+    "Bagging Classifier": {
+      "slug": "bagging-classifier",
+      "url": "/algorithms/supervised/bagging-classifier",
+      "category": "supervised",
+      "name": "Bagging Classifier"
+    },
+    "Bayesian Linear Regression": {
+      "slug": "bayesian-linear-regression",
+      "url": "/algorithms/supervised/bayesian-linear-regression",
+      "category": "supervised",
+      "name": "Bayesian Linear Regression"
+    },
+    "Bayesian Logistic Regression": {
+      "slug": "bayesian-logistic-regression",
+      "url": "/algorithms/probabilistic/bayesian-logistic-regression",
+      "category": "probabilistic",
+      "name": "Bayesian Logistic Regression"
+    },
+    "Bayesian Network": {
+      "slug": "bayesian-network",
+      "url": "/algorithms/probabilistic/bayesian-network",
+      "category": "probabilistic",
+      "name": "Bayesian Network"
+    },
+    "Bayesian Optimization": {
+      "slug": "bayesian-optimization",
+      "url": "/algorithms/meta-learning/bayesian-optimization",
+      "category": "meta-learning",
+      "name": "Bayesian Optimization"
+    },
+    "Bernoulli Naive Bayes": {
+      "slug": "bernoulli-naive-bayes",
+      "url": "/algorithms/supervised/bernoulli-naive-bayes",
+      "category": "supervised",
+      "name": "Bernoulli Naive Bayes"
+    },
+    "Beta-VAE": {
+      "slug": "beta-vae",
+      "url": "/algorithms/generative/beta-vae",
+      "category": "generative",
+      "name": "Beta-VAE"
+    },
+    "BiLSTM": {
+      "slug": "bilstm",
+      "url": "/algorithms/deep-learning/bilstm",
+      "category": "deep-learning",
+      "name": "BiLSTM"
+    },
+    "Boltzmann Machine": {
+      "slug": "boltzmann-machine",
+      "url": "/algorithms/deep-learning/boltzmann-machine",
+      "category": "deep-learning",
+      "name": "Boltzmann Machine"
+    },
+    "COPOD": {
+      "slug": "copod",
+      "url": "/algorithms/unsupervised/copod",
+      "category": "unsupervised",
+      "name": "COPOD"
+    },
+    "CURE": {
+      "slug": "cure",
+      "url": "/algorithms/unsupervised/cure",
+      "category": "unsupervised",
+      "name": "CURE"
+    },
+    "Calibrated Classifier": {
+      "slug": "calibrated-classifier",
+      "url": "/algorithms/supervised/calibrated-classifier",
+      "category": "supervised",
+      "name": "Calibrated Classifier"
+    },
+    "Capsule Network": {
+      "slug": "capsule-network",
+      "url": "/algorithms/deep-learning/capsule-network",
+      "category": "deep-learning",
+      "name": "Capsule Network"
+    },
+    "CatBoost": {
+      "slug": "catboost",
+      "url": "/algorithms/supervised/catboost",
+      "category": "supervised",
+      "name": "CatBoost"
+    },
+    "Chinese Restaurant Process": {
+      "slug": "chinese-restaurant-process",
+      "url": "/algorithms/probabilistic/chinese-restaurant-process",
+      "category": "probabilistic",
+      "name": "Chinese Restaurant Process"
+    },
+    "Complement Naive Bayes": {
+      "slug": "complement-naive-bayes",
+      "url": "/algorithms/supervised/complement-naive-bayes",
+      "category": "supervised",
+      "name": "Complement Naive Bayes"
+    },
+    "Conditional GAN": {
+      "slug": "conditional-gan",
+      "url": "/algorithms/generative/conditional-gan",
+      "category": "generative",
+      "name": "Conditional GAN"
+    },
+    "Conditional Random Field": {
+      "slug": "conditional-random-field",
+      "url": "/algorithms/supervised/conditional-random-field",
+      "category": "supervised",
+      "name": "Conditional Random Field"
+    },
+    "Contextual Bandits": {
+      "slug": "contextual-bandits",
+      "url": "/algorithms/reinforcement/contextual-bandits",
+      "category": "reinforcement",
+      "name": "Contextual Bandits"
+    },
+    "Contractive Autoencoder": {
+      "slug": "contractive-autoencoder",
+      "url": "/algorithms/deep-learning/contractive-autoencoder",
+      "category": "deep-learning",
+      "name": "Contractive Autoencoder"
+    },
+    "ConvNeXt": {
+      "slug": "convnext",
+      "url": "/algorithms/deep-learning/convnext",
+      "category": "deep-learning",
+      "name": "ConvNeXt"
+    },
+    "CycleGAN": {
+      "slug": "cyclegan",
+      "url": "/algorithms/generative/cyclegan",
+      "category": "generative",
+      "name": "CycleGAN"
+    },
+    "DALL-E-style diffusion/decoder models": {
+      "slug": "dall-e-style-diffusion-decoder-models",
+      "url": "/algorithms/generative/dall-e-style-diffusion-decoder-models",
+      "category": "generative",
+      "name": "DALL-E-style diffusion/decoder models"
+    },
+    "DBSCAN": {
+      "slug": "dbscan",
+      "url": "/algorithms/unsupervised/dbscan",
+      "category": "unsupervised",
+      "name": "DBSCAN"
+    },
+    "DCGAN": {
+      "slug": "dcgan",
+      "url": "/algorithms/generative/dcgan",
+      "category": "generative",
+      "name": "DCGAN"
+    },
+    "DDPG": {
+      "slug": "ddpg",
+      "url": "/algorithms/reinforcement/ddpg",
+      "category": "reinforcement",
+      "name": "DDPG"
+    },
+    "DDPM": {
+      "slug": "ddpm",
+      "url": "/algorithms/generative/ddpm",
+      "category": "generative",
+      "name": "DDPM"
+    },
+    "Decision Tree Classifier": {
+      "slug": "decision-tree-classifier",
+      "url": "/algorithms/supervised/decision-tree-classifier",
+      "category": "supervised",
+      "name": "Decision Tree Classifier"
+    },
+    "Decision Tree Regression": {
+      "slug": "decision-tree-regression",
+      "url": "/algorithms/supervised/decision-tree-regression",
+      "category": "supervised",
+      "name": "Decision Tree Regression"
+    },
+    "Deep Belief Network": {
+      "slug": "deep-belief-network",
+      "url": "/algorithms/deep-learning/deep-belief-network",
+      "category": "deep-learning",
+      "name": "Deep Belief Network"
+    },
+    "Deep Q Network": {
+      "slug": "deep-q-network",
+      "url": "/algorithms/reinforcement/deep-q-network",
+      "category": "reinforcement",
+      "name": "Deep Q Network"
+    },
+    "DeepAR": {
+      "slug": "deepar",
+      "url": "/algorithms/time-series/deepar",
+      "category": "time-series",
+      "name": "DeepAR"
+    },
+    "DeepWalk": {
+      "slug": "deepwalk",
+      "url": "/algorithms/graph/deepwalk",
+      "category": "graph",
+      "name": "DeepWalk"
+    },
+    "Denoising Autoencoder": {
+      "slug": "denoising-autoencoder",
+      "url": "/algorithms/deep-learning/denoising-autoencoder",
+      "category": "deep-learning",
+      "name": "Denoising Autoencoder"
+    },
+    "DenseNet": {
+      "slug": "densenet",
+      "url": "/algorithms/deep-learning/densenet",
+      "category": "deep-learning",
+      "name": "DenseNet"
+    },
+    "Deterministic Policy Gradient": {
+      "slug": "deterministic-policy-gradient",
+      "url": "/algorithms/reinforcement/deterministic-policy-gradient",
+      "category": "reinforcement",
+      "name": "Deterministic Policy Gradient"
+    },
+    "Differential Evolution": {
+      "slug": "differential-evolution",
+      "url": "/algorithms/evolutionary/differential-evolution",
+      "category": "evolutionary",
+      "name": "Differential Evolution"
+    },
+    "Diffusion Maps": {
+      "slug": "diffusion-maps",
+      "url": "/algorithms/unsupervised/diffusion-maps",
+      "category": "unsupervised",
+      "name": "Diffusion Maps"
+    },
+    "Diffusion Model": {
+      "slug": "diffusion-model",
+      "url": "/algorithms/generative/diffusion-model",
+      "category": "generative",
+      "name": "Diffusion Model"
+    },
+    "Dirichlet Process Mixture Model": {
+      "slug": "dirichlet-process-mixture-model",
+      "url": "/algorithms/unsupervised/dirichlet-process-mixture-model",
+      "category": "unsupervised",
+      "name": "Dirichlet Process Mixture Model"
+    },
+    "DistilBERT": {
+      "slug": "distilbert",
+      "url": "/algorithms/deep-learning/distilbert",
+      "category": "deep-learning",
+      "name": "DistilBERT"
+    },
+    "Doc2Vec": {
+      "slug": "doc2vec",
+      "url": "/algorithms/deep-learning/doc2vec",
+      "category": "deep-learning",
+      "name": "Doc2Vec"
+    },
+    "Double DQN": {
+      "slug": "double-dqn",
+      "url": "/algorithms/reinforcement/double-dqn",
+      "category": "reinforcement",
+      "name": "Double DQN"
+    },
+    "Double Q-Learning": {
+      "slug": "double-q-learning",
+      "url": "/algorithms/reinforcement/double-q-learning",
+      "category": "reinforcement",
+      "name": "Double Q-Learning"
+    },
+    "Dueling DQN": {
+      "slug": "dueling-dqn",
+      "url": "/algorithms/reinforcement/dueling-dqn",
+      "category": "reinforcement",
+      "name": "Dueling DQN"
+    },
+    "Dyna-Q": {
+      "slug": "dyna-q",
+      "url": "/algorithms/reinforcement/dyna-q",
+      "category": "reinforcement",
+      "name": "Dyna-Q"
+    },
+    "Dynamic Bayesian Network": {
+      "slug": "dynamic-bayesian-network",
+      "url": "/algorithms/probabilistic/dynamic-bayesian-network",
+      "category": "probabilistic",
+      "name": "Dynamic Bayesian Network"
+    },
+    "ECOD": {
+      "slug": "ecod",
+      "url": "/algorithms/unsupervised/ecod",
+      "category": "unsupervised",
+      "name": "ECOD"
+    },
+    "Echo State Network": {
+      "slug": "echo-state-network",
+      "url": "/algorithms/deep-learning/echo-state-network",
+      "category": "deep-learning",
+      "name": "Echo State Network"
+    },
+    "Eclat": {
+      "slug": "eclat",
+      "url": "/algorithms/unsupervised/eclat",
+      "category": "unsupervised",
+      "name": "Eclat"
+    },
+    "EfficientNet": {
+      "slug": "efficientnet",
+      "url": "/algorithms/deep-learning/efficientnet",
+      "category": "deep-learning",
+      "name": "EfficientNet"
+    },
+    "Elastic Net": {
+      "slug": "elastic-net",
+      "url": "/algorithms/supervised/elastic-net",
+      "category": "supervised",
+      "name": "Elastic Net"
+    },
+    "Elliptic Envelope": {
+      "slug": "elliptic-envelope",
+      "url": "/algorithms/unsupervised/elliptic-envelope",
+      "category": "unsupervised",
+      "name": "Elliptic Envelope"
+    },
+    "Epsilon-Greedy": {
+      "slug": "epsilon-greedy",
+      "url": "/algorithms/reinforcement/epsilon-greedy",
+      "category": "reinforcement",
+      "name": "Epsilon-Greedy"
+    },
+    "Evolution Strategies": {
+      "slug": "evolution-strategies",
+      "url": "/algorithms/evolutionary/evolution-strategies",
+      "category": "evolutionary",
+      "name": "Evolution Strategies"
+    },
+    "Expectation Maximization": {
+      "slug": "expectation-maximization",
+      "url": "/algorithms/probabilistic/expectation-maximization",
+      "category": "probabilistic",
+      "name": "Expectation Maximization"
+    },
+    "Exponential Smoothing": {
+      "slug": "exponential-smoothing",
+      "url": "/algorithms/time-series/exponential-smoothing",
+      "category": "time-series",
+      "name": "Exponential Smoothing"
+    },
+    "Extended Kalman Filter": {
+      "slug": "extended-kalman-filter",
+      "url": "/algorithms/probabilistic/extended-kalman-filter",
+      "category": "probabilistic",
+      "name": "Extended Kalman Filter"
+    },
+    "Extra Trees Classifier": {
+      "slug": "extra-trees-classifier",
+      "url": "/algorithms/supervised/extra-trees-classifier",
+      "category": "supervised",
+      "name": "Extra Trees Classifier"
+    },
+    "Extra Trees Regression": {
+      "slug": "extra-trees-regression",
+      "url": "/algorithms/supervised/extra-trees-regression",
+      "category": "supervised",
+      "name": "Extra Trees Regression"
+    },
+    "FP-Growth": {
+      "slug": "fp-growth",
+      "url": "/algorithms/unsupervised/fp-growth",
+      "category": "unsupervised",
+      "name": "FP-Growth"
+    },
+    "Factor Analysis": {
+      "slug": "factor-analysis",
+      "url": "/algorithms/unsupervised/factor-analysis",
+      "category": "unsupervised",
+      "name": "Factor Analysis"
+    },
+    "FastText": {
+      "slug": "fasttext",
+      "url": "/algorithms/deep-learning/fasttext",
+      "category": "deep-learning",
+      "name": "FastText"
+    },
+    "Fuzzy C-Means": {
+      "slug": "fuzzy-c-means",
+      "url": "/algorithms/unsupervised/fuzzy-c-means",
+      "category": "unsupervised",
+      "name": "Fuzzy C-Means"
+    },
+    "Fuzzy Inference System": {
+      "slug": "fuzzy-inference-system",
+      "url": "/algorithms/evolutionary/fuzzy-inference-system",
+      "category": "evolutionary",
+      "name": "Fuzzy Inference System"
+    },
+    "GAN": {
+      "slug": "gan",
+      "url": "/algorithms/generative/gan",
+      "category": "generative",
+      "name": "GAN"
+    },
+    "GARCH": {
+      "slug": "garch",
+      "url": "/algorithms/time-series/garch",
+      "category": "time-series",
+      "name": "GARCH"
+    },
+    "GAT": {
+      "slug": "gat",
+      "url": "/algorithms/graph/gat",
+      "category": "graph",
+      "name": "GAT"
+    },
+    "GCN": {
+      "slug": "gcn",
+      "url": "/algorithms/graph/gcn",
+      "category": "graph",
+      "name": "GCN"
+    },
+    "GIN": {
+      "slug": "gin",
+      "url": "/algorithms/graph/gin",
+      "category": "graph",
+      "name": "GIN"
+    },
+    "GPT": {
+      "slug": "gpt",
+      "url": "/algorithms/deep-learning/gpt",
+      "category": "deep-learning",
+      "name": "GPT"
+    },
+    "GRU": {
+      "slug": "gru",
+      "url": "/algorithms/deep-learning/gru",
+      "category": "deep-learning",
+      "name": "GRU"
+    },
+    "Gamma Regression": {
+      "slug": "gamma-regression",
+      "url": "/algorithms/supervised/gamma-regression",
+      "category": "supervised",
+      "name": "Gamma Regression"
+    },
+    "Gaussian Mixture Model": {
+      "slug": "gaussian-mixture-model",
+      "url": "/algorithms/unsupervised/gaussian-mixture-model",
+      "category": "unsupervised",
+      "name": "Gaussian Mixture Model"
+    },
+    "Gaussian Naive Bayes": {
+      "slug": "gaussian-naive-bayes",
+      "url": "/algorithms/supervised/gaussian-naive-bayes",
+      "category": "supervised",
+      "name": "Gaussian Naive Bayes"
+    },
+    "Gaussian Process Classification": {
+      "slug": "gaussian-process-classification",
+      "url": "/algorithms/probabilistic/gaussian-process-classification",
+      "category": "probabilistic",
+      "name": "Gaussian Process Classification"
+    },
+    "Gaussian Process Regression": {
+      "slug": "gaussian-process-regression",
+      "url": "/algorithms/supervised/gaussian-process-regression",
+      "category": "supervised",
+      "name": "Gaussian Process Regression"
+    },
+    "Genetic Algorithm": {
+      "slug": "genetic-algorithm",
+      "url": "/algorithms/evolutionary/genetic-algorithm",
+      "category": "evolutionary",
+      "name": "Genetic Algorithm"
+    },
+    "Genetic Programming": {
+      "slug": "genetic-programming",
+      "url": "/algorithms/evolutionary/genetic-programming",
+      "category": "evolutionary",
+      "name": "Genetic Programming"
+    },
+    "GloVe": {
+      "slug": "glove",
+      "url": "/algorithms/deep-learning/glove",
+      "category": "deep-learning",
+      "name": "GloVe"
+    },
+    "Glow": {
+      "slug": "glow",
+      "url": "/algorithms/generative/glow",
+      "category": "generative",
+      "name": "Glow"
+    },
+    "GoogLeNet / Inception": {
+      "slug": "googlenet-inception",
+      "url": "/algorithms/deep-learning/googlenet-inception",
+      "category": "deep-learning",
+      "name": "GoogLeNet / Inception"
+    },
+    "Gradient Boosting Classifier": {
+      "slug": "gradient-boosting-classifier",
+      "url": "/algorithms/supervised/gradient-boosting-classifier",
+      "category": "supervised",
+      "name": "Gradient Boosting Classifier"
+    },
+    "Gradient Boosting Regression": {
+      "slug": "gradient-boosting-regression",
+      "url": "/algorithms/supervised/gradient-boosting-regression",
+      "category": "supervised",
+      "name": "Gradient Boosting Regression"
+    },
+    "Gradient Boosting for Forecasting": {
+      "slug": "gradient-boosting-for-forecasting",
+      "url": "/algorithms/time-series/gradient-boosting-for-forecasting",
+      "category": "time-series",
+      "name": "Gradient Boosting for Forecasting"
+    },
+    "Graph Transformer": {
+      "slug": "graph-transformer",
+      "url": "/algorithms/graph/graph-transformer",
+      "category": "graph",
+      "name": "Graph Transformer"
+    },
+    "GraphSAGE": {
+      "slug": "graphsage",
+      "url": "/algorithms/graph/graphsage",
+      "category": "graph",
+      "name": "GraphSAGE"
+    },
+    "Grid Search": {
+      "slug": "grid-search",
+      "url": "/algorithms/meta-learning/grid-search",
+      "category": "meta-learning",
+      "name": "Grid Search"
+    },
+    "Growing Neural Gas": {
+      "slug": "growing-neural-gas",
+      "url": "/algorithms/unsupervised/growing-neural-gas",
+      "category": "unsupervised",
+      "name": "Growing Neural Gas"
+    },
+    "HDBSCAN": {
+      "slug": "hdbscan",
+      "url": "/algorithms/unsupervised/hdbscan",
+      "category": "unsupervised",
+      "name": "HDBSCAN"
+    },
+    "Hidden Markov Model": {
+      "slug": "hidden-markov-model",
+      "url": "/algorithms/probabilistic/hidden-markov-model",
+      "category": "probabilistic",
+      "name": "Hidden Markov Model"
+    },
+    "Hidden Markov Model (supervised use)": {
+      "slug": "hidden-markov-model-supervised-use",
+      "url": "/algorithms/supervised/hidden-markov-model-supervised-use",
+      "category": "supervised",
+      "name": "Hidden Markov Model (supervised use)"
+    },
+    "Hierarchical Clustering": {
+      "slug": "hierarchical-clustering",
+      "url": "/algorithms/unsupervised/hierarchical-clustering",
+      "category": "unsupervised",
+      "name": "Hierarchical Clustering"
+    },
+    "Hierarchical Dirichlet Process": {
+      "slug": "hierarchical-dirichlet-process",
+      "url": "/algorithms/unsupervised/hierarchical-dirichlet-process",
+      "category": "unsupervised",
+      "name": "Hierarchical Dirichlet Process"
+    },
+    "Holt-Winters": {
+      "slug": "holt-winters",
+      "url": "/algorithms/time-series/holt-winters",
+      "category": "time-series",
+      "name": "Holt-Winters"
+    },
+    "Hopfield Network": {
+      "slug": "hopfield-network",
+      "url": "/algorithms/deep-learning/hopfield-network",
+      "category": "deep-learning",
+      "name": "Hopfield Network"
+    },
+    "Huber Regression": {
+      "slug": "huber-regression",
+      "url": "/algorithms/supervised/huber-regression",
+      "category": "supervised",
+      "name": "Huber Regression"
+    },
+    "Hyperband": {
+      "slug": "hyperband",
+      "url": "/algorithms/meta-learning/hyperband",
+      "category": "meta-learning",
+      "name": "Hyperband"
+    },
+    "ICA": {
+      "slug": "ica",
+      "url": "/algorithms/unsupervised/ica",
+      "category": "unsupervised",
+      "name": "ICA"
+    },
+    "Incremental PCA": {
+      "slug": "incremental-pca",
+      "url": "/algorithms/unsupervised/incremental-pca",
+      "category": "unsupervised",
+      "name": "Incremental PCA"
+    },
+    "Indian Buffet Process": {
+      "slug": "indian-buffet-process",
+      "url": "/algorithms/probabilistic/indian-buffet-process",
+      "category": "probabilistic",
+      "name": "Indian Buffet Process"
+    },
+    "Isolation Forest": {
+      "slug": "isolation-forest",
+      "url": "/algorithms/unsupervised/isolation-forest",
+      "category": "unsupervised",
+      "name": "Isolation Forest"
+    },
+    "Isomap": {
+      "slug": "isomap",
+      "url": "/algorithms/unsupervised/isomap",
+      "category": "unsupervised",
+      "name": "Isomap"
+    },
+    "Isotonic Regression": {
+      "slug": "isotonic-regression",
+      "url": "/algorithms/supervised/isotonic-regression",
+      "category": "supervised",
+      "name": "Isotonic Regression"
+    },
+    "K-Means": {
+      "slug": "k-means",
+      "url": "/algorithms/unsupervised/k-means",
+      "category": "unsupervised",
+      "name": "K-Means"
+    },
+    "K-Means Clustering": {
+      "slug": "kmeans",
+      "url": "/algorithms/unsupervised/kmeans",
+      "category": "unsupervised",
+      "name": "K-Means Clustering"
+    },
+    "K-Medoids": {
+      "slug": "k-medoids",
+      "url": "/algorithms/unsupervised/k-medoids",
+      "category": "unsupervised",
+      "name": "K-Medoids"
+    },
+    "Kalman Filter": {
+      "slug": "kalman-filter",
+      "url": "/algorithms/probabilistic/kalman-filter",
+      "category": "probabilistic",
+      "name": "Kalman Filter"
+    },
+    "Kernel PCA": {
+      "slug": "kernel-pca",
+      "url": "/algorithms/unsupervised/kernel-pca",
+      "category": "unsupervised",
+      "name": "Kernel PCA"
+    },
+    "Kernel Ridge Regression": {
+      "slug": "kernel-ridge-regression",
+      "url": "/algorithms/supervised/kernel-ridge-regression",
+      "category": "supervised",
+      "name": "Kernel Ridge Regression"
+    },
+    "LINE": {
+      "slug": "line",
+      "url": "/algorithms/graph/line",
+      "category": "graph",
+      "name": "LINE"
+    },
+    "LSTM": {
+      "slug": "lstm",
+      "url": "/algorithms/deep-learning/lstm",
+      "category": "deep-learning",
+      "name": "LSTM"
+    },
+    "Label Propagation": {
+      "slug": "label-propagation",
+      "url": "/algorithms/supervised/label-propagation",
+      "category": "supervised",
+      "name": "Label Propagation"
+    },
+    "Label Spreading": {
+      "slug": "label-spreading",
+      "url": "/algorithms/supervised/label-spreading",
+      "category": "supervised",
+      "name": "Label Spreading"
+    },
+    "LambdaMART": {
+      "slug": "lambdamart",
+      "url": "/algorithms/supervised/lambdamart",
+      "category": "supervised",
+      "name": "LambdaMART"
+    },
+    "Laplacian Eigenmaps": {
+      "slug": "laplacian-eigenmaps",
+      "url": "/algorithms/unsupervised/laplacian-eigenmaps",
+      "category": "unsupervised",
+      "name": "Laplacian Eigenmaps"
+    },
+    "Lasso Regression": {
+      "slug": "lasso-regression",
+      "url": "/algorithms/supervised/lasso-regression",
+      "category": "supervised",
+      "name": "Lasso Regression"
+    },
+    "Latent Diffusion": {
+      "slug": "latent-diffusion",
+      "url": "/algorithms/generative/latent-diffusion",
+      "category": "generative",
+      "name": "Latent Diffusion"
+    },
+    "Latent Dirichlet Allocation": {
+      "slug": "latent-dirichlet-allocation",
+      "url": "/algorithms/unsupervised/latent-dirichlet-allocation",
+      "category": "unsupervised",
+      "name": "Latent Dirichlet Allocation"
+    },
+    "Latent Semantic Analysis": {
+      "slug": "latent-semantic-analysis",
+      "url": "/algorithms/unsupervised/latent-semantic-analysis",
+      "category": "unsupervised",
+      "name": "Latent Semantic Analysis"
+    },
+    "LeNet": {
+      "slug": "lenet",
+      "url": "/algorithms/deep-learning/lenet",
+      "category": "deep-learning",
+      "name": "LeNet"
+    },
+    "LightGBM": {
+      "slug": "lightgbm",
+      "url": "/algorithms/supervised/lightgbm",
+      "category": "supervised",
+      "name": "LightGBM"
+    },
+    "Linear Discriminant Analysis": {
+      "slug": "linear-discriminant-analysis",
+      "url": "/algorithms/supervised/linear-discriminant-analysis",
+      "category": "supervised",
+      "name": "Linear Discriminant Analysis"
+    },
+    "Linear Regression": {
+      "slug": "linear-regression",
+      "url": "/algorithms/supervised/linear-regression",
+      "category": "supervised",
+      "name": "Linear Regression"
+    },
+    "Liquid State Machine": {
+      "slug": "liquid-state-machine",
+      "url": "/algorithms/deep-learning/liquid-state-machine",
+      "category": "deep-learning",
+      "name": "Liquid State Machine"
+    },
+    "Local Outlier Factor": {
+      "slug": "local-outlier-factor",
+      "url": "/algorithms/unsupervised/local-outlier-factor",
+      "category": "unsupervised",
+      "name": "Local Outlier Factor"
+    },
+    "Locally Linear Embedding": {
+      "slug": "locally-linear-embedding",
+      "url": "/algorithms/unsupervised/locally-linear-embedding",
+      "category": "unsupervised",
+      "name": "Locally Linear Embedding"
+    },
+    "Logistic Regression": {
+      "slug": "logistic-regression",
+      "url": "/algorithms/supervised/logistic-regression",
+      "category": "supervised",
+      "name": "Logistic Regression"
+    },
+    "MA": {
+      "slug": "ma",
+      "url": "/algorithms/time-series/ma",
+      "category": "time-series",
+      "name": "MA"
+    },
+    "MAE (Masked Autoencoder)": {
+      "slug": "mae-masked-autoencoder",
+      "url": "/algorithms/deep-learning/mae-masked-autoencoder",
+      "category": "deep-learning",
+      "name": "MAE (Masked Autoencoder)"
+    },
+    "MAML": {
+      "slug": "maml",
+      "url": "/algorithms/meta-learning/maml",
+      "category": "meta-learning",
+      "name": "MAML"
+    },
+    "MARS (Multivariate Adaptive Regression Splines)": {
+      "slug": "mars-multivariate-adaptive-regression-splines",
+      "url": "/algorithms/supervised/mars-multivariate-adaptive-regression-splines",
+      "category": "supervised",
+      "name": "MARS (Multivariate Adaptive Regression Splines)"
+    },
+    "Markov Random Field": {
+      "slug": "markov-random-field",
+      "url": "/algorithms/probabilistic/markov-random-field",
+      "category": "probabilistic",
+      "name": "Markov Random Field"
+    },
+    "Mask R-CNN": {
+      "slug": "mask-r-cnn",
+      "url": "/algorithms/deep-learning/mask-r-cnn",
+      "category": "deep-learning",
+      "name": "Mask R-CNN"
+    },
+    "Mean Shift": {
+      "slug": "mean-shift",
+      "url": "/algorithms/unsupervised/mean-shift",
+      "category": "unsupervised",
+      "name": "Mean Shift"
+    },
+    "MiniBatch K-Means": {
+      "slug": "minibatch-k-means",
+      "url": "/algorithms/unsupervised/minibatch-k-means",
+      "category": "unsupervised",
+      "name": "MiniBatch K-Means"
+    },
+    "MoCo": {
+      "slug": "moco",
+      "url": "/algorithms/deep-learning/moco",
+      "category": "deep-learning",
+      "name": "MoCo"
+    },
+    "MobileNet": {
+      "slug": "mobilenet",
+      "url": "/algorithms/deep-learning/mobilenet",
+      "category": "deep-learning",
+      "name": "MobileNet"
+    },
+    "Momentum": {
+      "slug": "momentum",
+      "url": "/algorithms/meta-learning/momentum",
+      "category": "meta-learning",
+      "name": "Momentum"
+    },
+    "Monte Carlo Control": {
+      "slug": "monte-carlo-control",
+      "url": "/algorithms/reinforcement/monte-carlo-control",
+      "category": "reinforcement",
+      "name": "Monte Carlo Control"
+    },
+    "MuZero": {
+      "slug": "muzero",
+      "url": "/algorithms/reinforcement/muzero",
+      "category": "reinforcement",
+      "name": "MuZero"
+    },
+    "Multidimensional Scaling": {
+      "slug": "multidimensional-scaling",
+      "url": "/algorithms/unsupervised/multidimensional-scaling",
+      "category": "unsupervised",
+      "name": "Multidimensional Scaling"
+    },
+    "Multilayer Perceptron": {
+      "slug": "multilayer-perceptron",
+      "url": "/algorithms/deep-learning/multilayer-perceptron",
+      "category": "deep-learning",
+      "name": "Multilayer Perceptron"
+    },
+    "Multinomial Logistic Regression": {
+      "slug": "multinomial-logistic-regression",
+      "url": "/algorithms/supervised/multinomial-logistic-regression",
+      "category": "supervised",
+      "name": "Multinomial Logistic Regression"
+    },
+    "Multinomial Naive Bayes": {
+      "slug": "multinomial-naive-bayes",
+      "url": "/algorithms/supervised/multinomial-naive-bayes",
+      "category": "supervised",
+      "name": "Multinomial Naive Bayes"
+    },
+    "N-BEATS": {
+      "slug": "n-beats",
+      "url": "/algorithms/time-series/n-beats",
+      "category": "time-series",
+      "name": "N-BEATS"
+    },
+    "NAS": {
+      "slug": "nas",
+      "url": "/algorithms/meta-learning/nas",
+      "category": "meta-learning",
+      "name": "NAS"
+    },
+    "Naive Bayes": {
+      "slug": "naive-bayes",
+      "url": "/algorithms/supervised/naive-bayes",
+      "category": "supervised",
+      "name": "Naive Bayes"
+    },
+    "Nearest Centroid": {
+      "slug": "nearest-centroid",
+      "url": "/algorithms/supervised/nearest-centroid",
+      "category": "supervised",
+      "name": "Nearest Centroid"
+    },
+    "Neural Gas": {
+      "slug": "neural-gas",
+      "url": "/algorithms/unsupervised/neural-gas",
+      "category": "unsupervised",
+      "name": "Neural Gas"
+    },
+    "Node2Vec": {
+      "slug": "node2vec",
+      "url": "/algorithms/graph/node2vec",
+      "category": "graph",
+      "name": "Node2Vec"
+    },
+    "Non-negative Matrix Factorization": {
+      "slug": "non-negative-matrix-factorization",
+      "url": "/algorithms/unsupervised/non-negative-matrix-factorization",
+      "category": "unsupervised",
+      "name": "Non-negative Matrix Factorization"
+    },
+    "Normalizing Flow": {
+      "slug": "normalizing-flow",
+      "url": "/algorithms/generative/normalizing-flow",
+      "category": "generative",
+      "name": "Normalizing Flow"
+    },
+    "OPTICS": {
+      "slug": "optics",
+      "url": "/algorithms/unsupervised/optics",
+      "category": "unsupervised",
+      "name": "OPTICS"
+    },
+    "One-Class SVM": {
+      "slug": "one-class-svm",
+      "url": "/algorithms/unsupervised/one-class-svm",
+      "category": "unsupervised",
+      "name": "One-Class SVM"
+    },
+    "PART": {
+      "slug": "part",
+      "url": "/algorithms/supervised/part",
+      "category": "supervised",
+      "name": "PART"
+    },
+    "PCA": {
+      "slug": "pca",
+      "url": "/algorithms/unsupervised/pca",
+      "category": "unsupervised",
+      "name": "PCA"
+    },
+    "PPO": {
+      "slug": "ppo",
+      "url": "/algorithms/reinforcement/ppo",
+      "category": "reinforcement",
+      "name": "PPO"
+    },
+    "PageRank": {
+      "slug": "pagerank",
+      "url": "/algorithms/graph/pagerank",
+      "category": "graph",
+      "name": "PageRank"
+    },
+    "Partial Least Squares Regression": {
+      "slug": "partial-least-squares-regression",
+      "url": "/algorithms/supervised/partial-least-squares-regression",
+      "category": "supervised",
+      "name": "Partial Least Squares Regression"
+    },
+    "Particle Filter": {
+      "slug": "particle-filter",
+      "url": "/algorithms/probabilistic/particle-filter",
+      "category": "probabilistic",
+      "name": "Particle Filter"
+    },
+    "Particle Swarm Optimization": {
+      "slug": "particle-swarm-optimization",
+      "url": "/algorithms/evolutionary/particle-swarm-optimization",
+      "category": "evolutionary",
+      "name": "Particle Swarm Optimization"
+    },
+    "Passive Aggressive Classifier": {
+      "slug": "passive-aggressive-classifier",
+      "url": "/algorithms/supervised/passive-aggressive-classifier",
+      "category": "supervised",
+      "name": "Passive Aggressive Classifier"
+    },
+    "Passive Aggressive Regressor": {
+      "slug": "passive-aggressive-regressor",
+      "url": "/algorithms/supervised/passive-aggressive-regressor",
+      "category": "supervised",
+      "name": "Passive Aggressive Regressor"
+    },
+    "Perceiver": {
+      "slug": "perceiver",
+      "url": "/algorithms/deep-learning/perceiver",
+      "category": "deep-learning",
+      "name": "Perceiver"
+    },
+    "Perceptron": {
+      "slug": "perceptron",
+      "url": "/algorithms/supervised/perceptron",
+      "category": "supervised",
+      "name": "Perceptron"
+    },
+    "Pix2Pix": {
+      "slug": "pix2pix",
+      "url": "/algorithms/generative/pix2pix",
+      "category": "generative",
+      "name": "Pix2Pix"
+    },
+    "PixelCNN": {
+      "slug": "pixelcnn",
+      "url": "/algorithms/generative/pixelcnn",
+      "category": "generative",
+      "name": "PixelCNN"
+    },
+    "PixelRNN": {
+      "slug": "pixelrnn",
+      "url": "/algorithms/generative/pixelrnn",
+      "category": "generative",
+      "name": "PixelRNN"
+    },
+    "Poisson Regression": {
+      "slug": "poisson-regression",
+      "url": "/algorithms/supervised/poisson-regression",
+      "category": "supervised",
+      "name": "Poisson Regression"
+    },
+    "Policy Iteration": {
+      "slug": "policy-iteration",
+      "url": "/algorithms/reinforcement/policy-iteration",
+      "category": "reinforcement",
+      "name": "Policy Iteration"
+    },
+    "Polynomial Regression": {
+      "slug": "polynomial-regression",
+      "url": "/algorithms/supervised/polynomial-regression",
+      "category": "supervised",
+      "name": "Polynomial Regression"
+    },
+    "Prioritized Experience Replay": {
+      "slug": "prioritized-experience-replay",
+      "url": "/algorithms/reinforcement/prioritized-experience-replay",
+      "category": "reinforcement",
+      "name": "Prioritized Experience Replay"
+    },
+    "Probabilistic Latent Semantic Analysis": {
+      "slug": "probabilistic-latent-semantic-analysis",
+      "url": "/algorithms/unsupervised/probabilistic-latent-semantic-analysis",
+      "category": "unsupervised",
+      "name": "Probabilistic Latent Semantic Analysis"
+    },
+    "Prophet": {
+      "slug": "prophet",
+      "url": "/algorithms/time-series/prophet",
+      "category": "time-series",
+      "name": "Prophet"
+    },
+    "Q-Learning": {
+      "slug": "q-learning",
+      "url": "/algorithms/reinforcement/q-learning",
+      "category": "reinforcement",
+      "name": "Q-Learning"
+    },
+    "Quadratic Discriminant Analysis": {
+      "slug": "quadratic-discriminant-analysis",
+      "url": "/algorithms/supervised/quadratic-discriminant-analysis",
+      "category": "supervised",
+      "name": "Quadratic Discriminant Analysis"
+    },
+    "Quantile Regression": {
+      "slug": "quantile-regression",
+      "url": "/algorithms/supervised/quantile-regression",
+      "category": "supervised",
+      "name": "Quantile Regression"
+    },
+    "RANSAC Regression": {
+      "slug": "ransac-regression",
+      "url": "/algorithms/supervised/ransac-regression",
+      "category": "supervised",
+      "name": "RANSAC Regression"
+    },
+    "REINFORCE": {
+      "slug": "reinforce",
+      "url": "/algorithms/reinforcement/reinforce",
+      "category": "reinforcement",
+      "name": "REINFORCE"
+    },
+    "RIPPER": {
+      "slug": "ripper",
+      "url": "/algorithms/supervised/ripper",
+      "category": "supervised",
+      "name": "RIPPER"
+    },
+    "RMSProp": {
+      "slug": "rmsprop",
+      "url": "/algorithms/meta-learning/rmsprop",
+      "category": "meta-learning",
+      "name": "RMSProp"
+    },
+    "Radial Basis Function Network": {
+      "slug": "radial-basis-function-network",
+      "url": "/algorithms/deep-learning/radial-basis-function-network",
+      "category": "deep-learning",
+      "name": "Radial Basis Function Network"
+    },
+    "Random Forest Classifier": {
+      "slug": "random-forest-classifier",
+      "url": "/algorithms/supervised/random-forest-classifier",
+      "category": "supervised",
+      "name": "Random Forest Classifier"
+    },
+    "Random Forest Regression": {
+      "slug": "random-forest-regression",
+      "url": "/algorithms/supervised/random-forest-regression",
+      "category": "supervised",
+      "name": "Random Forest Regression"
+    },
+    "Random Forest for Forecasting": {
+      "slug": "random-forest-for-forecasting",
+      "url": "/algorithms/time-series/random-forest-for-forecasting",
+      "category": "time-series",
+      "name": "Random Forest for Forecasting"
+    },
+    "Random Search": {
+      "slug": "random-search",
+      "url": "/algorithms/meta-learning/random-search",
+      "category": "meta-learning",
+      "name": "Random Search"
+    },
+    "RankNet": {
+      "slug": "ranknet",
+      "url": "/algorithms/supervised/ranknet",
+      "category": "supervised",
+      "name": "RankNet"
+    },
+    "RealNVP": {
+      "slug": "realnvp",
+      "url": "/algorithms/generative/realnvp",
+      "category": "generative",
+      "name": "RealNVP"
+    },
+    "Recurrent Neural Network": {
+      "slug": "recurrent-neural-network",
+      "url": "/algorithms/deep-learning/recurrent-neural-network",
+      "category": "deep-learning",
+      "name": "Recurrent Neural Network"
+    },
+    "Relational GCN": {
+      "slug": "relational-gcn",
+      "url": "/algorithms/graph/relational-gcn",
+      "category": "graph",
+      "name": "Relational GCN"
+    },
+    "Relevance Vector Machine": {
+      "slug": "relevance-vector-machine",
+      "url": "/algorithms/probabilistic/relevance-vector-machine",
+      "category": "probabilistic",
+      "name": "Relevance Vector Machine"
+    },
+    "Reptile": {
+      "slug": "reptile",
+      "url": "/algorithms/meta-learning/reptile",
+      "category": "meta-learning",
+      "name": "Reptile"
+    },
+    "ResNeXt": {
+      "slug": "resnext",
+      "url": "/algorithms/deep-learning/resnext",
+      "category": "deep-learning",
+      "name": "ResNeXt"
+    },
+    "ResNet": {
+      "slug": "resnet",
+      "url": "/algorithms/deep-learning/resnet",
+      "category": "deep-learning",
+      "name": "ResNet"
+    },
+    "Restricted Boltzmann Machine": {
+      "slug": "restricted-boltzmann-machine",
+      "url": "/algorithms/deep-learning/restricted-boltzmann-machine",
+      "category": "deep-learning",
+      "name": "Restricted Boltzmann Machine"
+    },
+    "Ridge Regression": {
+      "slug": "ridge-regression",
+      "url": "/algorithms/supervised/ridge-regression",
+      "category": "supervised",
+      "name": "Ridge Regression"
+    },
+    "RoBERTa": {
+      "slug": "roberta",
+      "url": "/algorithms/deep-learning/roberta",
+      "category": "deep-learning",
+      "name": "RoBERTa"
+    },
+    "RotatE": {
+      "slug": "rotate",
+      "url": "/algorithms/graph/rotate",
+      "category": "graph",
+      "name": "RotatE"
+    },
+    "RuleFit": {
+      "slug": "rulefit",
+      "url": "/algorithms/supervised/rulefit",
+      "category": "supervised",
+      "name": "RuleFit"
+    },
+    "SARIMA": {
+      "slug": "sarima",
+      "url": "/algorithms/time-series/sarima",
+      "category": "time-series",
+      "name": "SARIMA"
+    },
+    "SARSA": {
+      "slug": "sarsa",
+      "url": "/algorithms/reinforcement/sarsa",
+      "category": "reinforcement",
+      "name": "SARSA"
+    },
+    "Self-Organizing Map": {
+      "slug": "self-organizing-map",
+      "url": "/algorithms/unsupervised/self-organizing-map",
+      "category": "unsupervised",
+      "name": "Self-Organizing Map"
+    },
+    "Seq2Seq": {
+      "slug": "seq2seq",
+      "url": "/algorithms/deep-learning/seq2seq",
+      "category": "deep-learning",
+      "name": "Seq2Seq"
+    },
+    "Siamese Network": {
+      "slug": "siamese-network",
+      "url": "/algorithms/deep-learning/siamese-network",
+      "category": "deep-learning",
+      "name": "Siamese Network"
+    },
+    "SimCLR": {
+      "slug": "simclr",
+      "url": "/algorithms/deep-learning/simclr",
+      "category": "deep-learning",
+      "name": "SimCLR"
+    },
+    "Soft Actor-Critic": {
+      "slug": "soft-actor-critic",
+      "url": "/algorithms/reinforcement/soft-actor-critic",
+      "category": "reinforcement",
+      "name": "Soft Actor-Critic"
+    },
+    "Sparse Autoencoder": {
+      "slug": "sparse-autoencoder",
+      "url": "/algorithms/deep-learning/sparse-autoencoder",
+      "category": "deep-learning",
+      "name": "Sparse Autoencoder"
+    },
+    "Sparse PCA": {
+      "slug": "sparse-pca",
+      "url": "/algorithms/unsupervised/sparse-pca",
+      "category": "unsupervised",
+      "name": "Sparse PCA"
+    },
+    "Spectral Clustering": {
+      "slug": "spectral-clustering",
+      "url": "/algorithms/unsupervised/spectral-clustering",
+      "category": "unsupervised",
+      "name": "Spectral Clustering"
+    },
+    "Stable Diffusion": {
+      "slug": "stable-diffusion",
+      "url": "/algorithms/generative/stable-diffusion",
+      "category": "generative",
+      "name": "Stable Diffusion"
+    },
+    "Stacking": {
+      "slug": "stacking",
+      "url": "/algorithms/supervised/stacking",
+      "category": "supervised",
+      "name": "Stacking"
+    },
+    "State Space Model": {
+      "slug": "state-space-model",
+      "url": "/algorithms/time-series/state-space-model",
+      "category": "time-series",
+      "name": "State Space Model"
+    },
+    "Stochastic Gradient Descent": {
+      "slug": "stochastic-gradient-descent",
+      "url": "/algorithms/meta-learning/stochastic-gradient-descent",
+      "category": "meta-learning",
+      "name": "Stochastic Gradient Descent"
+    },
+    "Structured SVM": {
+      "slug": "structured-svm",
+      "url": "/algorithms/supervised/structured-svm",
+      "category": "supervised",
+      "name": "Structured SVM"
+    },
+    "StyleGAN": {
+      "slug": "stylegan",
+      "url": "/algorithms/generative/stylegan",
+      "category": "generative",
+      "name": "StyleGAN"
+    },
+    "Support Vector Machine": {
+      "slug": "support-vector-machine",
+      "url": "/algorithms/supervised/support-vector-machine",
+      "category": "supervised",
+      "name": "Support Vector Machine"
+    },
+    "Support Vector Regression": {
+      "slug": "support-vector-regression",
+      "url": "/algorithms/supervised/support-vector-regression",
+      "category": "supervised",
+      "name": "Support Vector Regression"
+    },
+    "Swin Transformer": {
+      "slug": "swin-transformer",
+      "url": "/algorithms/deep-learning/swin-transformer",
+      "category": "deep-learning",
+      "name": "Swin Transformer"
+    },
+    "T5": {
+      "slug": "t5",
+      "url": "/algorithms/deep-learning/t5",
+      "category": "deep-learning",
+      "name": "T5"
+    },
+    "TD3": {
+      "slug": "td3",
+      "url": "/algorithms/reinforcement/td3",
+      "category": "reinforcement",
+      "name": "TD3"
+    },
+    "TRPO": {
+      "slug": "trpo",
+      "url": "/algorithms/reinforcement/trpo",
+      "category": "reinforcement",
+      "name": "TRPO"
+    },
+    "Temporal Difference Learning": {
+      "slug": "temporal-difference-learning",
+      "url": "/algorithms/reinforcement/temporal-difference-learning",
+      "category": "reinforcement",
+      "name": "Temporal Difference Learning"
+    },
+    "Temporal Fusion Transformer": {
+      "slug": "temporal-fusion-transformer",
+      "url": "/algorithms/time-series/temporal-fusion-transformer",
+      "category": "time-series",
+      "name": "Temporal Fusion Transformer"
+    },
+    "Theil–Sen Regressor": {
+      "slug": "theil-sen-regressor",
+      "url": "/algorithms/supervised/theil-sen-regressor",
+      "category": "supervised",
+      "name": "Theil–Sen Regressor"
+    },
+    "Thompson Sampling": {
+      "slug": "thompson-sampling",
+      "url": "/algorithms/reinforcement/thompson-sampling",
+      "category": "reinforcement",
+      "name": "Thompson Sampling"
+    },
+    "TransE": {
+      "slug": "transe",
+      "url": "/algorithms/graph/transe",
+      "category": "graph",
+      "name": "TransE"
+    },
+    "Transformer": {
+      "slug": "transformer",
+      "url": "/algorithms/deep-learning/transformer",
+      "category": "deep-learning",
+      "name": "Transformer"
+    },
+    "Transformer Decoder LM": {
+      "slug": "transformer-decoder-lm",
+      "url": "/algorithms/generative/transformer-decoder-lm",
+      "category": "generative",
+      "name": "Transformer Decoder LM"
+    },
+    "Triplet Network / Triplet Loss": {
+      "slug": "triplet-network-triplet-loss",
+      "url": "/algorithms/deep-learning/triplet-network-triplet-loss",
+      "category": "deep-learning",
+      "name": "Triplet Network / Triplet Loss"
+    },
+    "Truncated SVD": {
+      "slug": "truncated-svd",
+      "url": "/algorithms/unsupervised/truncated-svd",
+      "category": "unsupervised",
+      "name": "Truncated SVD"
+    },
+    "Tweedie Regression": {
+      "slug": "tweedie-regression",
+      "url": "/algorithms/supervised/tweedie-regression",
+      "category": "supervised",
+      "name": "Tweedie Regression"
+    },
+    "U-Net": {
+      "slug": "u-net",
+      "url": "/algorithms/deep-learning/u-net",
+      "category": "deep-learning",
+      "name": "U-Net"
+    },
+    "UCB": {
+      "slug": "ucb",
+      "url": "/algorithms/reinforcement/ucb",
+      "category": "reinforcement",
+      "name": "UCB"
+    },
+    "UMAP": {
+      "slug": "umap",
+      "url": "/algorithms/unsupervised/umap",
+      "category": "unsupervised",
+      "name": "UMAP"
+    },
+    "Unscented Kalman Filter": {
+      "slug": "unscented-kalman-filter",
+      "url": "/algorithms/probabilistic/unscented-kalman-filter",
+      "category": "probabilistic",
+      "name": "Unscented Kalman Filter"
+    },
+    "VAR": {
+      "slug": "var",
+      "url": "/algorithms/time-series/var",
+      "category": "time-series",
+      "name": "VAR"
+    },
+    "VARMA": {
+      "slug": "varma",
+      "url": "/algorithms/time-series/varma",
+      "category": "time-series",
+      "name": "VARMA"
+    },
+    "VGG": {
+      "slug": "vgg",
+      "url": "/algorithms/deep-learning/vgg",
+      "category": "deep-learning",
+      "name": "VGG"
+    },
+    "Value Iteration": {
+      "slug": "value-iteration",
+      "url": "/algorithms/reinforcement/value-iteration",
+      "category": "reinforcement",
+      "name": "Value Iteration"
+    },
+    "Variational Autoencoder": {
+      "slug": "variational-autoencoder",
+      "url": "/algorithms/generative/variational-autoencoder",
+      "category": "generative",
+      "name": "Variational Autoencoder"
+    },
+    "Vector Quantized VAE": {
+      "slug": "vector-quantized-vae",
+      "url": "/algorithms/generative/vector-quantized-vae",
+      "category": "generative",
+      "name": "Vector Quantized VAE"
+    },
+    "Vision Transformer": {
+      "slug": "vision-transformer",
+      "url": "/algorithms/deep-learning/vision-transformer",
+      "category": "deep-learning",
+      "name": "Vision Transformer"
+    },
+    "Voting Classifier": {
+      "slug": "voting-classifier",
+      "url": "/algorithms/supervised/voting-classifier",
+      "category": "supervised",
+      "name": "Voting Classifier"
+    },
+    "WGAN": {
+      "slug": "wgan",
+      "url": "/algorithms/generative/wgan",
+      "category": "generative",
+      "name": "WGAN"
+    },
+    "WaveNet": {
+      "slug": "wavenet",
+      "url": "/algorithms/generative/wavenet",
+      "category": "generative",
+      "name": "WaveNet"
+    },
+    "Winnow": {
+      "slug": "winnow",
+      "url": "/algorithms/supervised/winnow",
+      "category": "supervised",
+      "name": "Winnow"
+    },
+    "Word2Vec": {
+      "slug": "word2vec",
+      "url": "/algorithms/deep-learning/word2vec",
+      "category": "deep-learning",
+      "name": "Word2Vec"
+    },
+    "XGBoost": {
+      "slug": "xgboost",
+      "url": "/algorithms/supervised/xgboost",
+      "category": "supervised",
+      "name": "XGBoost"
+    },
+    "k-Nearest Neighbors": {
+      "slug": "k-nearest-neighbors",
+      "url": "/algorithms/supervised/k-nearest-neighbors",
+      "category": "supervised",
+      "name": "k-Nearest Neighbors"
+    },
+    "t-SNE": {
+      "slug": "t-sne",
+      "url": "/algorithms/unsupervised/t-sne",
+      "category": "unsupervised",
+      "name": "t-SNE"
+    }
+  },
+  "wikipedia": {
+    "Aggressive Algorithms": "https://en.wikipedia.org/wiki/Passive-aggressive_algorithm",
+    "Alex Gammerman": "https://en.wikipedia.org/wiki/Conformal_prediction",
+    "Alex Krizhevsky": "https://en.wikipedia.org/wiki/Alex_Krizhevsky",
+    "Alex Smola": "https://en.wikipedia.org/wiki/Alex_Smola",
+    "Andrew Ng": "https://en.wikipedia.org/wiki/Andrew_Ng",
+    "Andy Liaw": "https://en.wikipedia.org/wiki/Random_forest",
+    "Anna Prokhorenkova": "https://en.wikipedia.org/wiki/CatBoost",
+    "Arthur Hoerl": "https://en.wikipedia.org/wiki/Ridge_regression",
+    "Bagging Predictors": "https://en.wikipedia.org/wiki/Bootstrap_aggregating",
+    "Batch Normalization": "https://en.wikipedia.org/wiki/Batch_normalization",
+    "Bayesian Inference": "https://en.wikipedia.org/wiki/Bayesian_inference",
+    "Bernhard Boser": "https://en.wikipedia.org/wiki/Support_vector_machine",
+    "Biased Estimation": "https://en.wikipedia.org/wiki/Bias_of_an_estimator",
+    "Bootstrap Aggregating": "https://en.wikipedia.org/wiki/Bootstrap_aggregating",
+    "Bradley Efron": "https://en.wikipedia.org/wiki/Bradley_Efron",
+    "Carl Edward Rasmussen": "https://en.wikipedia.org/wiki/Gaussian_process",
+    "Carlos Guestrin": "https://en.wikipedia.org/wiki/Carlos_Guestrin",
+    "Charles Stone": "https://en.wikipedia.org/wiki/Charles_J._Stone",
+    "Compound Poisson Model": "https://en.wikipedia.org/wiki/Compound_Poisson_distribution",
+    "Computer Vision": "https://en.wikipedia.org/wiki/Computer_vision",
+    "Corinna Cortes": "https://en.wikipedia.org/wiki/Corinna_Cortes",
+    "Craig Saunders": "https://en.wikipedia.org/wiki/Kernel_methods",
+    "Damien Ernst": "https://en.wikipedia.org/wiki/Extra-trees_algorithm",
+    "David Ackley": "https://en.wikipedia.org/wiki/Boltzmann_machine",
+    "David Cox": "https://en.wikipedia.org/wiki/David_Cox_(statistician)",
+    "David Rumelhart": "https://en.wikipedia.org/wiki/David_Rumelhart",
+    "David Silver": "https://en.wikipedia.org/wiki/David_Silver_(programmer)",
+    "Decision Tree": "https://en.wikipedia.org/wiki/Decision_tree_learning",
+    "Diffusion Models": "https://en.wikipedia.org/wiki/Diffusion_model",
+    "Dimensionality Reduction": "https://en.wikipedia.org/wiki/Dimensionality_reduction",
+    "Evelyn Fix": "https://en.wikipedia.org/wiki/Evelyn_Fix",
+    "Exponential Dispersion Models": "https://en.wikipedia.org/wiki/Exponential_dispersion_model",
+    "Frank Rosenblatt": "https://en.wikipedia.org/wiki/Frank_Rosenblatt",
+    "Gaussian Mixture Models": "https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model",
+    "Gaussian Process": "https://en.wikipedia.org/wiki/Gaussian_process",
+    "Gaussian Processes": "https://en.wikipedia.org/wiki/Gaussian_process",
+    "Generalized Linear Model": "https://en.wikipedia.org/wiki/Generalized_linear_model",
+    "Generalized Linear Models": "https://en.wikipedia.org/wiki/Generalized_linear_model",
+    "Generative Adversarial Network": "https://en.wikipedia.org/wiki/Generative_adversarial_network",
+    "Generative Adversarial Networks": "https://en.wikipedia.org/wiki/Generative_adversarial_network",
+    "Geoffrey Hinton": "https://en.wikipedia.org/wiki/Geoffrey_Hinton",
+    "George Box": "https://en.wikipedia.org/wiki/George_E._P._Box",
+    "Gerald Tesauro": "https://en.wikipedia.org/wiki/TD-Gammon",
+    "Gilbert Bassett": "https://en.wikipedia.org/wiki/Quantile_regression",
+    "Gradient Boosting": "https://en.wikipedia.org/wiki/Gradient_boosting",
+    "Gradient Boosting Machine": "https://en.wikipedia.org/wiki/Gradient_boosting",
+    "Gradient Descent": "https://en.wikipedia.org/wiki/Gradient_descent",
+    "Greedy Function Approximation": "https://en.wikipedia.org/wiki/Gradient_boosting",
+    "Harald Martens": "https://en.wikipedia.org/wiki/Partial_least_squares_regression",
+    "Harold Hotelling": "https://en.wikipedia.org/wiki/Harold_Hotelling",
+    "Henri Theil": "https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator",
+    "Herman Wold": "https://en.wikipedia.org/wiki/Herman_Wold",
+    "Hui Zou": "https://en.wikipedia.org/wiki/Elastic_net_regularization",
+    "Hyperparameter Optimization": "https://en.wikipedia.org/wiki/Hyperparameter_optimization",
+    "Ian Goodfellow": "https://en.wikipedia.org/wiki/Ian_Goodfellow",
+    "Ilya Sutskever": "https://en.wikipedia.org/wiki/Ilya_Sutskever",
+    "Independent Component Analysis": "https://en.wikipedia.org/wiki/Independent_component_analysis",
+    "Information Gain": "https://en.wikipedia.org/wiki/Information_gain_(decision_tree)",
+    "Inverse Gaussian": "https://en.wikipedia.org/wiki/Inverse_Gaussian_distribution",
+    "Isabelle Guyon": "https://en.wikipedia.org/wiki/Isabelle_Guyon",
+    "Iterative Partial Least Squares": "https://en.wikipedia.org/wiki/Partial_least_squares_regression",
+    "Iteratively Reweighted Least Squares": "https://en.wikipedia.org/wiki/Iteratively_reweighted_least_squares",
+    "Jeffrey Pennington": "https://en.wikipedia.org/wiki/GloVe_(machine_learning)",
+    "Jerome Friedman": "https://en.wikipedia.org/wiki/Jerome_H._Friedman",
+    "John Hopfield": "https://en.wikipedia.org/wiki/John_Hopfield",
+    "John Nelder": "https://en.wikipedia.org/wiki/John_Nelder",
+    "John Schulman": "https://en.wikipedia.org/wiki/John_Schulman",
+    "Jonathan Ho": "https://en.wikipedia.org/wiki/Denoising_diffusion_probabilistic_model",
+    "Joseph Berkson": "https://en.wikipedia.org/wiki/Joseph_Berkson",
+    "Joseph Hodges": "https://en.wikipedia.org/wiki/Joseph_Hodges_Jr.",
+    "Judea Pearl": "https://en.wikipedia.org/wiki/Judea_Pearl",
+    "Karl Pearson": "https://en.wikipedia.org/wiki/Karl_Pearson",
+    "Least Absolute Deviations": "https://en.wikipedia.org/wiki/Least_absolute_deviations",
+    "Leo Breiman": "https://en.wikipedia.org/wiki/Leo_Breiman",
+    "Louis Wehenkel": "https://en.wikipedia.org/wiki/Extra-trees_algorithm",
+    "Machine Learning": "https://en.wikipedia.org/wiki/Machine_learning",
+    "Markov Chain Monte Carlo": "https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo",
+    "Markov Decision Process": "https://en.wikipedia.org/wiki/Markov_decision_process",
+    "Martin Arjovsky": "https://en.wikipedia.org/wiki/Wasserstein_GAN",
+    "Martin Ester": "https://en.wikipedia.org/wiki/DBSCAN",
+    "Matthew Wiener": "https://en.wikipedia.org/wiki/Random_forest",
+    "Max Welling": "https://en.wikipedia.org/wiki/Max_Welling",
+    "Maximum Likelihood Estimation": "https://en.wikipedia.org/wiki/Maximum_likelihood_estimation",
+    "Maximum Likelihood Sample Consensus": "https://en.wikipedia.org/wiki/RANSAC",
+    "Mean Squared Error": "https://en.wikipedia.org/wiki/Mean_squared_error",
+    "Michael Jordan": "https://en.wikipedia.org/wiki/Michael_I._Jordan",
+    "Monte Carlo Tree Search": "https://en.wikipedia.org/wiki/Monte_Carlo_tree_search",
+    "Multivariate Adaptive Regression Splines": "https://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines",
+    "Natural Language Processing": "https://en.wikipedia.org/wiki/Natural_language_processing",
+    "Nearest Neighbor": "https://en.wikipedia.org/wiki/Nearest_neighbor_search",
+    "Nearest Neighbor Pattern Classification": "https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm",
+    "Neural Networks": "https://en.wikipedia.org/wiki/Neural_network_(machine_learning)",
+    "Online Learning": "https://en.wikipedia.org/wiki/Online_machine_learning",
+    "Order Restrictions": "https://en.wikipedia.org/wiki/Isotonic_regression",
+    "Ordered Boosting": "https://en.wikipedia.org/wiki/CatBoost",
+    "Ordinary Least Squares": "https://en.wikipedia.org/wiki/Ordinary_least_squares",
+    "Peter Dayan": "https://en.wikipedia.org/wiki/Peter_Dayan",
+    "Pierre Geurts": "https://en.wikipedia.org/wiki/Extra-trees_algorithm",
+    "Pieter Abbeel": "https://en.wikipedia.org/wiki/Pieter_Abbeel",
+    "Pool Adjacent Violators Algorithm": "https://en.wikipedia.org/wiki/Isotonic_regression",
+    "Pranab Kumar Sen": "https://en.wikipedia.org/wiki/Pranab_Kumar_Sen",
+    "Principal Component Analysis": "https://en.wikipedia.org/wiki/Principal_component_analysis",
+    "Progressive Sample Consensus": "https://en.wikipedia.org/wiki/RANSAC",
+    "Radial Basis Function": "https://en.wikipedia.org/wiki/Radial_basis_function",
+    "Random Forest": "https://en.wikipedia.org/wiki/Random_forest",
+    "Random Forests": "https://en.wikipedia.org/wiki/Random_forest",
+    "Random Sample Consensus": "https://en.wikipedia.org/wiki/RANSAC",
+    "Random Subspace Method": "https://en.wikipedia.org/wiki/Random_subspace_method",
+    "Reinforcement Learning": "https://en.wikipedia.org/wiki/Reinforcement_learning",
+    "Repeated Median Estimator": "https://en.wikipedia.org/wiki/Repeated_median_estimator",
+    "Richard Olshen": "https://en.wikipedia.org/wiki/Classification_and_regression_tree",
+    "Robert Kennard": "https://en.wikipedia.org/wiki/Ridge_regression",
+    "Robert Tibshirani": "https://en.wikipedia.org/wiki/Robert_Tibshirani",
+    "Robert Wedderburn": "https://en.wikipedia.org/wiki/Generalized_linear_model",
+    "Roger Koenker": "https://en.wikipedia.org/wiki/Roger_Koenker",
+    "Ronald Fisher": "https://en.wikipedia.org/wiki/Ronald_Fisher",
+    "Scalable Tree Boosting System": "https://en.wikipedia.org/wiki/XGBoost",
+    "Sepp Hochreiter": "https://en.wikipedia.org/wiki/Sepp_Hochreiter",
+    "Sergey Levine": "https://en.wikipedia.org/wiki/Sergey_Levine",
+    "Singular Value Decomposition": "https://en.wikipedia.org/wiki/Singular_value_decomposition",
+    "Softmax Regression": "https://en.wikipedia.org/wiki/Multinomial_logistic_regression",
+    "Statistical Inference": "https://en.wikipedia.org/wiki/Statistical_inference",
+    "Statistical Learning Theory": "https://en.wikipedia.org/wiki/Statistical_learning_theory",
+    "Stuart Lloyd": "https://en.wikipedia.org/wiki/Lloyd%27s_algorithm",
+    "Supervised Learning": "https://en.wikipedia.org/wiki/Supervised_learning",
+    "Support Vector Machines": "https://en.wikipedia.org/wiki/Support_vector_machine",
+    "Svante Wold": "https://en.wikipedia.org/wiki/Partial_least_squares_regression",
+    "Thomas Bayes": "https://en.wikipedia.org/wiki/Thomas_Bayes",
+    "Tianqi Chen": "https://en.wikipedia.org/wiki/XGBoost",
+    "Time Series Analysis": "https://en.wikipedia.org/wiki/Time_series",
+    "Tin Kam Ho": "https://en.wikipedia.org/wiki/Tin_Kam_Ho",
+    "Tomas Mikolov": "https://en.wikipedia.org/wiki/Word2vec",
+    "Trevor Hastie": "https://en.wikipedia.org/wiki/Trevor_Hastie",
+    "Vladimir Vapnik": "https://en.wikipedia.org/wiki/Vladimir_Vapnik",
+    "Walter Pitts": "https://en.wikipedia.org/wiki/Walter_Pitts",
+    "Xiaowei Xu": "https://en.wikipedia.org/wiki/DBSCAN",
+    "Yoshua Bengio": "https://en.wikipedia.org/wiki/Yoshua_Bengio",
+    "Wikipedia": "https://en.wikipedia.org/wiki/Linear_regression",
+    "Wikipedia: k-means clustering": "https://en.wikipedia.org/wiki/K-means_clustering",
+    "0.0, 1.0) | Fraction of the units to randomly drop for the linear transformation of the inputs, helping to prevent overfitting. |\n| `recurrent_dropout` | `float` | `0.0` | [0.0, 1.0) | Fraction of the units to randomly drop for the linear transformation of the recurrent state, applied to the gates and candidate hidden state. |\n| `return_sequences` | `boolean` | `false` | true/false | Whether to return the full sequence of outputs for each time step, or only the last output in the output sequence. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={false}\n  image={false}\n  text={true}\n  timeseries={true}\n  graph={false}\n/>\n\n## Strengths\n\n- Effectively captures long-range dependencies in sequential data, mitigating the vanishing gradient problem common in vanilla RNNs.\n- Requires fewer parameters than Long Short-Term Memory (LSTM) networks, leading to potentially faster training and inference times.\n- Its simpler architecture, involving only two gates, makes it easier to understand and implement compared to more complex gated RNN variants.\n- Demonstrates strong performance across various sequence modeling tasks, often achieving results comparable to LSTMs.\n- The gating mechanisms allow for adaptive memory retention and forgetting, improving the network's ability to learn relevant patterns over time.\n\n## Weaknesses\n\n- Can still struggle with extremely long sequences where dependencies span thousands of time steps, although less so than vanilla RNNs.\n- Performance can be sensitive to hyperparameter tuning, particularly the learning rate, hidden state size, and dropout rates.\n- While simpler than LSTMs, GRUs are still more computationally intensive than traditional feedforward networks or vanilla Recurrent [Neural Networks": "https://en.wikipedia.org/wiki/Neural_network_(machine_learning"
+  },
+  "external": {
+    "0, n_samples) | Number of initial samples to discard (burn-in) to allow the MCMC chain to converge to the stationary distribution. |\n| `random_state` | `int or None` | `None` | [0, inf) or None | Controls the random seed for MCMC sampling or variational inference initialization for reproducibility. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={true}\n  image={false}\n  text={false}\n  timeseries={false}\n  graph={false}\n/>\n\n## Strengths\n\n- Provides a full posterior distribution over parameters, enabling robust quantification of uncertainty in predictions and parameter estimates.\n- Naturally incorporates regularization through the prior distributions, which helps prevent overfitting, especially with small datasets.\n- Less prone to overfitting compared to maximum likelihood estimation, as it averages over many possible models weighted by their posterior probability.\n- Can incorporate prior knowledge about the parameters, which is beneficial when domain expertise is available.\n- Offers more robust and interpretable results by providing credible intervals for parameters and predictions.\n- Can handle multicollinearity better than frequentist methods due to the regularization effect of priors.\n\n## Weaknesses\n\n- Computational cost can be significantly higher than frequentist logistic regression, especially for large datasets or complex models, due to the need for iterative inference methods like MCMC.\n- The choice of prior distributions can significantly influence the posterior results, requiring careful consideration and sensitivity analysis.\n- Interpretation of results can be more complex due to the probabilistic nature of parameter estimates and the need to work with distributions rather than point estimates.\n- Convergence diagnostics for MCMC methods can be challenging, and ensuring that the sampler has adequately explored the posterior space requires expertise.\n- Implementing Bayesian Logistic Regression often requires specialized probabilistic programming libraries, which can have a steeper learning curve.\n\n## Use Cases\n\n### Medical Diagnosis\n\nPredicting the probability of a disease given patient symptoms and test results, with quantified uncertainty for critical clinical decisions.\n\n### Credit Scoring\n\nAssessing the likelihood of loan default, providing not just a point estimate but also a confidence interval around that prediction for risk management.\n\n### Marketing Analytics\n\nModeling customer churn or conversion rates, allowing for more nuanced decision-making based on probabilistic outcomes and their associated uncertainties.\n\n### Social Sciences\n\nAnalyzing survey data to predict binary outcomes, such as voting behavior or policy adoption, while accounting for uncertainty due to small sample sizes or complex interactions.\n\n### Environmental Science\n\nPredicting the presence or absence of a species in a given habitat, incorporating prior ecological knowledge and quantifying the uncertainty of the prediction.\n\n## Implementation\n\n### From Scratch\n\n```python\n# TODO: Implement Bayesian Logistic Regression from scratch\n```\n\n### Using scikit-learn\n\n```python\nfrom sklearn.naive_bayes import BayesianLogisticRegression\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import mean_squared_error, r2_score\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n\nmodel = BayesianLogisticRegression()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\n\nprint(f\"MSE: {mean_squared_error(y_test, y_pred):.4f}\")\nprint(f\"R²:  {r2_score(y_test, y_pred):.4f}\")\n```\n\n## Lab\n\n<LabEmbed url={\"\"} title=\"Bayesian Logistic Regression Lab\" />\n\n## References\n\n- Bayesian GLM literature (1992). Bayesian GLM literature.\n- [scikit-learn: BayesianLogisticRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.BayesianLogisticRegression.html",
+    "0.0, infinity) | Additive (Laplace/Lidstone) smoothing parameter. If set to 0, no smoothing is applied, which can lead to zero probabilities for unseen features. |\n| `fit_prior` | `boolean` | `True` | True, False | Whether to learn class prior probabilities or not. If false, a uniform prior is used for all classes. |\n| `class_prior` | `array-like` | `None` | None or array of shape (n_classes,) | Prior probabilities of the classes. If specified, the priors are not adjusted according to the data and `fit_prior` is ignored. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={true}\n  image={false}\n  text={true}\n  timeseries={false}\n  graph={false}\n/>\n\n## Strengths\n\n- It is computationally efficient and scales well to large datasets and high-dimensional feature spaces.\n- Multinomial Naive Bayes often performs surprisingly well in text classification tasks, even with its strong independence assumption.\n- It is simple to implement and interpret, making it a good baseline model for many classification problems.\n- The model requires a relatively small amount of training data to estimate the necessary parameters.\n- It handles multiple classes naturally without requiring one-vs-rest or one-vs-one strategies.\n- The algorithm is robust to irrelevant features, as their probabilities tend to be uniformly distributed across classes.\n\n## Weaknesses\n\n- The core \"naive\" assumption of conditional independence between features given the class is rarely true in real-world data, which can lead to suboptimal probability estimates.\n- While it often performs well in classification, the probability outputs from Multinomial Naive Bayes are not always reliable or well-calibrated.\n- It cannot capture interactions between features, as each feature contributes independently to the final decision.\n- The model can be sensitive to the distribution of features, performing best when features are truly counts or frequencies.\n\n## Use Cases\n\n### Spam Detection\n\nClassifying emails as spam or legitimate based on the frequency of words in their content.\n\n### Sentiment Analysis\n\nDetermining the emotional tone (positive, negative, neutral) of text reviews, social media posts, or customer feedback.\n\n### Document Categorization\n\nAutomatically assigning documents to predefined categories, such as news articles into sports, politics, or technology.\n\n### Author Identification\n\nIdentifying the author of a text based on their unique writing style and word usage patterns.\n\n### Language Identification\n\nDetermining the language of a given text snippet by analyzing word frequencies.\n\n## Implementation\n\n### From Scratch\n\n```python\n# TODO: Implement Multinomial Naive Bayes from scratch\n```\n\n### Using scikit-learn\n\n```python\nfrom sklearn.naive_bayes import MultinomialNB\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import classification_report\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n\nmodel = MultinomialNB()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\n\nprint(classification_report(y_test, y_pred))\n```\n\n## Lab\n\n<LabEmbed url={\"\"} title=\"Multinomial Naive Bayes Lab\" />\n\n## References\n\n- Text classification literature (1998). Text classification literature.\n- [scikit-learn: MultinomialNB": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MultinomialNB.html",
+    "0.0, infinity) | Threshold for shrinking the centroids towards the global mean. If None, no shrinkage is applied. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={true}\n  image={true}\n  text={true}\n  timeseries={true}\n  graph={false}\n/>\n\n## Strengths\n\n- The algorithm is extremely simple to understand and implement, making it a good baseline classifier.\n- Training is very fast as it only involves calculating class means once.\n- Prediction is also efficient, requiring only distance calculations to a small number of centroids.\n- It is robust to noisy data points that are far from the class centroid, as they have less influence on the mean.\n- The model is highly interpretable, as each centroid directly represents the \"average\" instance of its class.\n- It requires minimal memory storage, only needing to store the centroids and not the entire training dataset.\n\n## Weaknesses\n\n- Nearest Centroid assumes that classes are linearly separable and have convex decision boundaries, which is often not true for complex datasets.\n- Its performance can degrade significantly if classes are highly overlapping or have complex, non-linear structures.\n- It is sensitive to the choice of distance metric, which can drastically alter classification results.\n- The algorithm is susceptible to the curse of dimensionality, where distances become less meaningful in very high-dimensional spaces.\n- It performs poorly on imbalanced datasets, as the centroid of a minority class might be pulled towards the majority class if not handled carefully.\n\n## Use Cases\n\n### Document Classification\n\nClassifying text documents into predefined categories by representing documents as TF-IDF vectors and using centroids of each category.\n\n### Image Recognition\n\nSimple image classification tasks where images are represented by feature vectors (e.g., pixel intensities or extracted features) and grouped by visual similarity.\n\n### Medical Diagnosis\n\nPreliminary classification of patient data into disease categories based on averaged physiological measurements or test results.\n\n### Anomaly Detection\n\nIdentifying outliers by calculating distances to known normal class centroids and flagging points that are significantly far from any centroid.\n\n### Customer Segmentation\n\nGrouping customers into segments based on their average purchasing behavior or demographic features for targeted marketing.\n\n## Implementation\n\n### From Scratch\n\n```python\n# TODO: Implement Nearest Centroid from scratch\n```\n\n### Using scikit-learn\n\n```python\nfrom sklearn.linear_model import NearestCentroid\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import classification_report\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n\nmodel = NearestCentroid()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\n\nprint(classification_report(y_test, y_pred))\n```\n\n## Lab\n\n<LabEmbed url={\"\"} title=\"Nearest Centroid Lab\" />\n\n## References\n\n- Rocchio-style centroid methods (1936). Rocchio-style centroid methods.\n- [scikit-learn: NearestCentroid": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.NearestCentroid.html",
+    "0.5, 1.0) | The extent to which the current value is maintained relative to incoming messages. This helps prevent numerical oscillations when updating messages. |\n| `max_iter` | `int` | `200` | integer > 0 | The maximum number of iterations for the message passing procedure. |\n| `convergence_iter` | `int` | `15` | integer > 0 | The number of iterations with no change in the number of exemplars to declare convergence. If the number of exemplars does not change for this many iterations, the algorithm stops. |\n| `affinity` | `str` | `euclidean` | {\"euclidean\", \"precomputed\"} | The type of affinity to use. 'euclidean' computes negative squared Euclidean distances. 'precomputed' expects a user-provided similarity matrix. |\n| `preference` | `array-like or float` | `None` | float or array of shape (n_samples,) | The preference for each point to be an exemplar. If None, it is set to the median of the input similarities. Higher values lead to more clusters. |\n| `random_state` | `int, RandomState instance or None` | `None` |  | Determines random number generation for initializing preferences if 'preference' is not set and 'affinity' is 'euclidean'. |\n| `copy` | `bool` | `True` | {True, False} | Whether to copy the input data or modify it in place. |\n| `verbose` | `bool` | `False` | {True, False} | Enable verbose output. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={true}\n  image={false}\n  text={false}\n  timeseries={false}\n  graph={true}\n/>\n\n## Strengths\n\n- Affinity Propagation does not require the number of clusters to be specified beforehand, discovering them automatically based on data affinities.\n- Exemplars are actual data points from the dataset, which makes the cluster centers highly interpretable.\n- The algorithm can find clusters of arbitrary shapes, making it more flexible than methods assuming spherical clusters.\n- Given fixed preferences and similarities, the algorithm is deterministic, ensuring reproducible results.\n- It is robust to the initialization of messages, as they are typically set to zero, avoiding issues with random starts.\n- The algorithm can handle high-dimensional data effectively if an appropriate similarity measure is chosen.\n\n## Weaknesses\n\n- The computational complexity is $O(N^2)$ for similarity calculation and $O(N^2 T)$ for message passing, making it slow for large datasets where $N$ is the number of data points and $T$ is the number of iterations.\n- Memory usage is $O(N^2)$ due to storing the similarity matrix and message matrices, which can be prohibitive for large datasets.\n- The quality of clustering is highly sensitive to the choice of the preference parameter, which often requires careful tuning or domain knowledge.\n- The damping factor can be difficult to tune and significantly impacts convergence speed and the final cluster quality.\n- It can struggle with noisy data or outliers, as every data point is considered a potential exemplar or assigned to one.\n\n## Use Cases\n\n### Bioinformatics\n\nIdentifying protein families or gene expression patterns where the number of underlying biological groups is unknown.\n\n### Image Processing\n\nGrouping similar image patches or features for tasks such as object recognition, image segmentation, or summarization.\n\n### Market Segmentation\n\nDiscovering natural customer segments based on purchasing behavior or demographics without predefining the number of segments.\n\n### Document Analysis\n\nClustering documents based on their content similarity to identify thematic groups or topics within a corpus.\n\n### Sensor Networks\n\nGrouping sensor readings from spatially proximate sensors to detect events or anomalies in environmental monitoring.\n\n### Recommendation Systems\n\nIdentifying groups of users with similar preferences or items with similar attributes to improve recommendation accuracy and diversity.\n\n## Implementation\n\n### From Scratch\n\n```python\n# TODO: Implement Affinity Propagation from scratch\n```\n\n### Using scikit-learn\n\n```python\nfrom sklearn.cluster import AffinityPropagation\n\nmodel = AffinityPropagation()\nlabels = model.fit_predict(X)\n```\n\n## Lab\n\n<LabEmbed url={\"\"} title=\"Affinity Propagation Lab\" />\n\n## References\n\n- Frey & Dueck (2007). Frey & Dueck.\n- [scikit-learn: AffinityPropagation": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html",
+    "1, infinity) | Dimension of the embedded space. |\n| `perplexity` | `float` | `30.0` | (1, N-1) | Related to the number of nearest neighbors used in the high-dimensional space. It balances attention between local and global aspects of the data. |\n| `early_exaggeration` | `float` | `12.0` | (0, infinity) | Controls how tight natural clusters in the original space are permitted to be in the embedded space. A higher value increases the gaps between clusters. |\n| `learning_rate` | `float` | `200.0` | (0, infinity) | The learning rate for the gradient descent optimization. |\n| `n_iter` | `int` | `1000` | (250, infinity) | Maximum number of iterations for the optimization. |\n| `metric` | `str` | `'euclidean'` | {'euclidean', 'manhattan', 'cosine', ...} | The metric to use when calculating distance between instances in a feature array. |\n| `init` | `str` | `'pca'` | {'random', 'pca'} or a numpy.ndarray | Initialization of the embedding. 'pca' is recommended for dense data, 'random' for sparse data. |\n| `random_state` | `int or RandomState instance or None` | `None` | [0, infinity) or None | Determines the random number generator seed for reproducibility. |\n\n## Compatibility\n\n<CompatibilityMatrix\n  tabular={true}\n  image={false}\n  text={false}\n  timeseries={false}\n  graph={false}\n/>\n\n## Strengths\n\n- It excels at visualizing high-dimensional data by preserving local structures and revealing clusters that might be obscured by linear methods.\n- The use of a heavy-tailed Student's t-distribution in the low-dimensional space effectively mitigates the \"crowding problem,\" allowing for better separation of clusters.\n- t-SNE can uncover complex, non-linear relationships within data, making it valuable for exploratory data analysis.\n- The perplexity parameter offers a flexible way to balance attention between local and global aspects of the data structure.\n- It produces visually intuitive and interpretable maps, often showing distinct, well-separated clusters.\n\n## Weaknesses\n\n- The computational complexity of t-SNE is high, scaling as $O(N^2)$ or $O(N \\log N)$ with approximations, making it slow for very large datasets.\n- t-SNE is sensitive to its hyperparameters, particularly perplexity and early exaggeration, which can significantly influence the resulting visualization.\n- The global structure of the data is not always well-preserved, meaning distances between widely separated clusters in the t-SNE plot may not accurately reflect their true distances in high-dimensional space.\n- t-SNE is a non-deterministic algorithm; different runs with different random initializations can produce different visualizations, making reproducibility challenging without fixing the random state.\n- It is primarily a visualization tool and does not provide a direct mapping function for new data points, requiring re-computation for new samples.\n\n## Use Cases\n\n### Bioinformatics\n\nVisualizing gene expression data, single-cell RNA sequencing data, or protein interaction networks to identify cell types or disease states.\n\n### Image Processing\n\nExploring feature vectors extracted from images to understand image similarity, identify object categories, or detect anomalies.\n\n### Natural Language Processing\n\nVisualizing word embeddings or document embeddings to understand semantic relationships between words or cluster documents by topic.\n\n### Cybersecurity\n\nDetecting anomalies in network traffic data or user behavior logs by visualizing high-dimensional feature vectors to identify unusual patterns.\n\n### Customer Segmentation\n\nGrouping customers based on their purchasing behavior or demographic data to identify distinct market segments.\n\n### Quality Control\n\nVisualizing manufacturing sensor data to identify clusters corresponding to different operational states or defect types.\n\n## Implementation\n\n### From Scratch\n\n```python\n# TODO: Implement t-SNE from scratch\n```\n\n### Using scikit-learn\n\n```python\nfrom sklearn.manifold import TSNE\n\nmodel = TSNE()\nlabels = model.fit_predict(X)\n```\n\n## Lab\n\n<LabEmbed url={\"\"} title=\"t-SNE Lab\" />\n\n## References\n\n- van der Maaten & Hinton (2008). van der Maaten & Hinton.\n- [scikit-learn: TSNE": "https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html",
+    "scikit-learn RandomForestClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+    "scikit-learn: Adaboost": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Adaboost.html",
+    "scikit-learn: AdaboostRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.AdaboostRegression.html",
+    "scikit-learn: AgglomerativeClustering": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html",
+    "scikit-learn: Apriori": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Apriori.html",
+    "scikit-learn: AutoencoderBasedAnomalyDetection": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AutoencoderBasedAnomalyDetection.html",
+    "scikit-learn: BaggingClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html",
+    "scikit-learn: BayesianLinearRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianLinearRegression.html",
+    "scikit-learn: BayesianNetwork": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.BayesianNetwork.html",
+    "scikit-learn: BernoulliNaiveBayes": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BernoulliNaiveBayes.html",
+    "scikit-learn: Birch": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html",
+    "scikit-learn: CalibratedClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.CalibratedClassifier.html",
+    "scikit-learn: ChineseRestaurantProcess": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ChineseRestaurantProcess.html",
+    "scikit-learn: ComplementNaiveBayes": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ComplementNaiveBayes.html",
+    "scikit-learn: ConditionalRandomField": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ConditionalRandomField.html",
+    "scikit-learn: Copod": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Copod.html",
+    "scikit-learn: Cure": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Cure.html",
+    "scikit-learn: DBSCAN": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html",
+    "scikit-learn: DecisionTreeClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+    "scikit-learn: DecisionTreeRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.DecisionTreeRegression.html",
+    "scikit-learn: DiffusionMaps": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DiffusionMaps.html",
+    "scikit-learn: DirichletProcessMixtureModel": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DirichletProcessMixtureModel.html",
+    "scikit-learn: DynamicBayesianNetwork": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.DynamicBayesianNetwork.html",
+    "scikit-learn: Eclat": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Eclat.html",
+    "scikit-learn: Ecod": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Ecod.html",
+    "scikit-learn: ElasticNet": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html",
+    "scikit-learn: EllipticEnvelope": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.EllipticEnvelope.html",
+    "scikit-learn: ExpectationMaximization": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ExpectationMaximization.html",
+    "scikit-learn: ExtendedKalmanFilter": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ExtendedKalmanFilter.html",
+    "scikit-learn: ExtraTreesClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html",
+    "scikit-learn: ExtraTreesRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ExtraTreesRegression.html",
+    "scikit-learn: FactorAnalysis": "https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.FactorAnalysis.html",
+    "scikit-learn: FpGrowth": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FpGrowth.html",
+    "scikit-learn: FuzzyCMeans": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.FuzzyCMeans.html",
+    "scikit-learn: GammaRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.GammaRegression.html",
+    "scikit-learn: GaussianMixture": "https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html",
+    "scikit-learn: GaussianNB": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html",
+    "scikit-learn: GaussianProcessClassification": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianProcessClassification.html",
+    "scikit-learn: GaussianProcessRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.GaussianProcessRegression.html",
+    "scikit-learn: GradientBoostingClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html",
+    "scikit-learn: GradientBoostingRegressor": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html",
+    "scikit-learn: GrowingNeuralGas": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.GrowingNeuralGas.html",
+    "scikit-learn: Hdbscan": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Hdbscan.html",
+    "scikit-learn: HiddenMarkovModel": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.HiddenMarkovModel.html",
+    "scikit-learn: HiddenMarkovModelSupervisedUse": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HiddenMarkovModelSupervisedUse.html",
+    "scikit-learn: HierarchicalDirichletProcess": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HierarchicalDirichletProcess.html",
+    "scikit-learn: HuberRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.HuberRegression.html",
+    "scikit-learn: Ica": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Ica.html",
+    "scikit-learn: IncrementalPca": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.IncrementalPca.html",
+    "scikit-learn: IndianBuffetProcess": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.IndianBuffetProcess.html",
+    "scikit-learn: IsolationForest": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html",
+    "scikit-learn: Isomap": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.Isomap.html",
+    "scikit-learn: IsotonicRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.IsotonicRegression.html",
+    "scikit-learn: KMeans": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html",
+    "scikit-learn: KMedoids": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMedoids.html",
+    "scikit-learn: KNeighborsClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html",
+    "scikit-learn: KalmanFilter": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.KalmanFilter.html",
+    "scikit-learn: KernelPCA": "https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.KernelPCA.html",
+    "scikit-learn: KernelRidgeRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.KernelRidgeRegression.html",
+    "scikit-learn: LabelPropagation": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LabelPropagation.html",
+    "scikit-learn: LabelSpreading": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LabelSpreading.html",
+    "scikit-learn: Lambdamart": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lambdamart.html",
+    "scikit-learn: LaplacianEigenmaps": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LaplacianEigenmaps.html",
+    "scikit-learn: Lasso": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html",
+    "scikit-learn: LatentDirichletAllocation": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LatentDirichletAllocation.html",
+    "scikit-learn: LatentSemanticAnalysis": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LatentSemanticAnalysis.html",
+    "scikit-learn: LinearDiscriminantAnalysis": "https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html",
+    "scikit-learn: LocalOutlierFactor": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LocalOutlierFactor.html",
+    "scikit-learn: LocallyLinearEmbedding": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.LocallyLinearEmbedding.html",
+    "scikit-learn: LogisticRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
+    "scikit-learn: MarkovRandomField": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MarkovRandomField.html",
+    "scikit-learn: MarsMultivariateAdaptiveRegressionSplines": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.MarsMultivariateAdaptiveRegressionSplines.html",
+    "scikit-learn: MeanShift": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html",
+    "scikit-learn: MinibatchKMeans": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MinibatchKMeans.html",
+    "scikit-learn: MultidimensionalScaling": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MultidimensionalScaling.html",
+    "scikit-learn: MultinomialLogisticRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.MultinomialLogisticRegression.html",
+    "scikit-learn: NMF": "https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html",
+    "scikit-learn: NeuralGas": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.NeuralGas.html",
+    "scikit-learn: OPTICS": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html",
+    "scikit-learn: OneClassSVM": "https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html",
+    "scikit-learn: PCA": "https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html",
+    "scikit-learn: Part": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Part.html",
+    "scikit-learn: PartialLeastSquaresRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PartialLeastSquaresRegression.html",
+    "scikit-learn: ParticleFilter": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.ParticleFilter.html",
+    "scikit-learn: PassiveAggressiveClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveClassifier.html",
+    "scikit-learn: PassiveAggressiveRegressor": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PassiveAggressiveRegressor.html",
+    "scikit-learn: Perceptron": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Perceptron.html",
+    "scikit-learn: PoissonRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PoissonRegression.html",
+    "scikit-learn: PolynomialRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.PolynomialRegression.html",
+    "scikit-learn: ProbabilisticLatentSemanticAnalysis": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.ProbabilisticLatentSemanticAnalysis.html",
+    "scikit-learn: QuadraticDiscriminantAnalysis": "https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis.html",
+    "scikit-learn: QuantileRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.QuantileRegression.html",
+    "scikit-learn: RandomForestRegressor": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html",
+    "scikit-learn: Ranknet": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ranknet.html",
+    "scikit-learn: RansacRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.RansacRegression.html",
+    "scikit-learn: RelevanceVectorMachine": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.RelevanceVectorMachine.html",
+    "scikit-learn: Ridge": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html",
+    "scikit-learn: Ripper": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ripper.html",
+    "scikit-learn: Rulefit": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Rulefit.html",
+    "scikit-learn: SVC": "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html",
+    "scikit-learn: SVR": "https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html",
+    "scikit-learn: SelfOrganizingMap": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SelfOrganizingMap.html",
+    "scikit-learn: SparsePca": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SparsePca.html",
+    "scikit-learn: SpectralClustering": "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html",
+    "scikit-learn: Stacking": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Stacking.html",
+    "scikit-learn: StructuredSvm": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.StructuredSvm.html",
+    "scikit-learn: TSNE": "https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html",
+    "scikit-learn: TheilSenRegressor": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html",
+    "scikit-learn: TruncatedSVD": "https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html",
+    "scikit-learn: TweedieRegression": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TweedieRegression.html",
+    "scikit-learn: UnscentedKalmanFilter": "https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.UnscentedKalmanFilter.html",
+    "scikit-learn: VotingClassifier": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html",
+    "scikit-learn: Winnow": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Winnow.html",
+    "Transformer": "/algorithms/deep-learning/transformers/swin-Transformer",
+    "Autoencoder": "/algorithms/deep-learning/representation-learning/denoising-Autoencoder",
+    "Q-Learning": "/algorithms/reinforcement/model-free-value-methods/double-Q-Learning",
+    "Actor-Critic": "/algorithms/reinforcement/policy-gradient/soft-Actor-Critic"
+  },
+  "app_pages": {
+    "Browse Algorithms": "/algorithms",
+    "All Algorithms": "/algorithms",
+    "Progress Dashboard": "/progress",
+    "Progress": "/progress",
+    "Search": "/search",
+    "Labs": "/labs",
+    "Home": "/"
+  }
+}

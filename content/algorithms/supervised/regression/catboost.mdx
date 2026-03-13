@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-CatBoost is a gradient boosting algorithm that excels at handling categorical features without extensive preprocessing. It introduces novel techniques like [Ordered Boosting](https://en.wikipedia.org/wiki/CatBoost) to mitigate prediction shift and gradient bias, leading to more robust models and reduced overfitting. The algorithm constructs symmetric decision trees and employs a permutation-driven approach for target encoding of categorical variables, ensuring unbiased gradient estimation.
+[CatBoost](/algorithms/supervised/catboost) is a gradient boosting algorithm that excels at handling categorical features without extensive preprocessing. It introduces novel techniques like Ordered Boosting to mitigate prediction shift and gradient bias, leading to more robust models and reduced overfitting. The algorithm constructs symmetric decision trees and employs a permutation-driven approach for target encoding of categorical variables, ensuring unbiased gradient estimation.
 
 ## History
 
@@ -118,7 +118,7 @@ CatBoost uses oblivious decision trees, also known as symmetric trees. In these 
 
 ## Weaknesses
 
-- Training can be slower than other gradient boosting implementations like LightGBM or XGBoost, particularly due to the permutation-driven ordered boosting and categorical feature encoding.
+- Training can be slower than other gradient boosting implementations like [LightGBM](/algorithms/supervised/lightgbm) or [XGBoost](/algorithms/supervised/xgboost), particularly due to the permutation-driven ordered boosting and categorical feature encoding.
 - The memory consumption can be higher, especially for datasets with a large number of unique categorical feature values or very wide datasets.
 - While providing feature importance, the ensemble of many decision trees makes the overall model less interpretable than simpler linear models or single decision trees.
 - The default symmetric tree structure might not always be optimal for all datasets compared to more flexible tree structures.

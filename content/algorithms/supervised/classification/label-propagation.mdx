@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Label Propagation is a semi-supervised learning algorithm designed to classify unlabeled data points by leveraging a small amount of labeled data. It operates by constructing a similarity graph where nodes represent data points and edges quantify their similarity. Labels are then iteratively propagated from the labeled nodes to their neighbors, spreading through the graph until a stable state is reached. This approach effectively smooths labels over connected components, assuming similar data points should have similar labels.
+[Label Propagation](/algorithms/supervised/label-propagation) is a semi-supervised learning algorithm designed to classify unlabeled data points by leveraging a small amount of labeled data. It operates by constructing a similarity graph where nodes represent data points and edges quantify their similarity. Labels are then iteratively propagated from the labeled nodes to their neighbors, spreading through the graph until a stable state is reached. This approach effectively smooths labels over connected components, assuming similar data points should have similar labels.
 
 ## History
 
@@ -33,7 +33,7 @@ Label Propagation is a semi-supervised learning algorithm designed to classify u
 
 **2003** — Zhu, Ghahramani, and Lafferty further explored the theoretical properties and connections to Gaussian random fields and harmonic functions in their work on semi-supervised learning.
 
-**2007** — Dengyong Zhou and colleagues introduced the related [Label Spreading](/algorithms/supervised/classification/label-spreading) algorithm in "Learning with local and global consistency," which adds a regularization term to the propagation process.
+**2007** — Dengyong Zhou and colleagues introduced the related [Label Spreading](/algorithms/supervised/label-spreading) algorithm in "Learning with local and global consistency," which adds a regularization term to the propagation process.
 
 **2009** — The algorithm gained broader recognition and was integrated into various machine learning libraries, becoming a standard technique for semi-supervised classification tasks.
 
@@ -45,7 +45,7 @@ Label Propagation is a semi-supervised learning algorithm designed to classify u
 
 The algorithm begins by constructing a similarity graph $G=(V, E)$, where $V$ is the set of all labeled and unlabeled data points, and $E$ represents the edges between them. The weight $w_{ij}$ of an edge between nodes $i$ and $j$ quantifies their similarity. A common choice for computing similarity is the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel:
 $$w_{ij} = \exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma^2}\right)$$
-where $x_i$ and $x_j$ are the feature vectors of points $i$ and $j$, and $\sigma$ is a bandwidth parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) (k-NN) graph can be constructed, where $w_{ij}=1$ if $j$ is among the $k$ nearest neighbors of $i$ (or vice-versa), and $0$ otherwise.
+where $x_i$ and $x_j$ are the feature vectors of points $i$ and $j$, and $\sigma$ is a bandwidth parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/k-nearest-neighbors) (k-NN) graph can be constructed, where $w_{ij}=1$ if $j$ is among the $k$ nearest neighbors of $i$ (or vice-versa), and $0$ otherwise.
 
 $$
 G=(V, E)

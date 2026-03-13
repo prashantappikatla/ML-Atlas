@@ -27,17 +27,17 @@ related:
 
 ## Overview
 
-The Autoregressive Conditional Heteroskedasticity (ARCH) model is a statistical model used to describe and forecast the time-varying volatility of financial time series. It posits that the variance of the current error term is a function of the magnitudes of the squared error terms from previous time periods. This approach effectively captures the phenomenon of volatility clustering, where large changes in asset prices tend to be followed by large changes, and small changes by small changes.
+The Autoregressive Conditional Heteroskedasticity ([ARCH](/algorithms/time-series/arch)) model is a statistical model used to describe and forecast the time-varying volatility of financial time series. It posits that the variance of the current error term is a function of the magnitudes of the squared error terms from previous time periods. This approach effectively captures the phenomenon of volatility clustering, where large changes in asset prices tend to be followed by large changes, and small changes by small changes.
 
 ## History
 
 **1982** — Robert F. Engle introduced the ARCH model in his seminal paper 'Autoregressive Conditional Heteroskedasticity with Estimates of the Variance of United Kingdom Inflation', providing a framework to model time-varying volatility.
 
-**1986** — Tim Bollerslev generalized the ARCH model to the Generalized Autoregressive Conditional Heteroskedasticity ([GARCH](/algorithms/time-series/classical-forecasting/garch)) model, allowing the conditional variance to depend on past conditional variances as well as past squared errors.
+**1986** — Tim Bollerslev generalized the ARCH model to the Generalized Autoregressive Conditional Heteroskedasticity ([GARCH](/algorithms/time-series/garch)) model, allowing the conditional variance to depend on past conditional variances as well as past squared errors.
 
-**1991** — Daniel B. Nelson introduced the Exponential [GARCH](/algorithms/time-series/classical-forecasting/garch) (EGARCH) model, addressing some limitations of [GARCH](/algorithms/time-series/classical-forecasting/garch) by allowing asymmetric responses to positive and negative shocks and ensuring non-negativity of variance without parameter constraints.
+**1991** — Daniel B. Nelson introduced the Exponential GARCH (EGARCH) model, addressing some limitations of GARCH by allowing asymmetric responses to positive and negative shocks and ensuring non-negativity of variance without parameter constraints.
 
-**1993** — Zakoian and Glosten, Jagannathan, and Runkle independently proposed the Threshold [GARCH](/algorithms/time-series/classical-forecasting/garch) (TARCH or GJR-[GARCH](/algorithms/time-series/classical-forecasting/garch)) model, which also accounts for asymmetric effects of positive and negative shocks on volatility.
+**1993** — Zakoian and Glosten, Jagannathan, and Runkle independently proposed the Threshold GARCH (TARCH or GJR-GARCH) model, which also accounts for asymmetric effects of positive and negative shocks on volatility.
 
 ## Mathematical Intuition
 
@@ -47,7 +47,7 @@ Traditional time series models often assume constant variance (homoskedasticity)
 
 ### ARCH(q) Model Definition
 
-An ARCH(q) model specifies that the conditional variance $\sigma_t^2$ depends on $q$ past squared error terms. Let $y_t$ be the time series, and $\epsilon_t$ be the error term from a mean equation (e.g., ARMA model), such that $y_t = \mu_t + \epsilon_t$. The error term $\epsilon_t$ is assumed to be $\epsilon_t = \sigma_t z_t$, where $z_t$ is an independent and identically distributed (i.i.d.) random variable with zero mean and unit variance (e.g., $z_t \sim N(0,1)$). The conditional variance equation for an ARCH(q) model is given by:
+An ARCH(q) model specifies that the conditional variance $\sigma_t^2$ depends on $q$ past squared error terms. Let $y_t$ be the time series, and $\epsilon_t$ be the error term from a mean equation (e.g., [ARMA](/algorithms/time-series/arma) model), such that $y_t = \mu_t + \epsilon_t$. The error term $\epsilon_t$ is assumed to be $\epsilon_t = \sigma_t z_t$, where $z_t$ is an independent and identically distributed (i.i.d.) random variable with zero mean and unit variance (e.g., $z_t \sim N(0,1)$). The conditional variance equation for an ARCH(q) model is given by:
 
 $$
 $$\sigma_t^2 = \alpha_0 + \sum_{i=1}^{q} \alpha_i \epsilon_{t-i}^2$$
@@ -59,7 +59,7 @@ $$
 
 ### Mean Equation Context
 
-The ARCH model is typically applied to the residuals of a mean equation, which models the conditional mean of the time series. This mean equation could be a simple constant, an Autoregressive (AR) model, a Moving Average (MA) model, or an Autoregressive Moving Average (ARMA) model. For example, an AR(p) mean equation would be $y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \epsilon_t$. The ARCH model then describes the dynamics of the variance of these residuals $\epsilon_t$.
+The ARCH model is typically applied to the residuals of a mean equation, which models the conditional mean of the time series. This mean equation could be a simple constant, an Autoregressive ([AR](/algorithms/time-series/ar)) model, a Moving Average ([MA](/algorithms/time-series/ma)) model, or an Autoregressive Moving Average (ARMA) model. For example, an AR(p) mean equation would be $y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \epsilon_t$. The ARCH model then describes the dynamics of the variance of these residuals $\epsilon_t$.
 
 ### Parameter Estimation via MLE
 
@@ -76,7 +76,7 @@ $$
 ## Algorithm Steps
 
 1. Specify a suitable mean equation for the time series $y_t$, such as an AR(p), MA(q), or ARMA(p,q) model, to capture the conditional mean dynamics.
-2. Estimate the parameters of the chosen mean equation (e.g., using Ordinary Least Squares or MLE) and obtain the residuals $\hat{\epsilon}_t = y_t - \hat{\mu}_t$.
+2. Estimate the parameters of the chosen mean equation (e.g., using [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) or MLE) and obtain the residuals $\hat{\epsilon}_t = y_t - \hat{\mu}_t$.
 3. Test the residuals $\hat{\epsilon}_t$ for ARCH effects using tests like the Ljung-Box test on squared residuals or Engle's ARCH test, to confirm the presence of conditional heteroskedasticity.
 4. If ARCH effects are detected, specify the order $q$ for the ARCH(q) model, often determined by examining the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) of the squared residuals $\hat{\epsilon}_t^2$.
 5. Formulate the ARCH(q) conditional variance equation: $\sigma_t^2 = \alpha_0 + \sum_{i=1}^{q} \alpha_i \epsilon_{t-i}^2$.

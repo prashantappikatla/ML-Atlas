@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Recurrent Neural Networks (RNNs) are a class of artificial neural networks designed to recognize patterns in sequences of data, such as text, speech, or time series. Unlike traditional feedforward networks, RNNs possess an internal memory that allows them to process inputs in a sequential manner, where the output at each step depends on both the current input and the previous computations. This recurrent connection enables them to model temporal dependencies and context within the data.
+Recurrent [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (RNNs) are a class of artificial neural networks designed to recognize patterns in sequences of data, such as text, speech, or time series. Unlike traditional feedforward networks, RNNs possess an internal memory that allows them to process inputs in a sequential manner, where the output at each step depends on both the current input and the previous computations. This recurrent connection enables them to model temporal dependencies and context within the data.
 
 ## History
 
@@ -31,7 +31,7 @@ Recurrent Neural Networks (RNNs) are a class of artificial neural networks desig
 
 **1990** — Jeffrey Elman published 'Finding Structure in Time', demonstrating the ability of simple recurrent networks (Elman Networks) to learn and predict sequences, significantly popularizing the architecture.
 
-**1997** — [Sepp Hochreiter](https://en.wikipedia.org/wiki/Sepp_Hochreiter) and Jürgen Schmidhuber introduced Long Short-Term Memory (LSTM) networks to address the vanishing gradient problem inherent in traditional RNNs, enabling them to learn long-range dependencies.
+**1997** — [Sepp Hochreiter](https://en.wikipedia.org/wiki/Sepp_Hochreiter) and Jürgen Schmidhuber introduced Long Short-Term Memory ([LSTM](/algorithms/deep-learning/lstm)) networks to address the vanishing gradient problem inherent in traditional RNNs, enabling them to learn long-range dependencies.
 
 **2014** — Kyunghyun Cho et al. introduced Gated Recurrent Units (GRUs), a simplified variant of LSTMs that also mitigate the vanishing gradient problem with fewer parameters.
 
@@ -39,7 +39,7 @@ Recurrent Neural Networks (RNNs) are a class of artificial neural networks desig
 
 ### Core Recurrence Relation
 
-The fundamental operation of a Recurrent Neural Network involves a hidden state $h_t$ that is updated at each time step $t$. This hidden state captures information from the current input $x_t$ and the previous hidden state $h_{t-1}$. The output $y_t$ at time $t$ is typically derived from the current hidden state. The recurrence relation for a simple RNN is defined as follows:
+The fundamental operation of a [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) involves a hidden state $h_t$ that is updated at each time step $t$. This hidden state captures information from the current input $x_t$ and the previous hidden state $h_{t-1}$. The output $y_t$ at time $t$ is typically derived from the current hidden state. The recurrence relation for a simple RNN is defined as follows:
 
 $$
 h_t = \sigma(W_{hh}h_{t-1} + W_{xh}x_t + b_h)
@@ -69,7 +69,7 @@ A significant challenge in training traditional RNNs is the vanishing and explod
 4. Compute the loss $L_t$ at time $t$ by comparing the predicted output $y_t$ with the true target $z_t$.
 5. Sum the losses over all time steps to get the total loss $L = \sum_{t=1}^{T} L_t$.
 6. Perform Backpropagation Through Time (BPTT) to compute the gradients of the total loss with respect to all network parameters (weights and biases).
-7. Update the network parameters using an optimization algorithm (e.g., Stochastic Gradient Descent, Adam) and the calculated gradients.
+7. Update the network parameters using an optimization algorithm (e.g., [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent), [Adam](/algorithms/meta-learning/adam)) and the calculated gradients.
 
 ## Parameters
 

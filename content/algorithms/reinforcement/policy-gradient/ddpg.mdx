@@ -26,23 +26,23 @@ related:
 
 ## Overview
 
-Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DDPG) is an off-policy, model-free reinforcement learning algorithm designed for environments with continuous action spaces. It combines the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework with insights from Deep Q-Networks (DQN), such as experience replay and target networks, to stabilize learning. DDPG learns a deterministic policy that maps states directly to actions, while a critic network estimates the action-value function for these actions.
+Deep [Deterministic Policy Gradient](/algorithms/reinforcement/deterministic-policy-gradient) ([DDPG](/algorithms/reinforcement/ddpg)) is an off-policy, model-free reinforcement learning algorithm designed for environments with continuous action spaces. It combines the [Actor-Critic](/algorithms/reinforcement/actor-critic) framework with insights from Deep Q-Networks (DQN), such as experience replay and target networks, to stabilize learning. DDPG learns a deterministic policy that maps states directly to actions, while a critic network estimates the action-value function for these actions.
 
 ## History
 
 **2013** — Deep Q-Networks (DQN) by Mnih et al. introduced experience replay and target networks, foundational techniques for stabilizing deep reinforcement learning.
 
-**2014** — The [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DPG) theorem was introduced by Silver et al., providing a theoretical basis for policy gradient methods in continuous action spaces.
+**2014** — The Deterministic Policy Gradient (DPG) theorem was introduced by Silver et al., providing a theoretical basis for policy gradient methods in continuous action spaces.
 
-**2016** — Lillicrap et al. published 'Continuous Control with Deep Reinforcement Learning,' introducing DDPG, which adapted DQN's stability features to the DPG framework for continuous control tasks.
+**2016** — Lillicrap et al. published 'Continuous Control with Deep [Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning),' introducing DDPG, which adapted DQN's stability features to the DPG framework for continuous control tasks.
 
-**2018** — Twin Delayed DDPG (TD3) by Fujimoto et al. was introduced as an improvement over DDPG, addressing its overestimation bias and sensitivity to hyperparameters.
+**2018** — Twin Delayed DDPG ([TD3](/algorithms/reinforcement/td3)) by Fujimoto et al. was introduced as an improvement over DDPG, addressing its overestimation bias and sensitivity to hyperparameters.
 
 ## Mathematical Intuition
 
 ### Actor-Critic Architecture
 
-DDPG employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, consisting of two main neural networks: an actor network $\mu(s|\theta^{\mu})$ and a critic network $Q(s,a|\theta^Q)$. The actor learns a deterministic policy that maps states $s$ to actions $a$, while the critic learns to estimate the action-value function $Q(s,a)$, representing the expected return from taking action $a$ in state $s$ and subsequently following the actor's policy. Both networks have corresponding target networks, $\mu'(s|\theta^{\mu'})$ and $Q'(s,a|\theta^{Q'})$, which are slowly updated copies of the main networks to provide stable targets for learning.
+DDPG employs an Actor-Critic architecture, consisting of two main neural networks: an actor network $\mu(s|\theta^{\mu})$ and a critic network $Q(s,a|\theta^Q)$. The actor learns a deterministic policy that maps states $s$ to actions $a$, while the critic learns to estimate the action-value function $Q(s,a)$, representing the expected return from taking action $a$ in state $s$ and subsequently following the actor's policy. Both networks have corresponding target networks, $\mu'(s|\theta^{\mu'})$ and $Q'(s,a|\theta^{Q'})$, which are slowly updated copies of the main networks to provide stable targets for learning.
 
 $$
 \mu(s|\theta^{\mu})
@@ -62,7 +62,7 @@ $$
 
 ### Deterministic Policy Gradient
 
-The actor network is updated using the [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) theorem. This theorem states that the gradient of the expected return $J$ with respect to the actor's parameters $\theta^{\mu}$ can be approximated by the expected value of the critic's action-value gradient with respect to the action, multiplied by the actor's policy gradient. This allows the actor to move its policy in the direction that maximizes the Q-value estimated by the critic.
+The actor network is updated using the Deterministic Policy Gradient theorem. This theorem states that the gradient of the expected return $J$ with respect to the actor's parameters $\theta^{\mu}$ can be approximated by the expected value of the critic's action-value gradient with respect to the action, multiplied by the actor's policy gradient. This allows the actor to move its policy in the direction that maximizes the Q-value estimated by the critic.
 
 $$
 \nabla_{\theta^{\mu}} J \approx E_{s_t \sim \rho^{\beta}}[\nabla_a Q(s,a)|_{s=s_t, a=\mu(s_t)} \nabla_{\theta^{\mu}} \mu(s_t)]
@@ -70,7 +70,7 @@ $$
 
 ### Critic Network Update
 
-The critic network $Q(s,a|\theta^Q)$ is updated using a temporal difference (TD) learning approach, similar to [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning). For each transition $(s_t, a_t, r_t, s_{t+1})$, a target Q-value $y_t$ is computed using the reward $r_t$ and the Q-value of the next state-action pair, where the next action is determined by the target actor network $\mu'$. The critic's parameters $\theta^Q$ are then updated by minimizing the mean-squared Bellman error between the predicted $Q(s_t, a_t)$ and the target $y_t$.
+The critic network $Q(s,a|\theta^Q)$ is updated using a temporal difference (TD) learning approach, similar to [Q-Learning](/algorithms/reinforcement/q-learning). For each transition $(s_t, a_t, r_t, s_{t+1})$, a target Q-value $y_t$ is computed using the reward $r_t$ and the Q-value of the next state-action pair, where the next action is determined by the target actor network $\mu'$. The critic's parameters $\theta^Q$ are then updated by minimizing the mean-squared Bellman error between the predicted $Q(s_t, a_t)$ and the target $y_t$.
 
 $$
 y_t = r_t + \gamma Q'(s_{t+1}, \mu'(s_{t+1}|\theta^{\mu'})|\theta^{Q'})

@@ -26,27 +26,27 @@ related:
 
 ## Overview
 
-Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression), also known as [Softmax Regression](https://en.wikipedia.org/wiki/Multinomial_logistic_regression), extends binary [Logistic Regression](/algorithms/supervised/classification/logistic-regression) to handle classification problems with more than two possible discrete outcomes. It models the probability of an input belonging to each class using a linear predictor function and the softmax activation function. This algorithm is a fundamental linear classifier, widely used as a baseline and as the output layer in neural networks for multi-class classification.
+[Multinomial Logistic Regression](/algorithms/supervised/multinomial-logistic-regression), also known as [Softmax Regression](https://en.wikipedia.org/wiki/Multinomial_logistic_regression), extends binary [Logistic Regression](/algorithms/supervised/logistic-regression) to handle classification problems with more than two possible discrete outcomes. It models the probability of an input belonging to each class using a linear predictor function and the softmax activation function. This algorithm is a fundamental linear classifier, widely used as a baseline and as the output layer in neural networks for multi-class classification.
 
 ## History
 
-**1944** — [Joseph Berkson](https://en.wikipedia.org/wiki/Joseph_Berkson) introduces the logit transformation, a foundational concept for [Logistic Regression](/algorithms/supervised/classification/logistic-regression), in biostatistics.
+**1944** — [Joseph Berkson](https://en.wikipedia.org/wiki/Joseph_Berkson) introduces the logit transformation, a foundational concept for Logistic Regression, in biostatistics.
 
-**1960** — The general framework of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) gains prominence, particularly in medical and social sciences for modeling binary outcomes.
+**1960** — The general framework of Logistic Regression gains prominence, particularly in medical and social sciences for modeling binary outcomes.
 
-**1969** — The extension of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) to handle multiple, mutually exclusive classes, often termed multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) or softmax regression, becomes an established method.
+**1969** — The extension of Logistic Regression to handle multiple, mutually exclusive classes, often termed multinomial Logistic Regression or softmax regression, becomes an established method.
 
-**1972** — [John Nelder](https://en.wikipedia.org/wiki/John_Nelder) and [Robert Wedderburn](https://en.wikipedia.org/wiki/Generalized_linear_model) publish their seminal paper on [Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLMs), providing a unified theoretical framework that encompasses [Logistic Regression](/algorithms/supervised/classification/logistic-regression).
+**1972** — [John Nelder](https://en.wikipedia.org/wiki/John_Nelder) and Robert Wedderburn publish their seminal paper on [Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLMs), providing a unified theoretical framework that encompasses Logistic Regression.
 
-**1980** — With advancements in computing and optimization algorithms, [Logistic Regression](/algorithms/supervised/classification/logistic-regression), including its multinomial variant, sees broader application in various statistical and early machine learning tasks.
+**1980** — With advancements in computing and optimization algorithms, Logistic Regression, including its multinomial variant, sees broader application in various statistical and early machine learning tasks.
 
-**2000** — Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) becomes a standard baseline algorithm in machine learning, frequently employed as the final layer in deep learning architectures for multi-class prediction.
+**2000** — Multinomial Logistic Regression becomes a standard baseline algorithm in machine learning, frequently employed as the final layer in deep learning architectures for multi-class prediction.
 
 ## Mathematical Intuition
 
 ### Binary Logistic Regression Basis
 
-Binary [Logistic Regression](/algorithms/supervised/classification/logistic-regression) models the probability of a binary outcome. For an input feature vector $x$, the log-odds of the positive class is a linear combination of features: $log(\frac{P(y=1|x)}{P(y=0|x)}) = w^T x + b$. Applying the sigmoid function to this linear combination yields the probability of the positive class: $P(y=1|x) = \sigma(w^T x + b) = \frac{1}{1 + e^{-(w^T x + b)}}$.
+Binary Logistic Regression models the probability of a binary outcome. For an input feature vector $x$, the log-odds of the positive class is a linear combination of features: $log(\frac{P(y=1|x)}{P(y=0|x)}) = w^T x + b$. Applying the sigmoid function to this linear combination yields the probability of the positive class: $P(y=1|x) = \sigma(w^T x + b) = \frac{1}{1 + e^{-(w^T x + b)}}$.
 
 $$
 log(\frac{P(y=1|x)}{P(y=0|x)}) = w^T x + b
@@ -58,7 +58,7 @@ $$
 
 ### Multinomial Extension with Softmax
 
-For $K$ classes, Multinomial [Logistic Regression](/algorithms/supervised/classification/logistic-regression) assigns a weight vector $w_k$ and bias $b_k$ to each class $k$. For a given input $x$, a score $s_k(x) = w_k^T x + b_k$ is computed for each class. These scores are then transformed into probabilities using the softmax function, ensuring that the probabilities for all classes sum to one: $$P(y=k|x) = \frac{e^{s_k(x)}}{\sum_{j=1}^{K} e^{s_j(x)}} = \frac{e^{w_k^T x + b_k}}{\sum_{j=1}^{K} e^{w_j^T x + b_j}}$$ The softmax function effectively normalizes the exponentiated scores into a probability distribution.
+For $K$ classes, Multinomial Logistic Regression assigns a weight vector $w_k$ and bias $b_k$ to each class $k$. For a given input $x$, a score $s_k(x) = w_k^T x + b_k$ is computed for each class. These scores are then transformed into probabilities using the softmax function, ensuring that the probabilities for all classes sum to one: $$P(y=k|x) = \frac{e^{s_k(x)}}{\sum_{j=1}^{K} e^{s_j(x)}} = \frac{e^{w_k^T x + b_k}}{\sum_{j=1}^{K} e^{w_j^T x + b_j}}$$ The softmax function effectively normalizes the exponentiated scores into a probability distribution.
 
 $$
 s_k(x) = w_k^T x + b_k

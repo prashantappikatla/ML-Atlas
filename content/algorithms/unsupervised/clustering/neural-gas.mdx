@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Neural Gas is an unsupervised learning algorithm for vector quantization and clustering that adapts a set of prototype vectors to approximate the distribution of input data. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), it considers the 'neighborhood rank' of prototypes to an input vector, allowing all prototypes to move towards the input, with closer prototypes moving more significantly. This adaptive update rule helps preserve the topological relationships of the input data manifold. The algorithm is named for the analogy of prototypes as gas particles moving in the data space.
+[Neural Gas](/algorithms/unsupervised/neural-gas) is an unsupervised learning algorithm for vector quantization and clustering that adapts a set of prototype vectors to approximate the distribution of input data. Unlike [K-Means](/algorithms/unsupervised/k-means), it considers the 'neighborhood rank' of prototypes to an input vector, allowing all prototypes to move towards the input, with closer prototypes moving more significantly. This adaptive update rule helps preserve the topological relationships of the input data manifold. The algorithm is named for the analogy of prototypes as gas particles moving in the data space.
 
 ## History
 
@@ -35,9 +35,9 @@ Neural Gas is an unsupervised learning algorithm for vector quantization and clu
 
 **1993** — Martinetz, Berkovich, and Schulten further explore the algorithm's properties and applications, highlighting its ability to find optimal data representations and its robust convergence.
 
-**1997** — Bernd Fritzke introduces [Growing Neural Gas](/algorithms/unsupervised/clustering/growing-neural-gas) (GNG), an extension that allows the network size (number of prototypes) to adapt dynamically, addressing a limitation of the original Neural Gas.
+**1997** — Bernd Fritzke introduces [Growing Neural Gas](/algorithms/unsupervised/growing-neural-gas) (GNG), an extension that allows the network size (number of prototypes) to adapt dynamically, addressing a limitation of the original Neural Gas.
 
-**2000** — Neural Gas is recognized for achieving lower quantization errors and better topology preservation compared to [K-Means](/algorithms/unsupervised/clustering/k-means) and some [Self-Organizing Map](/algorithms/unsupervised/clustering/self-organizing-map) variants, leading to broader adoption in research.
+**2000** — Neural Gas is recognized for achieving lower quantization errors and better topology preservation compared to K-Means and some [Self-Organizing Map](/algorithms/unsupervised/self-organizing-map) variants, leading to broader adoption in research.
 
 **2010** — Continued research and application of Neural Gas and its variants in diverse fields such as data compression, pattern recognition, and robotics solidify its position as a robust clustering and vector quantization method.
 
@@ -69,7 +69,7 @@ $$
 
 ### Convergence and Topology Preservation
 
-The continuous adaptation of all prototypes based on their rank, rather than just the winner, allows Neural Gas to achieve a lower quantization error and better preserve the topological structure of the input data manifold compared to algorithms like [K-Means](/algorithms/unsupervised/clustering/k-means). To ensure convergence, the learning rate $\epsilon$ and the neighborhood decay $\lambda$ typically decrease over time, often exponentially:$$ \epsilon(t) = \epsilon_0 \left(\frac{\epsilon_f}{\epsilon_0}\right)^{t/T_{max}} $$$$ \lambda(t) = \lambda_0 \left(\frac{\lambda_f}{\lambda_0}\right)^{t/T_{max}} $$where $t$ is the current iteration, $T_{max}$ is the total number of iterations, and $\epsilon_0, \lambda_0$ are initial values, and $\epsilon_f, \lambda_f$ are final values.
+The continuous adaptation of all prototypes based on their rank, rather than just the winner, allows Neural Gas to achieve a lower quantization error and better preserve the topological structure of the input data manifold compared to algorithms like K-Means. To ensure convergence, the learning rate $\epsilon$ and the neighborhood decay $\lambda$ typically decrease over time, often exponentially:$$ \epsilon(t) = \epsilon_0 \left(\frac{\epsilon_f}{\epsilon_0}\right)^{t/T_{max}} $$$$ \lambda(t) = \lambda_0 \left(\frac{\lambda_f}{\lambda_0}\right)^{t/T_{max}} $$where $t$ is the current iteration, $T_{max}$ is the total number of iterations, and $\epsilon_0, \lambda_0$ are initial values, and $\epsilon_f, \lambda_f$ are final values.
 
 $$
 \epsilon(t) = \epsilon_0 \left(\frac{\epsilon_f}{\epsilon_0}\right)^{t/T_{max}}

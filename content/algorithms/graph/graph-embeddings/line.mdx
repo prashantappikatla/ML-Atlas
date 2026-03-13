@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-LINE (Large-scale Information Network Embedding) is a graph embedding algorithm designed to preserve both first-order and second-order proximities in large-scale information networks. It learns low-dimensional vector representations for nodes by optimizing two separate objective functions, one for each type of proximity. This dual-objective approach allows it to capture both direct neighbor relationships and shared neighborhood structures effectively, making it suitable for various downstream tasks.
+[LINE](/algorithms/graph/line) (Large-scale Information Network Embedding) is a graph embedding algorithm designed to preserve both first-order and second-order proximities in large-scale information networks. It learns low-dimensional vector representations for nodes by optimizing two separate objective functions, one for each type of proximity. This dual-objective approach allows it to capture both direct neighbor relationships and shared neighborhood structures effectively, making it suitable for various downstream tasks.
 
 ## History
 
@@ -70,7 +70,7 @@ $$
 
 ### Optimization with Negative Sampling
 
-Directly computing the normalization term in $p_2(v|u)$ (the sum over all nodes $k \in V$) is computationally expensive for large graphs. To address this, LINE employs negative sampling, a technique borrowed from word embedding models like [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec). For each observed edge $(u,v)$, the objective is to maximize the probability of $v$ being a neighbor of $u$ while minimizing the probability of $K$ randomly sampled 'negative' nodes $v_i$ being neighbors. This significantly speeds up training.
+Directly computing the normalization term in $p_2(v|u)$ (the sum over all nodes $k \in V$) is computationally expensive for large graphs. To address this, LINE employs negative sampling, a technique borrowed from word embedding models like [Word2Vec](/algorithms/deep-learning/word2vec). For each observed edge $(u,v)$, the objective is to maximize the probability of $v$ being a neighbor of $u$ while minimizing the probability of $K$ randomly sampled 'negative' nodes $v_i$ being neighbors. This significantly speeds up training.
 
 $$
 $$J_{neg} = \log \sigma(\mathbf{u}^T \mathbf{v}) + \sum_{i=1}^K E_{v_i \sim P_n(v)} [\log \sigma(-\mathbf{u}^T \mathbf{v_i})]$$

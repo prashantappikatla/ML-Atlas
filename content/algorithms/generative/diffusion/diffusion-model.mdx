@@ -39,7 +39,7 @@ related:
 
 **2021** — Song et al. proposed Denoising Diffusion Implicit Models (DDIMs), enabling faster sampling and deterministic generation paths, which significantly reduced inference time.
 
-**2022** — Rombach et al. introduced [Latent Diffusion](/algorithms/generative/diffusion/latent-diffusion) Models (LDMs), which perform the diffusion process in a compressed latent space, drastically reducing computational cost and memory requirements for high-resolution image generation.
+**2022** — Rombach et al. introduced [Latent Diffusion](/algorithms/generative/latent-diffusion) Models (LDMs), which perform the diffusion process in a compressed latent space, drastically reducing computational cost and memory requirements for high-resolution image generation.
 
 ## Mathematical Intuition
 
@@ -110,7 +110,7 @@ $$
 ## Algorithm Steps
 
 1. Define a forward diffusion process that gradually adds Gaussian noise to data samples $x_0$ over $T$ steps, resulting in noisy samples $x_t$.
-2. Choose a neural network architecture, typically a U-Net, to serve as the noise predictor $\epsilon_\theta(x_t, t)$.
+2. Choose a neural network architecture, typically a [U-Net](/algorithms/deep-learning/u-net), to serve as the noise predictor $\epsilon_\theta(x_t, t)$.
 3. During training, for each data sample $x_0$ in a batch, randomly sample a time step $t \in [1, T]$.
 4. Sample noise $\epsilon \sim \mathcal{N}(0, I)$ and compute the noisy sample $x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon$.
 5. Pass $x_t$ and $t$ to the neural network to predict the noise $\epsilon_\theta(x_t, t)$.
@@ -125,7 +125,7 @@ $$
 | `num_diffusion_steps` | `integer` | `1000` | 1 to 2000 | The total number of discrete time steps $T$ in the forward and reverse diffusion process. |
 | `beta_schedule` | `string` | `linear` | linear, cosine, quadratic, sigmoid | The schedule for the variance $\beta_t$ of the noise added at each step. Common options include "linear", "cosine", "quadratic". |
 | `model_architecture` | `string` | `unet` | unet, transformer | The neural network architecture used as the noise predictor $\epsilon_\theta$. U-Net is the most common choice. |
-| `optimizer` | `string` | `AdamW` | Adam, AdamW, SGD | The optimization algorithm used to train the neural network. |
+| `optimizer` | `string` | `AdamW` | [Adam](/algorithms/meta-learning/adam), [AdamW](/algorithms/meta-learning/adamw), SGD | The optimization algorithm used to train the neural network. |
 | `learning_rate` | `float` | `1e-4` | 1e-6 to 1e-3 | The step size for the optimizer during training. |
 | `loss_type` | `string` | `l2` | l1, l2, huber | The type of loss function used to compare predicted noise with true noise. "l2" (MSE) is standard. |
 
@@ -142,7 +142,7 @@ $$
 ## Strengths
 
 - Diffusion models are capable of generating highly realistic and diverse samples, often surpassing the quality of GANs in certain domains.
-- Their training process is generally more stable compared to Generative Adversarial Networks, avoiding common issues like mode collapse.
+- Their training process is generally more stable compared to [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network), avoiding common issues like mode collapse.
 - The architecture allows for flexible conditioning, enabling control over generated content through text prompts, class labels, or other inputs.
 - They provide excellent mode coverage, meaning they can represent the full diversity of the training data distribution.
 - The iterative denoising process offers a natural way to control the trade-off between sample quality and diversity during generation.
@@ -199,7 +199,7 @@ Creating diverse synthetic data samples to expand training datasets for other ma
 
 ## Lab
 
-<LabEmbed url={""} title="Diffusion Model Lab" />
+<LabEmbed url={""} title="[Diffusion Model](/algorithms/generative/diffusion-model) Lab" />
 
 ## References
 

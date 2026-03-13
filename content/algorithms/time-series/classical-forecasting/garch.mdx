@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Generalized Autoregressive Conditional Heteroskedasticity (GARCH) models are statistical tools used to model and forecast time-varying volatility in financial and economic time series. They extend the Autoregressive Conditional Heteroskedasticity (ARCH) model by allowing the conditional variance to depend not only on past squared error terms but also on past conditional variances, providing a more parsimonious and flexible representation of volatility clustering. GARCH models are particularly effective in capturing the stylized facts of financial returns, such as heavy tails and volatility persistence.
+Generalized Autoregressive Conditional Heteroskedasticity ([GARCH](/algorithms/time-series/garch)) models are statistical tools used to model and forecast time-varying volatility in financial and economic time series. They extend the Autoregressive Conditional Heteroskedasticity ([ARCH](/algorithms/time-series/arch)) model by allowing the conditional variance to depend not only on past squared error terms but also on past conditional variances, providing a more parsimonious and flexible representation of volatility clustering. GARCH models are particularly effective in capturing the stylized facts of financial returns, such as heavy tails and volatility persistence.
 
 ## History
 
@@ -93,7 +93,7 @@ $$
 
 ## Algorithm Steps
 
-1. Specify a mean equation for the time series $y_t$, such as an ARMA model, to model the conditional mean $\mu_t$.
+1. Specify a mean equation for the time series $y_t$, such as an [ARMA](/algorithms/time-series/arma) model, to model the conditional mean $\mu_t$.
 2. Estimate the parameters of the mean equation and obtain the residuals $\epsilon_t = y_t - \hat{\mu}_t$.
 3. Specify the GARCH(p,q) variance equation for the conditional variance $h_t$, which depends on past squared residuals $\epsilon_{t-i}^2$ and past conditional variances $h_{t-j}$.
 4. Estimate the parameters of both the mean and variance equations simultaneously using Maximum Likelihood Estimation (MLE), typically assuming a distribution for the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$.
@@ -107,7 +107,7 @@ $$
 | `p` | `integer` | `1` | p >= 0 | The order of the ARCH component, representing the number of lagged squared residuals included in the conditional variance equation. |
 | `q` | `integer` | `1` | q >= 0 | The order of the GARCH component, representing the number of lagged conditional variances included in the conditional variance equation. |
 | `mean` | `string` | `Constant` | ['Constant', 'ARX', 'ARMA', 'Zero'] | The type of mean model to use for the time series. Common options include 'Constant', 'ARX' (autoregressive with exogenous regressors), or 'ARMA'. |
-| `lags` | `integer or list of integers` | `None` | lags >= 0 or list/tuple of integers | The number of lags for the autoregressive (AR) and moving average (MA) components if an 'ARX' or 'ARMA' mean model is selected. Can be a single integer for AR order or a list/tuple for (AR_order, MA_order). |
+| `lags` | `integer or list of integers` | `None` | lags >= 0 or list/tuple of integers | The number of lags for the autoregressive ([AR](/algorithms/time-series/ar)) and moving average ([MA](/algorithms/time-series/ma)) components if an 'ARX' or 'ARMA' mean model is selected. Can be a single integer for AR order or a list/tuple for (AR_order, MA_order). |
 | `dist` | `string` | `normal` | ['normal', 'studentst', 'skewstudent', 'ged'] | The assumed distribution for the standardized residuals $z_t = \epsilon_t / \sqrt{h_t}$. Common choices include 'normal', 'studentst' (Student's t-distribution), or 'skewstudent'. |
 
 ## Compatibility

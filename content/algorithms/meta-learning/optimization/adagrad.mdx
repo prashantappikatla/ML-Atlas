@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-AdaGrad (Adaptive Gradient Algorithm) is an optimization algorithm that adapts the learning rate for each parameter individually, rather than using a global learning rate for all parameters. It achieves this by scaling the learning rate inversely proportional to the square root of the sum of all historical squared gradients for that parameter. This adaptive approach allows for larger updates for infrequent features and smaller updates for frequent features, making it particularly effective for sparse data and online learning settings.
+[AdaGrad](/algorithms/meta-learning/adagrad) (Adaptive Gradient Algorithm) is an optimization algorithm that adapts the learning rate for each parameter individually, rather than using a global learning rate for all parameters. It achieves this by scaling the learning rate inversely proportional to the square root of the sum of all historical squared gradients for that parameter. This adaptive approach allows for larger updates for infrequent features and smaller updates for frequent features, making it particularly effective for sparse data and online learning settings.
 
 ## History
 
@@ -34,7 +34,7 @@ AdaGrad (Adaptive Gradient Algorithm) is an optimization algorithm that adapts t
 
 **2012** — AdaGrad gains significant adoption within the deep learning community, particularly for training neural networks on tasks involving sparse data, such as natural language processing with large vocabularies.
 
-**2014** — Subsequent adaptive optimization algorithms like [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and Adam are developed, addressing AdaGrad's tendency for learning rates to decay too aggressively, but building upon its core concept of per-parameter adaptation.
+**2014** — Subsequent adaptive optimization algorithms like [RMSProp](/algorithms/meta-learning/rmsprop) and [Adam](/algorithms/meta-learning/adam) are developed, addressing AdaGrad's tendency for learning rates to decay too aggressively, but building upon its core concept of per-parameter adaptation.
 
 ## Mathematical Intuition
 
@@ -96,7 +96,7 @@ $$
 - It is particularly effective for sparse data, as it provides larger updates for infrequent features and smaller updates for frequent features.
 - The algorithm requires minimal hyperparameter tuning, primarily just the initial global learning rate.
 - Adaptive learning rates help to stabilize training by preventing oscillations in directions with consistently large gradients.
-- It can converge faster than standard Stochastic Gradient Descent on certain types of problems, especially those with sparse gradients.
+- It can converge faster than standard [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) on certain types of problems, especially those with sparse gradients.
 
 ## Weaknesses
 

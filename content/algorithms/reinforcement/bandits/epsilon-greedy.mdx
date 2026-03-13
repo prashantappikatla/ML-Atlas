@@ -25,11 +25,11 @@ related:
 
 ## Overview
 
-Epsilon-Greedy is a fundamental strategy for balancing exploration and exploitation in sequential decision-making problems, particularly within the Multi-Armed Bandit (MAB) framework. It operates by selecting the action with the highest estimated value (exploitation) most of the time, but occasionally choosing a random action (exploration) with a small probability $\epsilon$. This simple yet effective approach ensures that the agent continues to discover potentially better actions while generally leveraging its current knowledge. It serves as a foundational baseline for more complex reinforcement learning algorithms.
+[Epsilon-Greedy](/algorithms/reinforcement/epsilon-greedy) is a fundamental strategy for balancing exploration and exploitation in sequential decision-making problems, particularly within the Multi-Armed Bandit (MAB) framework. It operates by selecting the action with the highest estimated value (exploitation) most of the time, but occasionally choosing a random action (exploration) with a small probability $\epsilon$. This simple yet effective approach ensures that the agent continues to discover potentially better actions while generally leveraging its current knowledge. It serves as a foundational baseline for more complex reinforcement learning algorithms.
 
 ## History
 
-**1933** — William R. Thompson introduced a Bayesian approach to sequential decision-making, later known as [Thompson Sampling](/algorithms/reinforcement/bandits/thompson-sampling), which addressed similar exploration-exploitation trade-offs before the formal MAB problem.
+**1933** — William R. Thompson introduced a Bayesian approach to sequential decision-making, later known as [Thompson Sampling](/algorithms/reinforcement/thompson-sampling), which addressed similar exploration-exploitation trade-offs before the formal MAB problem.
 
 **1952** — Herbert Robbins formally introduced the Multi-Armed Bandit problem, providing a mathematical framework for sequential decision-making under uncertainty, which the epsilon-greedy strategy directly addresses.
 
@@ -120,7 +120,7 @@ The parameter $\epsilon$ directly controls the balance between exploration and e
 - The choice of $\epsilon$ is often heuristic and can significantly impact performance, requiring careful tuning.
 - It can be slow to converge to the optimal policy, especially in problems with many actions or sparse rewards.
 - A fixed $\epsilon$ might explore too much when the optimal action is already well-known or too little in early stages.
-- It does not leverage uncertainty estimates about action values, unlike more sophisticated methods like Upper Confidence Bound (UCB) or Thompson Sampling.
+- It does not leverage uncertainty estimates about action values, unlike more sophisticated methods like Upper Confidence Bound ([UCB](/algorithms/reinforcement/ucb)) or Thompson Sampling.
 
 ## Use Cases
 

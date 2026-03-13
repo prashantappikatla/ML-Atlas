@@ -26,15 +26,15 @@ related:
 
 ## Overview
 
-Lasso Regression, or Least Absolute Shrinkage and Selection Operator, is a [Linear Regression](/algorithms/supervised/regression/linear-regression) method that performs both variable selection and regularization to enhance the prediction accuracy and interpretability of the statistical model. It achieves this by adding an L1 penalty to the ordinary least squares objective function, which encourages sparsity in the model coefficients. This sparsity means that some coefficients are driven exactly to zero, effectively performing automatic feature selection.
+[Lasso Regression](/algorithms/supervised/lasso-regression), or Least Absolute Shrinkage and Selection Operator, is a [Linear Regression](/algorithms/supervised/linear-regression) method that performs both variable selection and regularization to enhance the prediction accuracy and interpretability of the statistical model. It achieves this by adding an L1 penalty to the ordinary least squares objective function, which encourages sparsity in the model coefficients. This sparsity means that some coefficients are driven exactly to zero, effectively performing automatic feature selection.
 
 ## History
 
 **1996** — [Robert Tibshirani](https://en.wikipedia.org/wiki/Robert_Tibshirani) introduced the Lasso method in his paper "Regression Shrinkage and Selection via the Lasso," demonstrating its ability to perform both shrinkage and variable selection.
 
-**1998** — [Bradley Efron](https://en.wikipedia.org/wiki/Bradley_Efron) and [Trevor Hastie](https://en.wikipedia.org/wiki/Trevor_Hastie) further explored the properties of Lasso and its relationship to other shrinkage methods like [Ridge Regression](/algorithms/supervised/regression/ridge-regression).
+**1998** — [Bradley Efron](https://en.wikipedia.org/wiki/Bradley_Efron) and [Trevor Hastie](https://en.wikipedia.org/wiki/Trevor_Hastie) further explored the properties of Lasso and its relationship to other shrinkage methods like [Ridge Regression](/algorithms/supervised/ridge-regression).
 
-**2004** — The [Elastic Net](/algorithms/supervised/regression/elastic-net) regularization, combining L1 and L2 penalties, was introduced by Zou and Hastie, addressing some limitations of Lasso, particularly with highly correlated predictors.
+**2004** — The [Elastic Net](/algorithms/supervised/elastic-net) regularization, combining L1 and L2 penalties, was introduced by Zou and Hastie, addressing some limitations of Lasso, particularly with highly correlated predictors.
 
 **2007** — Friedman, Hastie, and Tibshirani developed efficient algorithms for fitting generalized linear models with L1 penalties, including coordinate descent, making Lasso more practical for large datasets.
 
@@ -42,7 +42,7 @@ Lasso Regression, or Least Absolute Shrinkage and Selection Operator, is a [Line
 
 ### Ordinary Least Squares (OLS) Objective
 
-The fundamental goal of [Linear Regression](/algorithms/supervised/regression/linear-regression) is to find a linear relationship between input features $X$ and a target variable $y$. The OLS objective minimizes the sum of squared residuals:
+The fundamental goal of Linear Regression is to find a linear relationship between input features $X$ and a target variable $y$. The OLS objective minimizes the sum of squared residuals:
 $$ \min_{\beta} \sum_{i=1}^{n} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij}\beta_j)^2 $$
 where $n$ is the number of samples, $p$ is the number of features, $y_i$ is the target for sample $i$, $x_{ij}$ is the $j$-th feature for sample $i$, and $\beta_j$ are the regression coefficients.
 
@@ -66,7 +66,7 @@ $$
 
 ### Sparsity from L1 Penalty
 
-The L1 penalty, $\sum_{j=1}^{p} |\beta_j|$, has a unique property that encourages coefficients to become exactly zero. Geometrically, the constraint region for the L1 penalty (for a fixed sum of absolute coefficients) forms a diamond shape in 2D (an octahedron in higher dimensions). When the elliptical contours of the squared error function touch the corners of this diamond, the optimal solution often lies on an axis, forcing the corresponding coefficient to zero. In contrast, the L2 penalty ([Ridge Regression](/algorithms/supervised/regression/ridge-regression)) has a circular constraint region, leading to coefficients being shrunk towards zero but rarely exactly to zero.
+The L1 penalty, $\sum_{j=1}^{p} |\beta_j|$, has a unique property that encourages coefficients to become exactly zero. Geometrically, the constraint region for the L1 penalty (for a fixed sum of absolute coefficients) forms a diamond shape in 2D (an octahedron in higher dimensions). When the elliptical contours of the squared error function touch the corners of this diamond, the optimal solution often lies on an axis, forcing the corresponding coefficient to zero. In contrast, the L2 penalty (Ridge Regression) has a circular constraint region, leading to coefficients being shrunk towards zero but rarely exactly to zero.
 
 $$
 \sum_{j=1}^{p} |\beta_j|
@@ -100,7 +100,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `alpha` | `float` | `1.0` | alpha >= 0 | The constant that multiplies the L1 term. alpha = 0 is equivalent to Ordinary Least Squares. |
+| `alpha` | `float` | `1.0` | alpha >= 0 | The constant that multiplies the L1 term. alpha = 0 is equivalent to [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares). |
 | `fit_intercept` | `boolean` | `True` | True, False | Whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (i.e. data is expected to be centered). |
 | `precompute` | `boolean or array-like` | `False` | True, False, 'auto' | Whether to use a precomputed Gram matrix to speed up calculations. |
 | `max_iter` | `integer` | `1000` | max_iter > 0 | The maximum number of iterations to perform. |

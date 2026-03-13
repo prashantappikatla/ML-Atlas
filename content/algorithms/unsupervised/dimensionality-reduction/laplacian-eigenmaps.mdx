@@ -26,17 +26,17 @@ related:
 
 ## Overview
 
-Laplacian Eigenmaps is a nonlinear dimensionality reduction technique that aims to preserve the local neighborhood structure of data points. It constructs a weighted graph representing the data manifold and then finds a low-dimensional embedding that minimizes the distortion of local proximities. This method is particularly effective for visualizing data that lies on a low-dimensional manifold embedded in a higher-dimensional space, making it a powerful tool for manifold learning.
+[Laplacian Eigenmaps](/algorithms/unsupervised/laplacian-eigenmaps) is a nonlinear dimensionality reduction technique that aims to preserve the local neighborhood structure of data points. It constructs a weighted graph representing the data manifold and then finds a low-dimensional embedding that minimizes the distortion of local proximities. This method is particularly effective for visualizing data that lies on a low-dimensional manifold embedded in a higher-dimensional space, making it a powerful tool for manifold learning.
 
 ## History
 
 **2001** — Mikhail Belkin and Partha Niyogi introduce Laplacian Eigenmaps in their seminal paper "Laplacian Eigenmaps for [Dimensionality Reduction](https://en.wikipedia.org/wiki/Dimensionality_reduction) and Data Representation," establishing a graph-based approach to nonlinear dimensionality reduction.
 
-**2002** — The algorithm gains recognition as part of the broader field of manifold learning, alongside other techniques like [Isomap](/algorithms/unsupervised/dimensionality-reduction/isomap) and [Locally Linear Embedding](/algorithms/unsupervised/dimensionality-reduction/locally-linear-embedding) (LLE), which also focus on preserving geometric properties.
+**2002** — The algorithm gains recognition as part of the broader field of manifold learning, alongside other techniques like [Isomap](/algorithms/unsupervised/isomap) and [Locally Linear Embedding](/algorithms/unsupervised/locally-linear-embedding) (LLE), which also focus on preserving geometric properties.
 
-**2003** — Researchers begin exploring extensions and applications of Laplacian Eigenmaps, including its use in semi-supervised learning and [Spectral Clustering](/algorithms/unsupervised/clustering/spectral-clustering), leveraging its ability to capture data manifold structure.
+**2003** — Researchers begin exploring extensions and applications of Laplacian Eigenmaps, including its use in semi-supervised learning and [Spectral Clustering](/algorithms/unsupervised/spectral-clustering), leveraging its ability to capture data manifold structure.
 
-**2007** — The theoretical connections between Laplacian Eigenmaps and other spectral methods, such as [Spectral Clustering](/algorithms/unsupervised/clustering/spectral-clustering), are further elucidated, highlighting its versatility in various machine learning tasks.
+**2007** — The theoretical connections between Laplacian Eigenmaps and other spectral methods, such as Spectral Clustering, are further elucidated, highlighting its versatility in various machine learning tasks.
 
 **2010** — Laplacian Eigenmaps becomes a standard technique in manifold learning toolkits, influencing the development of more advanced graph-based methods for data visualization and feature extraction throughout the decade.
 
@@ -150,7 +150,7 @@ $$
 
 - Laplacian Eigenmaps effectively preserves the local neighborhood structure of the data, making it suitable for uncovering intrinsic manifold structures.
 - The method is computationally efficient for sparse graphs, as the eigenvalue problem involves sparse matrices.
-- It is robust to outliers compared to global methods like PCA, as its objective function focuses on local relationships.
+- It is robust to outliers compared to global methods like [PCA](/algorithms/unsupervised/pca), as its objective function focuses on local relationships.
 - The algorithm provides a clear mathematical foundation rooted in spectral graph theory, offering interpretability of its embedding properties.
 - It can discover non-linear structures in data that linear methods like PCA would fail to capture.
 

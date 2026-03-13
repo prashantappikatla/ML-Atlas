@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-U-Net is a convolutional neural network architecture specifically designed for biomedical image segmentation, characterized by its U-shaped structure. It extends the fully convolutional network (FCN) by incorporating skip connections that combine high-resolution features from the contracting path with upsampled features from the expansive path. This unique design enables precise localization and segmentation, even with limited training data.
+[U-Net](/algorithms/deep-learning/u-net) is a convolutional neural network architecture specifically designed for biomedical image segmentation, characterized by its U-shaped structure. It extends the fully convolutional network (FCN) by incorporating skip connections that combine high-resolution features from the contracting path with upsampled features from the expansive path. This unique design enables precise localization and segmentation, even with limited training data.
 
 ## History
 
@@ -79,7 +79,7 @@ $$
 6. Apply repeated $3 \times 3$ convolutions and ReLU activations in the expansive path to reconstruct spatial details and refine the segmentation.
 7. Apply a final $1 \times 1$ convolution to map the feature channels to the desired number of output classes for each pixel.
 8. Calculate the loss (e.g., cross-entropy or Dice loss) between the predicted segmentation map and the ground truth mask.
-9. Perform backpropagation to compute gradients and update the model's weights using an optimization algorithm like Adam or SGD.
+9. Perform backpropagation to compute gradients and update the model's weights using an optimization algorithm like [Adam](/algorithms/meta-learning/adam) or SGD.
 
 ## Parameters
 

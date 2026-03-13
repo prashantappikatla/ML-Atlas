@@ -28,13 +28,13 @@ related:
 
 ## Overview
 
-The Multilayer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) is a class of feedforward artificial neural networks that consists of at least three layers of nodes: an input layer, a hidden layer, and an output layer. It is capable of learning non-linear relationships between inputs and outputs, making it suitable for complex classification and regression tasks. MLPs utilize a supervised learning technique called backpropagation for training, which adjusts the network's weights and biases to minimize prediction error.
+The [Multilayer Perceptron](/algorithms/deep-learning/multilayer-perceptron) (MLP) is a class of feedforward artificial neural networks that consists of at least three layers of nodes: an input layer, a hidden layer, and an output layer. It is capable of learning non-linear relationships between inputs and outputs, making it suitable for complex classification and regression tasks. MLPs utilize a supervised learning technique called backpropagation for training, which adjusts the network's weights and biases to minimize prediction error.
 
 ## History
 
 **1943** — Warren McCulloch and [Walter Pitts](https://en.wikipedia.org/wiki/Walter_Pitts) introduced a computational model for neural networks, laying the theoretical groundwork for artificial neurons.
 
-**1958** — [Frank Rosenblatt](https://en.wikipedia.org/wiki/Frank_Rosenblatt) developed the [Perceptron](/algorithms/supervised/classification/perceptron), a single-layer neural network capable of learning linear decision boundaries, but limited to linearly separable problems.
+**1958** — [Frank Rosenblatt](https://en.wikipedia.org/wiki/Frank_Rosenblatt) developed the [Perceptron](/algorithms/supervised/perceptron), a single-layer neural network capable of learning linear decision boundaries, but limited to linearly separable problems.
 
 **1969** — Marvin Minsky and Seymour Papert's book 'Perceptrons' highlighted the limitations of single-layer perceptrons, particularly their inability to solve non-linearly separable problems like XOR, which temporarily slowed neural network research.
 
@@ -118,7 +118,7 @@ $$
 2. Perform a forward pass: For each input sample $\mathbf{x}$, compute the activations of each neuron in each layer, from the input layer through the hidden layers to the output layer, using the current weights and biases.
 3. Calculate the loss: Compare the network's output $\hat{\mathbf{y}}$ with the true target $\mathbf{y}$ using a chosen loss function (e.g., mean squared error for regression, cross-entropy for classification).
 4. Perform a backward pass (backpropagation): Compute the gradient of the loss function with respect to the weights and biases by propagating the error backwards from the output layer to the input layer using the chain rule.
-5. Update weights and biases: Adjust the weights and biases in the direction that minimizes the loss, using an optimization algorithm like stochastic gradient descent (SGD) or its variants (e.g., Adam), with a specified learning rate $\eta$.
+5. Update weights and biases: Adjust the weights and biases in the direction that minimizes the loss, using an optimization algorithm like stochastic gradient descent (SGD) or its variants (e.g., [Adam](/algorithms/meta-learning/adam)), with a specified learning rate $\eta$.
 6. Repeat steps 2-5 for a specified number of epochs or until a convergence criterion is met, processing data in batches if applicable.
 
 ## Parameters

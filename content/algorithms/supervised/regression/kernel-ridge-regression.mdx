@@ -26,23 +26,23 @@ related:
 
 ## Overview
 
-Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression) (KRR) extends linear [Ridge Regression](/algorithms/supervised/regression/ridge-regression) by implicitly mapping the input data into a higher-dimensional feature space using a kernel function, thereby enabling the modeling of non-linear relationships. This method combines the regularization benefits of [Ridge Regression](/algorithms/supervised/regression/ridge-regression), which penalizes large coefficients to prevent overfitting, with the flexibility of kernel methods to capture complex patterns. KRR achieves this by performing [Linear Regression](/algorithms/supervised/regression/linear-regression) in the transformed feature space without explicitly computing the transformation, making it computationally efficient for certain high-dimensional scenarios. The algorithm finds a closed-form solution for the regression coefficients in the dual space, expressed in terms of the kernel matrix.
+[Kernel Ridge Regression](/algorithms/supervised/kernel-ridge-regression) (KRR) extends linear [Ridge Regression](/algorithms/supervised/ridge-regression) by implicitly mapping the input data into a higher-dimensional feature space using a kernel function, thereby enabling the modeling of non-linear relationships. This method combines the regularization benefits of Ridge Regression, which penalizes large coefficients to prevent overfitting, with the flexibility of kernel methods to capture complex patterns. KRR achieves this by performing [Linear Regression](/algorithms/supervised/linear-regression) in the transformed feature space without explicitly computing the transformation, making it computationally efficient for certain high-dimensional scenarios. The algorithm finds a closed-form solution for the regression coefficients in the dual space, expressed in terms of the kernel matrix.
 
 ## History
 
-**1970** — [Arthur Hoerl](https://en.wikipedia.org/wiki/Ridge_regression) and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduce [Ridge Regression](/algorithms/supervised/regression/ridge-regression) as a method to address multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression) models, laying the foundation for regularized linear models.
+**1970** — Arthur Hoerl and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduce Ridge Regression as a method to address multicollinearity in Linear Regression models, laying the foundation for regularized linear models.
 
-**1992** — [Bernhard Boser](https://en.wikipedia.org/wiki/Support_vector_machine), [Isabelle Guyon](https://en.wikipedia.org/wiki/Isabelle_Guyon), and [Vladimir Vapnik](https://en.wikipedia.org/wiki/Vladimir_Vapnik) introduce the 'kernel trick' in [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine), demonstrating how linear models can learn non-linear decision boundaries by implicitly operating in a high-dimensional feature space.
+**1992** — Bernhard Boser, [Isabelle Guyon](https://en.wikipedia.org/wiki/Isabelle_Guyon), and [Vladimir Vapnik](https://en.wikipedia.org/wiki/Vladimir_Vapnik) introduce the 'kernel trick' in [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine), demonstrating how linear models can learn non-linear decision boundaries by implicitly operating in a high-dimensional feature space.
 
 **1998** — Bernhard Schölkopf, [Alex Smola](https://en.wikipedia.org/wiki/Alex_Smola), and Klaus-Robert Müller generalize the kernel trick to a broader class of algorithms, expanding the applicability of kernel methods beyond SVMs and paving the way for KRR.
 
-**2001** — [Craig Saunders](https://en.wikipedia.org/wiki/Kernel_methods), [Alex Gammerman](https://en.wikipedia.org/wiki/Conformal_prediction), and Vladimir Vapnik formally introduce Kernel [Ridge Regression](/algorithms/supervised/regression/ridge-regression), combining the L2 regularization of [Ridge Regression](/algorithms/supervised/regression/ridge-regression) with the non-linear mapping capabilities of kernel functions.
+**2001** — [Craig Saunders](https://en.wikipedia.org/wiki/Kernel_methods), [Alex Gammerman](https://en.wikipedia.org/wiki/Conformal_prediction), and Vladimir Vapnik formally introduce Kernel Ridge Regression, combining the L2 regularization of Ridge Regression with the non-linear mapping capabilities of kernel functions.
 
 ## Mathematical Intuition
 
 ### Ridge Regression Objective
 
-[Ridge Regression](/algorithms/supervised/regression/ridge-regression) aims to minimize the sum of squared errors while penalizing the L2 norm of the weight vector $ \mathbf{w} $. This regularization helps prevent overfitting and improves the conditioning of the problem. The primal objective function is given by:
+Ridge Regression aims to minimize the sum of squared errors while penalizing the L2 norm of the weight vector $ \mathbf{w} $. This regularization helps prevent overfitting and improves the conditioning of the problem. The primal objective function is given by:
 $$ \min_{\mathbf{w}} ||\mathbf{X}\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2 $$
 where $ \mathbf{X} $ is the feature matrix, $ \mathbf{y} $ is the target vector, and $ \alpha > 0 $ is the regularization parameter. The closed-form solution for $ \mathbf{w} $ is $ \mathbf{w} = (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y} $.
 
@@ -76,7 +76,7 @@ $$
 
 ### KRR Dual Formulation
 
-By applying [Ridge Regression](/algorithms/supervised/regression/ridge-regression) in the feature space, the objective becomes $ \min_{\mathbf{w}} ||\Phi\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2 $, where $ \Phi $ is the matrix with rows $ \phi(\mathbf{x}_i)^T $. According to the representer theorem, the optimal solution $ \mathbf{w} $ can be expressed as a linear combination of the training feature vectors: $ \mathbf{w} = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i) = \Phi^T \boldsymbol{\beta} $. Substituting this into the objective and solving for $ \boldsymbol{\beta} $ yields the dual problem solution:
+By applying Ridge Regression in the feature space, the objective becomes $ \min_{\mathbf{w}} ||\Phi\mathbf{w} - \mathbf{y}||^2_2 + \alpha ||\mathbf{w}||^2_2 $, where $ \Phi $ is the matrix with rows $ \phi(\mathbf{x}_i)^T $. According to the representer theorem, the optimal solution $ \mathbf{w} $ can be expressed as a linear combination of the training feature vectors: $ \mathbf{w} = \sum_{i=1}^N \beta_i \phi(\mathbf{x}_i) = \Phi^T \boldsymbol{\beta} $. Substituting this into the objective and solving for $ \boldsymbol{\beta} $ yields the dual problem solution:
 $$ \boldsymbol{\beta} = (\mathbf{K} + \alpha \mathbf{I})^{-1}\mathbf{y} $$
 where $ \mathbf{K} $ is the $ N \times N $ Gram matrix with elements $ K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j) = \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j) $.
 
@@ -150,7 +150,7 @@ $$
 - The L2 regularization term inherently helps prevent overfitting, leading to improved generalization performance on unseen data.
 - It provides a closed-form solution for the regression coefficients, which can be computationally efficient for training compared to iterative optimization methods for certain problem sizes.
 - KRR performs well on high-dimensional data, particularly when the number of features is comparable to or exceeds the number of samples.
-- It is generally less sensitive to the choice of kernel parameters compared to Support Vector Regression, often requiring less fine-tuning.
+- It is generally less sensitive to the choice of kernel parameters compared to [Support Vector Regression](/algorithms/supervised/support-vector-regression), often requiring less fine-tuning.
 
 ## Weaknesses
 

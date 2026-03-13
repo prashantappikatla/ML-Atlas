@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Denoising Autoencoders (DAEs) are a type of unsupervised neural network designed to learn robust feature representations by reconstructing original input data from a corrupted version. By forcing the network to recover missing or noisy information, DAEs learn to extract more meaningful and less sensitive features, making them effective for dimensionality reduction and pre-training deep networks. This approach encourages the model to capture the underlying structure of the data rather than simply memorizing the input. The corruption process acts as a form of regularization, preventing the [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) from learning an identity function.
+Denoising Autoencoders (DAEs) are a type of unsupervised neural network designed to learn robust feature representations by reconstructing original input data from a corrupted version. By forcing the network to recover missing or noisy information, DAEs learn to extract more meaningful and less sensitive features, making them effective for dimensionality reduction and pre-training deep networks. This approach encourages the model to capture the underlying structure of the data rather than simply memorizing the input. The corruption process acts as a form of regularization, preventing the [Autoencoder](/algorithms/deep-learning/autoencoder) from learning an identity function.
 
 ## History
 
@@ -35,7 +35,7 @@ Denoising Autoencoders (DAEs) are a type of unsupervised neural network designed
 
 **2006** — [Geoffrey Hinton](https://en.wikipedia.org/wiki/Geoffrey_Hinton) and Ruslan Salakhutdinov demonstrated the effectiveness of deep autoencoders for unsupervised pre-training of deep neural networks, enabling the training of deeper architectures.
 
-**2008** — Pascal Vincent, Hugo Larochelle, [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio), and Pierre-Antoine Manzagol introduced the Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), proposing to train autoencoders by reconstructing a clean input from a stochastically corrupted version.
+**2008** — Pascal Vincent, Hugo Larochelle, [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio), and Pierre-Antoine Manzagol introduced the [Denoising Autoencoder](/algorithms/deep-learning/denoising-autoencoder), proposing to train autoencoders by reconstructing a clean input from a stochastically corrupted version.
 
 **2010** — Vincent et al. further explored the connection between Denoising Autoencoders and Restricted Boltzmann Machines, showing that DAEs can be interpreted as performing gradient descent on a specific energy function.
 
@@ -45,7 +45,7 @@ Denoising Autoencoders (DAEs) are a type of unsupervised neural network designed
 
 ### Autoencoder Core Idea
 
-An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $f_\theta$ and a decoder function $g_\phi$. The encoder maps an input $x$ to a latent representation $h = f_\theta(x)$, and the decoder reconstructs the input from this representation: $\hat{x} = g_\phi(h) = g_\phi(f_\theta(x))$. The goal is to minimize the reconstruction error between $x$ and $\hat{x}$. A common loss function for real-valued data is the mean squared error:
+An Autoencoder consists of an encoder function $f_\theta$ and a decoder function $g_\phi$. The encoder maps an input $x$ to a latent representation $h = f_\theta(x)$, and the decoder reconstructs the input from this representation: $\hat{x} = g_\phi(h) = g_\phi(f_\theta(x))$. The goal is to minimize the reconstruction error between $x$ and $\hat{x}$. A common loss function for real-valued data is the mean squared error:
 
 $$
 $$ \mathcal{L}_{AE}(x, \hat{x}) = \|x - \hat{x}\|^2 $$
@@ -68,7 +68,7 @@ Various corruption processes can be applied to the input $x$ to generate $\tilde
 
 ### DAE Objective Function
 
-The objective function for a Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) is to minimize the expected reconstruction error between the original input $x$ and its reconstruction $\hat{x}$ obtained from the corrupted input $\tilde{x}$. Given a corruption process $C$, the loss is:
+The objective function for a Denoising Autoencoder is to minimize the expected reconstruction error between the original input $x$ and its reconstruction $\hat{x}$ obtained from the corrupted input $\tilde{x}$. Given a corruption process $C$, the loss is:
 
 $$
 $$ \mathcal{L}_{DAE}(\theta, \phi) = \mathbb{E}_{x \sim \mathcal{D}} \left[ \mathbb{E}_{\tilde{x} \sim C(x)} \left[ \mathcal{L}(x, g_\phi(f_\theta(\tilde{x}))) \right] \right] $$
@@ -86,7 +86,7 @@ $$
 4. Feed the corrupted input $\tilde{x}$ through the encoder $f_\theta$ to obtain the latent representation $h = f_\theta(\tilde{x})$.
 5. Pass the latent representation $h$ through the decoder $g_\phi$ to produce the reconstructed output $\hat{x} = g_\phi(h)$.
 6. Calculate the reconstruction loss $\mathcal{L}(x, \hat{x})$ between the *original* uncorrupted input $x$ and the reconstructed output $\hat{x}$.
-7. Update the encoder and decoder parameters ($\theta$ and $\phi$) using an optimization algorithm (e.g., Adam, SGD) via backpropagation to minimize the calculated loss.
+7. Update the encoder and decoder parameters ($\theta$ and $\phi$) using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam), SGD) via backpropagation to minimize the calculated loss.
 8. Repeat steps 3-7 for a specified number of epochs or until convergence criteria are met.
 
 ## Parameters

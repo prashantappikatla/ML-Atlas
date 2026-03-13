@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-TransE (Translating Embeddings) is a seminal knowledge graph embedding model that represents entities and relations as low-dimensional vectors in a continuous vector space. It models relations as translation operations between entity embeddings, aiming for $h + r \approx t$ when $(h, r, t)$ is a valid triple. This simple yet effective principle allows for efficient learning of relational patterns and prediction of missing links in knowledge graphs.
+[TransE](/algorithms/graph/transe) (Translating Embeddings) is a seminal knowledge graph embedding model that represents entities and relations as low-dimensional vectors in a continuous vector space. It models relations as translation operations between entity embeddings, aiming for $h + r \approx t$ when $(h, r, t)$ is a valid triple. This simple yet effective principle allows for efficient learning of relational patterns and prediction of missing links in knowledge graphs.
 
 ## History
 
@@ -35,7 +35,7 @@ TransE (Translating Embeddings) is a seminal knowledge graph embedding model tha
 
 **2015** — Théo Trouillon, Johannes Welbl, Sebastian Riedel, Éric Gaussier, and Michael Nickel introduce ComplEx, a complex-valued embedding model that can better capture symmetric and antisymmetric relations.
 
-**2017** — Zhiqing Sun, Zhi-Hong Deng, Jian-Yun Nie, and Jian Tang introduce [RotatE](/algorithms/graph/knowledge-graphs/rotate), which models relations as rotations in a complex vector space, effectively capturing various relational patterns including symmetry, antisymmetry, inversion, and composition.
+**2017** — Zhiqing Sun, Zhi-Hong Deng, Jian-Yun Nie, and Jian Tang introduce [RotatE](/algorithms/graph/rotate), which models relations as rotations in a complex vector space, effectively capturing various relational patterns including symmetry, antisymmetry, inversion, and composition.
 
 ## Mathematical Intuition
 
@@ -88,7 +88,7 @@ $$
 5. A negative triple $(h', r', t')$ is created by randomly replacing either the head entity $h$ with a random entity $h'$ or the tail entity $t$ with a random entity $t'$.
 6. Calculate the score for each positive triple $f(h, r, t) = \| \mathbf{h} + \mathbf{r} - \mathbf{t} \|_{p}$ and each negative triple $f(h', r', t') = \| \mathbf{h'} + \mathbf{r'} - \mathbf{t'} \|_{p}$.
 7. Compute the margin-based ranking loss: $\max(0, \gamma + f(h,r,t) - f(h',r',t'))$ for each positive-negative pair.
-8. Update the entity and relation embeddings using an optimization algorithm (e.g., Stochastic Gradient Descent or Adam) to minimize the total loss, and then re-normalize all entity embeddings to have unit $L_2$ norm.
+8. Update the entity and relation embeddings using an optimization algorithm (e.g., [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) or [Adam](/algorithms/meta-learning/adam)) to minimize the total loss, and then re-normalize all entity embeddings to have unit $L_2$ norm.
 
 ## Parameters
 

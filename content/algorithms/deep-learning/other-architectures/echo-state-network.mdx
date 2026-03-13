@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Echo State Networks (ESNs) are a type of [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) distinguished by their "reservoir" of sparsely connected, randomly weighted hidden units. Unlike traditional RNNs, only the output layer weights are trained, while the recurrent weights within the reservoir remain fixed after initialization. This unique architecture simplifies training significantly, making ESNs particularly effective for processing and predicting complex time series data. ESNs leverage the rich, high-dimensional dynamics of the reservoir to implicitly capture temporal dependencies.
+Echo State Networks (ESNs) are a type of [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) (RNN) distinguished by their "reservoir" of sparsely connected, randomly weighted hidden units. Unlike traditional RNNs, only the output layer weights are trained, while the recurrent weights within the reservoir remain fixed after initialization. This unique architecture simplifies training significantly, making ESNs particularly effective for processing and predicting complex time series data. ESNs leverage the rich, high-dimensional dynamics of the reservoir to implicitly capture temporal dependencies.
 
 ## History
 
@@ -61,7 +61,7 @@ $$
 
 ### Output Layer Training
 
-After the reservoir states $x(t)$ are generated for all input sequences, the output layer weights $W_{out}$ are trained. This is typically a [Linear Regression](/algorithms/supervised/regression/linear-regression) problem where the target outputs $y(t)$ are mapped from the concatenated reservoir states and input signals $[x(t); u(t)]$. The training involves solving a system of linear equations, often using regularized least squares ([Ridge Regression](/algorithms/supervised/regression/ridge-regression)) to prevent overfitting. This linear training step is computationally efficient compared to backpropagation through time.
+After the reservoir states $x(t)$ are generated for all input sequences, the output layer weights $W_{out}$ are trained. This is typically a [Linear Regression](/algorithms/supervised/linear-regression) problem where the target outputs $y(t)$ are mapped from the concatenated reservoir states and input signals $[x(t); u(t)]$. The training involves solving a system of linear equations, often using regularized least squares ([Ridge Regression](/algorithms/supervised/ridge-regression)) to prevent overfitting. This linear training step is computationally efficient compared to backpropagation through time.
 
 $$
 W_{out} = (X^T X + \lambda I)^{-1} X^T Y
@@ -160,7 +160,7 @@ Identifying unusual patterns in sequential data, such as network intrusion, equi
 
 ## Lab
 
-<LabEmbed url={""} title="Echo State Network Lab" />
+<LabEmbed url={""} title="[Echo State Network](/algorithms/deep-learning/echo-state-network) Lab" />
 
 ## References
 

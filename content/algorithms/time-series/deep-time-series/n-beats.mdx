@@ -29,7 +29,7 @@ related:
 
 ## Overview
 
-N-BEATS (Neural Basis Expansion Analysis for interpretable Time Series forecasting) is a deep neural network architecture designed for univariate time series forecasting, achieving state-of-the-art performance on various benchmarks. It employs a novel block-[Stacking](/algorithms/supervised/classification/stacking) architecture with double residual connections and learnable basis functions, enabling both high accuracy and a degree of interpretability. The model decomposes the time series into trend and seasonality components, processing them through distinct pathways.
+[N-BEATS](/algorithms/time-series/n-beats) (Neural Basis Expansion Analysis for interpretable Time Series forecasting) is a deep neural network architecture designed for univariate time series forecasting, achieving state-of-the-art performance on various benchmarks. It employs a novel block-[Stacking](/algorithms/supervised/stacking) architecture with double residual connections and learnable basis functions, enabling both high accuracy and a degree of interpretability. The model decomposes the time series into trend and seasonality components, processing them through distinct pathways.
 
 ## History
 
@@ -75,7 +75,7 @@ $$
 6. Use the basis functions and coefficients to generate a backward forecast (explaining the input) and a forward forecast (predicting the future).
 7. Subtract the backward forecast from the block's input to compute a residual, which is then passed as input to the next block in the stack.
 8. Sum the forward forecasts from all blocks across all stacks to obtain the final prediction for $Y_t$.
-9. Calculate the loss (e.g., Mean Squared Error) between the predicted $Y_t$ and the actual $Y_t$, and update model weights using backpropagation and an optimizer.
+9. Calculate the loss (e.g., [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error)) between the predicted $Y_t$ and the actual $Y_t$, and update model weights using backpropagation and an optimizer.
 
 ## Parameters
 

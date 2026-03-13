@@ -43,7 +43,7 @@ Markov Random Fields (MRFs) are a class of probabilistic graphical models that r
 
 ### Definition and Markov Property
 
-A Markov Random Field (MRF) is an undirected graphical model where nodes represent random variables $X = (X_1, ..., X_N)$ and edges represent statistical dependencies. The fundamental property is the local Markov property: each variable $X_i$ is conditionally independent of all other variables given its immediate neighbors. Mathematically, this means $P(X_i | X_{\text{rest}}) = P(X_i | X_{\text{neighbors}(i)})$.
+A [Markov Random Field](/algorithms/probabilistic/markov-random-field) (MRF) is an undirected graphical model where nodes represent random variables $X = (X_1, ..., X_N)$ and edges represent statistical dependencies. The fundamental property is the local Markov property: each variable $X_i$ is conditionally independent of all other variables given its immediate neighbors. Mathematically, this means $P(X_i | X_{\text{rest}}) = P(X_i | X_{\text{neighbors}(i)})$.
 $$P(X_i | X_{V \setminus \{i\}}) = P(X_i | X_{\text{ne}(i)})$$
 where $V$ is the set of all nodes and $\text{ne}(i)$ is the set of neighbors of node $i$.
 
@@ -91,7 +91,7 @@ $$
 3. Specify the form of the potential functions $\psi_c(X_c)$ for each maximal clique $c \in \mathcal{C}$, often parameterized (e.g., as log-linear models).
 4. Learn the parameters of the potential functions from observed data, typically by maximizing the likelihood or pseudo-likelihood of the training data.
 5. For a new observation or task, perform inference to compute marginal probabilities $P(X_i)$ for individual variables or to find the most probable configuration $X^*$ (MAP inference).
-6. If exact inference is intractable, employ approximate inference algorithms such as loopy belief propagation, variational inference, or Markov Chain Monte Carlo (MCMC) methods.
+6. If exact inference is intractable, employ approximate inference algorithms such as loopy belief propagation, variational inference, or [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) methods.
 
 ## Parameters
 

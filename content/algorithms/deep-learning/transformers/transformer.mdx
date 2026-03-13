@@ -28,17 +28,17 @@ related:
 
 ## Overview
 
-The Transformer is a deep learning model that processes sequential data, distinguishing itself by relying entirely on attention mechanisms to draw global dependencies between input and output. Unlike recurrent neural networks, it foregoes recurrence and convolutions, enabling significant parallelization during training. This architecture has become foundational for state-of-the-art models across various domains, particularly in natural language processing.
+The [Transformer](/algorithms/deep-learning/transformer) is a deep learning model that processes sequential data, distinguishing itself by relying entirely on attention mechanisms to draw global dependencies between input and output. Unlike recurrent neural networks, it foregoes recurrence and convolutions, enabling significant parallelization during training. This architecture has become foundational for state-of-the-art models across various domains, particularly in natural language processing.
 
 ## History
 
 **2017** — The Transformer architecture was introduced by Vaswani et al. in the paper 'Attention Is All You Need', revolutionizing sequence modeling by replacing recurrent layers with self-attention.
 
-**2018** — The BERT (Bidirectional Encoder Representations from Transformers) model was released by Google, demonstrating the power of pre-training large Transformer encoders on vast text corpora for various downstream NLP tasks.
+**2018** — The [BERT](/algorithms/deep-learning/bert) (Bidirectional Encoder Representations from Transformers) model was released by Google, demonstrating the power of pre-training large Transformer encoders on vast text corpora for various downstream NLP tasks.
 
-**2018** — OpenAI introduced GPT-1 (Generative Pre-trained Transformer), showcasing the effectiveness of pre-training a Transformer decoder for generative language tasks and fine-tuning for specific applications.
+**2018** — OpenAI introduced [GPT](/algorithms/deep-learning/gpt)-1 (Generative Pre-trained Transformer), showcasing the effectiveness of pre-training a Transformer decoder for generative language tasks and fine-tuning for specific applications.
 
-**2020** — The [Vision Transformer](/algorithms/deep-learning/transformers/vision-transformer) (ViT) by Dosovitskiy et al. adapted the Transformer architecture for image classification, demonstrating that Transformers could achieve competitive results in computer vision when applied to sequences of image patches.
+**2020** — The [Vision Transformer](/algorithms/deep-learning/vision-transformer) (ViT) by Dosovitskiy et al. adapted the Transformer architecture for image classification, demonstrating that Transformers could achieve competitive results in computer vision when applied to sequences of image patches.
 
 **2022** — Large language models based on the Transformer architecture, such as ChatGPT, gained widespread public attention, highlighting their advanced capabilities in conversational AI and text generation.
 
@@ -46,7 +46,7 @@ The Transformer is a deep learning model that processes sequential data, disting
 
 ### Scaled Dot-Product Attention
 
-The core of the Transformer is the scaled dot-product [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which computes a weighted sum of 'value' vectors based on the similarity between 'query' and 'key' vectors. For a given query $Q$, keys $K$, and values $V$, the attention output is calculated as: The scaling factor $\sqrt{d_k}$ prevents the dot products from becoming too large, which could push the softmax function into regions with extremely small gradients. This mechanism allows the model to focus on relevant parts of the input sequence when processing each element.
+The core of the Transformer is the scaled dot-product [Attention Mechanism](/algorithms/deep-learning/attention-mechanism), which computes a weighted sum of 'value' vectors based on the similarity between 'query' and 'key' vectors. For a given query $Q$, keys $K$, and values $V$, the attention output is calculated as: The scaling factor $\sqrt{d_k}$ prevents the dot products from becoming too large, which could push the softmax function into regions with extremely small gradients. This mechanism allows the model to focus on relevant parts of the input sequence when processing each element.
 
 $$
 \text{Attention}(Q, K, V) = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})V
@@ -54,7 +54,7 @@ $$
 
 ### Multi-Head Attention Mechanism
 
-Multi-head attention extends the single [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) by allowing the model to jointly attend to information from different representation subspaces at different positions. This is achieved by linearly projecting the queries, keys, and values $h$ times with different, learned linear projections. Each projected set then undergoes scaled dot-product attention in parallel, resulting in $h$ attention outputs. These outputs are then concatenated and linearly projected once more to produce the final result. This parallel processing of attention allows the model to capture diverse relationships within the data.
+Multi-head attention extends the single Attention Mechanism by allowing the model to jointly attend to information from different representation subspaces at different positions. This is achieved by linearly projecting the queries, keys, and values $h$ times with different, learned linear projections. Each projected set then undergoes scaled dot-product attention in parallel, resulting in $h$ attention outputs. These outputs are then concatenated and linearly projected once more to produce the final result. This parallel processing of attention allows the model to capture diverse relationships within the data.
 
 $$
 \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O
@@ -143,7 +143,7 @@ Widely used for machine translation, text summarization, question answering, tex
 
 ### Computer Vision
 
-Applied in tasks like image classification ([Vision Transformer](/algorithms/deep-learning/transformers/vision-transformer)), object detection (DETR), and image generation, often by treating image patches as sequences.
+Applied in tasks like image classification (Vision Transformer), object detection (DETR), and image generation, often by treating image patches as sequences.
 
 ### Speech Recognition
 

@@ -25,17 +25,17 @@ related:
 
 ## Overview
 
-The Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) (EKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter), designed for state estimation in dynamic systems where the system dynamics or measurement models are nonlinear. It operates by linearizing the nonlinear functions around the current state estimate using Taylor series expansion, allowing the application of the linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) equations. EKF provides an optimal estimate of the system's state and its uncertainty by iteratively predicting the state and then updating it with new measurements.
+The [Extended Kalman Filter](/algorithms/probabilistic/extended-kalman-filter) (EKF) is a nonlinear extension of the [Kalman Filter](/algorithms/probabilistic/kalman-filter), designed for state estimation in dynamic systems where the system dynamics or measurement models are nonlinear. It operates by linearizing the nonlinear functions around the current state estimate using Taylor series expansion, allowing the application of the linear Kalman Filter equations. EKF provides an optimal estimate of the system's state and its uncertainty by iteratively predicting the state and then updating it with new measurements.
 
 ## History
 
-**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the foundational linear [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter).
+**1960** — Rudolf E. Kálmán publishes "A New Approach to Linear Filtering and Prediction Problems," introducing the foundational linear Kalman Filter.
 
-**1960** — The concept of extending the [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) to nonlinear systems emerges, leading to the development and widespread adoption of the Extended [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter) in various engineering fields.
+**1960** — The concept of extending the Kalman Filter to nonlinear systems emerges, leading to the development and widespread adoption of the Extended Kalman Filter in various engineering fields.
 
 **1960** — The EKF becomes a foundational algorithm in aerospace engineering for navigation and control, notably used in the Apollo space program for trajectory estimation.
 
-**1995** — Jeffrey Uhlmann introduces the [Unscented [Kalman Filter](/algorithms/probabilistic/probabilistic-models/kalman-filter)](/algorithms/probabilistic/probabilistic-models/unscented-kalman-filter) (UKF), offering an alternative to EKF for nonlinear systems that avoids explicit Jacobian computation.
+**1995** — Jeffrey Uhlmann introduces the [Unscented Kalman Filter](/algorithms/probabilistic/unscented-kalman-filter) (UKF), offering an alternative to EKF for nonlinear systems that avoids explicit Jacobian computation.
 
 **2000** — Particle Filters gain prominence as a robust alternative for highly nonlinear and non-Gaussian systems, addressing some limitations of the EKF.
 

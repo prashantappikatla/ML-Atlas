@@ -27,11 +27,11 @@ related:
 
 ## Overview
 
-AdamW is an optimization algorithm that extends the Adam optimizer by decoupling weight decay from the adaptive gradient updates. This modification addresses a known issue where standard L2 regularization, when combined with adaptive optimizers like Adam, can lead to suboptimal generalization performance. By applying weight decay directly to the weights rather than through the gradient, AdamW improves the regularization effect and often leads to better model generalization.
+[AdamW](/algorithms/meta-learning/adamw) is an optimization algorithm that extends the [Adam](/algorithms/meta-learning/adam) optimizer by decoupling weight decay from the adaptive gradient updates. This modification addresses a known issue where standard L2 regularization, when combined with adaptive optimizers like Adam, can lead to suboptimal generalization performance. By applying weight decay directly to the weights rather than through the gradient, AdamW improves the regularization effect and often leads to better model generalization.
 
 ## History
 
-**2014** — Diederik P. Kingma and Jimmy Ba introduced the Adam optimizer, combining the benefits of [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and [AdaGrad](/algorithms/meta-learning/optimization/adagrad) to provide adaptive learning rates for each parameter.
+**2014** — Diederik P. Kingma and Jimmy Ba introduced the Adam optimizer, combining the benefits of [RMSProp](/algorithms/meta-learning/rmsprop) and [AdaGrad](/algorithms/meta-learning/adagrad) to provide adaptive learning rates for each parameter.
 
 **2017** — Ilya Loshchilov and Frank Hutter published 'Decoupled Weight Decay Regularization,' identifying a flaw in how L2 regularization interacts with adaptive optimizers and proposing AdamW as a solution.
 
@@ -70,7 +70,7 @@ $$
 
 ### L2 Regularization vs. Weight Decay
 
-L2 regularization is typically implemented by adding a penalty term to the loss function, $L_{total} = L_{data} + \frac{\lambda}{2} ||\theta||^2$. The gradient of this penalty term with respect to the parameters $\theta$ is $\lambda \theta$. When this gradient is incorporated into adaptive optimizers like Adam, it gets scaled by the inverse of the square root of the second moment estimate, $\frac{1}{\sqrt{\hat{v}_t} + \epsilon}$. This scaling means that parameters with large adaptive learning rates (i.e., small $\hat{v}_t$) will have their L2 regularization effect diminished. In contrast, traditional weight decay, as used with [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD), directly scales the weights: $\theta_{t+1} = (1 - \lambda \eta) \theta_t - \eta g_t$. This direct scaling ensures the regularization strength is consistent, but this equivalence to L2 regularization only holds for SGD.
+L2 regularization is typically implemented by adding a penalty term to the loss function, $L_{total} = L_{data} + \frac{\lambda}{2} ||\theta||^2$. The gradient of this penalty term with respect to the parameters $\theta$ is $\lambda \theta$. When this gradient is incorporated into adaptive optimizers like Adam, it gets scaled by the inverse of the square root of the second moment estimate, $\frac{1}{\sqrt{\hat{v}_t} + \epsilon}$. This scaling means that parameters with large adaptive learning rates (i.e., small $\hat{v}_t$) will have their L2 regularization effect diminished. In contrast, traditional weight decay, as used with [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) (SGD), directly scales the weights: $\theta_{t+1} = (1 - \lambda \eta) \theta_t - \eta g_t$. This direct scaling ensures the regularization strength is consistent, but this equivalence to L2 regularization only holds for SGD.
 
 $$
 L_{total} = L_{data} + \frac{\lambda}{2} ||\theta||^2
@@ -160,7 +160,7 @@ AdamW is widely used for training deep convolutional neural networks in tasks su
 
 ### Natural Language Processing
 
-It is a common optimizer for large language models, [Transformer](/algorithms/deep-learning/transformers/transformer) networks, and recurrent neural networks used in machine translation, text generation, and sentiment analysis.
+It is a common optimizer for large language models, [Transformer](/algorithms/deep-learning/transformer) networks, and recurrent neural networks used in machine translation, text generation, and sentiment analysis.
 
 ### Speech Recognition
 

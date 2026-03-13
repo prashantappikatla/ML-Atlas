@@ -26,11 +26,11 @@ related:
 
 ## Overview
 
-Elastic Net is a regularized [Linear Regression](/algorithms/supervised/regression/linear-regression) model that combines the penalties of both Lasso (L1 regularization) and Ridge (L2 regularization) methods. This hybrid approach enables it to perform automatic feature selection while simultaneously handling highly correlated predictors. It addresses some limitations of Lasso, such as its tendency to select only one variable from a group of correlated variables and its instability in high-dimensional settings.
+[Elastic Net](/algorithms/supervised/elastic-net) is a regularized [Linear Regression](/algorithms/supervised/linear-regression) model that combines the penalties of both Lasso (L1 regularization) and Ridge (L2 regularization) methods. This hybrid approach enables it to perform automatic feature selection while simultaneously handling highly correlated predictors. It addresses some limitations of Lasso, such as its tendency to select only one variable from a group of correlated variables and its instability in high-dimensional settings.
 
 ## History
 
-**1970** — [Arthur Hoerl](https://en.wikipedia.org/wiki/Ridge_regression) and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduced [Ridge Regression](/algorithms/supervised/regression/ridge-regression) to address multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression) by adding an L2 penalty to the loss function.
+**1970** — Arthur Hoerl and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduced [Ridge Regression](/algorithms/supervised/ridge-regression) to address multicollinearity in Linear Regression by adding an L2 penalty to the loss function.
 
 **1996** — [Robert Tibshirani](https://en.wikipedia.org/wiki/Robert_Tibshirani) proposed Lasso (Least Absolute Shrinkage and Selection Operator) Regression, which uses an L1 penalty for both regularization and automatic feature selection.
 
@@ -87,7 +87,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `alpha` | `float` | `1.0` | alpha >= 0 | Constant that multiplies the penalty terms. alpha = 0 is equivalent to Ordinary Least Squares. |
+| `alpha` | `float` | `1.0` | alpha >= 0 | Constant that multiplies the penalty terms. alpha = 0 is equivalent to [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares). |
 | `l1_ratio` | `float` | `0.5` | 0.0 <= l1_ratio <= 1.0 | The Elastic Net mixing parameter, with $0 \le \text{l1\_ratio} \le 1$. For l1_ratio = 0 the penalty is an L2 penalty. For l1_ratio = 1 it is an L1 penalty. For $0 < \text{l1\_ratio} < 1$, the penalty is a combination of L1 and L2. |
 | `fit_intercept` | `bool` | `True` | True, False | Whether to calculate the intercept for this model. If set to False, no intercept will be used in calculations (i.e., data is expected to be already centered). |
 | `precompute` | `bool or str` | `'auto'` | True, False, 'auto' | Whether to use a precomputed Gram matrix to speed up calculations. If set to 'auto', the Gram matrix will be precomputed when n_samples > n_features. |

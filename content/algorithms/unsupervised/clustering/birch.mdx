@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-BIRCH (Balanced Iterative Reducing and Clustering using Hierarchies) is an unsupervised clustering algorithm designed for large datasets. It constructs a compact, hierarchical data structure called a Clustering Feature (CF) tree, which summarizes the data points. This tree-based approach allows for efficient, incremental clustering by reducing the data to a set of CFs before an optional global clustering step.
+[BIRCH](/algorithms/unsupervised/birch) (Balanced Iterative Reducing and Clustering using Hierarchies) is an unsupervised clustering algorithm designed for large datasets. It constructs a compact, hierarchical data structure called a Clustering Feature (CF) tree, which summarizes the data points. This tree-based approach allows for efficient, incremental clustering by reducing the data to a set of CFs before an optional global clustering step.
 
 ## History
 
@@ -76,7 +76,7 @@ $$
 4. If the updated CF's diameter (or radius) exceeds the threshold $T$, the leaf entry cannot absorb $\vec{X_i}$ without violating the constraint, so a new leaf entry is created or the leaf node is split into two new nodes, and the CFs are redistributed.
 5. This splitting process propagates up the tree if necessary, potentially causing parent nodes to split as well.
 6. After all data points are processed, the CF-tree represents a compact summary of the dataset, where leaf entries correspond to micro-clusters.
-7. Optionally, apply a global clustering algorithm (e.g., K-Means or Agglomerative Clustering) to the centroids of the leaf entries in the CF-tree to form a desired number of macro-clusters.
+7. Optionally, apply a global clustering algorithm (e.g., [K-Means](/algorithms/unsupervised/k-means) or [Agglomerative Clustering](/algorithms/unsupervised/agglomerative-clustering)) to the centroids of the leaf entries in the CF-tree to form a desired number of macro-clusters.
 
 ## Parameters
 
@@ -125,7 +125,7 @@ Can identify data points that do not fit well into any existing micro-cluster, m
 
 ### Pre-processing for Clustering
 
-Serves as an initial step to reduce the dataset size before applying more computationally intensive clustering algorithms like [K-Means](/algorithms/unsupervised/clustering/k-means) or [DBSCAN](/algorithms/unsupervised/clustering/dbscan).
+Serves as an initial step to reduce the dataset size before applying more computationally intensive clustering algorithms like K-Means or [DBSCAN](/algorithms/unsupervised/dbscan).
 
 ### Real-time Data Stream Analysis
 

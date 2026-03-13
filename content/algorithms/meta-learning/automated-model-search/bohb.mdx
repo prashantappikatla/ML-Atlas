@@ -26,21 +26,21 @@ related:
 
 ## Overview
 
-[Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband) (BOHB) is a robust and efficient hyperparameter optimization algorithm that combines the strengths of [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) with the aggressive resource allocation strategy of [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband). It addresses the challenge of tuning complex machine learning models, particularly deep neural networks, by adaptively allocating computational resources to promising configurations while pruning poorly performing ones early. BOHB leverages a kernel density estimator to propose new configurations, guiding the search more effectively than [Random Search](/algorithms/meta-learning/automated-model-search/random-search), and integrates this with [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband)'s successive halving to accelerate the process.
+[Bayesian Optimization](/algorithms/meta-learning/bayesian-optimization) [Hyperband](/algorithms/meta-learning/hyperband) ([BOHB](/algorithms/meta-learning/bohb)) is a robust and efficient hyperparameter optimization algorithm that combines the strengths of Bayesian Optimization with the aggressive resource allocation strategy of Hyperband. It addresses the challenge of tuning complex machine learning models, particularly deep neural networks, by adaptively allocating computational resources to promising configurations while pruning poorly performing ones early. BOHB leverages a kernel density estimator to propose new configurations, guiding the search more effectively than [Random Search](/algorithms/meta-learning/random-search), and integrates this with Hyperband's successive halving to accelerate the process.
 
 ## History
 
-**2012** — [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) gained significant traction for hyperparameter tuning with works like Snoek et al.'s "Practical [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) of Machine Learning Algorithms," demonstrating its effectiveness for complex models.
+**2012** — Bayesian Optimization gained significant traction for hyperparameter tuning with works like Snoek et al.'s "Practical Bayesian Optimization of [Machine Learning](https://en.wikipedia.org/wiki/Machine_learning) Algorithms," demonstrating its effectiveness for complex models.
 
-**2017** — Li et al. introduced [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband), a novel algorithm that uses successive halving to efficiently allocate resources and prune poor configurations, often outperforming [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) on some benchmarks by focusing on early stopping.
+**2017** — Li et al. introduced Hyperband, a novel algorithm that uses successive halving to efficiently allocate resources and prune poor configurations, often outperforming Bayesian Optimization on some benchmarks by focusing on early stopping.
 
-**2018** — Falkner et al. published "BOHB: Robust and Efficient Hyperparameter Optimization at Scale," proposing the integration of [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) with [Hyperband](/algorithms/meta-learning/automated-model-search/hyperband) to combine their respective advantages, leading to more robust and efficient search.
+**2018** — Falkner et al. published "BOHB: Robust and Efficient [Hyperparameter Optimization](https://en.wikipedia.org/wiki/Hyperparameter_optimization) at Scale," proposing the integration of Bayesian Optimization with Hyperband to combine their respective advantages, leading to more robust and efficient search.
 
 ## Mathematical Intuition
 
 ### Successive Halving Resource Allocation
 
-[Hyperband](/algorithms/meta-learning/automated-model-search/hyperband)'s core idea, which BOHB adopts, is to run multiple configurations for a small budget, then keep the top $1/\eta$ configurations and run them for $\eta$ times the budget, repeating this process. This is done across several "brackets" (or iterations) with varying initial budgets. For a given bracket, if we start with $n_0$ configurations and an initial budget $r_{min}$, after $k$ rounds of successive halving, we will have $n_k = n_0 / \eta^k$ configurations, each evaluated with a budget of $r_k = r_{min} \cdot \eta^k$. This aggressive pruning strategy quickly eliminates unpromising candidates.
+Hyperband's core idea, which BOHB adopts, is to run multiple configurations for a small budget, then keep the top $1/\eta$ configurations and run them for $\eta$ times the budget, repeating this process. This is done across several "brackets" (or iterations) with varying initial budgets. For a given bracket, if we start with $n_0$ configurations and an initial budget $r_{min}$, after $k$ rounds of successive halving, we will have $n_k = n_0 / \eta^k$ configurations, each evaluated with a budget of $r_k = r_{min} \cdot \eta^k$. This aggressive pruning strategy quickly eliminates unpromising candidates.
 
 $$
 n_k = n_0 / \eta^k
@@ -52,7 +52,7 @@ $$
 
 ### Bayesian Optimization Surrogate Model
 
-Traditional [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) models the objective function $f(x)$ using a probabilistic surrogate model, typically a [Gaussian Process](https://en.wikipedia.org/wiki/Gaussian_process), to estimate the expected performance and uncertainty of hyperparameters $x$. BOHB, however, uses a non-parametric approach based on kernel density estimators (KDEs). It fits two KDEs: $p(\text{good}|x)$ for the top-performing configurations and $p(\text{bad}|x)$ for the lower-performing ones. These models are updated with observed performance data from the successive halving iterations.
+Traditional Bayesian Optimization models the objective function $f(x)$ using a probabilistic surrogate model, typically a Gaussian Process, to estimate the expected performance and uncertainty of hyperparameters $x$. BOHB, however, uses a non-parametric approach based on kernel density estimators (KDEs). It fits two KDEs: $p(\text{good}|x)$ for the top-performing configurations and $p(\text{bad}|x)$ for the lower-performing ones. These models are updated with observed performance data from the successive halving iterations.
 
 $$
 p(\text{good}|x)
@@ -118,7 +118,7 @@ $$
 - BOHB's performance can be sensitive to the choice of the initial random configurations and the parameters of the successive halving schedule, requiring careful tuning of its own meta-parameters.
 - The overhead of maintaining and updating the kernel density estimators can be computationally intensive for very large hyperparameter spaces or extremely frequent updates.
 - Like other sequential model-based optimization methods, BOHB can struggle with highly multimodal or discontinuous objective functions, potentially getting stuck in local optima.
-- The interpretation of the surrogate model (KDEs) is less intuitive than Gaussian Processes, potentially making debugging or understanding the search process more challenging for practitioners.
+- The interpretation of the surrogate model (KDEs) is less intuitive than [Gaussian Processes](https://en.wikipedia.org/wiki/Gaussian_process), potentially making debugging or understanding the search process more challenging for practitioners.
 
 ## Use Cases
 
@@ -140,7 +140,7 @@ Optimizing parameters for complex simulations or scientific models where evaluat
 
 ### Natural Language Processing
 
-Finding optimal configurations for large language models or specific NLP tasks, such as fine-tuning [Transformer](/algorithms/deep-learning/transformers/transformer) models for text classification or generation.
+Finding optimal configurations for large language models or specific NLP tasks, such as fine-tuning [Transformer](/algorithms/deep-learning/transformer) models for text classification or generation.
 
 ## Implementation
 

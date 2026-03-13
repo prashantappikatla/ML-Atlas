@@ -28,13 +28,13 @@ related:
 
 ## Overview
 
-GloVe (Global Vectors for Word Representation) is an unsupervised learning algorithm for obtaining vector representations of words. It achieves this by leveraging global word-word co-occurrence statistics from a corpus, combining aspects of global matrix factorization methods and local context window methods. The algorithm trains on the ratios of word co-occurrence probabilities, aiming to capture meaningful semantic relationships in a compact vector space. This approach allows it to learn word embeddings that exhibit linear relationships corresponding to semantic and syntactic regularities.
+[GloVe](/algorithms/deep-learning/glove) (Global Vectors for Word Representation) is an unsupervised learning algorithm for obtaining vector representations of words. It achieves this by leveraging global word-word co-occurrence statistics from a corpus, combining aspects of global matrix factorization methods and local context window methods. The algorithm trains on the ratios of word co-occurrence probabilities, aiming to capture meaningful semantic relationships in a compact vector space. This approach allows it to learn word embeddings that exhibit linear relationships corresponding to semantic and syntactic regularities.
 
 ## History
 
-**2013** — [Word2Vec](/algorithms/deep-learning/self-supervised-learning/word2vec), developed by Mikolov et al. at Google, introduced efficient methods for learning distributed word representations using neural network architectures, popularizing the concept of word embeddings and their ability to capture semantic relationships.
+**2013** — [Word2Vec](/algorithms/deep-learning/word2vec), developed by Mikolov et al. at Google, introduced efficient methods for learning distributed word representations using neural network architectures, popularizing the concept of word embeddings and their ability to capture semantic relationships.
 
-**2014** — [Jeffrey Pennington](https://en.wikipedia.org/wiki/GloVe_(machine_learning)), Richard Socher, and Christopher D. Manning from Stanford University introduced GloVe, proposing an alternative approach that explicitly models global co-occurrence statistics, bridging the gap between count-based and predictive models.
+**2014** — [Jeffrey Pennington](https://en.wikipedia.org/wiki/GloVe_(machine_learning)))), Richard Socher, and Christopher D. Manning from Stanford University introduced GloVe, proposing an alternative approach that explicitly models global co-occurrence statistics, bridging the gap between count-based and predictive models.
 
 ## Mathematical Intuition
 
@@ -60,14 +60,14 @@ $$
 
 ### Vector Learning through Optimization
 
-The objective function $J$ is minimized using an optimization algorithm, typically [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) (SGD) or Adam. The gradients are computed with respect to the word vectors $w_i, \tilde{w}_j$ and bias terms $b_i, \tilde{b}_j$. After training, the final word vector for word $i$ is often taken as the sum of its two learned vectors, $w_i + \tilde{w}_i$, or simply $w_i$. The learned vectors capture semantic and syntactic relationships, where similar words are close in the vector space, reflecting the distributional hypothesis.
+The objective function $J$ is minimized using an optimization algorithm, typically [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) (SGD) or [Adam](/algorithms/meta-learning/adam). The gradients are computed with respect to the word vectors $w_i, \tilde{w}_j$ and bias terms $b_i, \tilde{b}_j$. After training, the final word vector for word $i$ is often taken as the sum of its two learned vectors, $w_i + \tilde{w}_i$, or simply $w_i$. The learned vectors capture semantic and syntactic relationships, where similar words are close in the vector space, reflecting the distributional hypothesis.
 
 ## Algorithm Steps
 
 1. Scan the entire corpus to build a word-word co-occurrence matrix $X$, where $X_{ij}$ represents how many times word $j$ appears in the context window of word $i$.
 2. Define the GloVe objective function $J = \sum_{i=1}^V \sum_{j=1}^V f(X_{ij}) (w_i^T \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij})^2$, where $f(X_{ij})$ is a weighting function.
 3. Initialize word vectors $w_i, \tilde{w}_j$ and bias terms $b_i, \tilde{b}_j$ randomly for all words in the vocabulary.
-4. Iteratively update the word vectors and bias terms by minimizing the objective function $J$ using an optimization algorithm like AdaGrad or Adam.
+4. Iteratively update the word vectors and bias terms by minimizing the objective function $J$ using an optimization algorithm like [AdaGrad](/algorithms/meta-learning/adagrad) or Adam.
 5. Repeat the optimization for a predefined number of epochs until convergence or a satisfactory performance is achieved.
 6. Combine the two learned vector sets, $w_i$ and $\tilde{w}_i$, typically by summing them ($w_i + \tilde{w}_i$) to obtain the final word embedding for each word $i$.
 

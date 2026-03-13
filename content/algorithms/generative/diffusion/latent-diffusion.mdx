@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Latent Diffusion Models (LDMs) address the computational expense of Denoising Diffusion Probabilistic Models (DDPMs) by performing the iterative denoising process in a compressed latent space rather than the high-dimensional pixel space. This approach significantly reduces computational requirements for both training and inference while maintaining high-quality synthesis. LDMs leverage a pre-trained [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) to transform high-dimensional data, such as images, into a lower-dimensional latent representation, where the diffusion process then operates.
+[Latent Diffusion](/algorithms/generative/latent-diffusion) Models (LDMs) address the computational expense of Denoising Diffusion Probabilistic Models (DDPMs) by performing the iterative denoising process in a compressed latent space rather than the high-dimensional pixel space. This approach significantly reduces computational requirements for both training and inference while maintaining high-quality synthesis. LDMs leverage a pre-trained [Autoencoder](/algorithms/deep-learning/autoencoder) to transform high-dimensional data, such as images, into a lower-dimensional latent representation, where the diffusion process then operates.
 
 ## History
 
@@ -35,9 +35,9 @@ Latent Diffusion Models (LDMs) address the computational expense of Denoising Di
 
 **2019** — Yang Song et al. published 'Generative Modeling by Estimating Gradients of the Data Distribution,' introducing Score-based Generative Models (SGMs) which learn to reverse a diffusion process by estimating the score function of the data distribution.
 
-**2020** — [Jonathan Ho](https://en.wikipedia.org/wiki/Denoising_diffusion_probabilistic_model) et al. presented 'Denoising Diffusion Probabilistic Models,' which simplified the training objective and demonstrated high-quality image generation, popularizing the DDPM framework.
+**2020** — [Jonathan Ho](https://en.wikipedia.org/wiki/Denoising_diffusion_probabilistic_model) et al. presented 'Denoising Diffusion Probabilistic Models,' which simplified the training objective and demonstrated high-quality image generation, popularizing the [DDPM](/algorithms/generative/ddpm) framework.
 
-**2022** — Robin Rombach et al. introduced 'High-Resolution Image Synthesis with Latent Diffusion Models,' proposing to apply diffusion models in the latent space of a pre-trained [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), drastically improving efficiency and enabling high-resolution generation.
+**2022** — Robin Rombach et al. introduced 'High-Resolution Image Synthesis with Latent [Diffusion Models](https://en.wikipedia.org/wiki/Diffusion_model),' proposing to apply diffusion models in the latent space of a pre-trained Autoencoder, drastically improving efficiency and enabling high-resolution generation.
 
 ## Mathematical Intuition
 
@@ -61,7 +61,7 @@ $$
 
 ### Reverse Denoising Process
 
-The reverse diffusion process aims to learn the conditional probability $p_\theta(x_{t-1} | x_t)$, which represents denoising $x_t$ back to $x_{t-1}$. While the true reverse process $q(x_{t-1} | x_t, x_0)$ is tractable, $x_0$ is unknown. Diffusion models approximate this by training a neural network (often a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net)) to predict the noise $\epsilon_\theta(x_t, t)$ added at step $t$. The reverse step is then formulated as:
+The reverse diffusion process aims to learn the conditional probability $p_\theta(x_{t-1} | x_t)$, which represents denoising $x_t$ back to $x_{t-1}$. While the true reverse process $q(x_{t-1} | x_t, x_0)$ is tractable, $x_0$ is unknown. Diffusion models approximate this by training a neural network (often a [U-Net](/algorithms/deep-learning/u-net)) to predict the noise $\epsilon_\theta(x_t, t)$ added at step $t$. The reverse step is then formulated as:
 $$p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$$
 where $\mu_\theta(x_t, t)$ and $\Sigma_\theta(x_t, t)$ are derived from the predicted noise $\epsilon_\theta(x_t, t)$ and the variance schedule.
 
@@ -91,7 +91,7 @@ $$
 
 ### Variational Autoencoder for Latent Space
 
-Latent Diffusion Models introduce a pre-trained [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) to transform high-dimensional data into a lower-dimensional, perceptually rich latent space. The VAE consists of an encoder $E$ that maps an image $x$ to a latent representation $z = E(x)$, and a decoder $D$ that reconstructs the image from the latent code $x' = D(z)$. The diffusion process then operates on these latent representations $z_t$ instead of the original pixel data $x_t$. This compression allows the [Diffusion Model](/algorithms/generative/diffusion/diffusion-model) to learn more efficiently and generate higher-resolution outputs with fewer computational resources.
+Latent Diffusion Models introduce a pre-trained [Variational Autoencoder](/algorithms/generative/variational-autoencoder) (VAE) to transform high-dimensional data into a lower-dimensional, perceptually rich latent space. The VAE consists of an encoder $E$ that maps an image $x$ to a latent representation $z = E(x)$, and a decoder $D$ that reconstructs the image from the latent code $x' = D(z)$. The diffusion process then operates on these latent representations $z_t$ instead of the original pixel data $x_t$. This compression allows the [Diffusion Model](/algorithms/generative/diffusion-model) to learn more efficiently and generate higher-resolution outputs with fewer computational resources.
 
 $$
 z = E(x)
@@ -103,7 +103,7 @@ $$
 
 ### Conditional Latent Diffusion
 
-LDMs often incorporate conditional generation, allowing the synthesis process to be guided by various inputs, such as text descriptions, class labels, or other images. This is achieved by feeding the conditioning information $y$ (e.g., a text embedding) into the [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture of the [Diffusion Model](/algorithms/generative/diffusion/diffusion-model). The [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) learns to predict noise $\epsilon_\theta(z_t, t, y)$ conditioned on $y$, enabling controlled generation. During inference, classifier-free guidance can be applied, which combines unconditional and conditional noise predictions to enhance the influence of the conditioning signal.
+LDMs often incorporate conditional generation, allowing the synthesis process to be guided by various inputs, such as text descriptions, class labels, or other images. This is achieved by feeding the conditioning information $y$ (e.g., a text embedding) into the U-Net architecture of the Diffusion Model. The U-Net learns to predict noise $\epsilon_\theta(z_t, t, y)$ conditioned on $y$, enabling controlled generation. During inference, classifier-free guidance can be applied, which combines unconditional and conditional noise predictions to enhance the influence of the conditioning signal.
 
 $$
 \epsilon_\theta(z_t, t, y)

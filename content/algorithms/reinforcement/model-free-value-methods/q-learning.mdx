@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Q-Learning is a model-free, off-policy reinforcement learning algorithm that enables an agent to learn an optimal action-selection policy. It achieves this by iteratively estimating the maximum expected future rewards for taking a specific action in a given state, known as Q-values. This method directly learns the optimal Q-function without requiring an explicit model of the environment's dynamics, making it highly adaptable to various sequential decision-making problems.
+[Q-Learning](/algorithms/reinforcement/q-learning) is a model-free, off-policy reinforcement learning algorithm that enables an agent to learn an optimal action-selection policy. It achieves this by iteratively estimating the maximum expected future rewards for taking a specific action in a given state, known as Q-values. This method directly learns the optimal Q-function without requiring an explicit model of the environment's dynamics, making it highly adaptable to various sequential decision-making problems.
 
 ## History
 
@@ -118,7 +118,7 @@ $$
 
 - Q-Learning is a model-free algorithm, meaning it does not require an explicit model of the environment's dynamics to learn an optimal policy.
 - It is an off-policy algorithm, allowing it to learn the optimal policy by observing actions taken from any behavior policy, including exploratory ones.
-- Under certain conditions, such as a finite Markov Decision Process and sufficient exploration, Q-Learning is guaranteed to converge to the optimal Q-values.
+- Under certain conditions, such as a finite [Markov Decision Process](https://en.wikipedia.org/wiki/Markov_decision_process) and sufficient exploration, Q-Learning is guaranteed to converge to the optimal Q-values.
 - The algorithm is relatively simple to implement and understand for problems with discrete and manageable state and action spaces.
 - It can effectively learn optimal policies even in environments with stochastic transitions and rewards.
 

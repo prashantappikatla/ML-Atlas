@@ -96,7 +96,7 @@ $$
 5. Pass the latent representation $z$ through the decoder network to reconstruct the output $\hat{x} = g(z)$.
 6. Calculate the reconstruction loss $L(x, \hat{x})$ between the original input $x$ and the reconstructed output $\hat{x}$.
 7. Compute the gradients of the loss function with respect to the network parameters using backpropagation.
-8. Update the network parameters using an optimization algorithm (e.g., Adam, SGD) to minimize the loss.
+8. Update the network parameters using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam), SGD) to minimize the loss.
 9. Repeat steps 2-8 for a specified number of epochs or until convergence.
 
 ## Parameters
@@ -149,7 +149,7 @@ Applied to identify unusual patterns or outliers in datasets by measuring high r
 
 ### Dimensionality Reduction
 
-Employed as a non-linear alternative to PCA for reducing the number of features in a dataset.
+Employed as a non-linear alternative to [PCA](/algorithms/unsupervised/pca) for reducing the number of features in a dataset.
 
 ### Recommendation Systems
 
@@ -180,7 +180,7 @@ Used to detect abnormal behavior in sensor data from machinery, predicting poten
 
 ## Lab
 
-<LabEmbed url={""} title="Autoencoder Lab" />
+<LabEmbed url={""} title="[Autoencoder](/algorithms/deep-learning/autoencoder) Lab" />
 
 ## References
 

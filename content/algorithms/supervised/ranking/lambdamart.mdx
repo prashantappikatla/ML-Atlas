@@ -26,25 +26,25 @@ related:
 
 ## Overview
 
-LambdaMART is a powerful learning-to-rank algorithm that combines the gradient boosting framework (Multiple Additive Regression Trees, MART) with the "lambda" gradients derived from LambdaRank. It directly optimizes non-differentiable ranking metrics like Normalized Discounted Cumulative Gain (NDCG) or Mean Average Precision (MAP) by transforming them into effective gradients. This approach allows it to achieve high performance in complex ranking tasks by iteratively building an ensemble of decision trees.
+[LambdaMART](/algorithms/supervised/lambdamart) is a powerful learning-to-rank algorithm that combines the gradient boosting framework (Multiple Additive Regression Trees, MART) with the "lambda" gradients derived from LambdaRank. It directly optimizes non-differentiable ranking metrics like Normalized Discounted Cumulative Gain (NDCG) or Mean Average Precision (MAP) by transforming them into effective gradients. This approach allows it to achieve high performance in complex ranking tasks by iteratively building an ensemble of decision trees.
 
 ## History
 
-**2007** — Chris Burges et al. introduce [RankNet](/algorithms/supervised/ranking/ranknet), a neural network approach for learning to rank, laying groundwork for pairwise ranking.
+**2007** — Chris Burges et al. introduce [RankNet](/algorithms/supervised/ranknet), a neural network approach for learning to rank, laying groundwork for pairwise ranking.
 
-**2007** — Chris Burges et al. introduce LambdaRank, an extension of [RankNet](/algorithms/supervised/ranking/ranknet) that uses "lambda gradients" to directly optimize ranking metrics like NDCG or MAP, avoiding the need for a differentiable loss function.
+**2007** — Chris Burges et al. introduce LambdaRank, an extension of RankNet that uses "lambda gradients" to directly optimize ranking metrics like NDCG or MAP, avoiding the need for a differentiable loss function.
 
 **2010** — Chris Burges introduces LambdaMART, combining the lambda gradients from LambdaRank with the Multiple Additive Regression Trees (MART) framework, integrating effective gradient computation with gradient-boosted decision trees.
 
-**2014** — [Tianqi Chen](https://en.wikipedia.org/wiki/XGBoost) introduces [XGBoost](/algorithms/supervised/regression/xgboost), a highly optimized gradient boosting library that can efficiently implement LambdaMART and other ranking algorithms.
+**2014** — [Tianqi Chen](https://en.wikipedia.org/wiki/[XGBoost](/algorithms/supervised/xgboost)))) introduces XGBoost, a highly optimized gradient boosting library that can efficiently implement LambdaMART and other ranking algorithms.
 
-**2016** — Microsoft introduces [LightGBM](/algorithms/supervised/regression/lightgbm), another highly optimized gradient boosting framework, which also supports LambdaMART and is known for its speed and efficiency.
+**2016** — Microsoft introduces [LightGBM](/algorithms/supervised/lightgbm), another highly optimized gradient boosting framework, which also supports LambdaMART and is known for its speed and efficiency.
 
 ## Mathematical Intuition
 
 ### Gradient Boosting Decision Trees (MART) Foundation
 
-Multiple Additive Regression Trees (MART), also known as Gradient Boosting Decision Trees (GBDT), constructs an ensemble of weak prediction models, typically decision trees. It iteratively trains new trees to predict the negative gradient of a differentiable loss function with respect to the current ensemble's predictions. For a differentiable loss $L(y, F(x))$, the algorithm seeks to find a function $h_m(x)$ at each step $m$ that best approximates the negative gradient:
+Multiple Additive Regression Trees (MART), also known as [Gradient Boosting](https://en.wikipedia.org/wiki/Gradient_boosting) Decision Trees (GBDT), constructs an ensemble of weak prediction models, typically decision trees. It iteratively trains new trees to predict the negative gradient of a differentiable loss function with respect to the current ensemble's predictions. For a differentiable loss $L(y, F(x))$, the algorithm seeks to find a function $h_m(x)$ at each step $m$ that best approximates the negative gradient:
 $$g_i = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F(x)=F_{m-1}(x)}$$
 The model is updated as $F_m(x) = F_{m-1}(x) + \nu h_m(x)$, where $\nu$ is the learning rate.
 

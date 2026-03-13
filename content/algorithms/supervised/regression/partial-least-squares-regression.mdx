@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Partial Least Squares Regression (PLS-R) is a statistical method that finds a [Linear Regression](/algorithms/supervised/regression/linear-regression) model by projecting the predictor variables and observed response variables onto a new space. It constructs latent variables (components) that maximize the covariance between the projected predictor and response data, making it particularly useful for high-dimensional data with multicollinearity. Unlike Principal Component Regression (PCR), PLS-R considers the response variable when extracting components, leading to potentially better predictive performance. This approach is effective for both single and multiple response variables.
+[Partial Least Squares Regression](/algorithms/supervised/partial-least-squares-regression) (PLS-R) is a statistical method that finds a [Linear Regression](/algorithms/supervised/linear-regression) model by projecting the predictor variables and observed response variables onto a new space. It constructs latent variables (components) that maximize the covariance between the projected predictor and response data, making it particularly useful for high-dimensional data with multicollinearity. Unlike Principal Component Regression (PCR), PLS-R considers the response variable when extracting components, leading to potentially better predictive performance. This approach is effective for both single and multiple response variables.
 
 ## History
 
@@ -35,7 +35,7 @@ Partial Least Squares Regression (PLS-R) is a statistical method that finds a [L
 
 **1975** — Wold further develops the Non-linear [Iterative Partial Least Squares](https://en.wikipedia.org/wiki/Partial_least_squares_regression) (NIPALS) algorithm, a widely adopted method for computing PLS components.
 
-**1983** — [Svante Wold](https://en.wikipedia.org/wiki/Partial_least_squares_regression) and [Harald Martens](https://en.wikipedia.org/wiki/Partial_least_squares_regression) popularize PLS in chemometrics, demonstrating its utility for multivariate calibration and analysis of spectroscopic data.
+**1983** — Svante Wold and Harald Martens popularize PLS in chemometrics, demonstrating its utility for multivariate calibration and analysis of spectroscopic data.
 
 **1993** — S. Wold, H. N. J. M. Schuurmans, and M. Sjöström publish on the use of PLS for classification (PLS-DA), extending its applicability beyond regression.
 
@@ -145,7 +145,7 @@ $$
 - PLS Regression is robust to multicollinearity among predictor variables, as it projects them onto orthogonal latent components.
 - It can model multiple response variables simultaneously, making it suitable for multivariate regression problems.
 - The method often provides good predictive performance, especially when the underlying structure of the data is well-represented by a few latent components.
-- PLS components are explicitly chosen to maximize the covariance with the response variables, making them more relevant for prediction than Principal Component Analysis components.
+- PLS components are explicitly chosen to maximize the covariance with the response variables, making them more relevant for prediction than [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) components.
 - It can identify and quantify the relationships between predictor and response variables through the interpretation of loadings and weights.
 
 ## Weaknesses

@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-RoBERTa, a Robustly Optimized BERT Pretraining Approach, is a [Transformer](/algorithms/deep-learning/transformers/transformer)-based language model that builds upon the architecture of BERT by modifying its pre-training strategy. It aims to improve BERT's performance by training with larger datasets, longer sequences, and dynamic masking, while also removing the next sentence prediction objective. This optimization results in a more robust and higher-performing model across a wide range of natural language processing tasks.
+[RoBERTa](/algorithms/deep-learning/roberta), a Robustly Optimized [BERT](/algorithms/deep-learning/bert) Pretraining Approach, is a [Transformer](/algorithms/deep-learning/transformer)-based language model that builds upon the architecture of BERT by modifying its pre-training strategy. It aims to improve BERT's performance by training with larger datasets, longer sequences, and dynamic masking, while also removing the next sentence prediction objective. This optimization results in a more robust and higher-performing model across a wide range of natural language processing tasks.
 
 ## History
 
@@ -42,11 +42,11 @@ RoBERTa, a Robustly Optimized BERT Pretraining Approach, is a [Transformer](/alg
 
 ### Transformer Encoder Architecture
 
-RoBERTa, like BERT, is based on the [Transformer](/algorithms/deep-learning/transformers/transformer) encoder architecture. Each encoder block consists of a multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) followed by a position-wise feed-forward network. Residual connections and layer normalization are applied around each of these two sub-layers. The self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) allows the model to weigh the importance of different words in the input sequence when processing each word, capturing long-range dependencies.
+RoBERTa, like BERT, is based on the Transformer encoder architecture. Each encoder block consists of a multi-head self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism) followed by a position-wise feed-forward network. Residual connections and layer normalization are applied around each of these two sub-layers. The self-Attention Mechanism allows the model to weigh the importance of different words in the input sequence when processing each word, capturing long-range dependencies.
 
 ### Scaled Dot-Product Attention
 
-The core of the [Transformer](/algorithms/deep-learning/transformers/transformer)'s self-attention is the scaled dot-product attention. For a given query $Q$, keys $K$, and values $V$, the attention output is computed as: $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$ Here, $d_k$ is the dimension of the keys, and the scaling factor $\frac{1}{\sqrt{d_k}}$ is used to prevent the dot products from becoming too large, which could lead to vanishing gradients in the softmax function. Multi-head attention applies this mechanism multiple times in parallel with different learned linear projections.
+The core of the Transformer's self-attention is the scaled dot-product attention. For a given query $Q$, keys $K$, and values $V$, the attention output is computed as: $$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$ Here, $d_k$ is the dimension of the keys, and the scaling factor $\frac{1}{\sqrt{d_k}}$ is used to prevent the dot products from becoming too large, which could lead to vanishing gradients in the softmax function. Multi-head attention applies this mechanism multiple times in parallel with different learned linear projections.
 
 $$
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
@@ -74,12 +74,12 @@ RoBERTa's primary pre-training objective is Masked Language Modeling (MLM). Duri
 
 ## Algorithm Steps
 
-1. Prepare a large corpus of raw text data, such as CC-BY-40 CommonCrawl, WebText, Stories, and Wikipedia.
+1. Prepare a large corpus of raw text data, such as CC-BY-40 CommonCrawl, WebText, Stories, and [Wikipedia](https://en.wikipedia.org/wiki/Linear_regression).
 2. Tokenize the text corpus using a Byte-Pair Encoding (BPE) tokenizer to convert words into subword units and numerical IDs.
 3. For each training iteration, dynamically mask a random subset of tokens (e.g., 15%) in each input sequence, replacing them with a special [MASK] token, a random token, or the original token.
 4. Feed the tokenized and masked input sequences into the Transformer encoder model, which processes them through multiple layers of multi-head self-attention and feed-forward networks.
 5. At the output of the Transformer encoder, apply a classification head specifically designed for the Masked Language Modeling task to predict the original identity of the masked tokens.
-6. Calculate the cross-entropy loss between the predicted masked tokens and their true identities, and backpropagate this loss to update the model's parameters using an optimizer like Adam.
+6. Calculate the cross-entropy loss between the predicted masked tokens and their true identities, and backpropagate this loss to update the model's parameters using an optimizer like [Adam](/algorithms/meta-learning/adam).
 7. Continue pre-training for a large number of steps with large batch sizes and long sequence lengths to allow the model to learn rich contextual representations.
 8. After pre-training, fine-tune the RoBERTa model on specific downstream NLP tasks by adding a task-specific head and training on labeled data.
 

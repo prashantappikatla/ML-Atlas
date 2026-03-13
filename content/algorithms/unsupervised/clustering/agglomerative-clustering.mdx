@@ -29,21 +29,21 @@ related:
 
 ## Overview
 
-Agglomerative Clustering is a 'bottom-up' [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) method that treats each data point as a singleton cluster and iteratively merges the closest pairs of clusters until all data points belong to a single cluster or a predefined number of clusters is reached. This process builds a hierarchy of clusters, which can be visualized as a dendrogram, allowing for flexible determination of the final cluster partition by cutting the dendrogram at an appropriate level.
+[Agglomerative Clustering](/algorithms/unsupervised/agglomerative-clustering) is a 'bottom-up' [Hierarchical Clustering](/algorithms/unsupervised/hierarchical-clustering) method that treats each data point as a singleton cluster and iteratively merges the closest pairs of clusters until all data points belong to a single cluster or a predefined number of clusters is reached. This process builds a hierarchy of clusters, which can be visualized as a dendrogram, allowing for flexible determination of the final cluster partition by cutting the dendrogram at an appropriate level.
 
 ## History
 
-**1957** — Robert R. Sokal and Peter H. A. Sneath introduced early [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods in their work on numerical taxonomy, laying groundwork for grouping biological species based on similarity.
+**1957** — Robert R. Sokal and Peter H. A. Sneath introduced early Hierarchical Clustering methods in their work on numerical taxonomy, laying groundwork for grouping biological species based on similarity.
 
 **1963** — Joe H. Ward Jr. published 'Hierarchical Grouping to Optimize an Objective Function,' introducing Ward's method, a linkage criterion that minimizes the total within-cluster variance.
 
-**1965** — Stephen C. Johnson's paper '[Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) Schemes' formalized and compared various linkage criteria, including single-linkage and complete-linkage, providing a theoretical framework for agglomerative approaches.
+**1965** — Stephen C. Johnson's paper 'Hierarchical Clustering Schemes' formalized and compared various linkage criteria, including single-linkage and complete-linkage, providing a theoretical framework for agglomerative approaches.
 
-**1967** — The general concept of [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering), encompassing agglomerative techniques, became more widely recognized and applied across various scientific disciplines, building on the foundational work of the preceding decade.
+**1967** — The general concept of Hierarchical Clustering, encompassing agglomerative techniques, became more widely recognized and applied across various scientific disciplines, building on the foundational work of the preceding decade.
 
 **1969** — G. N. Lance and W. T. Williams proposed a general combinatorial formula for updating dissimilarities between clusters, known as the Lance-Williams formula, which unified many existing linkage methods.
 
-**1973** — Sneath and Sokal's comprehensive book 'Numerical Taxonomy' further systematized and popularized [Hierarchical Clustering](/algorithms/unsupervised/clustering/hierarchical-clustering) methods, including agglomerative techniques, for a broad scientific audience.
+**1973** — Sneath and Sokal's comprehensive book 'Numerical Taxonomy' further systematized and popularized Hierarchical Clustering methods, including agglomerative techniques, for a broad scientific audience.
 
 ## Mathematical Intuition
 
@@ -127,7 +127,7 @@ At each step, the algorithm identifies the two closest clusters based on the cho
 - Agglomerative clustering produces a hierarchy of clusters, allowing users to choose the number of clusters by cutting the dendrogram at an appropriate level.
 - It does not require specifying the number of clusters beforehand, offering flexibility in cluster discovery.
 - The dendrogram provides a rich visual representation of the data structure and relationships between clusters.
-- It can discover clusters of arbitrary shapes, unlike centroid-based methods like K-Means.
+- It can discover clusters of arbitrary shapes, unlike centroid-based methods like [K-Means](/algorithms/unsupervised/k-means).
 - Different linkage criteria allow for adaptation to various data characteristics and desired cluster definitions.
 - It is deterministic, meaning the same input will always produce the same output.
 

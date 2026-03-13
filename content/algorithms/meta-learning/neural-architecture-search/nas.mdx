@@ -25,11 +25,11 @@ related:
 
 ## Overview
 
-Neural Architecture Search (NAS) automates the design of neural network architectures, a task traditionally performed by human experts. It employs meta-learning techniques, often framed as a reinforcement learning problem, to efficiently explore a vast search space of possible network configurations. The goal is to discover architectures that achieve high performance on a target task while potentially optimizing for other criteria like latency or memory footprint. This approach significantly reduces the manual effort and domain expertise required for designing state-of-the-art deep learning models.
+Neural Architecture Search ([NAS](/algorithms/meta-learning/nas)) automates the design of neural network architectures, a task traditionally performed by human experts. It employs meta-learning techniques, often framed as a reinforcement learning problem, to efficiently explore a vast search space of possible network configurations. The goal is to discover architectures that achieve high performance on a target task while potentially optimizing for other criteria like latency or memory footprint. This approach significantly reduces the manual effort and domain expertise required for designing state-of-the-art deep learning models.
 
 ## History
 
-**2017** — Zoph and Le introduce the seminal work on NAS, using a [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) controller and reinforcement learning to generate neural network architectures, demonstrating competitive performance on image classification tasks.
+**2017** — Zoph and Le introduce the seminal work on NAS, using a [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) (RNN) controller and reinforcement learning to generate neural network architectures, demonstrating competitive performance on image classification tasks.
 
 **2018** — Pham et al. propose Efficient Neural Architecture Search (ENAS), which significantly reduces computational cost by forcing all child models to share parameters, allowing the controller to learn a better architecture more efficiently.
 
@@ -41,7 +41,7 @@ Neural Architecture Search (NAS) automates the design of neural network architec
 
 ### Search Space and Controller Policy
 
-The core idea of NAS is to define a search space $\mathcal{A}$ of possible neural network architectures. A controller, often a [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN), learns a policy $\pi(a|\theta)$ to sample an architecture $a \in \mathcal{A}$, where $\theta$ are the parameters of the controller. The architecture $a$ is typically represented as a sequence of operations or connections.
+The core idea of NAS is to define a search space $\mathcal{A}$ of possible neural network architectures. A controller, often a Recurrent Neural Network (RNN), learns a policy $\pi(a|\theta)$ to sample an architecture $a \in \mathcal{A}$, where $\theta$ are the parameters of the controller. The architecture $a$ is typically represented as a sequence of operations or connections.
 $$ \pi(a|\theta) = P(a_1, a_2, \dots, a_L | \theta) = \prod_{i=1}^L P(a_i | a_{<i}, \theta) $$
 where $a_i$ represents an architectural choice at step $i$, and $L$ is the length of the architecture description.
 
@@ -103,7 +103,7 @@ $$
 
 The problem of finding an optimal architecture can be formulated as a reinforcement learning task. The controller is the agent, an architecture $a$ is an action, and the validation performance $R(a)$ is the reward. The objective is to maximize the expected reward:
 $$ J(\theta) = E_{a \sim \pi(a|\theta)}[R(a)] $$
-The controller's parameters $\theta$ are updated using policy gradient methods, such as [REINFORCE](/algorithms/reinforcement/policy-gradient/reinforce). The gradient of the objective function with respect to $\theta$ is given by:
+The controller's parameters $\theta$ are updated using policy gradient methods, such as [REINFORCE](/algorithms/reinforcement/reinforce). The gradient of the objective function with respect to $\theta$ is given by:
 $$ \nabla_\theta J(\theta) = E_{a \sim \pi(a|\theta)}[\nabla_\theta \log \pi(a|\theta) R(a)] $$
 In practice, a baseline $b$ is often used to reduce variance:
 $$ \nabla_\theta J(\theta) \approx \frac{1}{M} \sum_{j=1}^M \nabla_\theta \log \pi(a_j|\theta) (R(a_j) - b) $$
@@ -226,7 +226,7 @@ Discovering highly accurate and efficient convolutional neural network architect
 
 ### Natural Language Processing
 
-Automating the design of recurrent or [Transformer](/algorithms/deep-learning/transformers/transformer)-based architectures for tasks like machine translation, text classification, and language modeling.
+Automating the design of recurrent or [Transformer](/algorithms/deep-learning/transformer)-based architectures for tasks like machine translation, text classification, and language modeling.
 
 ### Medical Imaging
 

@@ -32,21 +32,21 @@ Residual Networks (ResNets) address the vanishing gradient problem in very deep 
 
 ## History
 
-**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), developed by Krizhevsky et al., demonstrated the power of deep Convolutional Neural Networks (CNNs) on the ImageNet dataset, sparking renewed interest in deep learning.
+**2012** — [AlexNet](/algorithms/deep-learning/alexnet), developed by Krizhevsky et al., demonstrated the power of deep Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) on the ImageNet dataset, sparking renewed interest in deep learning.
 
-**2014** — VGG and GoogLeNet architectures pushed the boundaries of network depth, but also highlighted the challenges of training extremely deep models due to vanishing gradients and increased computational cost.
+**2014** — [VGG](/algorithms/deep-learning/vgg) and GoogLeNet architectures pushed the boundaries of network depth, but also highlighted the challenges of training extremely deep models due to vanishing gradients and increased computational cost.
 
 **2015** — He et al. introduced Residual Networks (ResNets) in "Deep Residual Learning for Image Recognition," proposing skip connections to enable the training of networks with unprecedented depth and achieving state-of-the-art results on ImageNet.
 
-**2016** — [ResNeXt](/algorithms/deep-learning/convolutional-networks/resnext), proposed by Xie et al., generalized the residual block by introducing "cardinality" through group convolutions, further improving performance and efficiency.
+**2016** — [ResNeXt](/algorithms/deep-learning/resnext), proposed by Xie et al., generalized the residual block by introducing "cardinality" through group convolutions, further improving performance and efficiency.
 
-**2017** — [DenseNet](/algorithms/deep-learning/convolutional-networks/densenet), introduced by Huang et al., explored an alternative connection strategy where each layer is connected to every other layer in a feed-forward fashion, building upon the idea of improved information flow.
+**2017** — [DenseNet](/algorithms/deep-learning/densenet), introduced by Huang et al., explored an alternative connection strategy where each layer is connected to every other layer in a feed-forward fashion, building upon the idea of improved information flow.
 
 ## Mathematical Intuition
 
 ### The Residual Function Concept
 
-Deep neural networks aim to learn a complex mapping $H(x)$ from an input $x$. As networks become deeper, directly optimizing $H(x)$ becomes challenging due to issues like vanishing gradients. ResNet proposes that instead of learning $H(x)$ directly, the network should learn a residual function $F(x) = H(x) - x$. The original mapping is then reformulated as $H(x) = F(x) + x$. The skip connection directly passes the input $x$ to the output of the block, allowing the stacked non-linear layers to learn the residual $F(x)$.
+Deep neural networks aim to learn a complex mapping $H(x)$ from an input $x$. As networks become deeper, directly optimizing $H(x)$ becomes challenging due to issues like vanishing gradients. [ResNet](/algorithms/deep-learning/resnet) proposes that instead of learning $H(x)$ directly, the network should learn a residual function $F(x) = H(x) - x$. The original mapping is then reformulated as $H(x) = F(x) + x$. The skip connection directly passes the input $x$ to the output of the block, allowing the stacked non-linear layers to learn the residual $F(x)$.
 
 $$
 H(x) = F(x, \{W_i\}) + x
@@ -75,7 +75,7 @@ $$
 3. For each training iteration, perform a forward pass: input data $x$ propagates through the network, including the residual connections, to produce an output prediction $\hat{y}$.
 4. Calculate the loss function $\mathcal{L}(\hat{y}, y)$ between the predicted output $\hat{y}$ and the true label $y$.
 5. Perform a backward pass (backpropagation) to compute the gradients of the loss function with respect to all network parameters, leveraging the direct gradient path provided by the skip connections.
-6. Update the network parameters using an optimization algorithm (e.g., Stochastic Gradient Descent, Adam) based on the computed gradients and a specified learning rate.
+6. Update the network parameters using an optimization algorithm (e.g., [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent), [Adam](/algorithms/meta-learning/adam)) based on the computed gradients and a specified learning rate.
 7. Repeat steps 3-6 for a predefined number of epochs or until convergence criteria are met.
 
 ## Parameters

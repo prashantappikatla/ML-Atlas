@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-[Gaussian Mixture Models](https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model) (GMMs) are probabilistic models that assume all data points are generated from a mixture of a finite number of Gaussian distributions with unknown parameters. They are used for density estimation and clustering, providing a more flexible approach than [K-Means](/algorithms/unsupervised/clustering/k-means) by assigning probabilities of belonging to each cluster rather than hard assignments. GMMs model the underlying distribution of the data, allowing for clusters of varying sizes, shapes, and orientations. The Expectation-Maximization (EM) algorithm is typically employed to estimate the model parameters.
+[Gaussian Mixture Models](https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model) (GMMs) are probabilistic models that assume all data points are generated from a mixture of a finite number of Gaussian distributions with unknown parameters. They are used for density estimation and clustering, providing a more flexible approach than [K-Means](/algorithms/unsupervised/k-means) by assigning probabilities of belonging to each cluster rather than hard assignments. GMMs model the underlying distribution of the data, allowing for clusters of varying sizes, shapes, and orientations. The Expectation-Maximization (EM) algorithm is typically employed to estimate the model parameters.
 
 ## History
 
@@ -47,7 +47,7 @@ related:
 
 ### Mixture Model Formulation
 
-A Gaussian Mixture Model assumes that the data $x$ is generated from a weighted sum of $K$ Gaussian distributions. The probability density function of a GMM for a data point $x$ is given by:
+A [Gaussian Mixture Model](/algorithms/unsupervised/gaussian-mixture-model) assumes that the data $x$ is generated from a weighted sum of $K$ Gaussian distributions. The probability density function of a GMM for a data point $x$ is given by:
 $$p(x | \theta) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x | \mu_k, \Sigma_k)$$
 Here, $\pi_k$ are the mixing coefficients (or prior probabilities) for each component $k$, satisfying $\sum_{k=1}^{K} \pi_k = 1$ and $\pi_k \ge 0$. $\mu_k$ are the mean vectors, and $\Sigma_k$ are the covariance matrices for each component $k$. The parameters $\theta = \{(\pi_k, \mu_k, \Sigma_k)\}_{k=1}^K$ are estimated from the data. The probability density function for a multivariate Gaussian distribution is:
 $$\mathcal{N}(x | \mu, \Sigma) = \frac{1}{\sqrt{(2\pi)^D |\Sigma|}} \exp\left(-\frac{1}{2}(x - \mu)^T \Sigma^{-1}(x - \mu)\right)$$

@@ -26,21 +26,21 @@ related:
 
 ## Overview
 
-A2C, or Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic), is a synchronous, on-policy reinforcement learning algorithm that combines policy-based and value-based methods. It trains an actor network to learn a policy for action selection and a critic network to estimate the value function, using the advantage estimate to guide policy updates. This approach aims to stabilize and accelerate learning compared to pure policy gradient methods by reducing variance in gradient estimates. A2C is often considered a more efficient, synchronous variant of the Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) algorithm.
+[A2C](/algorithms/reinforcement/a2c), or Advantage [Actor-Critic](/algorithms/reinforcement/actor-critic), is a synchronous, on-policy reinforcement learning algorithm that combines policy-based and value-based methods. It trains an actor network to learn a policy for action selection and a critic network to estimate the value function, using the advantage estimate to guide policy updates. This approach aims to stabilize and accelerate learning compared to pure policy gradient methods by reducing variance in gradient estimates. A2C is often considered a more efficient, synchronous variant of the Asynchronous Advantage Actor-Critic ([A3C](/algorithms/reinforcement/a3c)) algorithm.
 
 ## History
 
-**1999** — Richard S. Sutton and Andrew G. Barto formalized the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework in "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction," laying the theoretical foundation for combining policy and value estimation.
+**1999** — Richard S. Sutton and Andrew G. Barto formalized the Actor-Critic framework in "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction," laying the theoretical foundation for combining policy and value estimation.
 
-**2016** — DeepMind introduced Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A3C) in their paper "Asynchronous Methods for Deep Reinforcement Learning," demonstrating significant performance improvements and stability using multiple parallel agents.
+**2016** — DeepMind introduced Asynchronous Advantage Actor-Critic (A3C) in their paper "Asynchronous Methods for Deep Reinforcement Learning," demonstrating significant performance improvements and stability using multiple parallel agents.
 
-**2016** — Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) (A2C) emerged as a synchronous variant of A3C, often discussed in the same context, aggregating gradients from multiple parallel environments before performing a single, synchronous update.
+**2016** — Advantage Actor-Critic (A2C) emerged as a synchronous variant of A3C, often discussed in the same context, aggregating gradients from multiple parallel environments before performing a single, synchronous update.
 
 ## Mathematical Intuition
 
 ### Actor-Critic Framework Overview
 
-The [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework decomposes the reinforcement learning problem into two interacting components: an actor and a critic. The actor is responsible for learning a policy $\pi_\theta(a|s)$ that maps states to actions, parameterized by $\theta$. The critic learns a value function $V_\phi(s)$ or $Q_\phi(s,a)$, parameterized by $\phi$, which estimates the expected return from a given state or state-action pair. The critic's role is to evaluate the actor's actions, providing a signal to guide the actor's policy updates.
+The Actor-Critic framework decomposes the reinforcement learning problem into two interacting components: an actor and a critic. The actor is responsible for learning a policy $\pi_\theta(a|s)$ that maps states to actions, parameterized by $\theta$. The critic learns a value function $V_\phi(s)$ or $Q_\phi(s,a)$, parameterized by $\phi$, which estimates the expected return from a given state or state-action pair. The critic's role is to evaluate the actor's actions, providing a signal to guide the actor's policy updates.
 $$ \text{Actor: } \pi_\theta(a|s) $$
 $$ \text{Critic: } V_\phi(s) \text{ or } Q_\phi(s,a) $$
 
@@ -81,7 +81,7 @@ $$
 
 ### Entropy Regularization and Total Loss
 
-To encourage exploration and prevent premature convergence to suboptimal policies, an entropy bonus is often added to the policy loss, penalizing overly deterministic policies. The entropy loss $L_{entropy}(\theta)$ is typically subtracted from the total loss, effectively maximizing the entropy of the policy. The total loss for the [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) update combines these components with coefficients $c_1$ and $c_2$ to balance their contributions.
+To encourage exploration and prevent premature convergence to suboptimal policies, an entropy bonus is often added to the policy loss, penalizing overly deterministic policies. The entropy loss $L_{entropy}(\theta)$ is typically subtracted from the total loss, effectively maximizing the entropy of the policy. The total loss for the Actor-Critic update combines these components with coefficients $c_1$ and $c_2$ to balance their contributions.
 $$ L_{entropy}(\theta) = - \mathbb{E} \left[ H(\pi_\theta(\cdot|s)) \right] $$
 $$ L_{total} = L_{policy}(\theta) + c_1 L_{value}(\phi) + c_2 L_{entropy}(\theta) $$
 

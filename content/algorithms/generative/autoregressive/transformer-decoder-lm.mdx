@@ -28,23 +28,23 @@ related:
 
 ## Overview
 
-A [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder Language Model (LM) is an autoregressive neural network architecture designed for generating sequences of text, token by token. It leverages a stack of decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) blocks, each employing masked self-attention to ensure that predictions for a given position depend only on previous positions in the sequence. This architecture excels at capturing long-range dependencies and generating coherent, contextually relevant text, making it a cornerstone for modern large language models.
+A [Transformer](/algorithms/deep-learning/transformer) Decoder Language Model (LM) is an autoregressive neural network architecture designed for generating sequences of text, token by token. It leverages a stack of decoder-only Transformer blocks, each employing masked self-attention to ensure that predictions for a given position depend only on previous positions in the sequence. This architecture excels at capturing long-range dependencies and generating coherent, contextually relevant text, making it a cornerstone for modern large language models.
 
 ## History
 
-**2017** — Vaswani et al. introduced the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture in "Attention Is All You Need," which laid the foundation with its self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), replacing recurrent layers.
+**2017** — Vaswani et al. introduced the Transformer architecture in "Attention Is All You Need," which laid the foundation with its self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism), replacing recurrent layers.
 
-**2018** — Radford et al. introduced GPT-1 (Generative Pre-trained [Transformer](/algorithms/deep-learning/transformers/transformer)), adapting the decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) architecture for unsupervised pre-training on a large text corpus, demonstrating its effectiveness for language modeling.
+**2018** — Radford et al. introduced [GPT](/algorithms/deep-learning/gpt)-1 (Generative Pre-trained Transformer), adapting the decoder-only Transformer architecture for unsupervised pre-training on a large text corpus, demonstrating its effectiveness for language modeling.
 
-**2019** — OpenAI released GPT-2, a significantly larger [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM, showcasing improved text generation capabilities and the potential for zero-shot task performance without explicit fine-tuning.
+**2019** — OpenAI released GPT-2, a significantly larger [Transformer Decoder LM](/algorithms/generative/transformer-decoder-lm), showcasing improved text generation capabilities and the potential for zero-shot task performance without explicit fine-tuning.
 
-**2020** — GPT-3 was introduced, further scaling the decoder-only [Transformer](/algorithms/deep-learning/transformers/transformer) LM to 175 billion parameters, demonstrating remarkable few-shot learning abilities and setting new benchmarks for generative AI.
+**2020** — GPT-3 was introduced, further scaling the decoder-only Transformer LM to 175 billion parameters, demonstrating remarkable few-shot learning abilities and setting new benchmarks for generative AI.
 
 ## Mathematical Intuition
 
 ### Masked Self-Attention Mechanism
 
-The core of the [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM is the masked self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), which allows each token in a sequence to attend to all preceding tokens (including itself) to compute a weighted sum of their values. This masking is crucial for autoregressive generation, preventing information leakage from future tokens. For a given query $Q$, keys $K$, and values $V$, the scaled dot-product attention is calculated as:
+The core of the Transformer Decoder LM is the masked self-Attention Mechanism, which allows each token in a sequence to attend to all preceding tokens (including itself) to compute a weighted sum of their values. This masking is crucial for autoregressive generation, preventing information leakage from future tokens. For a given query $Q$, keys $K$, and values $V$, the scaled dot-product attention is calculated as:
 $$Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}} + M)V$$
 Here, $d_k$ is the dimension of the keys, and $M$ is the attention mask. The mask $M$ is a lower triangular matrix (or equivalent) where elements corresponding to future positions are set to $-\infty$ (or a very large negative number) before the softmax, effectively zeroing out their contribution.
 
@@ -54,7 +54,7 @@ $$
 
 ### Positional Encoding Integration
 
-Since the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture does not inherently process sequences in order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens. These encodings are typically sinusoidal functions, allowing the model to learn to attend to different positions based on their relative distance.
+Since the Transformer architecture does not inherently process sequences in order, positional encodings are added to the input embeddings to inject information about the relative or absolute position of tokens. These encodings are typically sinusoidal functions, allowing the model to learn to attend to different positions based on their relative distance.
 $$PE_{(pos, 2i)} = sin(pos / 10000^{2i/d_{model}})$$ 
 $$PE_{(pos, 2i+1)} = cos(pos / 10000^{2i/d_{model}})$$ 
 where $pos$ is the position, $i$ is the dimension index, and $d_{model}$ is the embedding dimension. The input to the first decoder layer is the sum of the token embedding and its corresponding positional encoding.
@@ -69,7 +69,7 @@ $$
 
 ### Decoder Block Structure
 
-A [Transformer](/algorithms/deep-learning/transformers/transformer) Decoder LM consists of a stack of identical decoder blocks. Each block typically contains two main sub-layers: a masked multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) and a position-wise feed-forward network. Both sub-layers are followed by a residual connection and layer normalization. The output of each sub-layer is $LayerNorm(x + Sublayer(x))$, where $Sublayer(x)$ is the function implemented by the sub-layer itself. The feed-forward network applies two linear transformations with a ReLU activation in between:
+A Transformer Decoder LM consists of a stack of identical decoder blocks. Each block typically contains two main sub-layers: a masked multi-head self-Attention Mechanism and a position-wise feed-forward network. Both sub-layers are followed by a residual connection and layer normalization. The output of each sub-layer is $LayerNorm(x + Sublayer(x))$, where $Sublayer(x)$ is the function implemented by the sub-layer itself. The feed-forward network applies two linear transformations with a ReLU activation in between:
 $$FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$$
 This structure allows the model to process information at different levels of abstraction and combine it effectively.
 
@@ -90,7 +90,7 @@ $$
 5. Next, apply a position-wise feed-forward network to the output of the attention sub-layer, also followed by a residual connection and layer normalization.
 6. After the final decoder layer, pass the output through a linear layer to project it to the vocabulary size.
 7. Apply a softmax function to the linear layer's output to obtain a probability distribution over the next possible token.
-8. During training, calculate the cross-entropy loss between the predicted probabilities and the actual next token, then use backpropagation and an optimizer (e.g., Adam) to update model weights.
+8. During training, calculate the cross-entropy loss between the predicted probabilities and the actual next token, then use backpropagation and an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to update model weights.
 
 ## Parameters
 

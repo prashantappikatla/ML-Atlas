@@ -28,23 +28,23 @@ related:
 
 ## Overview
 
-Twin Delayed Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (TD3) is an off-policy, model-free reinforcement learning algorithm designed for continuous action spaces. It addresses the overestimation bias commonly found in value-based methods by employing a clipped [Double [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)](/algorithms/reinforcement/model-free-value-methods/double-[Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning)) approach with twin Q-networks. TD3 further enhances stability and performance through delayed policy updates and target policy smoothing, making it a robust choice for complex control tasks.
+Twin Delayed Deep [Deterministic Policy Gradient](/algorithms/reinforcement/deterministic-policy-gradient) ([TD3](/algorithms/reinforcement/td3)) is an off-policy, model-free reinforcement learning algorithm designed for continuous action spaces. It addresses the overestimation bias commonly found in value-based methods by employing a clipped [Double Q-Learning](/algorithms/reinforcement/double-q-learning)) approach with twin Q-networks. TD3 further enhances stability and performance through delayed policy updates and target policy smoothing, making it a robust choice for complex control tasks.
 
 ## History
 
-**2015** — Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (DDPG) is introduced by Lillicrap et al., extending DQN to continuous action spaces and laying foundational work for [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) methods in this domain.
+**2015** — Deep Deterministic Policy Gradient ([DDPG](/algorithms/reinforcement/ddpg)) is introduced by Lillicrap et al., extending DQN to continuous action spaces and laying foundational work for [Actor-Critic](/algorithms/reinforcement/actor-critic) methods in this domain.
 
-**2016** — [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn) is introduced by Van Hasselt et al., addressing overestimation in DQN by decoupling action selection and evaluation, a concept that influences later algorithms like TD3.
+**2016** — [Double DQN](/algorithms/reinforcement/double-dqn) is introduced by Van Hasselt et al., addressing overestimation in DQN by decoupling action selection and evaluation, a concept that influences later algorithms like TD3.
 
-**2018** — [Soft [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)](/algorithms/reinforcement/policy-gradient/soft-[Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)) (SAC) is introduced by Haarnoja et al., an off-policy [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) algorithm that optimizes a stochastic policy with an entropy regularization term, offering an alternative approach to continuous control.
+**2018** — [Soft Actor-Critic](/algorithms/reinforcement/soft-actor-critic) (SAC) is introduced by Haarnoja et al., an off-policy Actor-Critic algorithm that optimizes a stochastic policy with an entropy regularization term, offering an alternative approach to continuous control.
 
-**2018** — Twin Delayed Deep [Deterministic Policy Gradient](/algorithms/reinforcement/policy-gradient/deterministic-policy-gradient) (TD3) is introduced by Fujimoto et al., building upon DDPG to mitigate Q-value overestimation and improve stability through several key innovations.
+**2018** — Twin Delayed Deep Deterministic Policy Gradient (TD3) is introduced by Fujimoto et al., building upon DDPG to mitigate Q-value overestimation and improve stability through several key innovations.
 
 ## Mathematical Intuition
 
 ### Actor-Critic Architecture
 
-TD3 operates within an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework, where an actor network, $\pi_\phi(s)$, maps states to actions, and a critic network, $Q_\theta(s, a)$, estimates the action-value function. The actor's goal is to maximize the expected return, while the critic learns to accurately predict the value of state-action pairs.
+TD3 operates within an Actor-Critic framework, where an actor network, $\pi_\phi(s)$, maps states to actions, and a critic network, $Q_\theta(s, a)$, estimates the action-value function. The actor's goal is to maximize the expected return, while the critic learns to accurately predict the value of state-action pairs.
 $$ \pi_\phi(s): \mathcal{S} \to \mathcal{A} $$
 $$ Q_\theta(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R} $$
 

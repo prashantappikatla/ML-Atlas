@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-GraphSAGE (SAmple and aggreGatE) is an inductive framework for generating node embeddings in large graphs. It learns a function that aggregates feature information from a node's local neighborhood, rather than training individual embeddings for each node. This approach enables it to generalize to unseen nodes and entire graphs, making it particularly suitable for dynamic and evolving graph structures. By sampling neighbors, GraphSAGE efficiently scales to graphs with millions of nodes and edges.
+[GraphSAGE](/algorithms/graph/graphsage) (SAmple and aggreGatE) is an inductive framework for generating node embeddings in large graphs. It learns a function that aggregates feature information from a node's local neighborhood, rather than training individual embeddings for each node. This approach enables it to generalize to unseen nodes and entire graphs, making it particularly suitable for dynamic and evolving graph structures. By sampling neighbors, GraphSAGE efficiently scales to graphs with millions of nodes and edges.
 
 ## History
 
@@ -56,7 +56,7 @@ $$
 
 ### Flexible Aggregation Functions
 
-After sampling, the sampled neighbor features are aggregated to form a single vector representation for the neighborhood. GraphSAGE proposes several differentiable aggregation functions, including mean aggregator, LSTM aggregator, and pooling aggregator. The mean aggregator computes the element-wise mean of the neighbor vectors, providing a simple yet effective way to combine information.
+After sampling, the sampled neighbor features are aggregated to form a single vector representation for the neighborhood. GraphSAGE proposes several differentiable aggregation functions, including mean aggregator, [LSTM](/algorithms/deep-learning/lstm) aggregator, and pooling aggregator. The mean aggregator computes the element-wise mean of the neighbor vectors, providing a simple yet effective way to combine information.
 
 $$
 \mathbf{h}_{\mathcal{N}(v)}^k = \text{AGGREGATE}_k(\{\mathbf{h}_u^{k-1}, \forall u \in \mathcal{N}(v)\})

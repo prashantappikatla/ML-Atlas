@@ -28,31 +28,31 @@ related:
 
 ## Overview
 
-Adam (Adaptive Moment Estimation) is an optimization algorithm widely used for training deep neural networks. It combines the advantages of [RMSProp](/algorithms/meta-learning/optimization/rmsprop) and [AdaGrad](/algorithms/meta-learning/optimization/adagrad) by computing adaptive learning rates for each parameter based on estimates of first and second moments of the gradients. This method efficiently handles sparse gradients and noisy problems, often leading to faster convergence and better generalization performance compared to traditional [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). Its robust performance across various tasks has made it a default choice for many deep learning applications.
+[Adam](/algorithms/meta-learning/adam) (Adaptive Moment Estimation) is an optimization algorithm widely used for training deep neural networks. It combines the advantages of [RMSProp](/algorithms/meta-learning/rmsprop) and [AdaGrad](/algorithms/meta-learning/adagrad) by computing adaptive learning rates for each parameter based on estimates of first and second moments of the gradients. This method efficiently handles sparse gradients and noisy problems, often leading to faster convergence and better generalization performance compared to traditional [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent). Its robust performance across various tasks has made it a default choice for many deep learning applications.
 
 ## History
 
-**2012** — [AdaGrad](/algorithms/meta-learning/optimization/adagrad) was introduced by Duchi, Hazan, and Singer, proposing per-parameter adaptive learning rates based on the sum of squared past gradients.
+**2012** — AdaGrad was introduced by Duchi, Hazan, and Singer, proposing per-parameter adaptive learning rates based on the sum of squared past gradients.
 
-**2012** — [RMSProp](/algorithms/meta-learning/optimization/rmsprop) was proposed by [Geoffrey Hinton](https://en.wikipedia.org/wiki/Geoffrey_Hinton) in a lecture, addressing [AdaGrad](/algorithms/meta-learning/optimization/adagrad)'s rapidly diminishing learning rates by using an exponentially decaying average of squared gradients.
+**2012** — RMSProp was proposed by [Geoffrey Hinton](https://en.wikipedia.org/wiki/Geoffrey_Hinton) in a lecture, addressing AdaGrad's rapidly diminishing learning rates by using an exponentially decaying average of squared gradients.
 
-**2013** — AdaDelta was introduced by Zeiler, further improving [AdaGrad](/algorithms/meta-learning/optimization/adagrad) by eliminating the need for a manually set global learning rate and using a ratio of exponentially decaying averages of squared gradients and squared parameter updates.
+**2013** — AdaDelta was introduced by Zeiler, further improving AdaGrad by eliminating the need for a manually set global learning rate and using a ratio of exponentially decaying averages of squared gradients and squared parameter updates.
 
-**2014** — Adam was introduced by Diederik P. Kingma and Jimmy Ba, combining the benefits of adaptive learning rates (from [AdaGrad](/algorithms/meta-learning/optimization/adagrad)/[RMSProp](/algorithms/meta-learning/optimization/rmsprop)) with [Momentum](/algorithms/meta-learning/optimization/momentum), using exponential moving averages of both the first and second moments of gradients.
+**2014** — Adam was introduced by Diederik P. Kingma and Jimmy Ba, combining the benefits of adaptive learning rates (from AdaGrad/RMSProp) with [Momentum](/algorithms/meta-learning/momentum), using exponential moving averages of both the first and second moments of gradients.
 
-**2015** — Nadam (Nesterov-accelerated Adaptive Moment Estimation) was proposed by Timothy Dozat, integrating Nesterov [Momentum](/algorithms/meta-learning/optimization/momentum) into the Adam optimization algorithm.
+**2015** — Nadam (Nesterov-accelerated Adaptive Moment Estimation) was proposed by Timothy Dozat, integrating Nesterov Momentum into the Adam optimization algorithm.
 
-**2017** — [AdamW](/algorithms/meta-learning/optimization/adamw) was introduced by Ilya Loshchilov and Frank Hutter, decoupling weight decay from the Adam update rule, which was shown to improve regularization and generalization performance.
+**2017** — [AdamW](/algorithms/meta-learning/adamw) was introduced by Ilya Loshchilov and Frank Hutter, decoupling weight decay from the Adam update rule, which was shown to improve regularization and generalization performance.
 
 ## Mathematical Intuition
 
 ### Adaptive Learning Rates and Momentum
 
-Adam leverages adaptive learning rates, meaning the step size for each parameter is adjusted dynamically based on its historical gradients. It also incorporates [Momentum](/algorithms/meta-learning/optimization/momentum), which helps accelerate convergence in relevant directions and dampens oscillations. This combination aims to achieve efficient optimization across various loss landscapes by maintaining separate learning rates for each parameter.
+Adam leverages adaptive learning rates, meaning the step size for each parameter is adjusted dynamically based on its historical gradients. It also incorporates Momentum, which helps accelerate convergence in relevant directions and dampens oscillations. This combination aims to achieve efficient optimization across various loss landscapes by maintaining separate learning rates for each parameter.
 
 ### First Moment Estimate (Mean)
 
-Adam maintains an exponentially decaying average of past gradients, known as the first moment estimate. This is analogous to [Momentum](/algorithms/meta-learning/optimization/momentum) in [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). For a gradient $g_t$ at time step $t$, the first moment vector $m_t$ is updated as:
+Adam maintains an exponentially decaying average of past gradients, known as the first moment estimate. This is analogous to Momentum in Stochastic [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent). For a gradient $g_t$ at time step $t$, the first moment vector $m_t$ is updated as:
 
 $$
 $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
@@ -60,7 +60,7 @@ $$
 
 ### Second Moment Estimate (Variance)
 
-Adam also keeps an exponentially decaying average of past squared gradients, which serves as the second moment estimate. This provides an adaptive learning rate component similar to [RMSProp](/algorithms/meta-learning/optimization/rmsprop). The second moment vector $v_t$ is updated as:
+Adam also keeps an exponentially decaying average of past squared gradients, which serves as the second moment estimate. This provides an adaptive learning rate component similar to RMSProp. The second moment vector $v_t$ is updated as:
 
 $$
 $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
@@ -103,10 +103,10 @@ $$
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
 | `learning_rate` | `float` | `0.001` | (0, inf) | The step size for parameter updates, controlling the magnitude of changes made to the model's weights. |
-| `beta_1` | `float` | `0.9` | [0, 1) | Exponential decay rate for the first moment estimates (mean of gradients), influencing the momentum component. |
-| `beta_2` | `float` | `0.999` | [0, 1) | Exponential decay rate for the second moment estimates (uncentered variance of gradients), influencing the adaptive learning rate component. |
+| `beta_1` | `float` | `0.9` | 0, 1) | Exponential decay rate for the first moment estimates (mean of gradients), influencing the momentum component. |
+| `beta_2` | `float` | `0.999` | 0, 1) | Exponential decay rate for the second moment estimates (uncentered variance of gradients), influencing the adaptive learning rate component. |
 | `epsilon` | `float` | `1e-08` | (0, inf) | A small constant added to the denominator for numerical stability, preventing division by zero. |
-| `weight_decay` | `float` | `0.0` | [0, inf) | L2 regularization term applied to the weights, often decoupled from the Adam update in AdamW variants. |
+| `weight_decay` | `float` | `0.0` | 0, inf) | L2 regularization term applied to the weights, often decoupled from the Adam update in AdamW variants. |
 | `amsgrad` | `boolean` | `False` | True, False | Whether to apply the AMSGrad variant of Adam, which aims to prevent the effective learning rate from decreasing too rapidly. |
 
 ## Compatibility
@@ -143,7 +143,7 @@ Training convolutional neural networks (CNNs) for image classification, object d
 
 ### Natural Language Processing
 
-Optimizing recurrent neural networks (RNNs), LSTMs, and [Transformer](/algorithms/deep-learning/transformers/transformer) models for tasks like machine translation, text generation, and sentiment analysis.
+Optimizing recurrent neural networks (RNNs), LSTMs, and [[[[Transformer](/algorithms/deep-learning/transformer) models for tasks like machine translation, text generation, and sentiment analysis.
 
 ### Speech Recognition
 
@@ -151,7 +151,7 @@ Training deep learning models for acoustic modeling and speech-to-text systems, 
 
 ### Reinforcement Learning
 
-Optimizing policy networks and value functions in various reinforcement learning algorithms, such as Deep Q-Networks (DQN) and Proximal Policy Optimization (PPO).
+Optimizing policy networks and value functions in various reinforcement learning algorithms, such as Deep Q-Networks (DQN) and Proximal Policy Optimization ([PPO](/algorithms/reinforcement/ppo)).
 
 ### Generative Models
 

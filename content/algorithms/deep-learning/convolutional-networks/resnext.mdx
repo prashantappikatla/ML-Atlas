@@ -27,17 +27,17 @@ related:
 
 ## Overview
 
-ResNeXt is a convolutional neural network architecture that introduces the concept of "cardinality" to improve model accuracy and efficiency. It achieves this by employing grouped convolutions within its residual blocks, effectively creating multiple parallel paths for feature extraction. This design allows for a simpler, more homogeneous architecture compared to Inception-style networks while scaling performance by increasing the number of parallel branches rather than depth or width.
+[ResNeXt](/algorithms/deep-learning/resnext) is a convolutional neural network architecture that introduces the concept of "cardinality" to improve model accuracy and efficiency. It achieves this by employing grouped convolutions within its residual blocks, effectively creating multiple parallel paths for feature extraction. This design allows for a simpler, more homogeneous architecture compared to Inception-style networks while scaling performance by increasing the number of parallel branches rather than depth or width.
 
 ## History
 
-**2015** — Microsoft Research Asia introduced [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) (Residual Network), which revolutionized deep learning by enabling the training of very deep networks through the use of residual connections.
+**2015** — Microsoft Research Asia introduced [ResNet](/algorithms/deep-learning/resnet) (Residual Network), which revolutionized deep learning by enabling the training of very deep networks through the use of residual connections.
 
-**2016** — Google introduced Inception-[ResNet](/algorithms/deep-learning/convolutional-networks/resnet), combining the multi-branch architecture of Inception modules with the residual connections of [ResNet](/algorithms/deep-learning/convolutional-networks/resnet), further improving performance.
+**2016** — Google introduced Inception-ResNet, combining the multi-branch architecture of Inception modules with the residual connections of ResNet, further improving performance.
 
 **2016** — François Chollet introduced Xception, which explored depthwise separable convolutions, a concept related to grouped convolutions, for efficient feature learning.
 
-**2017** — Saining Xie, Ross Girshick, Kaiming He, Piotr Dollár, and Ali Farhadi published "Aggregated Residual Transformations for Deep Neural Networks," introducing ResNeXt and the concept of cardinality.
+**2017** — Saining Xie, Ross Girshick, Kaiming He, Piotr Dollár, and Ali Farhadi published "Aggregated Residual Transformations for Deep [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)))," introducing ResNeXt and the concept of cardinality.
 
 ## Mathematical Intuition
 
@@ -51,7 +51,7 @@ $$
 
 ### ResNeXt Block Structure
 
-A ResNeXt block adapts the bottleneck design of [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) by replacing the standard $3 \times 3$ convolution with a grouped $3 \times 3$ convolution. Specifically, it uses a $1 \times 1$ convolution to reduce dimensions, followed by a $3 \times 3$ grouped convolution with a specified cardinality, and then another $1 \times 1$ convolution to restore dimensions. This entire transformation is then added to the input via a residual connection, forming the core building block.
+A ResNeXt block adapts the bottleneck design of ResNet by replacing the standard $3 \times 3$ convolution with a grouped $3 \times 3$ convolution. Specifically, it uses a $1 \times 1$ convolution to reduce dimensions, followed by a $3 \times 3$ grouped convolution with a specified cardinality, and then another $1 \times 1$ convolution to restore dimensions. This entire transformation is then added to the input via a residual connection, forming the core building block.
 
 $$
 y = x + \mathcal{F}(x)
@@ -76,7 +76,7 @@ $$
 3. Construct the full ResNeXt network by stacking multiple ResNeXt blocks, typically organized into stages with downsampling layers (e.g., strided convolutions) between stages to reduce spatial dimensions.
 4. Initialize the network's weights, often using pre-trained weights from a large dataset like ImageNet for transfer learning to accelerate convergence and improve performance.
 5. Define a loss function, such as cross-entropy for classification tasks, to quantify the difference between the model's predictions and the true labels.
-6. Choose an optimization algorithm, such as Stochastic Gradient Descent (SGD) with momentum or Adam, to update the network weights by minimizing the loss function.
+6. Choose an optimization algorithm, such as [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) (SGD) with momentum or [Adam](/algorithms/meta-learning/adam), to update the network weights by minimizing the loss function.
 7. Iteratively feed batches of training data through the network, compute the loss, and perform backpropagation to calculate gradients and update weights.
 8. Evaluate the model's performance on a separate validation set during training and a test set after training, using metrics like accuracy, precision, recall, or F1-score.
 

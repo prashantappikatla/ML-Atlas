@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-UMAP (Uniform Manifold Approximation and Projection) is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data while preserving its essential topological structure. It models the data as a fuzzy simplicial set and then optimizes a low-dimensional representation to minimize the cross-entropy between the high-dimensional and low-dimensional topological structures. UMAP is particularly effective for visualization and exploratory data analysis, often producing more compact and separated clusters than [t-SNE](/algorithms/unsupervised/dimensionality-reduction/t-sne) while being computationally more efficient.
+[UMAP](/algorithms/unsupervised/umap) (Uniform Manifold Approximation and Projection) is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data while preserving its essential topological structure. It models the data as a fuzzy simplicial set and then optimizes a low-dimensional representation to minimize the cross-entropy between the high-dimensional and low-dimensional topological structures. UMAP is particularly effective for visualization and exploratory data analysis, often producing more compact and separated clusters than [t-SNE](/algorithms/unsupervised/t-sne) while being computationally more efficient.
 
 ## History
 
@@ -80,7 +80,7 @@ $$
 1. For each data point $x_i$ in the high-dimensional space, identify its $k$-nearest neighbors based on a chosen distance metric.
 2. Compute a local connectivity measure for each point, including the distance to its first nearest neighbor $\rho_i$ and a local scale $\sigma_i$, which normalizes distances within its neighborhood.
 3. Construct a weighted graph (fuzzy simplicial set) in the high-dimensional space where edge weights $p_{ij}$ represent the probability of connection between points $x_i$ and $x_j$, derived from their distances and local scales.
-4. Initialize the low-dimensional embedding of the data points, often randomly or using a spectral embedding method like PCA.
+4. Initialize the low-dimensional embedding of the data points, often randomly or using a spectral embedding method like [PCA](/algorithms/unsupervised/pca).
 5. Construct a weighted graph in the low-dimensional space, where edge weights $q_{ij}$ represent the probability of connection between embedded points $y_i$ and $y_j$, typically using a parameterized Student's t-distribution-like kernel.
 6. Optimize the low-dimensional embedding by minimizing the cross-entropy between the high-dimensional fuzzy simplicial set ($p_{ij}$) and the low-dimensional one ($q_{ij}$) using stochastic gradient descent.
 7. Iteratively adjust the positions of the embedded points to better match the topological structure of the high-dimensional data, pushing connected points closer and disconnected points further apart.

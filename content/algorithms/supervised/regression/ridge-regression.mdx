@@ -27,11 +27,11 @@ related:
 
 ## Overview
 
-Ridge Regression is a [Linear Regression](/algorithms/supervised/regression/linear-regression) technique designed to address the problem of multicollinearity and overfitting in models with many features. It achieves this by adding an L2 regularization term to the ordinary least squares (OLS) cost function, penalizing large coefficients. This penalty shrinks the regression coefficients towards zero, improving the model's generalization performance and stability. Unlike [Lasso Regression](/algorithms/supervised/regression/lasso-regression), Ridge Regression does not perform feature selection, as coefficients are shrunk but rarely become exactly zero.
+[Ridge Regression](/algorithms/supervised/ridge-regression) is a [Linear Regression](/algorithms/supervised/linear-regression) technique designed to address the problem of multicollinearity and overfitting in models with many features. It achieves this by adding an L2 regularization term to the ordinary least squares (OLS) cost function, penalizing large coefficients. This penalty shrinks the regression coefficients towards zero, improving the model's generalization performance and stability. Unlike [Lasso Regression](/algorithms/supervised/lasso-regression), Ridge Regression does not perform feature selection, as coefficients are shrunk but rarely become exactly zero.
 
 ## History
 
-**1970** — [Arthur Hoerl](https://en.wikipedia.org/wiki/Ridge_regression) and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduced Ridge Regression in their seminal paper "Ridge Regression: [Biased Estimation](https://en.wikipedia.org/wiki/Bias_of_an_estimator) for Nonorthogonal Problems," proposing it as a solution to multicollinearity in [Linear Regression](/algorithms/supervised/regression/linear-regression).
+**1970** — Arthur Hoerl and [Robert Kennard](https://en.wikipedia.org/wiki/Ridge_regression) introduced Ridge Regression in their seminal paper "Ridge Regression: [Biased Estimation](https://en.wikipedia.org/wiki/Bias_of_an_estimator) for Nonorthogonal Problems," proposing it as a solution to multicollinearity in Linear Regression.
 
 **1970** — Hoerl and Kennard published a follow-up paper, "Ridge Regression: Applications to Nonorthogonal Problems," demonstrating practical applications and further solidifying the method's theoretical basis.
 
@@ -39,9 +39,9 @@ Ridge Regression is a [Linear Regression](/algorithms/supervised/regression/line
 
 **1980** — Ridge Regression became widely adopted in statistical software packages, making it accessible for practitioners to mitigate issues arising from ill-conditioned design matrices.
 
-**1996** — The introduction of [Lasso Regression](/algorithms/supervised/regression/lasso-regression) by Tibshirani provided an alternative L1 regularization approach, leading to comparative studies and a deeper understanding of the properties of L1 versus L2 penalties.
+**1996** — The introduction of Lasso Regression by Tibshirani provided an alternative L1 regularization approach, leading to comparative studies and a deeper understanding of the properties of L1 versus L2 penalties.
 
-**2005** — The [Elastic Net](/algorithms/supervised/regression/elastic-net) regularization method, combining L1 and L2 penalties, was introduced by Zou and Hastie, further generalizing the concepts of Ridge and [Lasso Regression](/algorithms/supervised/regression/lasso-regression).
+**2005** — The [Elastic Net](/algorithms/supervised/elastic-net) regularization method, combining L1 and L2 penalties, was introduced by Zou and Hastie, further generalizing the concepts of Ridge and Lasso Regression.
 
 ## Mathematical Intuition
 

@@ -36,7 +36,7 @@ Temporal Difference (TD) learning is a class of model-free reinforcement learnin
 
 **1998** — The publication of "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction" by Sutton and Barto widely popularized TD learning and its variants, establishing it as a foundational concept in the field.
 
-**2013** — Deep Q-Networks (DQN) by Mnih et al. demonstrated the successful integration of [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) (a TD control method) with deep neural networks, enabling TD methods to tackle high-dimensional state spaces like those in Atari games.
+**2013** — Deep Q-Networks (DQN) by Mnih et al. demonstrated the successful integration of [Q-Learning](/algorithms/reinforcement/q-learning) (a TD control method) with deep neural networks, enabling TD methods to tackle high-dimensional state spaces like those in Atari games.
 
 ## Mathematical Intuition
 
@@ -145,8 +145,8 @@ $$
 | `alpha` | `float` | `0.1` | (0.0, 1.0] | The learning rate, controlling the step size at which the value function estimates are updated. |
 | `gamma` | `float` | `0.99` | [0.0, 1.0] | The discount factor, determining the present value of future rewards. A higher gamma gives more weight to future rewards. |
 | `lambda` | `float` | `0.9` | [0.0, 1.0] | The trace decay parameter for eligibility traces in TD($\lambda$), controlling how quickly the influence of past states decays. |
-| `n_episodes` | `int` | `1000` | [1, inf) | The total number of episodes to run for training the agent. |
-| `max_steps_per_episode` | `int` | `100` | [1, inf) | The maximum number of steps allowed within a single episode before it is terminated. |
+| `n_episodes` | `int` | `1000` | 1, inf) | The total number of episodes to run for training the agent. |
+| `max_steps_per_episode` | `int` | `100` | 1, inf) | The maximum number of steps allowed within a single episode before it is terminated. |
 
 ## Compatibility
 
@@ -218,7 +218,7 @@ Training self-driving cars to make decisions in real-time, such as lane changes 
 
 ## Lab
 
-<LabEmbed url={""} title="Temporal Difference Learning Lab" />
+<LabEmbed url={""} title="[[[Temporal Difference Learning](/algorithms/reinforcement/temporal-difference-learning) Lab" />
 
 ## References
 

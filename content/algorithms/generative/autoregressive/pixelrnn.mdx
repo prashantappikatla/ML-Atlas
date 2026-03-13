@@ -29,15 +29,15 @@ related:
 
 ## Overview
 
-PixelRNN is a generative model designed to model the distribution of natural images by predicting pixels one by one in a fixed scanline order. It leverages recurrent neural networks, specifically LSTMs, combined with masked convolutions to ensure that the prediction for each pixel only depends on previously generated pixels. This autoregressive approach allows for the exact computation of the image likelihood, enabling high-fidelity image generation and density estimation.
+[PixelRNN](/algorithms/generative/pixelrnn) is a generative model designed to model the distribution of natural images by predicting pixels one by one in a fixed scanline order. It leverages recurrent neural networks, specifically LSTMs, combined with masked convolutions to ensure that the prediction for each pixel only depends on previously generated pixels. This autoregressive approach allows for the exact computation of the image likelihood, enabling high-fidelity image generation and density estimation.
 
 ## History
 
-**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu introduce PixelRNN in "Pixel Recurrent Neural Networks", demonstrating its ability to generate high-quality images and achieve state-of-the-art likelihoods on benchmark datasets.
+**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu introduce PixelRNN in "Pixel Recurrent [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)))", demonstrating its ability to generate high-quality images and achieve state-of-the-art likelihoods on benchmark datasets.
 
-**2016** — Concurrent work by van den Oord et al. also introduces [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), a convolutional alternative to PixelRNN, which addresses some of PixelRNN's computational bottlenecks while maintaining autoregressive properties.
+**2016** — Concurrent work by van den Oord et al. also introduces [PixelCNN](/algorithms/generative/pixelcnn), a convolutional alternative to PixelRNN, which addresses some of PixelRNN's computational bottlenecks while maintaining autoregressive properties.
 
-**2017** — Gated [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), an improvement over [PixelCNN](/algorithms/generative/autoregressive/pixelcnn), is introduced, further enhancing the quality and speed of autoregressive image generation by using gated activation units.
+**2017** — Gated PixelCNN, an improvement over PixelCNN, is introduced, further enhancing the quality and speed of autoregressive image generation by using gated activation units.
 
 ## Mathematical Intuition
 
@@ -61,13 +61,13 @@ To enforce the autoregressive property, PixelRNN employs masked convolutions. Th
 
 ### Recurrent Layers for Dependencies
 
-PixelRNN utilizes recurrent neural networks, specifically LSTMs, to capture long-range spatial dependencies across the image. The model processes the image pixel by pixel, or row by row, with the hidden state of the RNN propagating information from previously processed regions. This allows the model to build a comprehensive context for predicting the current pixel, which is particularly effective for capturing global structures and textures in images. The original PixelRNN used a "Diagonal [BiLSTM](/algorithms/deep-learning/sequence-models/bilstm)" or "Row LSTM" architecture to efficiently propagate information.
+PixelRNN utilizes recurrent neural networks, specifically LSTMs, to capture long-range spatial dependencies across the image. The model processes the image pixel by pixel, or row by row, with the hidden state of the RNN propagating information from previously processed regions. This allows the model to build a comprehensive context for predicting the current pixel, which is particularly effective for capturing global structures and textures in images. The original PixelRNN used a "Diagonal [BiLSTM](/algorithms/deep-learning/bilstm)" or "Row [LSTM](/algorithms/deep-learning/lstm)" architecture to efficiently propagate information.
 
 ### Loss Function and Optimization
 
 The training objective for PixelRNN is to maximize the log-likelihood of the training data. Given the autoregressive decomposition, this translates to minimizing the negative log-likelihood, which is equivalent to minimizing the cross-entropy loss for each pixel's predicted probability distribution against its true value. For discrete pixel values (e.g., 256 possible values per channel), a softmax output layer is used to predict the probability distribution over these values, and the loss is:
 $$L = -\sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})$$
-Optimization is typically performed using [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent) variants like Adam.
+Optimization is typically performed using [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) variants like [Adam](/algorithms/meta-learning/adam).
 
 $$
 L = -\sum_{i=1}^{N} \log P(x_i | x_1, ..., x_{i-1})

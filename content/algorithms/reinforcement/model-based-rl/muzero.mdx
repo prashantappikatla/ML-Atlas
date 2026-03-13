@@ -22,7 +22,7 @@ related: []
 
 ## Overview
 
-MuZero is a reinforcement learning algorithm that achieves superhuman performance in complex environments by learning a model of the environment's dynamics and rewards without explicit knowledge of its rules. It combines a learned latent state representation with a [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) (MCTS) planning procedure. Distinctively, MuZero learns to predict only the information relevant for planning: the immediate reward, the value of the state, and the policy, rather than predicting the full next observation.
+[MuZero](/algorithms/reinforcement/muzero) is a reinforcement learning algorithm that achieves superhuman performance in complex environments by learning a model of the environment's dynamics and rewards without explicit knowledge of its rules. It combines a learned latent state representation with a [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) (MCTS) planning procedure. Distinctively, MuZero learns to predict only the information relevant for planning: the immediate reward, the value of the state, and the policy, rather than predicting the full next observation.
 
 ## History
 
@@ -54,7 +54,7 @@ $$
 
 ### Monte Carlo Tree Search
 
-MuZero employs Monte Carlo Tree Search (MCTS) to plan actions. During MCTS, the learned dynamics function $h$ is used to simulate future trajectories in the latent space, and the prediction function $f$ evaluates leaf nodes. Each node in the search tree stores visit counts $N(s,a)$, total action value $W(s,a)$, and mean action value $Q(s,a)$. Actions are selected using an Upper Confidence Bound (UCB) formula, often $Q(s,a) + c_{puct} P(s,a) \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)}$, where $P(s,a)$ is the prior probability from the policy network $p_t$. After simulations, the MCTS outputs an improved policy $\pi_t$ and a target value $z_t$ for the current state.
+MuZero employs Monte Carlo Tree Search (MCTS) to plan actions. During MCTS, the learned dynamics function $h$ is used to simulate future trajectories in the latent space, and the prediction function $f$ evaluates leaf nodes. Each node in the search tree stores visit counts $N(s,a)$, total action value $W(s,a)$, and mean action value $Q(s,a)$. Actions are selected using an Upper Confidence Bound ([UCB](/algorithms/reinforcement/ucb)) formula, often $Q(s,a) + c_{puct} P(s,a) \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)}$, where $P(s,a)$ is the prior probability from the policy network $p_t$. After simulations, the MCTS outputs an improved policy $\pi_t$ and a target value $z_t$ for the current state.
 
 $$
 Q(s,a) + c_{puct} P(s,a) \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)}
@@ -90,7 +90,7 @@ $$
 6. Store the experience tuple $(o_t, a_t, r_{t+1}, \pi_t, z_t)$ in a replay buffer.
 7. For a specified number of training iterations, sample a batch of experience tuples from the replay buffer.
 8. For each sampled experience, unroll $K$ steps in the latent space, computing predicted values $v_k$, policies $p_k$, and rewards $u_k$ using $f$ and $h$, and calculate the combined loss against the MCTS targets $z_k$, $\pi_k$, and actual rewards $r_k$.
-9. Update the weights of networks $g, h, f$ using an optimizer (e.g., Adam) to minimize the total loss.
+9. Update the weights of networks $g, h, f$ using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the total loss.
 
 ## Parameters
 

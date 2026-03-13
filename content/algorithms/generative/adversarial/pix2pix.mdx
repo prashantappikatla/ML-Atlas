@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Pix2Pix is a conditional [Generative Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network) (cGAN) that learns a mapping from an input image to an output image. It excels at image-to-image translation tasks, where the goal is to transform an image from one domain to another while preserving key structural and semantic information. The model leverages a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net)-based generator and a PatchGAN discriminator to produce high-quality, realistic output images conditioned on the input. Its core innovation lies in demonstrating the effectiveness of cGANs for diverse image translation problems using a unified framework.
+[Pix2Pix](/algorithms/generative/pix2pix) is a conditional Generative Adversarial Network (cGAN) that learns a mapping from an input image to an output image. It excels at image-to-image translation tasks, where the goal is to transform an image from one domain to another while preserving key structural and semantic information. The model leverages a [U-Net](/algorithms/deep-learning/u-net)-based generator and a PatchGAN discriminator to produce high-quality, realistic output images conditioned on the input. Its core innovation lies in demonstrating the effectiveness of cGANs for diverse image translation problems using a unified framework.
 
 ## History
 
@@ -33,11 +33,11 @@ Pix2Pix is a conditional [Generative Adversarial Network](https://en.wikipedia.o
 
 **2014** — Mirza and Osindero introduce Conditional Generative Adversarial Networks (cGANs), extending GANs to allow the generation process to be guided by additional information.
 
-**2015** — Olaf Ronneberger, Philipp Fischer, and Thomas Brox introduce [U-Net](/algorithms/deep-learning/convolutional-networks/u-net), a convolutional network architecture for biomedical image segmentation, which later became a popular choice for image-to-image translation generators due to its skip connections.
+**2015** — Olaf Ronneberger, Philipp Fischer, and Thomas Brox introduce U-Net, a convolutional network architecture for biomedical image segmentation, which later became a popular choice for image-to-image translation generators due to its skip connections.
 
-**2017** — Phillip Isola, Jun-Yan Zhu, Tinghui Zhou, and Alexei A. Efros publish "Image-to-Image Translation with Conditional Adversarial Networks" (Pix2Pix), demonstrating effective image translation using cGANs with a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) generator and PatchGAN discriminator.
+**2017** — Phillip Isola, Jun-Yan Zhu, Tinghui Zhou, and Alexei A. Efros publish "Image-to-Image Translation with Conditional Adversarial Networks" (Pix2Pix), demonstrating effective image translation using cGANs with a U-Net generator and PatchGAN discriminator.
 
-**2017** — Jun-Yan Zhu et al. introduce [CycleGAN](/algorithms/generative/adversarial/cyclegan), extending image-to-image translation to unpaired datasets, building upon the success and insights gained from Pix2Pix.
+**2017** — Jun-Yan Zhu et al. introduce [CycleGAN](/algorithms/generative/cyclegan), extending image-to-image translation to unpaired datasets, building upon the success and insights gained from Pix2Pix.
 
 ## Mathematical Intuition
 
@@ -53,7 +53,7 @@ $$
 
 ### Generator Architecture: U-Net
 
-The generator in Pix2Pix employs a [U-Net](/algorithms/deep-learning/convolutional-networks/u-net) architecture. This encoder-decoder structure is characterized by skip connections that directly link layers from the encoder to corresponding layers in the decoder. These connections allow the generator to bypass information across different scales, providing fine-grained details from the input to the output. Specifically, the $i$-th layer in the encoder is concatenated with the $i$-th layer in the decoder, which helps in preserving high-resolution information that might otherwise be lost during downsampling.
+The generator in Pix2Pix employs a U-Net architecture. This encoder-decoder structure is characterized by skip connections that directly link layers from the encoder to corresponding layers in the decoder. These connections allow the generator to bypass information across different scales, providing fine-grained details from the input to the output. Specifically, the $i$-th layer in the encoder is concatenated with the $i$-th layer in the decoder, which helps in preserving high-resolution information that might otherwise be lost during downsampling.
 
 ### Discriminator Architecture: PatchGAN
 
@@ -63,7 +63,7 @@ Instead of classifying an entire image as real or fake, Pix2Pix uses a PatchGAN 
 
 To ensure that the generated images are not only realistic but also structurally similar to the target images, Pix2Pix combines the cGAN adversarial loss with an L1 loss (Mean Absolute Error). The L1 loss measures the pixel-wise difference between the generated image $G(x)$ and the ground truth image $y$. The full objective function is:
 $$ \mathcal{L}(G, D) = \mathcal{L}_{cGAN}(G, D) + \lambda \mathcal{L}_{L1}(G) $$
-where $\mathcal{L}_{L1}(G) = \mathbb{E}_{x, y \sim p_{data}(x, y)}[\|y - G(x)\|_1]$. The hyperparameter $\lambda$ controls the weight of the L1 term, balancing the realism enforced by the GAN loss with the pixel-wise accuracy enforced by the L1 loss.
+where $\mathcal{L}_{L1}(G) = \mathbb{E}_{x, y \sim p_{data}(x, y)}[\|y - G(x)\|_1]$. The hyperparameter $\lambda$ controls the weight of the L1 term, balancing the realism enforced by the [GAN](/algorithms/generative/gan) loss with the pixel-wise accuracy enforced by the L1 loss.
 
 $$
 \mathcal{L}(G, D) = \mathcal{L}_{cGAN}(G, D) + \lambda \mathcal{L}_{L1}(G)
@@ -90,7 +90,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `learning_rate` | `Python float` | `0.0002` | positive float | The learning rate for the Adam optimizer used for both generator and discriminator. |
+| `learning_rate` | `Python float` | `0.0002` | positive float | The learning rate for the [Adam](/algorithms/meta-learning/adam) optimizer used for both generator and discriminator. |
 | `beta1` | `Python float` | `0.5` | 0.0 to 1.0 | The exponential decay rate for the first moment estimates in the Adam optimizer. |
 | `lambda_l1` | `Python float` | `100.0` | positive float | Weight for the L1 reconstruction loss term in the generator's objective function, balancing adversarial and reconstruction losses. |
 | `batch_size` | `Python int` | `1` | positive integer | Number of images processed in each training iteration. |

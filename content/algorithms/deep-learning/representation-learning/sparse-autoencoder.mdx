@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Sparse Autoencoders are a type of unsupervised neural network designed to learn efficient, sparse representations of input data. They achieve this by training an [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) with an additional sparsity constraint on the hidden layer activations, forcing only a small subset of neurons to be active for any given input. This encourages the network to discover salient features and disentangled representations, making them effective for dimensionality reduction and feature learning.
+Sparse Autoencoders are a type of unsupervised neural network designed to learn efficient, sparse representations of input data. They achieve this by training an [Autoencoder](/algorithms/deep-learning/autoencoder) with an additional sparsity constraint on the hidden layer activations, forcing only a small subset of neurons to be active for any given input. This encourages the network to discover salient features and disentangled representations, making them effective for dimensionality reduction and feature learning.
 
 ## History
 
@@ -45,7 +45,7 @@ Sparse Autoencoders are a type of unsupervised neural network designed to learn 
 
 ### Autoencoder Reconstruction Loss
 
-An [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The primary objective is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. A common choice for reconstruction loss for real-valued data is the squared error:
+An Autoencoder consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The primary objective is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. A common choice for reconstruction loss for real-valued data is the squared error:
 $$ L_{reconstruction}(x, r) = ||x - r||^2 $$
 For binary data, cross-entropy loss is often used:
 $$ L_{reconstruction}(x, r) = -\sum_{k=1}^{d} [x_k \log(r_k) + (1 - x_k) \log(1 - r_k)] $$
@@ -92,7 +92,7 @@ $$
 
 ### Total Objective Function
 
-The overall cost function for a Sparse [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) combines the reconstruction loss and the sparsity penalty, weighted by a sparsity parameter $\beta$:
+The overall cost function for a [Sparse Autoencoder](/algorithms/deep-learning/sparse-autoencoder) combines the reconstruction loss and the sparsity penalty, weighted by a sparsity parameter $\beta$:
 $$ J_{sparse}(W, b) = L_{reconstruction}(x, g(f(x))) + \beta \sum_{j=1}^{s_2} L_{sparsity}(\rho || \hat{\rho}_j) $$
 where $s_2$ is the number of hidden units, $W$ represents the weights, and $b$ represents the biases. The $\beta$ parameter controls the strength of the sparsity penalty, balancing reconstruction accuracy with the desired level of sparsity.
 
@@ -126,7 +126,7 @@ $$
 6. Compute the sparsity penalty using the KL divergence $L_{sparsity}(\rho || \hat{\rho}_j)$ for each hidden unit $j$.
 7. Combine the reconstruction loss and the weighted sparsity penalty to form the total cost function $J_{sparse}$.
 8. Compute the gradients of $J_{sparse}$ with respect to the network weights and biases using backpropagation.
-9. Update the weights and biases using an optimization algorithm (e.g., gradient descent, Adam) to minimize the total cost function.
+9. Update the weights and biases using an optimization algorithm (e.g., gradient descent, [Adam](/algorithms/meta-learning/adam)) to minimize the total cost function.
 10. Repeat steps 2-9 until convergence or a predefined number of epochs is reached.
 
 ## Parameters
@@ -186,7 +186,7 @@ Learning a set of sparse, high-level features from raw data that can then be use
 
 ### Image Denoising
 
-Learning to reconstruct clean images from noisy inputs, particularly when combined with [Denoising [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/deep-learning/representation-learning/denoising-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) principles to enhance robustness.
+Learning to reconstruct clean images from noisy inputs, particularly when combined with [Denoising Autoencoder](/algorithms/deep-learning/denoising-autoencoder) principles to enhance robustness.
 
 ### Data Compression
 

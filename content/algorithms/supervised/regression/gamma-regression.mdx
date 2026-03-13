@@ -26,11 +26,11 @@ related:
 
 ## Overview
 
-Gamma Regression is a type of [Generalized Linear Model](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLM) specifically designed to model positive, continuous, and often right-skewed response variables. It assumes that the response variable follows a Gamma distribution and uses a link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when the variance of the response variable is proportional to the square of its mean, a common characteristic of many real-world positive-valued datasets.
+[Gamma Regression](/algorithms/supervised/gamma-regression) is a type of Generalized Linear Model (GLM) specifically designed to model positive, continuous, and often right-skewed response variables. It assumes that the response variable follows a Gamma distribution and uses a link function to relate the expected value of the response to a linear combination of the predictor variables. This approach is particularly useful when the variance of the response variable is proportional to the square of its mean, a common characteristic of many real-world positive-valued datasets.
 
 ## History
 
-**1970** — [John Nelder](https://en.wikipedia.org/wiki/John_Nelder) and [Robert Wedderburn](https://en.wikipedia.org/wiki/Generalized_linear_model) published "[Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model)," laying the theoretical foundation for a broad class of statistical models, including Gamma Regression.
+**1970** — [John Nelder](https://en.wikipedia.org/wiki/John_Nelder) and Robert Wedderburn published "[Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model)," laying the theoretical foundation for a broad class of statistical models, including Gamma Regression.
 
 **1972** — P. McCullagh and J.A. Nelder further developed the theory and applications of GLMs in their influential book "Generalized Linear Models," solidifying the framework.
 
@@ -132,7 +132,7 @@ The model parameters $ \beta $ (regression coefficients) are typically estimated
 - It effectively models positive, continuous response variables that exhibit right-skewness and heteroscedasticity.
 - The model naturally handles situations where the variance of the response increases with its mean, specifically when variance is proportional to the squared mean.
 - Coefficients can be interpreted in terms of multiplicative effects on the mean response when using a log link function.
-- It provides a statistically sound framework for data where traditional Ordinary Least Squares (OLS) assumptions are violated.
+- It provides a statistically sound framework for data where traditional [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS) assumptions are violated.
 - The model's predictions are guaranteed to be positive, which is appropriate for many real-world quantities.
 - It is robust to the exact shape of the Gamma distribution, as long as the mean-variance relationship holds.
 

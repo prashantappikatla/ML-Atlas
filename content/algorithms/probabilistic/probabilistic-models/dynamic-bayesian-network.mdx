@@ -45,7 +45,9 @@ Dynamic Bayesian Networks (DBNs) are probabilistic graphical models that extend 
 
 ### Representing Temporal Dependencies
 
-A Dynamic [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) models a stochastic process $X_t$ over time $t$. It is defined by a pair $(B_0, B_{ightarrow})$, where $B_0$ is a [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) representing the joint probability distribution of variables at the initial time slice $t=0$, and $B_{ightarrow}$ is a two-slice [Bayesian Network](/algorithms/probabilistic/probabilistic-models/bayesian-network) (2TBN) representing the conditional probability distribution $P(X_t | X_{t-1})$ for $t > 0$. The 2TBN specifies dependencies between variables in slice $t-1$ and slice $t$. The joint probability distribution over a sequence of length $T$ is given by:
+A [Dynamic Bayesian Network](/algorithms/probabilistic/dynamic-bayesian-network) models a stochastic process $X_t$ over time $t$. It is defined by a pair $(B_0, B_{
+ightarrow})$, where $B_0$ is a [Bayesian Network](/algorithms/probabilistic/bayesian-network) representing the joint probability distribution of variables at the initial time slice $t=0$, and $B_{
+ightarrow}$ is a two-slice Bayesian Network (2TBN) representing the conditional probability distribution $P(X_t | X_{t-1})$ for $t > 0$. The 2TBN specifies dependencies between variables in slice $t-1$ and slice $t$. The joint probability distribution over a sequence of length $T$ is given by:
 $$P(X_0, ..., X_T) = P(X_0) \prod_{t=1}^T P(X_t | X_{t-1})$$
 Each $X_t$ is a set of random variables, $X_t = \{X_t^1, ..., X_t^N\}$. The conditional probability $P(X_t | X_{t-1})$ can be factored according to the local dependencies defined by the 2TBN:
 $$P(X_t | X_{t-1}) = \prod_{i=1}^N P(X_t^i | Pa(X_t^i))$$
@@ -107,8 +109,10 @@ Learning in DBNs involves estimating the parameters of the CPDs and, sometimes, 
 ## Algorithm Steps
 
 1. Define the initial Bayesian Network $B_0$ for time slice $t=0$, specifying the variables and their dependencies.
-2. Define the two-slice Bayesian Network (2TBN) $B_{ightarrow}$ for transitions from $t-1$ to $t$, specifying dependencies between variables in $X_{t-1}$ and $X_t$.
-3. Specify the functional forms or parameterizations for all Conditional Probability Distributions (CPDs) in $B_0$ and $B_{ightarrow}$ (e.g., discrete tables, Gaussian distributions).
+2. Define the two-slice Bayesian Network (2TBN) $B_{
+ightarrow}$ for transitions from $t-1$ to $t$, specifying dependencies between variables in $X_{t-1}$ and $X_t$.
+3. Specify the functional forms or parameterizations for all Conditional Probability Distributions (CPDs) in $B_0$ and $B_{
+ightarrow}$ (e.g., discrete tables, Gaussian distributions).
 4. Initialize the parameters of the CPDs, either randomly or using available prior knowledge.
 5. If hidden variables are present, apply an iterative learning algorithm such as Expectation-Maximization (EM): compute expected sufficient statistics for hidden variables (E-step) and then update parameters (M-step) until convergence.
 6. Once parameters are learned, perform inference tasks (e.g., filtering, smoothing, prediction) by propagating beliefs through the network using algorithms like the Forward-Backward algorithm or particle filters.

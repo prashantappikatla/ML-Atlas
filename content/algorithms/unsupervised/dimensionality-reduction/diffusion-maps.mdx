@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Diffusion Maps is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data, revealing the intrinsic geometry and connectivity of the data manifold. It achieves this by defining a diffusion process on the data, where the "diffusion distance" between points reflects their connectivity and proximity along the manifold, rather than just Euclidean distance. This spectral method is particularly effective at preserving global data structure and handling complex, non-linear relationships. The resulting embedding provides a multiscale representation of the data, allowing for analysis at different levels of granularity.
+[Diffusion Maps](/algorithms/unsupervised/diffusion-maps) is a non-linear dimensionality reduction technique that constructs a low-dimensional embedding of high-dimensional data, revealing the intrinsic geometry and connectivity of the data manifold. It achieves this by defining a diffusion process on the data, where the "diffusion distance" between points reflects their connectivity and proximity along the manifold, rather than just Euclidean distance. This spectral method is particularly effective at preserving global data structure and handling complex, non-linear relationships. The resulting embedding provides a multiscale representation of the data, allowing for analysis at different levels of granularity.
 
 ## History
 
@@ -143,7 +143,7 @@ $$
 
 - Computational complexity is high, particularly for large datasets, due to the need for constructing and eigen-decomposing a dense $N \times N$ similarity matrix.
 - The choice of kernel function and its bandwidth parameter $\epsilon$ significantly impacts the quality of the embedding and can be challenging to optimize.
-- Interpretation of the diffusion coordinates can be less intuitive compared to methods like PCA, which relate directly to variance.
+- Interpretation of the diffusion coordinates can be less intuitive compared to methods like [PCA](/algorithms/unsupervised/pca), which relate directly to variance.
 - The algorithm can be sensitive to density variations in the data, potentially distorting the perceived manifold structure.
 - The time parameter $t$ needs to be chosen carefully, as it controls the scale of the diffusion process and thus the emphasis on local versus global structure.
 

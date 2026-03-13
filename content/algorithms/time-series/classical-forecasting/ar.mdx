@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-The Autoregressive (AR) model is a fundamental time-series forecasting method that predicts future values based on a linear combination of past observations of the series itself. It captures the dependency of an observation on a number of previous observations, making it suitable for data exhibiting temporal correlation. This model is a cornerstone of more complex time-series models like ARMA and [ARIMA](/algorithms/time-series/classical-forecasting/arima), providing a simple yet powerful framework for understanding temporal dependencies.
+The Autoregressive ([AR](/algorithms/time-series/ar)) model is a fundamental time-series forecasting method that predicts future values based on a linear combination of past observations of the series itself. It captures the dependency of an observation on a number of previous observations, making it suitable for data exhibiting temporal correlation. This model is a cornerstone of more complex time-series models like [ARMA](/algorithms/time-series/arma) and [ARIMA](/algorithms/time-series/arima), providing a simple yet powerful framework for understanding temporal dependencies.
 
 ## History
 
@@ -36,7 +36,7 @@ The Autoregressive (AR) model is a fundamental time-series forecasting method th
 
 **1951** — The Yule-Walker equations were formalized, providing a method for estimating the parameters of an AR model from the sample autocovariance function.
 
-**1970** — George E.P. Box and Gwilym M. Jenkins popularized a systematic methodology for identifying, estimating, and validating time series models, including AR, ARMA, and [ARIMA](/algorithms/time-series/classical-forecasting/arima) models, in their influential book "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control."
+**1970** — George E.P. Box and Gwilym M. Jenkins popularized a systematic methodology for identifying, estimating, and validating time series models, including AR, ARMA, and ARIMA models, in their influential book "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control."
 
 **1976** — Hirotugu Akaike introduced the Akaike Information Criterion (AIC) for model selection, providing a principled way to choose the optimal order $p$ for an AR model.
 
@@ -138,7 +138,7 @@ $$
 
 - AR models assume linearity in the relationship between past and present values, which may not hold for all time series data.
 - They require the time series to be stationary; non-stationary data must be differenced, which can sometimes lead to loss of information or misinterpretation.
-- AR models cannot directly handle seasonality, requiring additional differencing or integration with seasonal components (e.g., SARIMA).
+- AR models cannot directly handle seasonality, requiring additional differencing or integration with seasonal components (e.g., [SARIMA](/algorithms/time-series/sarima)).
 - Determining the optimal order $p$ can be subjective and challenging, often relying on visual inspection of PACF plots or information criteria.
 - The model's forecasting accuracy can degrade significantly for longer forecast horizons, as errors accumulate.
 

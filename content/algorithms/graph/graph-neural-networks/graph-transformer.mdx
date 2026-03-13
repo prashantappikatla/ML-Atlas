@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Graph Transformers extend the powerful self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) of the [Transformer](/algorithms/deep-learning/transformers/transformer) architecture to non-Euclidean graph-structured data. They aim to capture long-range dependencies and global structural information within graphs by treating nodes as tokens and computing attention scores based on their features and structural relationships. This approach allows for highly expressive graph representations, overcoming some limitations of traditional message-passing Graph Neural Networks in capturing global context.
+Graph Transformers extend the powerful self-[Attention Mechanism](/algorithms/deep-learning/attention-mechanism) of the [Transformer](/algorithms/deep-learning/transformer) architecture to non-Euclidean graph-structured data. They aim to capture long-range dependencies and global structural information within graphs by treating nodes as tokens and computing attention scores based on their features and structural relationships. This approach allows for highly expressive graph representations, overcoming some limitations of traditional message-passing Graph [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) in capturing global context.
 
 ## History
 
-**2017** — The [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, based entirely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
+**2017** — The Transformer architecture, based entirely on attention mechanisms, was introduced by Vaswani et al. in "Attention Is All You Need," revolutionizing sequence modeling.
 
-**2021** — Dwivedi et al. proposed a dedicated Graph [Transformer](/algorithms/deep-learning/transformers/transformer) architecture, addressing the critical challenge of incorporating graph structure and positional information into the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism).
+**2021** — Dwivedi et al. proposed a dedicated [Graph Transformer](/algorithms/graph/graph-transformer) architecture, addressing the critical challenge of incorporating graph structure and positional information into the Attention Mechanism.
 
 **2022** — Chen et al. published "Do Transformers Really Perform Bad for Graph Representation?", providing a comprehensive analysis and demonstrating the competitive performance of properly designed Graph Transformers.
 
@@ -39,9 +39,9 @@ Graph Transformers extend the powerful self-[Attention Mechanism](/algorithms/de
 
 ### Graph Input Representation
 
-A graph $G = (V, E)$ is typically represented by its node features $X \in \mathbb{R}^{N \times d_x}$ and an adjacency matrix $A \in \{0, 1\}^{N \times N}$, where $N$ is the number of nodes and $d_x$ is the dimension of node features. For a Graph [Transformer](/algorithms/deep-learning/transformers/transformer), each node $v_i \in V$ is initially associated with an embedding $h_i^{(0)}$, often derived directly from its features $x_i$. 
+A graph $G = (V, E)$ is typically represented by its node features $X \in \mathbb{R}^{N \times d_x}$ and an adjacency matrix $A \in \{0, 1\}^{N \times N}$, where $N$ is the number of nodes and $d_x$ is the dimension of node features. For a Graph Transformer, each node $v_i \in V$ is initially associated with an embedding $h_i^{(0)}$, often derived directly from its features $x_i$. 
 $$ h_i^{(0)} = \text{Linear}(x_i) $$
-This initial embedding serves as the input token for the [Transformer](/algorithms/deep-learning/transformers/transformer) layers.
+This initial embedding serves as the input token for the Transformer layers.
 
 $$
 G = (V, E)
@@ -81,9 +81,9 @@ $$
 
 ### Graph Positional Encoding
 
-Unlike sequences, graphs lack an inherent ordering, necessitating explicit structural or positional encodings to inject graph topology into the [Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism). Common methods include [Laplacian Eigenmaps](/algorithms/unsupervised/dimensionality-reduction/laplacian-eigenmaps), Random Walk Positional Encoding (RWPE), or degree-based encodings. For instance, RWPE computes a vector for each node based on the probabilities of random walks of different lengths starting from that node. This encoding $P_i \in \mathbb{R}^{d_p}$ is then added to the node's feature embedding.
+Unlike sequences, graphs lack an inherent ordering, necessitating explicit structural or positional encodings to inject graph topology into the Attention Mechanism. Common methods include [Laplacian Eigenmaps](/algorithms/unsupervised/laplacian-eigenmaps), Random Walk Positional Encoding (RWPE), or degree-based encodings. For instance, RWPE computes a vector for each node based on the probabilities of random walks of different lengths starting from that node. This encoding $P_i \in \mathbb{R}^{d_p}$ is then added to the node's feature embedding.
 $$ h_i' = h_i + P_i $$
-This ensures that the self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism) can distinguish nodes based on their structural roles and positions within the graph.
+This ensures that the self-Attention Mechanism can distinguish nodes based on their structural roles and positions within the graph.
 
 $$
 P_i \in \mathbb{R}^{d_p}
@@ -95,7 +95,7 @@ $$
 
 ### Multi-Head Self-Attention for Graphs
 
-The core of the Graph [Transformer](/algorithms/deep-learning/transformers/transformer) is the multi-head self-[Attention Mechanism](/algorithms/deep-learning/sequence-models/attention-mechanism), adapted for graphs. For each node $i$, query $Q_i$, key $K_i$, and value $V_i$ vectors are derived from its current embedding $h_i$. The attention score between node $i$ and node $j$ is computed as:
+The core of the Graph Transformer is the multi-head self-Attention Mechanism, adapted for graphs. For each node $i$, query $Q_i$, key $K_i$, and value $V_i$ vectors are derived from its current embedding $h_i$. The attention score between node $i$ and node $j$ is computed as:
 $$ \alpha_{ij} = \frac{\exp(Q_i K_j^T / \sqrt{d_k})}{\sum_{k \in V} \exp(Q_i K_k^T / \sqrt{d_k})} $$
 This attention can be masked to only consider neighbors (local attention) or applied globally (global attention). The output for a single head is $\sum_{j \in V} \alpha_{ij} V_j$. Multi-head attention concatenates outputs from multiple heads, each learning different attention patterns, and projects them back to the original dimension.
 $$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_H) W^O $$

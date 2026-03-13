@@ -24,11 +24,11 @@ related:
 
 ## Overview
 
-Graph Isomorphism Network (GIN) is a powerful Graph Neural Network (GNN) designed to achieve maximum discriminative power among GNNs, theoretically matching the Weisfeiler-Lehman (WL) test of graph isomorphism. It addresses limitations of earlier GNNs in distinguishing between different graph structures by employing a specific aggregation scheme that preserves structural information. GIN's key innovation lies in its ability to learn an injective mapping from node neighborhoods, making it highly effective for tasks requiring fine-grained graph understanding.
+Graph Isomorphism Network ([GIN](/algorithms/graph/gin)) is a powerful Graph Neural Network (GNN) designed to achieve maximum discriminative power among GNNs, theoretically matching the Weisfeiler-Lehman (WL) test of graph isomorphism. It addresses limitations of earlier GNNs in distinguishing between different graph structures by employing a specific aggregation scheme that preserves structural information. GIN's key innovation lies in its ability to learn an injective mapping from node neighborhoods, making it highly effective for tasks requiring fine-grained graph understanding.
 
 ## History
 
-**2019** — Xu et al. introduce the Graph Isomorphism Network (GIN) in their paper "How Powerful are Graph Neural Networks?", demonstrating its theoretical equivalence to the Weisfeiler-Lehman test and strong empirical performance.
+**2019** — Xu et al. introduce the Graph Isomorphism Network (GIN) in their paper "How Powerful are Graph [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)))?", demonstrating its theoretical equivalence to the Weisfeiler-Lehman test and strong empirical performance.
 
 **2019** — The seminal paper by Xu et al. quickly becomes highly influential, establishing a new benchmark for GNN discriminative power and inspiring further research into more expressive GNN architectures.
 
@@ -60,7 +60,7 @@ $$
 
 ### Node Feature Update
 
-After the aggregation, the combined feature vector $a_v^{(k)}$ is passed through a multi-layer [Perceptron](/algorithms/supervised/classification/perceptron) (MLP) to transform it into the new node representation $h_v^{(k)}$. This non-linear transformation allows the model to learn complex patterns from the aggregated features. Each layer $k$ typically employs its own MLP, ensuring that the feature space can evolve throughout the network. The final node representations can then be used for node-level tasks, or pooled to form a graph-level representation for graph classification.
+After the aggregation, the combined feature vector $a_v^{(k)}$ is passed through a multi-layer [Perceptron](/algorithms/supervised/perceptron) (MLP) to transform it into the new node representation $h_v^{(k)}$. This non-linear transformation allows the model to learn complex patterns from the aggregated features. Each layer $k$ typically employs its own MLP, ensuring that the feature space can evolve throughout the network. The final node representations can then be used for node-level tasks, or pooled to form a graph-level representation for graph classification.
 
 $$
 h_v^{(k)} = \text{MLP}^{(k)} \left( a_v^{(k)} \right)

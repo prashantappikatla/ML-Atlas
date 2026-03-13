@@ -88,7 +88,7 @@ $$
 
 ### Primal Optimization Problem
 
-The training of a Structured SVM involves solving a convex optimization problem to find the optimal weight vector $w$. The primal formulation minimizes a regularized empirical risk, incorporating slack variables $\xi_n$ to allow for margin violations. The objective is: $$ \min_{w, \xi \ge 0} \frac{1}{2} \|w\|^2 + C \sum_{n=1}^N \xi_n $$ subject to the constraints: $w^T \Psi(x_n, y_n) - w^T \Psi(x_n, y) \ge \Delta(y_n, y) - \xi_n$ for all training examples $(x_n, y_n)$ and for all possible incorrect outputs $y \in \mathcal{Y} \setminus \{y_n\}$. The constant $C > 0$ balances the trade-off between maximizing the margin and minimizing the training error. Due to the potentially exponential number of constraints, specialized algorithms like the cutting-plane method are used for optimization.
+The training of a [Structured SVM](/algorithms/supervised/structured-svm) involves solving a convex optimization problem to find the optimal weight vector $w$. The primal formulation minimizes a regularized empirical risk, incorporating slack variables $\xi_n$ to allow for margin violations. The objective is: $$ \min_{w, \xi \ge 0} \frac{1}{2} \|w\|^2 + C \sum_{n=1}^N \xi_n $$ subject to the constraints: $w^T \Psi(x_n, y_n) - w^T \Psi(x_n, y) \ge \Delta(y_n, y) - \xi_n$ for all training examples $(x_n, y_n)$ and for all possible incorrect outputs $y \in \mathcal{Y} \setminus \{y_n\}$. The constant $C > 0$ balances the trade-off between maximizing the margin and minimizing the training error. Due to the potentially exponential number of constraints, specialized algorithms like the cutting-plane method are used for optimization.
 
 $$
 \min_{w, \xi \ge 0} \frac{1}{2} \|w\|^2 + C \sum_{n=1}^N \xi_n

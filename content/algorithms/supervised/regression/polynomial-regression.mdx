@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Polynomial Regression extends [Linear Regression](/algorithms/supervised/regression/linear-regression) by modeling the relationship between the independent variable and the dependent variable as an $n$-th degree polynomial. It allows for fitting non-linear relationships by transforming the original features into polynomial features and then applying a linear model to these transformed features. This method provides greater flexibility than simple [Linear Regression](/algorithms/supervised/regression/linear-regression) for capturing complex patterns in data.
+[Polynomial Regression](/algorithms/supervised/polynomial-regression) extends [Linear Regression](/algorithms/supervised/linear-regression) by modeling the relationship between the independent variable and the dependent variable as an $n$-th degree polynomial. It allows for fitting non-linear relationships by transforming the original features into polynomial features and then applying a linear model to these transformed features. This method provides greater flexibility than simple Linear Regression for capturing complex patterns in data.
 
 ## History
 
@@ -56,7 +56,7 @@ $$
 
 ### Linear Model Formulation
 
-After the polynomial transformation, the model becomes a [Linear Regression](/algorithms/supervised/regression/linear-regression) problem in the new feature space. Let $\mathbf{x}$ be the original feature vector and $\phi(\mathbf{x})$ be the transformed polynomial feature vector. The predicted output $\hat{y}$ is then a linear combination of these transformed features, expressed as a dot product of the coefficient vector $\mathbf{\theta}$ and the transformed feature vector $\phi(\mathbf{x})$.
+After the polynomial transformation, the model becomes a Linear Regression problem in the new feature space. Let $\mathbf{x}$ be the original feature vector and $\phi(\mathbf{x})$ be the transformed polynomial feature vector. The predicted output $\hat{y}$ is then a linear combination of these transformed features, expressed as a dot product of the coefficient vector $\mathbf{\theta}$ and the transformed feature vector $\phi(\mathbf{x})$.
 $$ \hat{y} = \theta_0 + \theta_1 \phi_1(\mathbf{x}) + ... + \theta_m \phi_m(\mathbf{x}) = \mathbf{\theta}^T \phi(\mathbf{x}) $$
 
 $$

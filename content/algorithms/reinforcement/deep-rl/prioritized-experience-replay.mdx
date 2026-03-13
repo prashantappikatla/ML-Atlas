@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Prioritized Experience Replay (PER) is an enhancement to the standard experience replay mechanism in deep reinforcement learning, designed to improve sample efficiency and learning speed. Instead of uniformly sampling transitions from the replay buffer, PER prioritizes transitions based on their estimated importance, typically measured by the magnitude of their Temporal Difference (TD) error. This approach allows the agent to focus learning on more significant or surprising experiences, leading to faster convergence and better performance.
+[Prioritized Experience Replay](/algorithms/reinforcement/prioritized-experience-replay) (PER) is an enhancement to the standard experience replay mechanism in deep reinforcement learning, designed to improve sample efficiency and learning speed. Instead of uniformly sampling transitions from the replay buffer, PER prioritizes transitions based on their estimated importance, typically measured by the magnitude of their Temporal Difference (TD) error. This approach allows the agent to focus learning on more significant or surprising experiences, leading to faster convergence and better performance.
 
 ## History
 
 **2013** — Deep Q-Networks (DQN) were introduced by Mnih et al., pioneering the use of experience replay to stabilize training of deep neural networks in reinforcement learning.
 
-**2015** — [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn) was proposed by Van Hasselt et al., addressing overestimation bias in [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) and further improving the stability and performance of DQN.
+**2015** — [Double DQN](/algorithms/reinforcement/double-dqn) was proposed by Van Hasselt et al., addressing overestimation bias in [Q-Learning](/algorithms/reinforcement/q-learning) and further improving the stability and performance of DQN.
 
 **2016** — Schaul et al. introduced Prioritized Experience Replay, presenting a novel method to sample transitions from the replay buffer non-uniformly, based on their TD error, significantly enhancing learning efficiency.
 

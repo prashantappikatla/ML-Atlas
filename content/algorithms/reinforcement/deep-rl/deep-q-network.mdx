@@ -28,29 +28,29 @@ related:
 
 ## Overview
 
-Deep Q Network (DQN) is a model-free, off-policy reinforcement learning algorithm that combines [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks. It enables agents to learn optimal policies directly from high-dimensional sensory inputs, such as raw pixels, by approximating the action-value function. This approach was groundbreaking for achieving human-level performance across a wide range of complex control tasks, particularly in video games.
+[Deep Q Network](/algorithms/reinforcement/deep-q-network) (DQN) is a model-free, off-policy reinforcement learning algorithm that combines [Q-Learning](/algorithms/reinforcement/q-learning) with deep neural networks. It enables agents to learn optimal policies directly from high-dimensional sensory inputs, such as raw pixels, by approximating the action-value function. This approach was groundbreaking for achieving human-level performance across a wide range of complex control tasks, particularly in video games.
 
 ## History
 
-**1989** — Chris Watkins introduced [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), a model-free reinforcement learning algorithm for finding an optimal policy.
+**1989** — Chris Watkins introduced Q-Learning, a model-free reinforcement learning algorithm for finding an optimal policy.
 
 **1992** — [Gerald Tesauro](https://en.wikipedia.org/wiki/TD-Gammon)'s TD-Gammon demonstrated the potential of neural networks in reinforcement learning by learning to play backgammon at an expert level.
 
-**2013** — DeepMind's Mnih et al. introduced the Deep Q-Network, combining [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) with deep neural networks, experience replay, and a separate target network, showcasing its ability to play Atari games.
+**2013** — DeepMind's Mnih et al. introduced the Deep Q-Network, combining Q-Learning with deep neural networks, experience replay, and a separate target network, showcasing its ability to play Atari games.
 
 **2015** — Mnih et al. published their seminal work in Nature, demonstrating that DQN could achieve human-level performance on many Atari 2600 games using only raw pixel inputs and game scores.
 
-**2016** — Hado van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/deep-rl/double-dqn), which addresses the overestimation bias inherent in standard DQN by decoupling the selection and evaluation of actions.
+**2016** — Hado van Hasselt et al. proposed [Double DQN](/algorithms/reinforcement/double-dqn), which addresses the overestimation bias inherent in standard DQN by decoupling the selection and evaluation of actions.
 
-**2017** — Schaul et al. introduced [Prioritized Experience Replay](/algorithms/reinforcement/deep-rl/prioritized-experience-replay), improving DQN's sample efficiency by replaying more significant transitions more frequently.
+**2017** — Schaul et al. introduced [Prioritized Experience Replay](/algorithms/reinforcement/prioritized-experience-replay), improving DQN's sample efficiency by replaying more significant transitions more frequently.
 
 ## Mathematical Intuition
 
 ### Q-Learning Foundation
 
-The core idea of [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) is to learn an action-value function, $Q(s, a)$, which represents the expected return of taking action $a$ in state $s$ and then following an optimal policy thereafter. The optimal Q-value function, $Q^*(s, a)$, satisfies the Bellman optimality equation:
+The core idea of Q-Learning is to learn an action-value function, $Q(s, a)$, which represents the expected return of taking action $a$ in state $s$ and then following an optimal policy thereafter. The optimal Q-value function, $Q^*(s, a)$, satisfies the Bellman optimality equation:
 $$Q^*(s, a) = E_{s' \sim P(\cdot|s,a)}[r + \gamma \max_{a'} Q^*(s', a')]$$
-Here, $r$ is the immediate reward, $\gamma \in [0, 1)$ is the discount factor, and $s'$ is the next state. In tabular [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning), this function is stored in a table and updated iteratively.
+Here, $r$ is the immediate reward, $\gamma \in 0, 1)$ is the discount factor, and $s'$ is the next state. In tabular [Q-Learning, this function is stored in a table and updated iteratively.
 
 $$
 Q(s, a)
@@ -221,7 +221,7 @@ $$
 | `batch_size` | `int` | `32` | > 0 | Number of transitions sampled from the replay buffer for each training step. |
 | `target_update_frequency` | `int` | `10000` | > 0 | Frequency (in training steps) with which the target network weights are updated from the main network. |
 | `hidden_layer_sizes` | `tuple of int` | `(512, 256)` | > 0 for each layer | Sizes of the hidden layers in the neural network. |
-| `optimizer` | `string` | `Adam` | "Adam", "RMSprop", "SGD" | The optimization algorithm used for training the Q-network. |
+| `optimizer` | `string` | `Adam` | "[Adam](/algorithms/meta-learning/adam)", "RMSprop", "SGD" | The optimization algorithm used for training the Q-network. |
 
 ## Compatibility
 

@@ -25,15 +25,15 @@ related:
 
 ## Overview
 
-MoCo ([Momentum](/algorithms/meta-learning/optimization/momentum) Contrast for Unsupervised Visual Representation Learning) addresses the challenge of building large and consistent dictionaries for contrastive learning by introducing a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a queue mechanism. This approach enables self-supervised learning to achieve competitive performance with supervised pre-training on various downstream tasks, particularly in computer vision. It effectively decouples the dictionary size from the mini-batch size, allowing for a vast number of negative samples without requiring extremely large batches. MoCo's key innovation lies in maintaining a dynamic dictionary of negative samples using a queue and a slowly evolving [Momentum](/algorithms/meta-learning/optimization/momentum) encoder.
+[MoCo](/algorithms/deep-learning/moco) ([Momentum](/algorithms/meta-learning/momentum) Contrast for Unsupervised Visual Representation Learning) addresses the challenge of building large and consistent dictionaries for contrastive learning by introducing a Momentum encoder and a queue mechanism. This approach enables self-supervised learning to achieve competitive performance with supervised pre-training on various downstream tasks, particularly in computer vision. It effectively decouples the dictionary size from the mini-batch size, allowing for a vast number of negative samples without requiring extremely large batches. MoCo's key innovation lies in maintaining a dynamic dictionary of negative samples using a queue and a slowly evolving Momentum encoder.
 
 ## History
 
 **2018** — Oord et al. introduce Contrastive Predictive Coding (CPC), which proposes the InfoNCE loss, a foundational component for many subsequent contrastive learning methods.
 
-**2019** — Chen et al. publish [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr), demonstrating the power of large batch sizes and strong data augmentation for contrastive learning, achieving state-of-the-art results.
+**2019** — Chen et al. publish [SimCLR](/algorithms/deep-learning/simclr), demonstrating the power of large batch sizes and strong data augmentation for contrastive learning, achieving state-of-the-art results.
 
-**2020** — He et al. introduce MoCo, proposing the [Momentum](/algorithms/meta-learning/optimization/momentum) encoder and a dynamic queue to enable large and consistent dictionaries for contrastive learning, overcoming the batch size limitation of [SimCLR](/algorithms/deep-learning/self-supervised-learning/simclr).
+**2020** — He et al. introduce MoCo, proposing the Momentum encoder and a dynamic queue to enable large and consistent dictionaries for contrastive learning, overcoming the batch size limitation of SimCLR.
 
 **2020** — Chen et al. release MoCo v2, an improved version of MoCo that incorporates an MLP projection head and more aggressive data augmentation, further boosting performance.
 
@@ -53,9 +53,9 @@ $$
 
 ### Momentum Encoder Update
 
-To ensure consistency of the key representations over time, MoCo employs a [Momentum](/algorithms/meta-learning/optimization/momentum) encoder $f_k$ whose parameters $\theta_k$ are updated as a moving average of the query encoder's parameters $\theta_q$. This [Momentum](/algorithms/meta-learning/optimization/momentum) update prevents the key encoder from being updated directly by backpropagation, which would make the negative keys in the queue inconsistent. The update rule is:
+To ensure consistency of the key representations over time, MoCo employs a Momentum encoder $f_k$ whose parameters $\theta_k$ are updated as a moving average of the query encoder's parameters $\theta_q$. This Momentum update prevents the key encoder from being updated directly by backpropagation, which would make the negative keys in the queue inconsistent. The update rule is:
 $$\theta_k = m \theta_k + (1-m) \theta_q$$
-where $m \in [0, 1)$ is the [Momentum](/algorithms/meta-learning/optimization/momentum) coefficient. A high [Momentum](/algorithms/meta-learning/optimization/momentum) coefficient (e.g., $m=0.999$) ensures that the key encoder evolves smoothly and slowly, providing stable targets for the query encoder.
+where $m \in 0, 1)$ is the [Momentum coefficient. A high Momentum coefficient (e.g., $m=0.999$) ensures that the key encoder evolves smoothly and slowly, providing stable targets for the query encoder.
 
 $$
 \theta_k = m \theta_k + (1-m) \theta_q
@@ -63,7 +63,7 @@ $$
 
 ### Dynamic Dictionary with Queue
 
-MoCo maintains a large and dynamic dictionary of negative samples using a queue. Instead of computing negative samples from the current mini-batch (which limits the number of negatives to the batch size), MoCo stores representations from previous mini-batches in a first-in, first-out (FIFO) queue. When a new mini-batch's key representations are computed by the [Momentum](/algorithms/meta-learning/optimization/momentum) encoder, they are enqueued, and the oldest representations are dequeued. This mechanism allows the dictionary size $K$ to be much larger than the mini-batch size, providing a richer set of negative examples for the InfoNCE loss and improving the quality of learned representations.
+MoCo maintains a large and dynamic dictionary of negative samples using a queue. Instead of computing negative samples from the current mini-batch (which limits the number of negatives to the batch size), MoCo stores representations from previous mini-batches in a first-in, first-out (FIFO) queue. When a new mini-batch's key representations are computed by the Momentum encoder, they are enqueued, and the oldest representations are dequeued. This mechanism allows the dictionary size $K$ to be much larger than the mini-batch size, providing a richer set of negative examples for the InfoNCE loss and improving the quality of learned representations.
 
 ## Algorithm Steps
 

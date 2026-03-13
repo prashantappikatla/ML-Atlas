@@ -24,15 +24,15 @@ related:
 
 ## Overview
 
-Calibrated Classifier is a meta-algorithm designed to improve the reliability of probability predictions from a base classifier. Many machine learning models produce decision scores or uncalibrated probabilities that do not accurately reflect the true likelihood of an event. This method post-processes these raw outputs to align them more closely with actual probabilities, ensuring that a predicted probability of, for example, 0.8 truly corresponds to an 80% chance of the positive class.
+[Calibrated Classifier](/algorithms/supervised/calibrated-classifier) is a meta-algorithm designed to improve the reliability of probability predictions from a base classifier. Many machine learning models produce decision scores or uncalibrated probabilities that do not accurately reflect the true likelihood of an event. This method post-processes these raw outputs to align them more closely with actual probabilities, ensuring that a predicted probability of, for example, 0.8 truly corresponds to an 80% chance of the positive class.
 
 ## History
 
 **1999** — John Platt introduced Platt Scaling, a method to convert the output of [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine) into well-calibrated probability estimates using a sigmoid function.
 
-**2005** — Alexandru Niculescu-Mizil and Rich Caruana published 'Predicting Good Probabilities with [Supervised Learning](https://en.wikipedia.org/wiki/Supervised_learning)', a seminal paper that systematically compared various calibration techniques, including Platt Scaling and [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression), establishing the field of classifier calibration.
+**2005** — Alexandru Niculescu-Mizil and Rich Caruana published 'Predicting Good Probabilities with [Supervised Learning](https://en.wikipedia.org/wiki/Supervised_learning)', a seminal paper that systematically compared various calibration techniques, including Platt Scaling and [Isotonic Regression](/algorithms/supervised/isotonic-regression), establishing the field of classifier calibration.
 
-**2010** — The concept of Calibrated Classifiers, incorporating both Platt Scaling and [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression), began to be widely adopted and integrated into popular machine learning libraries, making these techniques accessible for general use.
+**2010** — The concept of Calibrated Classifiers, incorporating both Platt Scaling and Isotonic Regression, began to be widely adopted and integrated into popular machine learning libraries, making these techniques accessible for general use.
 
 ## Mathematical Intuition
 
@@ -50,7 +50,7 @@ $$
 
 ### Isotonic Regression Method
 
-[Isotonic Regression](/algorithms/supervised/regression/isotonic-regression) is a non-parametric method that learns a piecewise constant, non-decreasing function to map the raw decision scores to calibrated probabilities. It minimizes the squared error between the true labels $y_i$ and the predicted probabilities $g(f(x_i))$ subject to the constraint that $g$ is non-decreasing: $$\min_{g} \sum_{i=1}^{N} (y_i - g(f(x_i)))^2 \quad \text{subject to } g(s_1) \le g(s_2) \text{ if } s_1 \le s_2$$ Here, $f(x_i)$ are the raw scores and $s_i$ are sorted raw scores. The Pool Adjacent Violators Algorithm (PAVA) is commonly used to solve this optimization problem. [Isotonic Regression](/algorithms/supervised/regression/isotonic-regression) is more flexible than Platt Scaling as it does not assume a specific functional form, but it requires more calibration data to avoid overfitting.
+Isotonic Regression is a non-parametric method that learns a piecewise constant, non-decreasing function to map the raw decision scores to calibrated probabilities. It minimizes the squared error between the true labels $y_i$ and the predicted probabilities $g(f(x_i))$ subject to the constraint that $g$ is non-decreasing: $$\min_{g} \sum_{i=1}^{N} (y_i - g(f(x_i)))^2 \quad \text{subject to } g(s_1) \le g(s_2) \text{ if } s_1 \le s_2$$ Here, $f(x_i)$ are the raw scores and $s_i$ are sorted raw scores. The [Pool Adjacent Violators Algorithm](https://en.wikipedia.org/wiki/Isotonic_regression) (PAVA) is commonly used to solve this optimization problem. Isotonic Regression is more flexible than Platt Scaling as it does not assume a specific functional form, but it requires more calibration data to avoid overfitting.
 
 $$
 \min_{g} \sum_{i=1}^{N} (y_i - g(f(x_i)))^2 \quad \text{subject to } g(s_1) \le g(s_2) \text{ if } s_1 \le s_2
@@ -58,7 +58,7 @@ $$
 
 ## Algorithm Steps
 
-1. Train a base classifier (e.g., SVM, Random Forest) on the primary training dataset to learn the mapping from features to raw decision scores or uncalibrated probabilities.
+1. Train a base classifier (e.g., SVM, [Random Forest](https://en.wikipedia.org/wiki/Random_forest)) on the primary training dataset to learn the mapping from features to raw decision scores or uncalibrated probabilities.
 2. Generate uncalibrated probability estimates or decision scores for a separate calibration dataset, which was not used during the base classifier's training phase.
 3. Fit a calibration model (either Platt Scaling or Isotonic Regression) using these uncalibrated scores as input and the true labels of the calibration dataset as targets.
 4. For new, unseen data, first obtain the raw probability estimates or decision scores from the trained base classifier.

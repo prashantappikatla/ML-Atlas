@@ -29,7 +29,7 @@ related:
 
 ## Overview
 
-t-Distributed Stochastic Neighbor Embedding (t-SNE) is a non-linear dimensionality reduction technique particularly well-suited for visualizing high-dimensional datasets. It maps high-dimensional data points to a low-dimensional space, typically two or three dimensions, such that similar points in the high-dimensional space are modeled by nearby points in the low-dimensional space, and dissimilar points are modeled by distant points. Unlike linear methods, t-SNE excels at preserving local structures within the data, making it highly effective for revealing clusters and intrinsic data manifolds.
+t-Distributed Stochastic Neighbor Embedding ([t-SNE](/algorithms/unsupervised/t-sne)) is a non-linear dimensionality reduction technique particularly well-suited for visualizing high-dimensional datasets. It maps high-dimensional data points to a low-dimensional space, typically two or three dimensions, such that similar points in the high-dimensional space are modeled by nearby points in the low-dimensional space, and dissimilar points are modeled by distant points. Unlike linear methods, t-SNE excels at preserving local structures within the data, making it highly effective for revealing clusters and intrinsic data manifolds.
 
 ## History
 
@@ -80,7 +80,7 @@ $$
 
 The low-dimensional points $Y = \{y_1, ..., y_N\}$ are initialized randomly and then optimized using gradient descent. The gradient update rule incorporates both attractive forces between points that are neighbors in high-dimensional space and repulsive forces between points that are not. 
 $$\frac{\partial C}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1}$$
-An early exaggeration phase is often used to create tighter clusters, and [Momentum](/algorithms/meta-learning/optimization/momentum) is typically applied to accelerate convergence and avoid poor local minima.
+An early exaggeration phase is often used to create tighter clusters, and [Momentum](/algorithms/meta-learning/momentum) is typically applied to accelerate convergence and avoid poor local minima.
 
 $$
 \frac{\partial C}{\partial y_i} = 4 \sum_j (p_{ij} - q_{ij}) (y_i - y_j) (1 + \|y_i - y_j\|^2)^{-1}

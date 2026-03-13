@@ -28,23 +28,23 @@ related:
 
 ## Overview
 
-VGG, short for Visual Geometry Group, is a deep convolutional neural network architecture primarily designed for large-scale image recognition. It is distinguished by its simplicity, employing only 3x3 convolutional filters with a stride of 1 and 2x2 max-pooling layers with a stride of 2, stacked uniformly to achieve significant depth. The core idea behind VGG was to demonstrate that increasing the depth of a neural network, by repeatedly adding convolutional layers, could lead to improved performance in image classification tasks.
+[VGG](/algorithms/deep-learning/vgg), short for Visual Geometry Group, is a deep convolutional neural network architecture primarily designed for large-scale image recognition. It is distinguished by its simplicity, employing only 3x3 convolutional filters with a stride of 1 and 2x2 max-pooling layers with a stride of 2, stacked uniformly to achieve significant depth. The core idea behind VGG was to demonstrate that increasing the depth of a neural network, by repeatedly adding convolutional layers, could lead to improved performance in image classification tasks.
 
 ## History
 
-**2012** — [AlexNet](/algorithms/deep-learning/convolutional-networks/alexnet), developed by Krizhevsky, Sutskever, and Hinton, won the ImageNet Large Scale Visual Recognition Challenge (ILSVRC), demonstrating the power of deep convolutional neural networks and sparking renewed interest in the field.
+**2012** — [AlexNet](/algorithms/deep-learning/alexnet), developed by Krizhevsky, Sutskever, and Hinton, won the ImageNet Large Scale Visual Recognition Challenge (ILSVRC), demonstrating the power of deep convolutional neural networks and sparking renewed interest in the field.
 
 **2014** — Simonyan and Zisserman introduced the VGG architecture in their paper 'Very Deep Convolutional Networks for Large-Scale Image Recognition,' achieving state-of-the-art results on ILSVRC 2014 by focusing on network depth.
 
 **2014** — GoogLeNet (Inception), another deep CNN architecture, was also introduced and won ILSVRC 2014, showcasing an alternative approach to increasing depth through inception modules rather than uniform small filters.
 
-**2015** — [ResNet](/algorithms/deep-learning/convolutional-networks/resnet) (Residual Networks) was introduced by He et al., which further pushed the boundaries of network depth by incorporating residual connections, enabling the training of networks with hundreds of layers and surpassing VGG's performance.
+**2015** — [ResNet](/algorithms/deep-learning/resnet) (Residual Networks) was introduced by He et al., which further pushed the boundaries of network depth by incorporating residual connections, enabling the training of networks with hundreds of layers and surpassing VGG's performance.
 
 ## Mathematical Intuition
 
 ### Convolutional Layer Operation
 
-The fundamental building block of VGG, like other CNNs, is the convolutional layer. This layer applies a set of learnable filters (kernels) to the input volume, producing an activation map. Each filter slides across the input, performing a dot product between the filter's weights and the local region of the input it is currently covering. For a 2D input $I$ and a 2D kernel $K$, the discrete convolution operation at position $(i, j)$ is given by:$$ S(i, j) = (I * K)(i, j) = \sum_m \sum_n I(i-m, j-n) K(m, n) $$VGG exclusively uses small $3 \times 3$ filters, which are the smallest filters capable of capturing directional information (left/right, up/down, diagonals). [Stacking](/algorithms/supervised/classification/stacking) multiple $3 \times 3$ convolutional layers effectively creates a larger receptive field without increasing the number of parameters as much as a single larger filter would.
+The fundamental building block of VGG, like other CNNs, is the convolutional layer. This layer applies a set of learnable filters (kernels) to the input volume, producing an activation map. Each filter slides across the input, performing a dot product between the filter's weights and the local region of the input it is currently covering. For a 2D input $I$ and a 2D kernel $K$, the discrete convolution operation at position $(i, j)$ is given by:$$ S(i, j) = (I * K)(i, j) = \sum_m \sum_n I(i-m, j-n) K(m, n) $$VGG exclusively uses small $3 \times 3$ filters, which are the smallest filters capable of capturing directional information (left/right, up/down, diagonals). [Stacking](/algorithms/supervised/stacking) multiple $3 \times 3$ convolutional layers effectively creates a larger receptive field without increasing the number of parameters as much as a single larger filter would.
 
 $$
 S(i, j) = (I * K)(i, j) = \sum_m \sum_n I(i-m, j-n) K(m, n)
@@ -60,7 +60,7 @@ $$
 
 ### Network Depth and Uniformity
 
-VGG's primary contribution was demonstrating the effectiveness of increasing network depth. The architecture consists of 11 to 19 layers (VGG11, VGG13, VGG16, VGG19), built by [Stacking](/algorithms/supervised/classification/stacking) multiple $3 \times 3$ convolutional layers followed by a $2 \times 2$ max-pooling layer. The number of filters in convolutional layers increases with depth, typically starting from 64 and doubling after each max-pooling layer (e.g., 64, 128, 256, 512). This uniform and repetitive structure makes VGG architectures relatively straightforward to implement and understand, and it allows for a deeper exploration of hierarchical features.
+VGG's primary contribution was demonstrating the effectiveness of increasing network depth. The architecture consists of 11 to 19 layers (VGG11, VGG13, VGG16, VGG19), built by Stacking multiple $3 \times 3$ convolutional layers followed by a $2 \times 2$ max-pooling layer. The number of filters in convolutional layers increases with depth, typically starting from 64 and doubling after each max-pooling layer (e.g., 64, 128, 256, 512). This uniform and repetitive structure makes VGG architectures relatively straightforward to implement and understand, and it allows for a deeper exploration of hierarchical features.
 
 ### Classification with Softmax Loss
 
@@ -83,7 +83,7 @@ $$
 5. Flatten the output of the last convolutional block into a 1D vector.
 6. Pass the flattened vector through a series of fully connected layers, typically two hidden layers with 4096 units each, followed by a ReLU activation.
 7. Apply a final fully connected layer with $N$ units, where $N$ is the number of classes, and then a softmax activation function to obtain class probabilities.
-8. Calculate the categorical cross-entropy loss between the predicted probabilities and the true labels, and update the network weights using an optimization algorithm like Stochastic Gradient Descent (SGD) with backpropagation.
+8. Calculate the categorical cross-entropy loss between the predicted probabilities and the true labels, and update the network weights using an optimization algorithm like [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent) (SGD) with backpropagation.
 
 ## Parameters
 
@@ -92,7 +92,7 @@ $$
 | `input_shape` | `tuple` | `(224, 224, 3)` | Positive integers for height, width, and channels (e.g., (224, 224, 3) for RGB images). | The dimensions of the input images (height, width, channels) that the network expects. |
 | `num_classes` | `int` | `1000` | Integer greater than 1. | The number of output classes for the classification task, determining the size of the final fully connected layer. |
 | `learning_rate` | `float` | `0.01` | Positive float (e.g., 0.001 to 0.1). | The step size at which the model's weights are updated during training. |
-| `optimizer` | `str` | `SGD` | ['SGD', 'Adam', 'RMSprop', 'Adagrad'] | The optimization algorithm used to update network weights (e.g., SGD, Adam, RMSprop). |
+| `optimizer` | `str` | `SGD` | 'SGD', '[[Adam](/algorithms/meta-learning/adam)', 'RMSprop', 'Adagrad'] | The optimization algorithm used to update network weights (e.g., SGD, Adam, RMSprop). |
 | `batch_size` | `int` | `32` | Integer greater than 0 (e.g., 16, 32, 64, 128). | The number of samples processed before the model's internal parameters are updated. |
 | `epochs` | `int` | `100` | Integer greater than 0. | The number of complete passes through the entire training dataset. |
 | `dropout_rate` | `float` | `0.5` | Float between 0.0 and 1.0. | The fraction of neurons to randomly set to zero during training in the fully connected layers to prevent overfitting. |

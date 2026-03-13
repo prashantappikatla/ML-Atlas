@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Thompson Sampling is a Bayesian algorithm designed to solve the multi-armed bandit problem, a classic dilemma in sequential decision-making under uncertainty. It operates by maintaining a probability distribution over the expected reward for each available action (arm) and selecting an arm based on samples drawn from these posterior distributions. This method inherently balances exploration of uncertain options with exploitation of seemingly optimal choices, making it effective in online learning scenarios. Its strength lies in its empirical performance and theoretical guarantees for regret minimization.
+[Thompson Sampling](/algorithms/reinforcement/thompson-sampling) is a Bayesian algorithm designed to solve the multi-armed bandit problem, a classic dilemma in sequential decision-making under uncertainty. It operates by maintaining a probability distribution over the expected reward for each available action (arm) and selecting an arm based on samples drawn from these posterior distributions. This method inherently balances exploration of uncertain options with exploitation of seemingly optimal choices, making it effective in online learning scenarios. Its strength lies in its empirical performance and theoretical guarantees for regret minimization.
 
 ## History
 
@@ -105,7 +105,7 @@ $$
 - The performance can be sensitive to the choice of the initial prior distribution, especially with limited data.
 - It requires assuming a specific parametric form for the reward distribution (e.g., Bernoulli, Gaussian), which might not always hold true.
 - Scaling to very large action spaces or high-dimensional contextual information can be challenging without approximations or extensions.
-- The theoretical guarantees (regret bounds) can be more complex to derive compared to some frequentist methods like UCB.
+- The theoretical guarantees (regret bounds) can be more complex to derive compared to some frequentist methods like [UCB](/algorithms/reinforcement/ucb).
 
 ## Use Cases
 

@@ -30,25 +30,25 @@ related:
 
 ## Overview
 
-Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is a probabilistic classification algorithm that applies Bayes' theorem with a "naive" assumption of conditional independence between features given the class label. It models the likelihood of features using a Gaussian (normal) distribution, making it particularly suitable for continuous numerical data. Despite its simplifying assumption, it often performs surprisingly well, especially in scenarios with high-dimensional data or limited training examples, due to its computational efficiency and straightforward implementation.
+[Gaussian Naive Bayes](/algorithms/supervised/gaussian-naive-bayes) is a probabilistic classification algorithm that applies Bayes' theorem with a "naive" assumption of conditional independence between features given the class label. It models the likelihood of features using a Gaussian (normal) distribution, making it particularly suitable for continuous numerical data. Despite its simplifying assumption, it often performs surprisingly well, especially in scenarios with high-dimensional data or limited training examples, due to its computational efficiency and straightforward implementation.
 
 ## History
 
 **1950** — Early work on statistical pattern recognition and classification laid the groundwork for probabilistic classifiers, including the foundational ideas of Bayes' theorem in decision-making.
 
-**1960** — The core principles of the [Naive Bayes](/algorithms/supervised/classification/naive-bayes) classifier, leveraging Bayes' theorem with a strong independence assumption, were established and applied in various fields, marking its formal introduction.
+**1960** — The core principles of the [Naive Bayes](/algorithms/supervised/naive-bayes) classifier, leveraging Bayes' theorem with a strong independence assumption, were established and applied in various fields, marking its formal introduction.
 
-**1973** — Duda and Hart's seminal book "Pattern Classification and Scene Analysis" popularized Bayesian classification methods, including discussions on assuming specific distributions for features, which is key to Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes).
+**1973** — Duda and Hart's seminal book "Pattern Classification and Scene Analysis" popularized Bayesian classification methods, including discussions on assuming specific distributions for features, which is key to Gaussian Naive Bayes.
 
-**1990** — [Naive Bayes](/algorithms/supervised/classification/naive-bayes) experienced a resurgence in machine learning, particularly for text classification and spam filtering, with variants like Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes) becoming standard for continuous data.
+**1990** — Naive Bayes experienced a resurgence in machine learning, particularly for text classification and spam filtering, with variants like Gaussian Naive Bayes becoming standard for continuous data.
 
-**2000** — Continued widespread use and integration into standard machine learning libraries solidified Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes)' position as a valuable algorithm, appreciated for its simplicity and efficiency.
+**2000** — Continued widespread use and integration into standard machine learning libraries solidified Gaussian Naive Bayes' position as a valuable algorithm, appreciated for its simplicity and efficiency.
 
 ## Mathematical Intuition
 
 ### Bayes' Theorem Foundation
 
-The core of [Naive Bayes](/algorithms/supervised/classification/naive-bayes) is Bayes' Theorem, which relates the posterior probability $P(C|X)$ of a class $C$ given observed features $X$ to the likelihood $P(X|C)$, the prior probability $P(C)$, and the evidence $P(X)$. For classification, we aim to find the class $C$ that maximizes $P(C|X)$.
+The core of Naive Bayes is Bayes' Theorem, which relates the posterior probability $P(C|X)$ of a class $C$ given observed features $X$ to the likelihood $P(X|C)$, the prior probability $P(C)$, and the evidence $P(X)$. For classification, we aim to find the class $C$ that maximizes $P(C|X)$.
 $$P(C|X) = \frac{P(X|C)P(C)}{P(X)}$$
 Since $P(X)$ is constant for all classes, the classification rule simplifies to:
 $$\hat{C} = \arg\max_C P(X|C)P(C)$$
@@ -73,7 +73,7 @@ $$
 
 ### Gaussian Likelihood for Features
 
-For Gaussian [Naive Bayes](/algorithms/supervised/classification/naive-bayes), it is assumed that the continuous features $x_i$ follow a Gaussian (normal) distribution within each class $C$. The likelihood $P(x_i|C)$ is therefore modeled by the probability density function (PDF) of a Gaussian distribution:
+For Gaussian Naive Bayes, it is assumed that the continuous features $x_i$ follow a Gaussian (normal) distribution within each class $C$. The likelihood $P(x_i|C)$ is therefore modeled by the probability density function (PDF) of a Gaussian distribution:
 $$P(x_i|C) = \frac{1}{\sqrt{2\pi\sigma_{ci}^2}} \exp\left(-\frac{(x_i - \mu_{ci})^2}{2\sigma_{ci}^2}\right)$$
 Here, $\mu_{ci}$ and $\sigma_{ci}^2$ are the mean and variance of feature $x_i$ for class $C$, respectively, estimated from the training data.
 

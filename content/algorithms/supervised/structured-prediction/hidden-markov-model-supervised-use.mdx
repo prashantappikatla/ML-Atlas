@@ -41,7 +41,7 @@ Hidden Markov Models (HMMs) are probabilistic graphical models designed to model
 
 ### HMM Components and Parameters
 
-A [Hidden Markov Model](/algorithms/probabilistic/probabilistic-models/hidden-markov-model) is defined by a set of hidden states $S = \{s_1, ..., s_N\}$, a set of observable symbols $O = \{o_1, ..., o_M\}$, and three probability distributions. The initial state probabilities $\pi = \{\pi_i\}$ define the probability of starting in state $s_i$. The transition probabilities $A = \{a_{ij}\}$ define the probability of moving from state $s_i$ to state $s_j$ at the next time step, i.e., $a_{ij} = P(s_t = s_j | s_{t-1} = s_i)$. The emission probabilities $B = \{b_j(k)\}$ define the probability of observing symbol $o_k$ when in state $s_j$, i.e., $b_j(k) = P(o_t = o_k | s_t = s_j)$. The complete model is denoted as $\lambda = (A, B, \pi)$.
+A [Hidden Markov Model](/algorithms/probabilistic/hidden-markov-model) is defined by a set of hidden states $S = \{s_1, ..., s_N\}$, a set of observable symbols $O = \{o_1, ..., o_M\}$, and three probability distributions. The initial state probabilities $\pi = \{\pi_i\}$ define the probability of starting in state $s_i$. The transition probabilities $A = \{a_{ij}\}$ define the probability of moving from state $s_i$ to state $s_j$ at the next time step, i.e., $a_{ij} = P(s_t = s_j | s_{t-1} = s_i)$. The emission probabilities $B = \{b_j(k)\}$ define the probability of observing symbol $o_k$ when in state $s_j$, i.e., $b_j(k) = P(o_t = o_k | s_t = s_j)$. The complete model is denoted as $\lambda = (A, B, \pi)$.
 
 $$
 \lambda = (A, B, \pi)

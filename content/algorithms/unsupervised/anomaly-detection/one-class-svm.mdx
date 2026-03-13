@@ -30,11 +30,11 @@ related:
 
 ## Overview
 
-One-Class [Support Vector Machine](/algorithms/supervised/classification/support-vector-machine) (OCSVM) is an unsupervised anomaly detection algorithm designed to identify outliers in a dataset. It works by learning a decision boundary that encapsulates the majority of the training data points, effectively separating "normal" data from the origin in a high-dimensional feature space. Data points falling outside this learned boundary are then classified as anomalies or novelties. This approach is particularly useful when only examples of the normal class are available for training.
+One-Class [Support Vector Machine](/algorithms/supervised/support-vector-machine) (OCSVM) is an unsupervised anomaly detection algorithm designed to identify outliers in a dataset. It works by learning a decision boundary that encapsulates the majority of the training data points, effectively separating "normal" data from the origin in a high-dimensional feature space. Data points falling outside this learned boundary are then classified as anomalies or novelties. This approach is particularly useful when only examples of the normal class are available for training.
 
 ## History
 
-**2001** — Bernhard Schölkopf, John C. Platt, Jason C. Shawe-Taylor, Alex J. Smola, and Robert C. Williamson introduced the One-Class SVM algorithm in their paper "Estimating the Support of a High-Dimensional Distribution." This work extended the principles of Support Vector Machines to the unsupervised setting for novelty detection.
+**2001** — Bernhard Schölkopf, John C. Platt, Jason C. Shawe-Taylor, Alex J. Smola, and Robert C. Williamson introduced the [One-Class SVM](/algorithms/unsupervised/one-class-svm) algorithm in their paper "Estimating the Support of a High-Dimensional Distribution." This work extended the principles of [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine) to the unsupervised setting for novelty detection.
 
 ## Mathematical Intuition
 
@@ -60,7 +60,7 @@ The optimization problem can be transformed into its dual form, which is often e
 $$ \min_{\alpha} \frac{1}{2} \sum_{i,j=1}^n \alpha_i \alpha_j K(x_i, x_j) $$
 subject to
 $$ 0 \le \alpha_i \le \frac{1}{\nu n}, \quad \sum_{i=1}^n \alpha_i = 1 $$
-where $K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)$ is the kernel function. The kernel trick allows OCSVM to implicitly operate in high-dimensional feature spaces without explicitly computing the $\phi(x)$ mapping, enabling the detection of non-linear decision boundaries. Common kernels include the Radial Basis Function (RBF) kernel, polynomial kernel, and linear kernel.
+where $K(x_i, x_j) = \phi(x_i) \cdot \phi(x_j)$ is the kernel function. The kernel trick allows OCSVM to implicitly operate in high-dimensional feature spaces without explicitly computing the $\phi(x)$ mapping, enabling the detection of non-linear decision boundaries. Common kernels include the [Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) (RBF) kernel, polynomial kernel, and linear kernel.
 
 $$
 \min_{\alpha} \frac{1}{2} \sum_{i,j=1}^n \alpha_i \alpha_j K(x_i, x_j)

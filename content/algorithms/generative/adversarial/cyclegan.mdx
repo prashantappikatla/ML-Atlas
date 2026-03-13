@@ -24,13 +24,13 @@ related:
 
 ## Overview
 
-CycleGAN addresses the problem of image-to-image translation without requiring paired training data. It learns a mapping between two image domains, $X$ and $Y$, such that an image translated from $X$ to $Y$ can be translated back to $X$ and recover the original image. This is achieved by simultaneously training two generative adversarial networks (GANs) and incorporating a cycle consistency loss, enabling unsupervised learning for diverse translation tasks.
+[CycleGAN](/algorithms/generative/cyclegan) addresses the problem of image-to-image translation without requiring paired training data. It learns a mapping between two image domains, $X$ and $Y$, such that an image translated from $X$ to $Y$ can be translated back to $X$ and recover the original image. This is achieved by simultaneously training two generative adversarial networks (GANs) and incorporating a cycle consistency loss, enabling unsupervised learning for diverse translation tasks.
 
 ## History
 
 **2014** — [Ian Goodfellow](https://en.wikipedia.org/wiki/Ian_Goodfellow) et al. introduce [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network) (GANs), establishing the adversarial training framework for generative models.
 
-**2016** — Phillip Isola et al. introduce [Pix2Pix](/algorithms/generative/adversarial/pix2pix), demonstrating conditional GANs for paired image-to-image translation, which sets the stage for unsupervised methods.
+**2016** — Phillip Isola et al. introduce [Pix2Pix](/algorithms/generative/pix2pix), demonstrating conditional GANs for paired image-to-image translation, which sets the stage for unsupervised methods.
 
 **2017** — Jun-Yan Zhu et al. publish "Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks" (CycleGAN), introducing the cycle consistency loss for unsupervised domain translation.
 
@@ -40,7 +40,7 @@ CycleGAN addresses the problem of image-to-image translation without requiring p
 
 ### Generative Adversarial Networks Objective
 
-CycleGAN builds upon the GAN framework, where a generator $G$ tries to produce realistic images to fool a discriminator $D$, while $D$ tries to distinguish real from fake. For a mapping $G_{XY}: X \to Y$ and its discriminator $D_Y$, the adversarial loss is defined as:$$ \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G_{XY}(x)))] $$This loss is applied symmetrically for the reverse mapping $G_{YX}: Y \to X$ and its discriminator $D_X$. The generators aim to minimize this loss, while the discriminators aim to maximize it.
+CycleGAN builds upon the [GAN](/algorithms/generative/gan) framework, where a generator $G$ tries to produce realistic images to fool a discriminator $D$, while $D$ tries to distinguish real from fake. For a mapping $G_{XY}: X \to Y$ and its discriminator $D_Y$, the adversarial loss is defined as:$$ \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G_{XY}(x)))] $$This loss is applied symmetrically for the reverse mapping $G_{YX}: Y \to X$ and its discriminator $D_X$. The generators aim to minimize this loss, while the discriminators aim to maximize it.
 
 $$
 \mathcal{L}_{GAN}(G_{XY}, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G_{XY}(x)))]
@@ -88,7 +88,7 @@ $$
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `learning_rate` | `float` | `0.0002` | (0.0, 1.0) | The learning rate for the Adam optimizer. |
+| `learning_rate` | `float` | `0.0002` | (0.0, 1.0) | The learning rate for the [Adam](/algorithms/meta-learning/adam) optimizer. |
 | `beta1` | `float` | `0.5` | (0.0, 1.0) | The exponential decay rate for the first moment estimates in Adam. |
 | `lambda_cycle` | `float` | `10.0` | (0.0, inf) | Weight for the cycle consistency loss. |
 | `lambda_identity` | `float` | `5.0` | (0.0, inf) | Weight for the identity mapping loss. Typically set to 0.5 * lambda_cycle. |

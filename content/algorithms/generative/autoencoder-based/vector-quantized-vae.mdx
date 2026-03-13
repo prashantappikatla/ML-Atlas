@@ -26,25 +26,25 @@ related:
 
 ## Overview
 
-Vector Quantized [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VQ-VAE) is a generative model that learns a discrete latent representation of data, unlike standard VAEs which learn continuous ones. It achieves this by mapping the encoder's output to a finite codebook of learned embedding vectors through a nearest-neighbor lookup. This discrete bottleneck enables the generation of high-quality samples and facilitates the use of powerful autoregressive models on the latent space.
+Vector Quantized [Variational Autoencoder](/algorithms/generative/variational-autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/autoencoder)) (VQ-VAE) is a generative model that learns a discrete latent representation of data, unlike standard VAEs which learn continuous ones. It achieves this by mapping the encoder's output to a finite codebook of learned embedding vectors through a nearest-neighbor lookup. This discrete bottleneck enables the generation of high-quality samples and facilitates the use of powerful autoregressive models on the latent space.
 
 ## History
 
-**2013** — Diederik P. Kingma and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduce the [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE), establishing a framework for learning continuous latent representations.
+**2013** — Diederik P. Kingma and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduce the Variational Autoencoder (VAE), establishing a framework for learning continuous latent representations.
 
 **2014** — Danilo J. Rezende, Shakir Mohamed, and Daan Wierstra independently propose a similar framework for deep generative models using variational inference.
 
-**2017** — Aaron van den Oord, Oriol Vinyals, and Koray Kavukcuoglu introduce the Vector Quantized [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VQ-VAE), proposing a method to learn discrete latent representations using a codebook and a straight-through estimator.
+**2017** — Aaron van den Oord, Oriol Vinyals, and Koray Kavukcuoglu introduce the Vector Quantized Variational Autoencoder (VQ-VAE), proposing a method to learn discrete latent representations using a codebook and a straight-through estimator.
 
 **2019** — Ali Razavi et al. introduce VQ-VAE-2, an improved hierarchical VQ-VAE architecture capable of generating high-fidelity images by learning multi-scale discrete representations.
 
-**2021** — Aditya Ramesh et al. develop DALL-E, a text-to-image model that leverages a VQ-VAE to compress images into a discrete latent space, which is then modeled by a [Transformer](/algorithms/deep-learning/transformers/transformer).
+**2021** — Aditya Ramesh et al. develop DALL-E, a text-to-image model that leverages a VQ-VAE to compress images into a discrete latent space, which is then modeled by a [Transformer](/algorithms/deep-learning/transformer).
 
 ## Mathematical Intuition
 
 ### VAE Objective Function
 
-The standard [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) aims to maximize the Evidence Lower Bound (ELBO), which serves as a lower bound on the log-likelihood of the data. The ELBO is expressed as a sum of a reconstruction term and a KL divergence term, encouraging the latent distribution to be close to a prior distribution. The VQ-VAE modifies this objective by introducing a discrete latent space and a different regularization mechanism.
+The standard Variational Autoencoder (VAE) aims to maximize the Evidence Lower Bound (ELBO), which serves as a lower bound on the log-likelihood of the data. The ELBO is expressed as a sum of a reconstruction term and a KL divergence term, encouraging the latent distribution to be close to a prior distribution. The VQ-VAE modifies this objective by introducing a discrete latent space and a different regularization mechanism.
 
 $$
 \log p(x) \ge E_{q(z|x)}[\log p(x|z)] - D_{KL}(q(z|x) || p(z))
@@ -104,7 +104,7 @@ The quantization step $z_q(x) = e_k$ is non-differentiable. To allow gradients t
 | `decoder_hidden_dims` | `list of int` | `[128, 256]` | list of positive integers | A list specifying the number of units in each hidden layer of the decoder network. |
 | `learning_rate` | `float` | `0.0002` | float > 0 | The step size used by the optimizer during training. |
 | `input_shape` | `tuple of int` | `(3, 64, 64)` | tuple of positive integers | The expected shape of the input data, e.g., (channels, height, width) for images. |
-| `optimizer` | `str` | `Adam` | ['Adam', 'RMSprop', 'SGD'] | The optimization algorithm used for updating model parameters. |
+| `optimizer` | `str` | `Adam` | '[[Adam](/algorithms/meta-learning/adam)', 'RMSprop', 'SGD'] | The optimization algorithm used for updating model parameters. |
 
 ## Compatibility
 
@@ -123,7 +123,7 @@ The quantization step $z_q(x) = e_k$ is non-differentiable. To allow gradients t
 - The discrete latent codes can lead to more interpretable and disentangled representations compared to continuous latent spaces.
 - VQ-VAE effectively avoids the 'posterior collapse' issue often seen in VAEs, where the latent variables are ignored by the decoder.
 - The codebook acts as a memory, allowing the model to learn and reuse distinct features across different parts of the data.
-- The training process is generally more stable compared to Generative Adversarial Networks (GANs).
+- The training process is generally more stable compared to [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network) (GANs).
 
 ## Weaknesses
 
@@ -141,7 +141,7 @@ Generating novel, high-resolution images from learned discrete representations, 
 
 ### Audio Synthesis
 
-Creating realistic speech, music, or environmental sounds by modeling discrete audio features, often in conjunction with autoregressive models like [WaveNet](/algorithms/generative/autoregressive/wavenet).
+Creating realistic speech, music, or environmental sounds by modeling discrete audio features, often in conjunction with autoregressive models like [WaveNet](/algorithms/generative/wavenet).
 
 ### Video Prediction
 
@@ -176,7 +176,7 @@ Serving as a crucial component in models that translate text descriptions into v
 
 ## Lab
 
-<LabEmbed url={""} title="Vector Quantized VAE Lab" />
+<LabEmbed url={""} title="[Vector Quantized VAE](/algorithms/generative/vector-quantized-vae) Lab" />
 
 ## References
 

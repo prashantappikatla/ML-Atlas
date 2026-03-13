@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Contextual Bandits extend the multi-armed bandit problem by incorporating side information, known as context, to inform action selection. At each step, an agent observes a context, chooses an action (arm), and receives a reward, aiming to maximize cumulative reward over time. This framework is distinctive for its ability to personalize decisions by leveraging features of the current situation, balancing the need to explore new actions with exploiting known good ones.
+[Contextual Bandits](/algorithms/reinforcement/contextual-bandits) extend the multi-armed bandit problem by incorporating side information, known as context, to inform action selection. At each step, an agent observes a context, chooses an action (arm), and receives a reward, aiming to maximize cumulative reward over time. This framework is distinctive for its ability to personalize decisions by leveraging features of the current situation, balancing the need to explore new actions with exploiting known good ones.
 
 ## History
 
@@ -35,7 +35,7 @@ Contextual Bandits extend the multi-armed bandit problem by incorporating side i
 
 **2010** — Li et al. introduce LinUCB (Linear Upper Confidence Bound), a highly influential algorithm that models rewards as a linear function of context and action, demonstrating strong empirical performance in real-world applications like news recommendation.
 
-**2012** — Contextual [Thompson Sampling](/algorithms/reinforcement/bandits/thompson-sampling) gains traction, applying Bayesian principles to contextual bandits by sampling from posterior distributions over reward functions to guide exploration.
+**2012** — Contextual [Thompson Sampling](/algorithms/reinforcement/thompson-sampling) gains traction, applying Bayesian principles to contextual bandits by sampling from posterior distributions over reward functions to guide exploration.
 
 **2016** — The rise of deep learning leads to the development of Neural Contextual Bandits, which use neural networks to model complex, non-linear relationships between context, actions, and rewards.
 
@@ -57,7 +57,7 @@ Contextual bandits inherently face the explore-exploit dilemma: should the agent
 
 ### Linear Reward Models
 
-Many effective contextual bandit algorithms, such as LinUCB, assume that the expected reward for an action $a$ given context $x_t$ can be modeled as a linear function: $E[r_{t,a} | x_t] = x_t^T \theta_a$. Here, $\theta_a \in \mathbb{R}^d$ is an unknown parameter vector specific to arm $a$. The algorithm's task is to estimate these $\theta_a$ vectors for all arms. Using [Ridge Regression](/algorithms/supervised/regression/ridge-regression), the estimate $\hat{\theta}_a$ for arm $a$ can be found by minimizing:
+Many effective contextual bandit algorithms, such as LinUCB, assume that the expected reward for an action $a$ given context $x_t$ can be modeled as a linear function: $E[r_{t,a} | x_t] = x_t^T \theta_a$. Here, $\theta_a \in \mathbb{R}^d$ is an unknown parameter vector specific to arm $a$. The algorithm's task is to estimate these $\theta_a$ vectors for all arms. Using [Ridge Regression](/algorithms/supervised/ridge-regression), the estimate $\hat{\theta}_a$ for arm $a$ can be found by minimizing:
 $$ \min_{\theta_a} \sum_{s=1}^{t-1} (x_s^T \theta_a - r_{s,a})^2 + \lambda ||\theta_a||_2^2 $$
 where the sum is over past observations where arm $a$ was chosen, and $\lambda$ is a regularization parameter.
 
@@ -71,7 +71,7 @@ $$
 
 ### Upper Confidence Bound Principle
 
-The UCB principle extends to contextual bandits by constructing confidence intervals around the estimated expected rewards. For an arm $a$ and context $x_t$, the algorithm estimates the expected reward $\hat{\mu}_{t,a} = x_t^T \hat{\theta}_a$ and adds an exploration bonus proportional to the uncertainty. The action chosen is $a_t = \arg\max_a (\hat{\mu}_{t,a} + \alpha \cdot \text{uncertainty}_{t,a})$. In LinUCB, the uncertainty term is related to the inverse covariance matrix of the observed contexts for arm $a$, specifically $x_t^T A_a^{-1} x_t$, where $A_a = \lambda I + \sum_{s: a_s=a} x_s x_s^T$. The chosen action $a_t$ is:
+The [UCB](/algorithms/reinforcement/ucb) principle extends to contextual bandits by constructing confidence intervals around the estimated expected rewards. For an arm $a$ and context $x_t$, the algorithm estimates the expected reward $\hat{\mu}_{t,a} = x_t^T \hat{\theta}_a$ and adds an exploration bonus proportional to the uncertainty. The action chosen is $a_t = \arg\max_a (\hat{\mu}_{t,a} + \alpha \cdot \text{uncertainty}_{t,a})$. In LinUCB, the uncertainty term is related to the inverse covariance matrix of the observed contexts for arm $a$, specifically $x_t^T A_a^{-1} x_t$, where $A_a = \lambda I + \sum_{s: a_s=a} x_s x_s^T$. The chosen action $a_t$ is:
 $$ a_t = \arg\max_{a \in \{1, \dots, K\}} \left( x_t^T \hat{\theta}_a + \alpha \sqrt{x_t^T A_a^{-1} x_t} \right) $$
 This ensures that arms with higher estimated rewards or higher uncertainty (less explored) are prioritized.
 

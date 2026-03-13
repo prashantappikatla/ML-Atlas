@@ -25,11 +25,11 @@ related:
 
 ## Overview
 
-PixelCNN is a generative model designed for modeling the distribution of images by predicting pixels autoregressively. It leverages convolutional neural networks with specialized masking to ensure that the prediction for each pixel depends only on previously generated pixels, adhering to a strict causal ordering. This architecture allows for the exact computation of the likelihood of an image, making it suitable for density estimation tasks.
+[PixelCNN](/algorithms/generative/pixelcnn) is a generative model designed for modeling the distribution of images by predicting pixels autoregressively. It leverages convolutional neural networks with specialized masking to ensure that the prediction for each pixel depends only on previously generated pixels, adhering to a strict causal ordering. This architecture allows for the exact computation of the likelihood of an image, making it suitable for density estimation tasks.
 
 ## History
 
-**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu from DeepMind introduced [PixelRNN](/algorithms/generative/autoregressive/pixelrnn) and PixelCNN, pioneering autoregressive models for high-quality image generation.
+**2016** — Aäron van den Oord, Nal Kalchbrenner, and Koray Kavukcuoglu from DeepMind introduced [PixelRNN](/algorithms/generative/pixelrnn) and PixelCNN, pioneering autoregressive models for high-quality image generation.
 
 **2016** — Van den Oord et al. further improved the PixelCNN architecture by introducing Gated PixelCNN, which utilized gated activation units to enhance the model's capacity and information flow, leading to better generative performance.
 
@@ -63,7 +63,7 @@ $$
 2. Construct a convolutional neural network architecture using masked convolutions (Type A for the first layer, Type B for subsequent layers) to ensure that the receptive field for predicting pixel $x_i$ only includes pixels $x_j$ where $j < i$.
 3. For each pixel $x_i$ in the input image, the network processes the context of previously observed pixels $x_1, ..., x_{i-1}$ to output a probability distribution $P(x_i | x_1, ..., x_{i-1})$.
 4. During training, compute the negative log-likelihood loss by summing the negative log-probabilities of the true pixel values under their respective predicted distributions.
-5. Update the network's parameters using an optimization algorithm (e.g., Adam) to minimize the calculated loss.
+5. Update the network's parameters using an optimization algorithm (e.g., [Adam](/algorithms/meta-learning/adam)) to minimize the calculated loss.
 6. During generation, start with an empty canvas or a seed pixel. Iteratively sample each pixel $x_i$ from its predicted conditional distribution $P(x_i | x_1, ..., x_{i-1})$, using the previously sampled pixels as context, until the entire image is generated.
 
 ## Parameters

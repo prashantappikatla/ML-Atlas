@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Actor-Critic algorithms represent a class of reinforcement learning methods that combine aspects of policy-based and value-based approaches. They employ two distinct components: an "actor" that learns a policy to select actions, and a "critic" that evaluates the quality of the actor's actions by estimating the value function. This synergistic interaction allows Actor-Critic methods to leverage the stability of value-based methods with the ability of policy-based methods to handle continuous action spaces, often leading to more efficient and stable learning.
+[Actor-Critic](/algorithms/reinforcement/actor-critic) algorithms represent a class of reinforcement learning methods that combine aspects of policy-based and value-based approaches. They employ two distinct components: an "actor" that learns a policy to select actions, and a "critic" that evaluates the quality of the actor's actions by estimating the value function. This synergistic interaction allows Actor-Critic methods to leverage the stability of value-based methods with the ability of policy-based methods to handle continuous action spaces, often leading to more efficient and stable learning.
 
 ## History
 
@@ -35,9 +35,9 @@ Actor-Critic algorithms represent a class of reinforcement learning methods that
 
 **1999** — The Actor-Critic framework was popularized and extensively discussed in Sutton and Barto's influential textbook, "[Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning): An Introduction," solidifying its place in the field.
 
-**2016** — Mnih et al. introduced Asynchronous Advantage Actor-Critic (A3C), a highly efficient and robust variant that enabled parallel training and achieved state-of-the-art performance on various Atari games.
+**2016** — Mnih et al. introduced Asynchronous Advantage Actor-Critic ([A3C](/algorithms/reinforcement/a3c)), a highly efficient and robust variant that enabled parallel training and achieved state-of-the-art performance on various Atari games.
 
-**2017** — Schulman et al. proposed Proximal Policy Optimization (PPO), an advanced policy gradient method that can be viewed as an Actor-Critic algorithm, known for its strong performance and stability across many tasks.
+**2017** — Schulman et al. proposed Proximal Policy Optimization ([PPO](/algorithms/reinforcement/ppo)), an advanced policy gradient method that can be viewed as an Actor-Critic algorithm, known for its strong performance and stability across many tasks.
 
 ## Mathematical Intuition
 
@@ -87,7 +87,7 @@ $$
 
 ### Actor and Critic Updates
 
-The actor's parameters $\theta$ are updated in the direction of the policy gradient, using the critic's estimate of the advantage (e.g., the TD error $\delta_t$):$$ \theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t $$The critic's parameters $w$ are updated to minimize the squared TD error, typically via [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent), to improve its value function estimate:$$ w \leftarrow w + \alpha_w \delta_t \nabla_w V_w(s_t) $$Here, $\alpha_\theta$ and $\alpha_w$ are the learning rates for the actor and critic, respectively.
+The actor's parameters $\theta$ are updated in the direction of the policy gradient, using the critic's estimate of the advantage (e.g., the TD error $\delta_t$):$$ \theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t $$The critic's parameters $w$ are updated to minimize the squared TD error, typically via [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent), to improve its value function estimate:$$ w \leftarrow w + \alpha_w \delta_t \nabla_w V_w(s_t) $$Here, $\alpha_\theta$ and $\alpha_w$ are the learning rates for the actor and critic, respectively.
 
 $$
 \theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \delta_t

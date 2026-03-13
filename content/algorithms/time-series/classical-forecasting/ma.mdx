@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-Moving Average (MA) is a fundamental technique in time series analysis used for smoothing data and identifying trends by calculating the average of a specified number of preceding data points. It helps to reduce noise and short-term fluctuations, making underlying patterns or cycles more apparent. This method is particularly valued for its simplicity and interpretability, serving as a foundational component in more complex forecasting models. The MA component also forms a crucial part of more advanced models like [ARIMA](/algorithms/time-series/classical-forecasting/arima), where it models the dependency between an observation and a residual error from a moving average model applied to prior observations.
+Moving Average ([MA](/algorithms/time-series/ma)) is a fundamental technique in time series analysis used for smoothing data and identifying trends by calculating the average of a specified number of preceding data points. It helps to reduce noise and short-term fluctuations, making underlying patterns or cycles more apparent. This method is particularly valued for its simplicity and interpretability, serving as a foundational component in more complex forecasting models. The MA component also forms a crucial part of more advanced models like [ARIMA](/algorithms/time-series/arima), where it models the dependency between an observation and a residual error from a moving average model applied to prior observations.
 
 ## History
 
@@ -34,7 +34,7 @@ Moving Average (MA) is a fundamental technique in time series analysis used for 
 
 **1950** — The concept of moving averages became integral to the development of more sophisticated time series models, notably with the introduction of Exponential Moving Averages (EMA) and their incorporation into forecasting methodologies.
 
-**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins formalized the Autoregressive Integrated Moving Average ([ARIMA](/algorithms/time-series/classical-forecasting/arima)) models, where the Moving Average (MA) component models the dependency between an observation and a residual error from a moving average model applied to prior observations.
+**1970** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins formalized the Autoregressive Integrated Moving Average (ARIMA) models, where the Moving Average (MA) component models the dependency between an observation and a residual error from a moving average model applied to prior observations.
 
 ## Mathematical Intuition
 
@@ -56,7 +56,7 @@ $$
 
 ### MA Component in ARIMA Models
 
-In the context of an [ARIMA](/algorithms/time-series/classical-forecasting/arima)($p, d, q$) model, the Moving Average (MA) component of order $q$ models the dependency between an observation and a residual error from a moving average model applied to prior observations. Specifically, the MA($q$) part of the model is expressed as a linear combination of current and past white noise error terms. This formulation captures the impact of past forecast errors on the current value, assuming the errors are independently and identically distributed.
+In the context of an ARIMA($p, d, q$) model, the Moving Average (MA) component of order $q$ models the dependency between an observation and a residual error from a moving average model applied to prior observations. Specifically, the MA($q$) part of the model is expressed as a linear combination of current and past white noise error terms. This formulation captures the impact of past forecast errors on the current value, assuming the errors are independently and identically distributed.
 
 $$
 Y_t = \mu + \epsilon_t + \sum_{j=1}^{q} \theta_j \epsilon_{t-j}

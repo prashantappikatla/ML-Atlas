@@ -25,25 +25,25 @@ related:
 
 ## Overview
 
-Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) extends traditional [Logistic Regression](/algorithms/supervised/classification/logistic-regression) by incorporating prior distributions over the model parameters, allowing for the quantification of uncertainty in predictions and parameter estimates. This probabilistic approach provides a full posterior distribution over the model weights, rather than just point estimates, which can be particularly valuable in scenarios with limited data or when robust uncertainty measures are required. It naturally regularizes the model, mitigating overfitting by penalizing overly complex solutions through the prior.
+[Bayesian Logistic Regression](/algorithms/probabilistic/bayesian-logistic-regression) extends traditional [Logistic Regression](/algorithms/supervised/logistic-regression) by incorporating prior distributions over the model parameters, allowing for the quantification of uncertainty in predictions and parameter estimates. This probabilistic approach provides a full posterior distribution over the model weights, rather than just point estimates, which can be particularly valuable in scenarios with limited data or when robust uncertainty measures are required. It naturally regularizes the model, mitigating overfitting by penalizing overly complex solutions through the prior.
 
 ## History
 
-**1980** — The foundational work on [Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLMs) established the mathematical basis for [Logistic Regression](/algorithms/supervised/classification/logistic-regression), providing a framework for modeling binary outcomes.
+**1980** — The foundational work on [Generalized Linear Models](https://en.wikipedia.org/wiki/Generalized_linear_model) (GLMs) established the mathematical basis for Logistic Regression, providing a framework for modeling binary outcomes.
 
 **1990** — Growing interest in Bayesian methods for GLMs emerged, facilitated by the development of [Markov Chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) (MCMC) techniques for approximating intractable posterior distributions.
 
-**1992** — The concept of applying Bayesian inference to [Logistic Regression](/algorithms/supervised/classification/logistic-regression) models gained significant traction within the broader Bayesian GLM literature, emphasizing the estimation of full posterior distributions over parameters.
+**1992** — The concept of applying Bayesian inference to Logistic Regression models gained significant traction within the broader Bayesian GLM literature, emphasizing the estimation of full posterior distributions over parameters.
 
-**2000** — Advances in computational Bayesian methods, including more efficient MCMC samplers (e.g., Hamiltonian Monte Carlo) and the emergence of Variational Inference, made Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) more scalable and practical.
+**2000** — Advances in computational Bayesian methods, including more efficient MCMC samplers (e.g., Hamiltonian Monte Carlo) and the emergence of Variational Inference, made Bayesian Logistic Regression more scalable and practical.
 
-**2010** — Probabilistic programming languages like Stan and PyMC3 democratized the implementation of Bayesian models, including Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression), making them accessible to a wider audience of practitioners.
+**2010** — Probabilistic programming languages like Stan and PyMC3 democratized the implementation of Bayesian models, including Bayesian Logistic Regression, making them accessible to a wider audience of practitioners.
 
 ## Mathematical Intuition
 
 ### Logistic Regression Likelihood
 
-The core of [Logistic Regression](/algorithms/supervised/classification/logistic-regression) involves modeling the probability of a binary outcome. For a given input vector $x_i$ and parameters $w$ (weights) and $b$ (bias), the probability of the positive class ($y_i=1$) is defined by the sigmoid function:
+The core of Logistic Regression involves modeling the probability of a binary outcome. For a given input vector $x_i$ and parameters $w$ (weights) and $b$ (bias), the probability of the positive class ($y_i=1$) is defined by the sigmoid function:
 $$P(y_i=1 | x_i, w, b) = \sigma(w^T x_i + b) = \frac{1}{1 + e^{-(w^T x_i + b)}}$$
 The likelihood for a dataset $D = \{(x_i, y_i)\}_{i=1}^N$ is the product of individual Bernoulli probabilities:
 $$P(D | w, b) = \prod_{i=1}^N P(y_i | x_i, w, b) = \prod_{i=1}^N \sigma(w^T x_i + b)^{y_i} (1 - \sigma(w^T x_i + b))^{1-y_i}$$
@@ -81,7 +81,7 @@ $$
 
 ### Approximate Inference Methods
 
-Since the posterior distribution $P(w, b | D)$ for Bayesian [Logistic Regression](/algorithms/supervised/classification/logistic-regression) is typically not analytically tractable, approximate inference methods are employed. Two primary approaches are:
+Since the posterior distribution $P(w, b | D)$ for Bayesian Logistic Regression is typically not analytically tractable, approximate inference methods are employed. Two primary approaches are:
 1.  **Markov Chain Monte Carlo (MCMC)**: Methods like Metropolis-Hastings or Hamiltonian Monte Carlo (HMC) draw samples from the posterior distribution. These samples can then be used to estimate posterior means, credible intervals, and make predictions by averaging over the samples.
 2.  **Variational Inference (VI)**: This approach approximates the true posterior with a simpler, tractable distribution $q(w, b)$ by minimizing the Kullback-Leibler (KL) divergence between $q(w, b)$ and $P(w, b | D)$. This transforms the inference problem into an optimization problem, often solved using iterative algorithms.
 

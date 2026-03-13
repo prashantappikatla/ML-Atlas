@@ -38,13 +38,13 @@ Deep Belief Networks (DBNs) are generative graphical models composed of multiple
 
 **2009** — Research expanded on DBNs for speech recognition, demonstrating that pre-training deep architectures with DBNs could significantly improve performance over traditional methods like [Gaussian Mixture Models](https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model) (GMMs).
 
-**2012** — While Convolutional Neural Networks (CNNs) began to dominate image recognition, DBNs continued to be explored for tasks where unsupervised feature learning was critical, such as in medical imaging and anomaly detection.
+**2012** — While Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) began to dominate image recognition, DBNs continued to be explored for tasks where unsupervised feature learning was critical, such as in medical imaging and anomaly detection.
 
 ## Mathematical Intuition
 
 ### Restricted Boltzmann Machine Basics
 
-A Deep Belief Network is constructed from multiple layers of Restricted Boltzmann Machines (RBMs). An RBM is a two-layer neural network with a visible layer $\mathbf{v}$ and a hidden layer $\mathbf{h}$, where connections exist only between layers, not within them. The energy function for an RBM is defined as:
+A [Deep Belief Network](/algorithms/deep-learning/deep-belief-network) is constructed from multiple layers of Restricted Boltzmann Machines (RBMs). An RBM is a two-layer neural network with a visible layer $\mathbf{v}$ and a hidden layer $\mathbf{h}$, where connections exist only between layers, not within them. The energy function for an RBM is defined as:
 $$E(\mathbf{v}, \mathbf{h}) = -\sum_i a_i v_i - \sum_j b_j h_j - \sum_{i,j} v_i W_{ij} h_j$$
 where $a_i$ are biases for visible units, $b_j$ are biases for hidden units, and $W_{ij}$ are the weights connecting visible unit $i$ to hidden unit $j$. The probability of a configuration is given by $P(\mathbf{v}, \mathbf{h}) = \frac{1}{Z} e^{-E(\mathbf{v}, \mathbf{h})}$, where $Z$ is the partition function. The conditional probabilities for unit activations are:
 $$P(h_j=1|\mathbf{v}) = \sigma(b_j + \sum_i W_{ij} v_i)$$
@@ -83,7 +83,7 @@ $$
 
 ### Greedy Layer-wise Pre-training
 
-A DBN is formed by [Stacking](/algorithms/supervised/classification/stacking) RBMs. The key insight is the greedy layer-wise training procedure. The first RBM is trained on the raw input data $\mathbf{v}^{(0)}$. Once trained, its hidden layer activations $P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})$ are treated as the input data $\mathbf{v}^{(1)}$ for the second RBM. This process is repeated for each subsequent RBM, where the hidden layer of the $k$-th RBM becomes the visible layer for the $(k+1)$-th RBM. This unsupervised pre-training initializes the weights of the deep network to a good starting point, preventing issues like vanishing gradients and poor local optima.
+A DBN is formed by [Stacking](/algorithms/supervised/stacking) RBMs. The key insight is the greedy layer-wise training procedure. The first RBM is trained on the raw input data $\mathbf{v}^{(0)}$. Once trained, its hidden layer activations $P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})$ are treated as the input data $\mathbf{v}^{(1)}$ for the second RBM. This process is repeated for each subsequent RBM, where the hidden layer of the $k$-th RBM becomes the visible layer for the $(k+1)$-th RBM. This unsupervised pre-training initializes the weights of the deep network to a good starting point, preventing issues like vanishing gradients and poor local optima.
 
 $$
 P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})
@@ -104,7 +104,7 @@ After the unsupervised pre-training phase, the stacked RBMs form a deep generati
 ## Algorithm Steps
 
 1. Initialize the Deep Belief Network structure by deciding the number of RBM layers and the number of hidden units for each layer.
-2. Train the first Restricted Boltzmann Machine (RBM) using the raw input data $\mathbf{v}^{(0)}$ as its visible layer, optimizing its weights and biases using Contrastive Divergence.
+2. Train the first [Restricted Boltzmann Machine](/algorithms/deep-learning/restricted-boltzmann-machine) (RBM) using the raw input data $\mathbf{v}^{(0)}$ as its visible layer, optimizing its weights and biases using Contrastive Divergence.
 3. Once the first RBM is trained, compute the activations of its hidden layer $P(\mathbf{h}^{(1)}|\mathbf{v}^{(0)})$ for all input data, which will serve as the visible layer input $\mathbf{v}^{(1)}$ for the second RBM.
 4. Train the second RBM using $\mathbf{v}^{(1)}$ as its visible layer, again optimizing its parameters with Contrastive Divergence.
 5. Repeat the process for each subsequent RBM layer: train the $k$-th RBM using the hidden layer activations of the $(k-1)$-th RBM as its visible input.
@@ -116,7 +116,7 @@ After the unsupervised pre-training phase, the stacked RBMs form a deep generati
 
 | Parameter | Type | Default | Range / Options | Description |
 |---|---|---|---|---|
-| `n_layers` | `int` | `2` | integer > 0 | The number of Restricted Boltzmann Machine layers to stack in the Deep Belief Network. |
+| `n_layers` | `int` | `2` | integer > 0 | The number of Restricted [Boltzmann Machine](/algorithms/deep-learning/boltzmann-machine) layers to stack in the Deep Belief Network. |
 | `hidden_units_per_layer` | `list of int` | `[256, 128]` | list of integers > 0 | A list specifying the number of hidden units for each RBM layer, from bottom to top. |
 | `rbm_epochs` | `int` | `20` | integer > 0 | The number of training epochs for each individual RBM during the unsupervised pre-training phase. |
 | `rbm_learning_rate` | `float` | `0.01` | float > 0 | The learning rate used for training each RBM via Contrastive Divergence. |

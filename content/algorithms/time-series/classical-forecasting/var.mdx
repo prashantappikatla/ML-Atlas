@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Vector Autoregression (VAR) is a statistical model used for capturing the linear interdependencies among multiple time series. It generalizes the univariate autoregressive (AR) model to multiple parallel time series, where each variable is expressed as a linear function of its own past values and the past values of all other variables in the system. This framework is particularly useful for forecasting systems of interrelated time series and for analyzing the dynamic impact of shocks. VAR models do not impose strong theoretical restrictions on the relationships between variables, making them flexible for empirical analysis.
+Vector Autoregression ([VAR](/algorithms/time-series/var)) is a statistical model used for capturing the linear interdependencies among multiple time series. It generalizes the univariate autoregressive ([AR](/algorithms/time-series/ar)) model to multiple parallel time series, where each variable is expressed as a linear function of its own past values and the past values of all other variables in the system. This framework is particularly useful for forecasting systems of interrelated time series and for analyzing the dynamic impact of shocks. VAR models do not impose strong theoretical restrictions on the relationships between variables, making them flexible for empirical analysis.
 
 ## History
 
@@ -61,7 +61,7 @@ $$
 
 ### Estimation via Ordinary Least Squares
 
-Each equation in a VAR model can be estimated separately using [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS), provided that the error terms are uncorrelated with the regressors. For the $j$-th equation, $y_{jt}$ is regressed on a constant and the lagged values of all $K$ variables in the system. [Stacking](/algorithms/supervised/classification/stacking) the equations, the entire system can be estimated efficiently, as the OLS estimator for each equation is consistent and asymptotically efficient.
+Each equation in a VAR model can be estimated separately using [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) (OLS), provided that the error terms are uncorrelated with the regressors. For the $j$-th equation, $y_{jt}$ is regressed on a constant and the lagged values of all $K$ variables in the system. [Stacking](/algorithms/supervised/stacking) the equations, the entire system can be estimated efficiently, as the OLS estimator for each equation is consistent and asymptotically efficient.
 
 ### Lag Order Selection
 

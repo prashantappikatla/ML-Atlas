@@ -25,21 +25,21 @@ related:
 
 ## Overview
 
-A3C (Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)) is a model-free, online reinforcement learning algorithm that leverages parallel training to stabilize and accelerate learning in complex environments. It combines the strengths of policy-based and value-based methods through an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) architecture, where multiple agents explore different instances of the environment simultaneously. This asynchronous approach reduces correlation in the agents' experiences, leading to more robust and efficient learning compared to synchronous methods.
+[A3C](/algorithms/reinforcement/a3c) (Asynchronous Advantage [Actor-Critic](/algorithms/reinforcement/actor-critic)) is a model-free, online reinforcement learning algorithm that leverages parallel training to stabilize and accelerate learning in complex environments. It combines the strengths of policy-based and value-based methods through an Actor-Critic architecture, where multiple agents explore different instances of the environment simultaneously. This asynchronous approach reduces correlation in the agents' experiences, leading to more robust and efficient learning compared to synchronous methods.
 
 ## History
 
-**2016** — Mnih et al. from Google DeepMind introduced A3C in their seminal paper "Asynchronous Methods for Deep Reinforcement Learning," demonstrating its superior performance and stability on various Atari 2600 games and 3D environments.
+**2016** — Mnih et al. from Google DeepMind introduced A3C in their seminal paper "Asynchronous Methods for Deep [Reinforcement Learning](https://en.wikipedia.org/wiki/Reinforcement_learning)," demonstrating its superior performance and stability on various Atari 2600 games and 3D environments.
 
 **2016** — The paper highlighted A3C's efficiency, showing it could achieve state-of-the-art results without the need for experience replay buffers, which were crucial for prior deep reinforcement learning algorithms like DQN.
 
-**2017** — A3C served as a foundational algorithm, inspiring subsequent asynchronous and distributed reinforcement learning methods, including A2C (Advantage [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic)), a synchronous variant that often simplifies implementation.
+**2017** — A3C served as a foundational algorithm, inspiring subsequent asynchronous and distributed reinforcement learning methods, including [A2C](/algorithms/reinforcement/a2c) (Advantage Actor-Critic), a synchronous variant that often simplifies implementation.
 
 ## Mathematical Intuition
 
 ### Actor-Critic Architecture
 
-A3C employs an [Actor-Critic](/algorithms/reinforcement/policy-gradient/actor-critic) framework, where the "actor" learns a policy $\pi(a|s; \theta)$ to select actions, and the "critic" learns a state-value function $V(s; \phi)$ to estimate the expected return from a given state. These two components often share some neural network layers and are trained concurrently. The critic's value estimates help reduce the variance of the policy gradient updates, making learning more stable.
+A3C employs an Actor-Critic framework, where the "actor" learns a policy $\pi(a|s; \theta)$ to select actions, and the "critic" learns a state-value function $V(s; \phi)$ to estimate the expected return from a given state. These two components often share some neural network layers and are trained concurrently. The critic's value estimates help reduce the variance of the policy gradient updates, making learning more stable.
 
 $$
 $\pi(a|s; \theta)$
@@ -75,7 +75,7 @@ A3C's distinctive feature is its asynchronous nature. Multiple parallel agents, 
 
 ### Policy and Value Loss
 
-The global network parameters $\theta$ (for policy) and $\phi$ (for value) are updated using gradients derived from a combined loss function. The policy loss aims to maximize the expected return, often incorporating an entropy bonus to encourage exploration: $$L_p(\theta) = -\log \pi(a_t|s_t; \theta) A(s_t, a_t) - \beta H(\pi(s_t; \theta))$$ where $H$ is the entropy and $\beta$ is the entropy coefficient. The value loss minimizes the squared error between the estimated value and the target value: $$L_v(\phi) = (R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi))^2$$ These losses are combined and optimized using an algorithm like Adam.
+The global network parameters $\theta$ (for policy) and $\phi$ (for value) are updated using gradients derived from a combined loss function. The policy loss aims to maximize the expected return, often incorporating an entropy bonus to encourage exploration: $$L_p(\theta) = -\log \pi(a_t|s_t; \theta) A(s_t, a_t) - \beta H(\pi(s_t; \theta))$$ where $H$ is the entropy and $\beta$ is the entropy coefficient. The value loss minimizes the squared error between the estimated value and the target value: $$L_v(\phi) = (R_t + \gamma V(s_{t+1}; \phi) - V(s_t; \phi))^2$$ These losses are combined and optimized using an algorithm like [Adam](/algorithms/meta-learning/adam).
 
 $$
 $L_p(\theta) = -\log \pi(a_t|s_t; \theta) A(s_t, a_t) - \beta H(\pi(s_t; \theta))$

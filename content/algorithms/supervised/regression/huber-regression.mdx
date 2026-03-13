@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-Huber Regression is a robust regression technique designed to be less sensitive to outliers in data compared to ordinary least squares (OLS) regression. It achieves this by employing a loss function that is quadratic for small residuals and linear for large residuals. This piecewise function effectively combines the advantages of [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE) for typical data points and Mean Absolute Error (MAE) for outliers, providing a compromise between efficiency and robustness. The algorithm iteratively reweights data points based on their residuals, diminishing the influence of extreme observations.
+[Huber Regression](/algorithms/supervised/huber-regression) is a robust regression technique designed to be less sensitive to outliers in data compared to ordinary least squares (OLS) regression. It achieves this by employing a loss function that is quadratic for small residuals and linear for large residuals. This piecewise function effectively combines the advantages of [Mean Squared Error](https://en.wikipedia.org/wiki/Mean_squared_error) (MSE) for typical data points and Mean Absolute Error (MAE) for outliers, providing a compromise between efficiency and robustness. The algorithm iteratively reweights data points based on their residuals, diminishing the influence of extreme observations.
 
 ## History
 
@@ -44,7 +44,7 @@ Huber Regression is a robust regression technique designed to be less sensitive 
 
 ### Ordinary Least Squares Loss
 
-The standard approach for [Linear Regression](/algorithms/supervised/regression/linear-regression) minimizes the sum of squared residuals, known as the Mean Squared Error (MSE) loss. The objective is to find coefficients $\mathbf{w}$ that minimize:$$L_{MSE}(\mathbf{w}) = \frac{1}{2n} \sum_{i=1}^n (y_i - \mathbf{x}_i^T \mathbf{w})^2$$While simple and efficient, the quadratic nature of MSE heavily penalizes large errors, making OLS highly susceptible to outliers.
+The standard approach for [Linear Regression](/algorithms/supervised/linear-regression) minimizes the sum of squared residuals, known as the Mean Squared Error (MSE) loss. The objective is to find coefficients $\mathbf{w}$ that minimize:$$L_{MSE}(\mathbf{w}) = \frac{1}{2n} \sum_{i=1}^n (y_i - \mathbf{x}_i^T \mathbf{w})^2$$While simple and efficient, the quadratic nature of MSE heavily penalizes large errors, making OLS highly susceptible to outliers.
 
 $$
 L_{MSE}(\mathbf{w}) = \frac{1}{2n} \sum_{i=1}^n (y_i - \mathbf{x}_i^T \mathbf{w})^2
@@ -72,7 +72,7 @@ $$
 
 ## Algorithm Steps
 
-1. Initialize the regression coefficients $\mathbf{w}$ (e.g., with zeros or an Ordinary Least Squares estimate).
+1. Initialize the regression coefficients $\mathbf{w}$ (e.g., with zeros or an [Ordinary Least Squares](https://en.wikipedia.org/wiki/Ordinary_least_squares) estimate).
 2. Iteratively update the coefficients until convergence or a maximum number of iterations is reached.
 3. In each iteration, calculate the residuals $r_i = y_i - \mathbf{x}_i^T \mathbf{w}$ for all data points $i=1, \dots, n$.
 4. Determine the weight for each data point $i$ based on its residual $r_i$ and the $\delta$ parameter: $w_i = 1$ if $|r_i| \le \delta$, and $w_i = \frac{\delta}{|r_i|}$ if $|r_i| > \delta$.

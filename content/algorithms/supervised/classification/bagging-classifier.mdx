@@ -25,13 +25,13 @@ related:
 
 ## Overview
 
-Bagging Classifier is an ensemble meta-algorithm designed to improve the stability and accuracy of machine learning algorithms, primarily by reducing variance. It achieves this by training multiple base estimators on different subsets of the training data, which are generated via bootstrap sampling. The final prediction is then determined by aggregating the predictions of these individual estimators, typically through majority voting for classification tasks.
+[Bagging Classifier](/algorithms/supervised/bagging-classifier) is an ensemble meta-algorithm designed to improve the stability and accuracy of machine learning algorithms, primarily by reducing variance. It achieves this by training multiple base estimators on different subsets of the training data, which are generated via bootstrap sampling. The final prediction is then determined by aggregating the predictions of these individual estimators, typically through majority voting for classification tasks.
 
 ## History
 
 **1994** — [Leo Breiman](https://en.wikipedia.org/wiki/Leo_Breiman) introduces the concept of "Bagging" ([Bootstrap Aggregating](https://en.wikipedia.org/wiki/Bootstrap_aggregating)) in a technical report, laying the groundwork for ensemble methods that reduce variance.
 
-**1996** — Leo Breiman publishes the seminal paper "[Bagging Predictors](https://en.wikipedia.org/wiki/Bootstrap_aggregating)," formally introducing the Bagging algorithm and demonstrating its effectiveness in improving prediction accuracy across various datasets.
+**1996** — Leo Breiman publishes the seminal paper "Bagging Predictors," formally introducing the Bagging algorithm and demonstrating its effectiveness in improving prediction accuracy across various datasets.
 
 **2001** — Leo Breiman further develops the [Random Forest](https://en.wikipedia.org/wiki/Random_forest) algorithm, which extends Bagging by introducing random feature selection during the training of individual decision trees, enhancing decorrelation and performance.
 
@@ -73,7 +73,7 @@ $$
 
 ## Algorithm Steps
 
-1. Specify a base estimator (e.g., Decision Tree) and the desired number of estimators $M$ to be trained.
+1. Specify a base estimator (e.g., [Decision Tree](https://en.wikipedia.org/wiki/Decision_tree_learning)) and the desired number of estimators $M$ to be trained.
 2. For each of the $M$ iterations, create a bootstrap sample $D_b$ by drawing $N$ samples with replacement from the original training dataset $D$.
 3. Train a new instance of the chosen base estimator, $h_b$, using the bootstrap sample $D_b$.
 4. Repeat the sampling and training process until all $M$ base estimators are trained.

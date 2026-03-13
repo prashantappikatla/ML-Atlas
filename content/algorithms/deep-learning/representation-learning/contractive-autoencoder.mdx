@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Contractive Autoencoders (CAEs) are a type of [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) that learn robust feature representations by penalizing the sensitivity of the learned features to small perturbations in the input data. This is achieved by adding a contractive penalty term to the standard reconstruction loss, which encourages the encoder's output to be locally invariant. The algorithm aims to make the learned representation contractive, meaning that small changes in the input result in even smaller changes in the hidden representation, thereby promoting robustness and generalization.
+Contractive Autoencoders (CAEs) are a type of [Autoencoder](/algorithms/deep-learning/autoencoder) that learn robust feature representations by penalizing the sensitivity of the learned features to small perturbations in the input data. This is achieved by adding a contractive penalty term to the standard reconstruction loss, which encourages the encoder's output to be locally invariant. The algorithm aims to make the learned representation contractive, meaning that small changes in the input result in even smaller changes in the hidden representation, thereby promoting robustness and generalization.
 
 ## History
 
@@ -34,7 +34,7 @@ Contractive Autoencoders (CAEs) are a type of [Autoencoder](/algorithms/deep-lea
 
 **2008** — Pascal Vincent et al. proposed Denoising Autoencoders (DAEs), which learn robust representations by reconstructing a clean input from a corrupted version, providing an alternative regularization strategy.
 
-**2011** — Sacha Rifai, Pascal Vincent, Xavier Muller, Xavier Glorot, and [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio) introduced the Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder), formalizing the contractive penalty to encourage local invariance in the learned features.
+**2011** — Sacha Rifai, Pascal Vincent, Xavier Muller, Xavier Glorot, and [Yoshua Bengio](https://en.wikipedia.org/wiki/Yoshua_Bengio) introduced the [Contractive Autoencoder](/algorithms/deep-learning/contractive-autoencoder), formalizing the contractive penalty to encourage local invariance in the learned features.
 
 **2012** — Rifai et al. further explored the theoretical connections between CAEs and other regularization techniques, highlighting their ability to learn features that are robust to input variations.
 
@@ -42,7 +42,7 @@ Contractive Autoencoders (CAEs) are a type of [Autoencoder](/algorithms/deep-lea
 
 ### Standard Autoencoder Objective
 
-A standard [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The goal is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. The reconstruction loss, often mean squared error, is given by: $$L_{recon}(x, r) = ||x - g(f(x))||^2$$
+A standard Autoencoder consists of an encoder function $h = f(x)$ and a decoder function $r = g(h)$. The goal is to minimize the reconstruction error between the input $x$ and its reconstruction $r$. The reconstruction loss, often mean squared error, is given by: $$L_{recon}(x, r) = ||x - g(f(x))||^2$$
 
 $$
 h = f(x)
@@ -58,7 +58,7 @@ $$
 
 ### The Contractive Penalty
 
-The Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) adds a penalty term that encourages the encoder's hidden representation $h$ to be insensitive to small changes in the input $x$. This is achieved by penalizing the Frobenius norm of the Jacobian matrix of the encoder's activation function with respect to the input. The Jacobian matrix $J_f(x)$ captures the local sensitivity of each hidden unit $h_i$ to each input dimension $x_j$, where $J_f(x)_{ij} = \frac{\partial h_i}{\partial x_j}$.
+The Contractive Autoencoder adds a penalty term that encourages the encoder's hidden representation $h$ to be insensitive to small changes in the input $x$. This is achieved by penalizing the Frobenius norm of the Jacobian matrix of the encoder's activation function with respect to the input. The Jacobian matrix $J_f(x)$ captures the local sensitivity of each hidden unit $h_i$ to each input dimension $x_j$, where $J_f(x)_{ij} = \frac{\partial h_i}{\partial x_j}$.
 
 $$
 h
@@ -86,7 +86,7 @@ $$
 
 ### Total Loss Function
 
-The total loss function for a Contractive [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder) combines the reconstruction loss and the contractive penalty, weighted by a hyperparameter $\lambda$: $$L_{total}(x) = L_{recon}(x, g(f(x))) + \lambda L_{contractive}(x)$$ The hyperparameter $\lambda$ controls the strength of the contractive regularization. A higher $\lambda$ leads to more robust, but potentially less expressive, features.
+The total loss function for a Contractive Autoencoder combines the reconstruction loss and the contractive penalty, weighted by a hyperparameter $\lambda$: $$L_{total}(x) = L_{recon}(x, g(f(x))) + \lambda L_{contractive}(x)$$ The hyperparameter $\lambda$ controls the strength of the contractive regularization. A higher $\lambda$ leads to more robust, but potentially less expressive, features.
 
 $$
 L_{total}(x) = L_{recon}(x, g(f(x))) + \lambda L_{contractive}(x)

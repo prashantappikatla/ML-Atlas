@@ -23,7 +23,7 @@ related:
 
 ## Overview
 
-Autoregressive Moving Average (ARMA) models combine autoregressive (AR) and moving average (MA) components to model time series data. It is employed for forecasting future values based on past observations and past forecast errors, under the assumption that the time series is stationary. The model is characterized by two parameters, $p$ for the AR order and $q$ for the MA order, which dictate the number of past values and past error terms included in the prediction.
+Autoregressive Moving Average ([ARMA](/algorithms/time-series/arma)) models combine autoregressive ([AR](/algorithms/time-series/ar)) and moving average ([MA](/algorithms/time-series/ma)) components to model time series data. It is employed for forecasting future values based on past observations and past forecast errors, under the assumption that the time series is stationary. The model is characterized by two parameters, $p$ for the AR order and $q$ for the MA order, which dictate the number of past values and past error terms included in the prediction.
 
 ## History
 
@@ -31,7 +31,7 @@ Autoregressive Moving Average (ARMA) models combine autoregressive (AR) and movi
 
 **1951** — [George Box](https://en.wikipedia.org/wiki/George_E._P._Box) and Gwilym Jenkins began developing a systematic methodology for identifying, estimating, and validating time series models, including ARMA, which later became known as the Box-Jenkins methodology.
 
-**1970** — Box and Jenkins published "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," which popularized ARMA (and [ARIMA](/algorithms/time-series/classical-forecasting/arima)) models and provided a practical, comprehensive framework for their application, becoming a cornerstone in time series analysis.
+**1970** — Box and Jenkins published "[Time Series Analysis](https://en.wikipedia.org/wiki/Time_series): Forecasting and Control," which popularized ARMA (and [ARIMA](/algorithms/time-series/arima)) models and provided a practical, comprehensive framework for their application, becoming a cornerstone in time series analysis.
 
 ## Mathematical Intuition
 
@@ -67,7 +67,7 @@ $$
 
 ### Stationarity Requirement
 
-A fundamental requirement for the application of ARMA models is that the underlying time series must be stationary. Stationarity implies that the mean, variance, and autocorrelation structure of the series do not change over time. If a time series is non-stationary, it typically needs to be transformed, often through differencing, to achieve stationarity before an ARMA model can be appropriately fitted. This transformation leads to the Autoregressive Integrated Moving Average ([ARIMA](/algorithms/time-series/classical-forecasting/arima)) model, where 'I' denotes the integration or differencing step.
+A fundamental requirement for the application of ARMA models is that the underlying time series must be stationary. Stationarity implies that the mean, variance, and autocorrelation structure of the series do not change over time. If a time series is non-stationary, it typically needs to be transformed, often through differencing, to achieve stationarity before an ARMA model can be appropriately fitted. This transformation leads to the Autoregressive Integrated Moving Average (ARIMA) model, where 'I' denotes the integration or differencing step.
 
 ## Algorithm Steps
 
@@ -112,7 +112,7 @@ A fundamental requirement for the application of ARMA models is that the underly
 - ARMA models strictly require the time series to be stationary, often necessitating differencing which can obscure the original data's interpretation.
 - Identifying the correct orders $p$ and $q$ can be subjective and challenging, relying heavily on the interpretation of ACF and PACF plots.
 - They struggle with non-linear relationships, structural breaks, or sudden shifts in the time series data.
-- ARMA models do not inherently handle seasonality, requiring extensions like SARIMA for seasonal patterns.
+- ARMA models do not inherently handle seasonality, requiring extensions like [SARIMA](/algorithms/time-series/sarima) for seasonal patterns.
 - Long-term forecasts from ARMA models tend to become less reliable as the prediction horizon increases due to accumulating errors.
 
 ## Use Cases

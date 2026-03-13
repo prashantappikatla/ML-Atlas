@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Dyna-Q is a model-based reinforcement learning architecture that integrates planning and learning to accelerate policy improvement. It achieves this by simultaneously learning a Q-function from real experiences and using a learned environmental model to generate simulated experiences for additional Q-function updates. This combination allows the agent to learn from both direct interaction with the environment and from "imagined" interactions, leading to more efficient learning, especially in environments where real experience is costly or slow.
+[Dyna-Q](/algorithms/reinforcement/dyna-q) is a model-based reinforcement learning architecture that integrates planning and learning to accelerate policy improvement. It achieves this by simultaneously learning a Q-function from real experiences and using a learned environmental model to generate simulated experiences for additional Q-function updates. This combination allows the agent to learn from both direct interaction with the environment and from "imagined" interactions, leading to more efficient learning, especially in environments where real experience is costly or slow.
 
 ## History
 
@@ -42,7 +42,7 @@ Dyna-Q is a model-based reinforcement learning architecture that integrates plan
 
 ### Q-Learning Foundation
 
-Dyna-Q builds upon the [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) update rule, which iteratively estimates the optimal action-value function $Q(s, a)$. The update for a real experience $(s, a, r, s')$ is given by:
+Dyna-Q builds upon the [Q-Learning](/algorithms/reinforcement/q-learning) update rule, which iteratively estimates the optimal action-value function $Q(s, a)$. The update for a real experience $(s, a, r, s')$ is given by:
 $$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]$$
 Here, $\alpha$ is the learning rate, $\gamma$ is the discount factor, $r$ is the immediate reward, and $s'$ is the next state.
 
@@ -62,7 +62,7 @@ $$
 
 ### Planning with Simulated Experiences
 
-After each real interaction with the environment, Dyna-Q performs $N$ planning steps. In each planning step, a previously experienced state-action pair $(s_{plan}, a_{plan})$ is chosen from memory, and the learned model is used to predict the next state $s'_{plan}$ and reward $r_{plan}$. This simulated experience $(s_{plan}, a_{plan}, r_{plan}, s'_{plan})$ is then used to update the Q-function using the same [Q-Learning](/algorithms/reinforcement/model-free-value-methods/q-learning) update rule as for real experiences:
+After each real interaction with the environment, Dyna-Q performs $N$ planning steps. In each planning step, a previously experienced state-action pair $(s_{plan}, a_{plan})$ is chosen from memory, and the learned model is used to predict the next state $s'_{plan}$ and reward $r_{plan}$. This simulated experience $(s_{plan}, a_{plan}, r_{plan}, s'_{plan})$ is then used to update the Q-function using the same Q-Learning update rule as for real experiences:
 $$Q(s_{plan}, a_{plan}) \leftarrow Q(s_{plan}, a_{plan}) + \alpha [r_{plan} + \gamma \max_{a'} Q(s'_{plan}, a') - Q(s_{plan}, a_{plan})]$$
 
 $$

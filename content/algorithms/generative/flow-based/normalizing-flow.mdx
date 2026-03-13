@@ -33,7 +33,7 @@ Normalizing Flows are a class of generative models that learn complex probabilit
 
 **2016** — Dinh, Sohl-Dickstein, and Bengio introduced Real NVP (Real-valued Non-Volume Preserving transformations), improving upon NICE with affine coupling layers that allow for more flexible and efficient transformations.
 
-**2018** — Kingma and Dhariwal presented Glow, a generative flow model that leveraged invertible 1x1 convolutions and multi-scale architectures to achieve state-of-the-art image generation.
+**2018** — Kingma and Dhariwal presented [Glow](/algorithms/generative/glow), a generative flow model that leveraged invertible 1x1 convolutions and multi-scale architectures to achieve state-of-the-art image generation.
 
 ## Mathematical Intuition
 
@@ -117,7 +117,7 @@ $$
 
 ### Log-Likelihood Optimization
 
-Normalizing flows are typically trained by maximizing the log-likelihood of the observed data. Given a dataset $D = \{x^{(i)}\}_{i=1}^N$, the objective is to maximize $\sum_{i=1}^N \log p_X(x^{(i)}; \theta)$, where $\theta$ represents the parameters of the flow transformations. This is achieved using gradient-based optimization methods, such as [Stochastic Gradient Descent](/algorithms/meta-learning/optimization/stochastic-gradient-descent). The gradients are backpropagated through the sequence of invertible transformations, allowing the neural networks within each flow layer to learn the parameters that best map the base distribution to the data distribution.
+Normalizing flows are typically trained by maximizing the log-likelihood of the observed data. Given a dataset $D = \{x^{(i)}\}_{i=1}^N$, the objective is to maximize $\sum_{i=1}^N \log p_X(x^{(i)}; \theta)$, where $\theta$ represents the parameters of the flow transformations. This is achieved using gradient-based optimization methods, such as [Stochastic Gradient Descent](/algorithms/meta-learning/stochastic-gradient-descent). The gradients are backpropagated through the sequence of invertible transformations, allowing the neural networks within each flow layer to learn the parameters that best map the base distribution to the data distribution.
 
 $$
 D = \{x^{(i)}\}_{i=1}^N
@@ -137,7 +137,7 @@ $$
 2. Construct a sequence of $K$ invertible and differentiable transformations $f_1, f_2, \dots, f_K$, where each $f_k$ maps $z_{k-1}$ to $z_k$.
 3. For a given data point $x$, compute its corresponding latent variable $z_0$ by applying the inverse transformations in reverse order: $z_0 = f_1^{-1}(f_2^{-1}(\dots f_K^{-1}(x)\dots))$.
 4. Calculate the log-likelihood of $x$ using the change of variables formula: $\log p_X(x) = \log p_Z(z_0) + \sum_{k=1}^K \log \left| \det \left( \frac{\partial f_k(z_{k-1})}{\partial z_{k-1}} \right) \right|$.
-5. Train the parameters of the transformations $f_k$ (typically neural networks) by maximizing the average log-likelihood of the training data using an optimization algorithm like Adam.
+5. Train the parameters of the transformations $f_k$ (typically neural networks) by maximizing the average log-likelihood of the training data using an optimization algorithm like [Adam](/algorithms/meta-learning/adam).
 6. To generate new samples, first sample $z_0$ from the base distribution $p_Z(z)$, then apply the forward transformations $x = f_K(f_{K-1}(\dots f_1(z_0)\dots))$.
 
 ## Parameters
@@ -166,7 +166,7 @@ $$
 
 - Normalizing flows allow for exact computation of the log-likelihood of data points, which is beneficial for density estimation and anomaly detection.
 - They enable exact and efficient sampling from the learned distribution, producing high-quality synthetic data.
-- The invertible nature of the transformations prevents mode collapse, a common issue in Generative Adversarial Networks.
+- The invertible nature of the transformations prevents mode collapse, a common issue in [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network).
 - Normalizing flows can model highly complex, multi-modal, and non-linear distributions due to their deep architecture.
 - They provide a direct mapping between data space and a simple latent space, facilitating tasks like latent space interpolation.
 - The architecture allows for efficient inference of latent representations for observed data.
@@ -222,7 +222,7 @@ Generating novel molecular structures or conformations by learning the distribut
 
 ## Lab
 
-<LabEmbed url={""} title="Normalizing Flow Lab" />
+<LabEmbed url={""} title="[Normalizing Flow](/algorithms/generative/normalizing-flow) Lab" />
 
 ## References
 

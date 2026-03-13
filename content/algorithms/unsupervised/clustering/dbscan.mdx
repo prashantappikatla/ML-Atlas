@@ -30,17 +30,17 @@ related:
 
 ## Overview
 
-DBSCAN (Density-Based Spatial Clustering of Applications with Noise) is an unsupervised clustering algorithm that groups together points that are closely packed, marking as outliers points that lie alone in low-density regions. It identifies clusters based on the concept of density reachability and connectivity, allowing it to discover arbitrarily shaped clusters. Unlike [K-Means](/algorithms/unsupervised/clustering/k-means), DBSCAN does not require the number of clusters to be specified beforehand and is robust to noise. This makes it particularly suitable for datasets where clusters are non-convex or where the presence of outliers is expected.
+[DBSCAN](/algorithms/unsupervised/dbscan) (Density-Based Spatial Clustering of Applications with Noise) is an unsupervised clustering algorithm that groups together points that are closely packed, marking as outliers points that lie alone in low-density regions. It identifies clusters based on the concept of density reachability and connectivity, allowing it to discover arbitrarily shaped clusters. Unlike [K-Means](/algorithms/unsupervised/k-means), DBSCAN does not require the number of clusters to be specified beforehand and is robust to noise. This makes it particularly suitable for datasets where clusters are non-convex or where the presence of outliers is expected.
 
 ## History
 
-**1996** — [Martin Ester](https://en.wikipedia.org/wiki/DBSCAN), Hans-Peter Kriegel, Jörg Sander, and [Xiaowei Xu](https://en.wikipedia.org/wiki/DBSCAN) introduced DBSCAN in their seminal paper "A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise," establishing a new paradigm for clustering by focusing on density.
+**1996** — [Martin Ester](https://en.wikipedia.org/wiki/DBSCAN), Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu introduced DBSCAN in their seminal paper "A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise," establishing a new paradigm for clustering by focusing on density.
 
 **2000** — The algorithm gained widespread recognition and was integrated into various data mining toolkits and libraries, including early versions of what would become standard machine learning packages, due to its effectiveness in handling noise and discovering non-convex clusters.
 
-**2007** — [OPTICS](/algorithms/unsupervised/clustering/optics) (Ordering Points To Identify the Clustering Structure) was introduced by Mihael Ankerst et al., building upon DBSCAN's core ideas to address its sensitivity to parameter choices by producing a reachability plot that helps in parameter selection.
+**2007** — [OPTICS](/algorithms/unsupervised/optics) (Ordering Points To Identify the Clustering Structure) was introduced by Mihael Ankerst et al., building upon DBSCAN's core ideas to address its sensitivity to parameter choices by producing a reachability plot that helps in parameter selection.
 
-**2010** — Further research extended DBSCAN to handle high-dimensional data, uncertain data, and streaming data, leading to more advanced algorithms like [HDBSCAN](/algorithms/unsupervised/clustering/hdbscan)* which automates parameter selection and improves robustness.
+**2010** — Further research extended DBSCAN to handle high-dimensional data, uncertain data, and streaming data, leading to more advanced algorithms like [HDBSCAN](/algorithms/unsupervised/hdbscan)* which automates parameter selection and improves robustness.
 
 ## Mathematical Intuition
 

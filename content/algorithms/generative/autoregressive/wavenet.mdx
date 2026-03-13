@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-WaveNet is a deep generative model for raw audio waveforms, distinguished by its use of dilated causal convolutions. It operates autoregressively, predicting the next audio sample based on all preceding samples, enabling it to model complex temporal dependencies in high-fidelity audio. This architecture allows for a very large receptive field while maintaining computational efficiency and strict causality, crucial for realistic audio synthesis.
+[WaveNet](/algorithms/generative/wavenet) is a deep generative model for raw audio waveforms, distinguished by its use of dilated causal convolutions. It operates autoregressively, predicting the next audio sample based on all preceding samples, enabling it to model complex temporal dependencies in high-fidelity audio. This architecture allows for a very large receptive field while maintaining computational efficiency and strict causality, crucial for realistic audio synthesis.
 
 ## History
 
@@ -43,7 +43,7 @@ WaveNet is a deep generative model for raw audio waveforms, distinguished by its
 
 WaveNet employs dilated causal convolutions to efficiently increase the receptive field without increasing the number of parameters or losing resolution. A causal convolution ensures that the prediction at time step $t$ only depends on samples from time steps $t-1$ and earlier. Dilated convolutions introduce gaps between filter taps, allowing the filter to cover a wider range of input samples. The output $y[t]$ of a dilated causal convolution with dilation $d$ and filter $w$ applied to input $x$ is given by:
 $$y[t] = \sum_{k=0}^{K-1} x[t - d \cdot k] \cdot w[k]$$
-where $K$ is the filter width. By [Stacking](/algorithms/supervised/classification/stacking) layers with exponentially increasing dilation rates (e.g., 1, 2, 4, 8, ...), the model can capture very long-range dependencies in the audio signal.
+where $K$ is the filter width. By [Stacking](/algorithms/supervised/stacking) layers with exponentially increasing dilation rates (e.g., 1, 2, 4, 8, ...), the model can capture very long-range dependencies in the audio signal.
 
 $$
 y[t] = \sum_{k=0}^{K-1} x[t - d \cdot k] \cdot w[k]

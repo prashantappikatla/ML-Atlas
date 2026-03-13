@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-RuleFit combines decision rules extracted from an ensemble of decision trees with original linear features to build an interpretable and accurate predictive model. It addresses the trade-off between model accuracy and interpretability by leveraging the power of tree ensembles to capture complex interactions while maintaining a transparent, additive model structure. The algorithm generates a set of "if-then" rules from a tree ensemble and then fits a sparse linear model on these rules, along with original linear features, to make predictions.
+[RuleFit](/algorithms/supervised/rulefit) combines decision rules extracted from an ensemble of decision trees with original linear features to build an interpretable and accurate predictive model. It addresses the trade-off between model accuracy and interpretability by leveraging the power of tree ensembles to capture complex interactions while maintaining a transparent, additive model structure. The algorithm generates a set of "if-then" rules from a tree ensemble and then fits a sparse linear model on these rules, along with original linear features, to make predictions.
 
 ## History
 
@@ -66,7 +66,7 @@ $$
 
 ## Algorithm Steps
 
-1. Train an ensemble of decision trees (e.g., Gradient Boosting Machine or Random Forest) on the training data.
+1. Train an ensemble of decision trees (e.g., [Gradient Boosting Machine](https://en.wikipedia.org/wiki/Gradient_boosting) or [Random Forest](https://en.wikipedia.org/wiki/Random_forest)) on the training data.
 2. Extract all unique paths from the root to each leaf node in every tree of the ensemble; each path represents a conjunctive rule.
 3. For each extracted rule $R_j$, create a binary feature $f_j(x)$ that is 1 if input $x$ satisfies the rule's conditions, and 0 otherwise.
 4. Optionally, standardize the original numerical features $x_k$.

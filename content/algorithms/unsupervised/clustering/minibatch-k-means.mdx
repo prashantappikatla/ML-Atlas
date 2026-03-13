@@ -28,25 +28,25 @@ related:
 
 ## Overview
 
-MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) is a variant of the [K-Means](/algorithms/unsupervised/clustering/k-means) clustering algorithm that uses mini-batches of data points to update the cluster centroids, significantly reducing computation time for large datasets. It aims to minimize the sum of squared distances between data points and their assigned cluster centroids, similar to standard [K-Means](/algorithms/unsupervised/clustering/k-means), but achieves this through iterative, stochastic updates. This approach makes it particularly suitable for large-scale clustering problems where processing the entire dataset in each iteration is computationally prohibitive. Despite using mini-batches, it often produces results comparable to the full-batch [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm.
+[MiniBatch K-Means](/algorithms/unsupervised/minibatch-k-means) is a variant of the [K-Means](/algorithms/unsupervised/k-means) clustering algorithm that uses mini-batches of data points to update the cluster centroids, significantly reducing computation time for large datasets. It aims to minimize the sum of squared distances between data points and their assigned cluster centroids, similar to standard K-Means, but achieves this through iterative, stochastic updates. This approach makes it particularly suitable for large-scale clustering problems where processing the entire dataset in each iteration is computationally prohibitive. Despite using mini-batches, it often produces results comparable to the full-batch K-Means algorithm.
 
 ## History
 
-**1967** — James MacQueen formally introduced the term "[K-Means](/algorithms/unsupervised/clustering/k-means)" in his paper "Some methods for classification and analysis of multivariate observations," laying the groundwork for centroid-based clustering.
+**1967** — James MacQueen formally introduced the term "K-Means" in his paper "Some methods for classification and analysis of multivariate observations," laying the groundwork for centroid-based clustering.
 
-**1982** — [Stuart Lloyd](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm) published "Least squares quantization in PCM," detailing an iterative algorithm for data quantization that is essentially the standard [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm, though his work was initially done in 1957.
+**1982** — [Stuart Lloyd](https://en.wikipedia.org/wiki/Lloyd%27s_algorithm) published "Least squares quantization in PCM," detailing an iterative algorithm for data quantization that is essentially the standard K-Means algorithm, though his work was initially done in 1957.
 
-**2007** — David Arthur and Sergei Vassilvitskii proposed the [K-Means](/algorithms/unsupervised/clustering/k-means)++ initialization method in "[K-Means](/algorithms/unsupervised/clustering/k-means)++: The advantages of careful seeding," significantly improving the quality of [K-Means](/algorithms/unsupervised/clustering/k-means) results by selecting initial centroids more intelligently.
+**2007** — David Arthur and Sergei Vassilvitskii proposed the K-Means++ initialization method in "K-Means++: The advantages of careful seeding," significantly improving the quality of K-Means results by selecting initial centroids more intelligently.
 
-**2010** — David Sculley introduced MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) in his paper "Web-Scale [K-Means](/algorithms/unsupervised/clustering/k-means) Clustering" at the 19th International Conference on World Wide Web, proposing an efficient method for clustering large datasets.
+**2010** — David Sculley introduced MiniBatch K-Means in his paper "Web-Scale [K-Means Clustering](/algorithms/unsupervised/kmeans)" at the 19th International Conference on World Wide Web, proposing an efficient method for clustering large datasets.
 
 ## Mathematical Intuition
 
 ### K-Means Objective Function
 
-The standard [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm seeks to minimize the sum of squared Euclidean distances between each data point and its assigned centroid. For a dataset $X = \{x_1, ..., x_N\}$ and $K$ clusters with centroids $C = \{c_1, ..., c_K\}$, the objective function (inertia) is:
+The standard K-Means algorithm seeks to minimize the sum of squared Euclidean distances between each data point and its assigned centroid. For a dataset $X = \{x_1, ..., x_N\}$ and $K$ clusters with centroids $C = \{c_1, ..., c_K\}$, the objective function (inertia) is:
 $$J(C) = \sum_{i=1}^{N} \min_{j \in \{1, ..., K\}} ||x_i - c_j||^2$$
-MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) aims to optimize a similar objective, but it does so approximately by using mini-batches.
+MiniBatch K-Means aims to optimize a similar objective, but it does so approximately by using mini-batches.
 
 $$
 J(C) = \sum_{i=1}^{N} \min_{j \in \{1, ..., K\}} ||x_i - c_j||^2
@@ -54,7 +54,7 @@ $$
 
 ### Mini-Batch Centroid Update Rule
 
-Instead of using all data points to recompute centroids in each iteration, MiniBatch [K-Means](/algorithms/unsupervised/clustering/k-means) samples a small, random subset (mini-batch) of the data. For each point $x_k$ in the mini-batch, it is assigned to its closest centroid $c_j$. The centroid $c_j$ is then updated using a learning rate $\eta$ and the current data point $x_k$. A common update rule for a centroid $c_j$ that has been assigned $n_j$ points so far, upon receiving a new point $x_k$ assigned to it, is:
+Instead of using all data points to recompute centroids in each iteration, MiniBatch K-Means samples a small, random subset (mini-batch) of the data. For each point $x_k$ in the mini-batch, it is assigned to its closest centroid $c_j$. The centroid $c_j$ is then updated using a learning rate $\eta$ and the current data point $x_k$. A common update rule for a centroid $c_j$ that has been assigned $n_j$ points so far, upon receiving a new point $x_k$ assigned to it, is:
 $$c_j \leftarrow c_j + \eta (x_k - c_j)$$
 where $\eta = 1 / (n_j + 1)$ effectively computes a running average. This update is performed incrementally for each point in the mini-batch.
 
@@ -68,7 +68,7 @@ $$
 
 ### Algorithm Convergence Criteria
 
-The algorithm typically converges when the centroids no longer change significantly between successive mini-batch updates, or when a maximum number of iterations is reached. The change in centroids can be measured by the sum of squared distances between the new and old centroids. Since the updates are stochastic, convergence might be less smooth than with full-batch [K-Means](/algorithms/unsupervised/clustering/k-means), but it generally reaches a good local optimum quickly.
+The algorithm typically converges when the centroids no longer change significantly between successive mini-batch updates, or when a maximum number of iterations is reached. The change in centroids can be measured by the sum of squared distances between the new and old centroids. Since the updates are stochastic, convergence might be less smooth than with full-batch K-Means, but it generally reaches a good local optimum quickly.
 
 ## Algorithm Steps
 

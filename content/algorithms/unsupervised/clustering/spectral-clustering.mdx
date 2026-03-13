@@ -28,7 +28,7 @@ related:
 
 ## Overview
 
-Spectral Clustering is a clustering technique that leverages the eigenvalues and eigenvectors of a similarity matrix to perform dimensionality reduction before applying a standard clustering algorithm, typically [K-Means](/algorithms/unsupervised/clustering/k-means). It is particularly effective at identifying non-convex clusters and clusters embedded in complex structures, by transforming the data into a lower-dimensional space where clusters become linearly separable. The core idea involves constructing a similarity graph from the data points and then partitioning this graph based on its spectral properties.
+[Spectral Clustering](/algorithms/unsupervised/spectral-clustering) is a clustering technique that leverages the eigenvalues and eigenvectors of a similarity matrix to perform dimensionality reduction before applying a standard clustering algorithm, typically [K-Means](/algorithms/unsupervised/k-means). It is particularly effective at identifying non-convex clusters and clusters embedded in complex structures, by transforming the data into a lower-dimensional space where clusters become linearly separable. The core idea involves constructing a similarity graph from the data points and then partitioning this graph based on its spectral properties.
 
 ## History
 
@@ -48,7 +48,7 @@ Spectral Clustering is a clustering technique that leverages the eigenvalues and
 
 Spectral clustering begins by representing the data points as nodes in a graph, where edges connect similar points. The strength of these connections is quantified by a similarity function, often a Gaussian (RBF) kernel, which forms the adjacency matrix $W$. For $n$ data points $x_1, \dots, x_n$, the entry $W_{ij}$ represents the similarity between $x_i$ and $x_j$. 
 $$W_{ij} = \exp(-\frac{\|x_i - x_j\|^2}{2\sigma^2})$$
-where $\sigma$ is a scaling parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) graph can be constructed, where $W_{ij} > 0$ only if $x_i$ is among the [k-Nearest Neighbors](/algorithms/supervised/classification/k-nearest-neighbors) of $x_j$ (or vice-versa).
+where $\sigma$ is a scaling parameter. Alternatively, a [k-Nearest Neighbors](/algorithms/supervised/k-nearest-neighbors) graph can be constructed, where $W_{ij} > 0$ only if $x_i$ is among the k-Nearest Neighbors of $x_j$ (or vice-versa).
 
 $$
 W_{ij} = \exp(-\frac{\|x_i - x_j\|^2}{2\sigma^2})
@@ -84,7 +84,7 @@ $$
 
 ### Clustering in Embedded Space
 
-After obtaining the low-dimensional embedding matrix $U$, each row $u_i \in \mathbb{R}^k$ represents the embedded feature vector for the original data point $x_i$. These embedded points are then clustered using a standard clustering algorithm, most commonly [K-Means](/algorithms/unsupervised/clustering/k-means). The [K-Means](/algorithms/unsupervised/clustering/k-means) algorithm partitions the $n$ rows of $U$ into $k$ clusters, and these cluster assignments are then mapped back to the original data points, providing the final clustering result. This step leverages the fact that the spectral embedding often makes the clusters linearly separable.
+After obtaining the low-dimensional embedding matrix $U$, each row $u_i \in \mathbb{R}^k$ represents the embedded feature vector for the original data point $x_i$. These embedded points are then clustered using a standard clustering algorithm, most commonly K-Means. The K-Means algorithm partitions the $n$ rows of $U$ into $k$ clusters, and these cluster assignments are then mapped back to the original data points, providing the final clustering result. This step leverages the fact that the spectral embedding often makes the clusters linearly separable.
 
 $$
 u_i \in \mathbb{R}^k

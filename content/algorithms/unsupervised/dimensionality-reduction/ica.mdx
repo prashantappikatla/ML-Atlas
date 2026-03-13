@@ -24,7 +24,7 @@ related:
 
 ## Overview
 
-[Independent Component Analysis](https://en.wikipedia.org/wiki/Independent_component_analysis) (ICA) is a computational method used to separate a multivariate signal into additive subcomponents, assuming these subcomponents are non-Gaussian and statistically independent from each other. It aims to find a linear transformation that minimizes the statistical dependence between the components, effectively performing blind source separation.
+[Independent Component Analysis](https://en.wikipedia.org/wiki/Independent_component_analysis) ([ICA](/algorithms/unsupervised/ica)) is a computational method used to separate a multivariate signal into additive subcomponents, assuming these subcomponents are non-Gaussian and statistically independent from each other. It aims to find a linear transformation that minimizes the statistical dependence between the components, effectively performing blind source separation.
 
 ## History
 
@@ -81,7 +81,7 @@ $$
 ## Algorithm Steps
 
 1. Center the observed data $X$ by subtracting its mean, resulting in zero-mean data.
-2. Whiten the centered data to remove correlations and normalize variances, typically using Principal Component Analysis (PCA) or Singular Value Decomposition (SVD), yielding whitened data $X'$.
+2. Whiten the centered data to remove correlations and normalize variances, typically using [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) ([PCA](/algorithms/unsupervised/pca)) or [Singular Value Decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) (SVD), yielding whitened data $X'$.
 3. Initialize a random unmixing matrix $W$ (or a set of weight vectors $w_i$).
 4. Iteratively update each weight vector $w_i$ to maximize the non-Gaussianity of the projected component $s_i = w_i^T X'$, while ensuring orthogonality between the weight vectors.
 5. Repeat the iterative update until convergence, meaning the change in $W$ (or $w_i$) falls below a specified tolerance.

@@ -25,17 +25,17 @@ related:
 
 ## Overview
 
-Deep Convolutional [Generative Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network) (DCGAN) extends the Generative Adversarial Network framework by incorporating specific architectural constraints for convolutional networks, enabling more stable training and improved image generation quality. It focuses on learning hierarchical representations from image datasets, allowing the generator to produce realistic images and the discriminator to effectively distinguish between real and generated samples. DCGAN's guidelines for CNN architecture in GANs were pivotal in advancing the field of image synthesis. The model learns a mapping from a latent space vector to an image, capturing the underlying data distribution.
+Deep Convolutional Generative Adversarial Network ([DCGAN](/algorithms/generative/dcgan)) extends the Generative Adversarial Network framework by incorporating specific architectural constraints for convolutional networks, enabling more stable training and improved image generation quality. It focuses on learning hierarchical representations from image datasets, allowing the generator to produce realistic images and the discriminator to effectively distinguish between real and generated samples. DCGAN's guidelines for CNN architecture in GANs were pivotal in advancing the field of image synthesis. The model learns a mapping from a latent space vector to an image, capturing the underlying data distribution.
 
 ## History
 
 **2014** — [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network) (GANs) are introduced by Goodfellow et al., establishing the adversarial training framework for generative models.
 
-**2015** — Deep Convolutional Generative Adversarial Networks (DCGANs) are proposed by Radford et al., demonstrating how specific architectural choices for convolutional networks can lead to stable GAN training and high-quality image generation.
+**2015** — Deep Convolutional Generative Adversarial Networks (DCGANs) are proposed by Radford et al., demonstrating how specific architectural choices for convolutional networks can lead to stable [GAN](/algorithms/generative/gan) training and high-quality image generation.
 
 **2016** — Conditional GANs (CGANs) are further developed, allowing for the generation of images conditioned on specific labels or attributes, building upon the stability improvements seen in DCGANs.
 
-**2017** — Wasserstein GAN (WGAN) is introduced, addressing mode collapse and training instability issues in GANs by using the Wasserstein distance, often applied with DCGAN-like architectures.
+**2017** — Wasserstein GAN ([WGAN](/algorithms/generative/wgan)) is introduced, addressing mode collapse and training instability issues in GANs by using the Wasserstein distance, often applied with DCGAN-like architectures.
 
 ## Mathematical Intuition
 
@@ -71,7 +71,7 @@ DCGAN introduced several key architectural guidelines that proved crucial for st
 1. Initialize the generator $G$ and discriminator $D$ with random weights, adhering to the DCGAN architectural guidelines (e.g., strided convolutions, batch normalization, specific activations).
 2. For each training iteration, sample a batch of real images $x$ from the training data and a batch of latent vectors $z$ from a prior distribution (e.g., uniform or normal distribution).
 3. Generate a batch of fake images $G(z)$ using the current generator.
-4. Train the discriminator $D$ by maximizing its ability to distinguish between real and fake images; this involves computing the loss for real images $\log D(x)$ and fake images $\log(1 - D(G(z)))$, then updating $D$'s weights using an optimizer (e.g., Adam).
+4. Train the discriminator $D$ by maximizing its ability to distinguish between real and fake images; this involves computing the loss for real images $\log D(x)$ and fake images $\log(1 - D(G(z)))$, then updating $D$'s weights using an optimizer (e.g., [Adam](/algorithms/meta-learning/adam)).
 5. Sample a new batch of latent vectors $z$.
 6. Train the generator $G$ by minimizing $\log(1 - D(G(z)))$, effectively trying to fool the discriminator into classifying its generated images as real, and update $G$'s weights using an optimizer.
 7. Repeat steps 2-6 for a predefined number of epochs or until convergence criteria are met, typically alternating between discriminator and generator updates.

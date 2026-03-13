@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Radial Basis Function Networks (RBFNs) are a type of artificial neural network that uses radial basis functions as activation functions in its hidden layer. They are particularly effective for function approximation, classification, and time series prediction due to their ability to model complex non-linear relationships. RBFNs are distinguished by their three-layer architecture: an input layer, a hidden layer of RBF units, and a linear output layer.
+[Radial Basis Function](https://en.wikipedia.org/wiki/Radial_basis_function) Networks (RBFNs) are a type of artificial neural network that uses radial basis functions as activation functions in its hidden layer. They are particularly effective for function approximation, classification, and time series prediction due to their ability to model complex non-linear relationships. RBFNs are distinguished by their three-layer architecture: an input layer, a hidden layer of RBF units, and a linear output layer.
 
 ## History
 
@@ -69,7 +69,7 @@ $$
 
 ### Training RBFN Parameters
 
-Training an RBFN involves determining the centers $\mathbf{c}_j$, widths $\sigma_j$ (or $\gamma_j$), and output layer weights $w_{kj}$. A common approach is a hybrid learning strategy: first, the centers and widths are determined using unsupervised methods (e.g., [K-Means](/algorithms/unsupervised/clustering/k-means) clustering for centers, and average distance to nearest neighbors for widths). Second, with the hidden layer parameters fixed, the output layer weights are trained using supervised learning, typically [Linear Regression](/algorithms/supervised/regression/linear-regression) (e.g., least squares) or pseudo-inverse methods, which is a fast and efficient process.
+Training an RBFN involves determining the centers $\mathbf{c}_j$, widths $\sigma_j$ (or $\gamma_j$), and output layer weights $w_{kj}$. A common approach is a hybrid learning strategy: first, the centers and widths are determined using unsupervised methods (e.g., [K-Means](/algorithms/unsupervised/k-means) clustering for centers, and average distance to nearest neighbors for widths). Second, with the hidden layer parameters fixed, the output layer weights are trained using supervised learning, typically [Linear Regression](/algorithms/supervised/linear-regression) (e.g., least squares) or pseudo-inverse methods, which is a fast and efficient process.
 
 ## Algorithm Steps
 
@@ -158,7 +158,7 @@ RBFNs assist in classifying diseases or conditions based on patient data, levera
 
 ## Lab
 
-<LabEmbed url={""} title="Radial Basis Function Network Lab" />
+<LabEmbed url={""} title="[Radial Basis Function Network](/algorithms/deep-learning/radial-basis-function-network) Lab" />
 
 ## References
 

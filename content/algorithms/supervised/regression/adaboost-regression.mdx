@@ -24,25 +24,25 @@ related:
 
 ## Overview
 
-[AdaBoost](/algorithms/supervised/classification/adaboost) Regression is an ensemble meta-algorithm that combines multiple "weak" regression models to create a single strong predictor. It operates by sequentially training base estimators, where each subsequent learner focuses on correcting the errors made by the previous ones. The algorithm adaptively adjusts the weights of the training samples, giving higher importance to samples that were poorly predicted in earlier iterations. This iterative re-weighting strategy forces subsequent learners to pay more attention to difficult cases, leading to a robust and accurate final model.
+[AdaBoost Regression](/algorithms/supervised/adaboost-regression) is an ensemble meta-algorithm that combines multiple "weak" regression models to create a single strong predictor. It operates by sequentially training base estimators, where each subsequent learner focuses on correcting the errors made by the previous ones. The algorithm adaptively adjusts the weights of the training samples, giving higher importance to samples that were poorly predicted in earlier iterations. This iterative re-weighting strategy forces subsequent learners to pay more attention to difficult cases, leading to a robust and accurate final model.
 
 ## History
 
-**1995** — Yoav Freund and Robert Schapire introduce [AdaBoost](/algorithms/supervised/classification/adaboost) (Adaptive Boosting) for classification, laying the groundwork for subsequent regression adaptations.
+**1995** — Yoav Freund and Robert Schapire introduce [AdaBoost](/algorithms/supervised/adaboost) (Adaptive Boosting) for classification, laying the groundwork for subsequent regression adaptations.
 
-**1996** — Freund and Schapire publish "Experiments with a new boosting algorithm," detailing the theoretical underpinnings and practical applications of [AdaBoost](/algorithms/supervised/classification/adaboost).
+**1996** — Freund and Schapire publish "Experiments with a new boosting algorithm," detailing the theoretical underpinnings and practical applications of AdaBoost.
 
-**1997** — Freund and Schapire extend [AdaBoost](/algorithms/supervised/classification/adaboost) principles to regression tasks, often through variants like [AdaBoost](/algorithms/supervised/classification/adaboost).R2, which adapt the error calculation and weighting schemes for continuous targets.
+**1997** — Freund and Schapire extend AdaBoost principles to regression tasks, often through variants like AdaBoost.R2, which adapt the error calculation and weighting schemes for continuous targets.
 
-**1999** — [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman), [Trevor Hastie](https://en.wikipedia.org/wiki/Trevor_Hastie), and [Robert Tibshirani](https://en.wikipedia.org/wiki/Robert_Tibshirani) publish "Additive [Logistic Regression](/algorithms/supervised/classification/logistic-regression): A Statistical View of Boosting," providing a statistical framework that generalizes boosting algorithms.
+**1999** — [Jerome Friedman](https://en.wikipedia.org/wiki/Jerome_H._Friedman), [Trevor Hastie](https://en.wikipedia.org/wiki/Trevor_Hastie), and [Robert Tibshirani](https://en.wikipedia.org/wiki/Robert_Tibshirani) publish "Additive [Logistic Regression](/algorithms/supervised/logistic-regression): A Statistical View of Boosting," providing a statistical framework that generalizes boosting algorithms.
 
-**2001** — Jerome Friedman introduces Gradient Boosting Machines, a more generalized boosting framework that encompasses [AdaBoost](/algorithms/supervised/classification/adaboost) as a special case, further popularizing boosting methods.
+**2001** — Jerome Friedman introduces [Gradient Boosting](https://en.wikipedia.org/wiki/Gradient_boosting) Machines, a more generalized boosting framework that encompasses AdaBoost as a special case, further popularizing boosting methods.
 
 ## Mathematical Intuition
 
 ### Core AdaBoost Principle
 
-[AdaBoost](/algorithms/supervised/classification/adaboost) (Adaptive Boosting) is an iterative ensemble method that combines multiple weak learners to form a strong learner. For regression, it sequentially trains base models, with each model attempting to correct the errors of its predecessors. The key idea is to adaptively adjust the focus of subsequent learners based on the performance of previous ones, specifically by re-weighting training samples.
+AdaBoost (Adaptive Boosting) is an iterative ensemble method that combines multiple weak learners to form a strong learner. For regression, it sequentially trains base models, with each model attempting to correct the errors of its predecessors. The key idea is to adaptively adjust the focus of subsequent learners based on the performance of previous ones, specifically by re-weighting training samples.
 
 ### Sample Error and Learner Error
 
@@ -66,7 +66,7 @@ $$
 
 ### Weak Learner Weight Calculation
 
-After training a weak learner $h_m(x)$ and calculating its total weighted error $\epsilon_m$, a weight $\alpha_m$ is assigned to it. This weight quantifies the importance of the learner in the final ensemble. A common formulation for $\alpha_m$ in [AdaBoost](/algorithms/supervised/classification/adaboost) Regression (e.g., [AdaBoost](/algorithms/supervised/classification/adaboost).R2) is inversely proportional to its error, such that better performing learners receive higher weights:
+After training a weak learner $h_m(x)$ and calculating its total weighted error $\epsilon_m$, a weight $\alpha_m$ is assigned to it. This weight quantifies the importance of the learner in the final ensemble. A common formulation for $\alpha_m$ in AdaBoost Regression (e.g., AdaBoost.R2) is inversely proportional to its error, such that better performing learners receive higher weights:
 
 $$
 \alpha_m = \frac{1}{2} \ln\left(\frac{1-\epsilon_m}{\epsilon_m}\right)
@@ -86,7 +86,7 @@ $$
 
 ### Final Ensemble Prediction
 
-The final prediction of the [AdaBoost](/algorithms/supervised/classification/adaboost) Regression ensemble, $H(x)$, is typically a weighted median of the predictions from all individual weak learners $h_m(x)$. The weights used for this aggregation are the $\alpha_m$ values calculated for each learner. The weighted median is preferred over a weighted sum to mitigate the influence of outliers and improve robustness.
+The final prediction of the AdaBoost Regression ensemble, $H(x)$, is typically a weighted median of the predictions from all individual weak learners $h_m(x)$. The weights used for this aggregation are the $\alpha_m$ values calculated for each learner. The weighted median is preferred over a weighted sum to mitigate the influence of outliers and improve robustness.
 
 $$
 H(x) = \text{weighted_median}(\alpha_1 h_1(x), \dots, \alpha_M h_M(x))

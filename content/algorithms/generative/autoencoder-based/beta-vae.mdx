@@ -24,11 +24,11 @@ related:
 
 ## Overview
 
-Beta-[Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (Beta-VAE) is an unsupervised deep generative model that extends the [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) by introducing a hyperparameter $\beta$ to encourage disentangled representations in the latent space. It aims to learn a factorized latent representation where individual dimensions correspond to independent generative factors of the data. This disentanglement improves the interpretability and robustness of the learned representations, making it easier to control specific attributes during data generation.
+Beta-[Variational Autoencoder](/algorithms/generative/variational-autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/autoencoder)) ([Beta-VAE](/algorithms/generative/beta-vae)) is an unsupervised deep generative model that extends the Variational Autoencoder (VAE) by introducing a hyperparameter $\beta$ to encourage disentangled representations in the latent space. It aims to learn a factorized latent representation where individual dimensions correspond to independent generative factors of the data. This disentanglement improves the interpretability and robustness of the learned representations, making it easier to control specific attributes during data generation.
 
 ## History
 
-**2013** — Diederik P. Kingma and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduce the [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE), establishing a probabilistic framework for unsupervised learning of latent representations.
+**2013** — Diederik P. Kingma and [Max Welling](https://en.wikipedia.org/wiki/Max_Welling) introduce the Variational Autoencoder (VAE), establishing a probabilistic framework for unsupervised learning of latent representations.
 
 **2014** — Danilo Jimenez Rezende, Shakir Mohamed, and Daan Wierstra independently propose a similar deep generative model with variational inference, further solidifying the VAE paradigm.
 
@@ -40,7 +40,7 @@ Beta-[Variational [Autoencoder](/algorithms/deep-learning/representation-learnin
 
 ### Variational Autoencoder Objective
 
-The standard [Variational [Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)](/algorithms/generative/[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)-based/variational-[Autoencoder](/algorithms/deep-learning/representation-learning/autoencoder)) (VAE) aims to maximize the Evidence Lower Bound (ELBO), which serves as a lower bound on the log-likelihood of the observed data $\mathbf{x}$. The ELBO is expressed as the sum of a reconstruction term and a regularization term:
+The standard Variational Autoencoder (VAE) aims to maximize the Evidence Lower Bound (ELBO), which serves as a lower bound on the log-likelihood of the observed data $\mathbf{x}$. The ELBO is expressed as the sum of a reconstruction term and a regularization term:
 $$L(\theta, \phi; \mathbf{x}) = E_{q_{\phi}(\mathbf{z}|\mathbf{x})}[\log p_{\theta}(\mathbf{x}|\mathbf{z})] - D_{KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p(\mathbf{z}))$$
 Here, $p_{\theta}(\mathbf{x}|\mathbf{z})$ is the decoder's likelihood, $q_{\phi}(\mathbf{z}|\mathbf{x})$ is the encoder's approximate posterior, and $p(\mathbf{z})$ is the prior distribution over the latent variables.
 

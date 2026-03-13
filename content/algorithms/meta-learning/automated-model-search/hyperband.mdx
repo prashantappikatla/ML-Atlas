@@ -27,7 +27,7 @@ related:
 
 ## Overview
 
-Hyperband is an efficient hyperparameter optimization algorithm that adaptively allocates computational resources to a large number of hyperparameter configurations. It achieves this by combining [Random Search](/algorithms/meta-learning/automated-model-search/random-search) with successive halving, iteratively evaluating configurations with increasing resources and pruning poorly performing ones. This strategy allows it to quickly identify promising configurations while minimizing wasted computation on unpromising candidates.
+[Hyperband](/algorithms/meta-learning/hyperband) is an efficient hyperparameter optimization algorithm that adaptively allocates computational resources to a large number of hyperparameter configurations. It achieves this by combining [Random Search](/algorithms/meta-learning/random-search) with successive halving, iteratively evaluating configurations with increasing resources and pruning poorly performing ones. This strategy allows it to quickly identify promising configurations while minimizing wasted computation on unpromising candidates.
 
 ## History
 
@@ -35,7 +35,7 @@ Hyperband is an efficient hyperparameter optimization algorithm that adaptively 
 
 **2017** — K. Jamieson and A. Talwalkar further explored the theoretical properties and practical implications of successive halving in "Non-stochastic Best Arm Identification and Hyperparameter Optimization," providing a deeper understanding of Hyperband's core component.
 
-**2018** — S. Falkner, A. Klein, and F. Hutter combined Hyperband with [Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) to create BOHB ([Bayesian Optimization](/algorithms/meta-learning/automated-model-search/bayesian-optimization) HyperBand), aiming to combine the best aspects of both approaches for improved performance and sample efficiency.
+**2018** — S. Falkner, A. Klein, and F. Hutter combined Hyperband with [Bayesian Optimization](/algorithms/meta-learning/bayesian-optimization) to create [BOHB](/algorithms/meta-learning/bohb) (Bayesian Optimization HyperBand), aiming to combine the best aspects of both approaches for improved performance and sample efficiency.
 
 ## Mathematical Intuition
 
@@ -135,7 +135,7 @@ Optimizing the learning rate, batch size, number of layers, and regularization p
 
 ### Computer Vision
 
-Tuning hyperparameters for Convolutional Neural Networks (CNNs) used in image classification, object detection, and segmentation tasks.
+Tuning hyperparameters for Convolutional [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (CNNs) used in image classification, object detection, and segmentation tasks.
 
 ### Natural Language Processing
 
@@ -147,7 +147,7 @@ Optimizing policy network architectures and training parameters for agents learn
 
 ### General Machine Learning
 
-Efficiently tuning hyperparameters for traditional models like Gradient Boosting Machines (e.g., [XGBoost](/algorithms/supervised/regression/xgboost), [LightGBM](/algorithms/supervised/regression/lightgbm)) or [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine).
+Efficiently tuning hyperparameters for traditional models like [Gradient Boosting](https://en.wikipedia.org/wiki/Gradient_boosting) Machines (e.g., [XGBoost](/algorithms/supervised/xgboost), [LightGBM](/algorithms/supervised/lightgbm)) or [Support Vector Machines](https://en.wikipedia.org/wiki/Support_vector_machine).
 
 ## Implementation
 

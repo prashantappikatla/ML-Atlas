@@ -25,7 +25,7 @@ related:
 
 ## Overview
 
-Long Short-Term Memory (LSTM) networks are a specialized type of [Recurrent Neural Network](/algorithms/deep-learning/sequence-models/recurrent-neural-network) (RNN) designed to overcome the vanishing and exploding gradient problems inherent in traditional RNNs when processing long sequences. LSTMs achieve this by incorporating a sophisticated internal mechanism called a 'cell state' and several 'gates' that regulate the flow of information, allowing them to selectively remember or forget information over extended periods. This architecture enables LSTMs to learn long-term dependencies, making them highly effective for tasks involving sequential data where context from distant past inputs is crucial.
+Long Short-Term Memory ([LSTM](/algorithms/deep-learning/lstm)) networks are a specialized type of [Recurrent Neural Network](/algorithms/deep-learning/recurrent-neural-network) (RNN) designed to overcome the vanishing and exploding gradient problems inherent in traditional RNNs when processing long sequences. LSTMs achieve this by incorporating a sophisticated internal mechanism called a 'cell state' and several 'gates' that regulate the flow of information, allowing them to selectively remember or forget information over extended periods. This architecture enables LSTMs to learn long-term dependencies, making them highly effective for tasks involving sequential data where context from distant past inputs is crucial.
 
 ## History
 
@@ -45,7 +45,7 @@ Long Short-Term Memory (LSTM) networks are a specialized type of [Recurrent Neur
 
 ### Recurrent Neural Network Limitations
 
-Traditional Recurrent Neural Networks (RNNs) process sequences by passing a hidden state $h_t$ from one time step to the next. The update rule for the hidden state is typically $h_t = 	anh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$. During backpropagation through time (BPTT), gradients can either vanish or explode, making it difficult for RNNs to learn long-term dependencies. The vanishing gradient problem occurs because gradients are repeatedly multiplied by small weights, causing them to shrink exponentially as they propagate backward through many time steps, effectively preventing the network from learning from distant past inputs.
+Traditional Recurrent [Neural Networks](https://en.wikipedia.org/wiki/Neural_network_(machine_learning))) (RNNs) process sequences by passing a hidden state $h_t$ from one time step to the next. The update rule for the hidden state is typically $h_t = 	anh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$. During backpropagation through time (BPTT), gradients can either vanish or explode, making it difficult for RNNs to learn long-term dependencies. The vanishing gradient problem occurs because gradients are repeatedly multiplied by small weights, causing them to shrink exponentially as they propagate backward through many time steps, effectively preventing the network from learning from distant past inputs.
 
 $$
 h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)

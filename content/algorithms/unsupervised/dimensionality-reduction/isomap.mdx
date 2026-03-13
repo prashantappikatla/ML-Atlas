@@ -26,11 +26,11 @@ related:
 
 ## Overview
 
-Isomap (Isometric Feature Mapping) is a nonlinear dimensionality reduction technique that seeks to preserve the intrinsic geometric structure of high-dimensional data by mapping it to a lower-dimensional embedding. It assumes that data points lie on an underlying low-dimensional manifold embedded within a higher-dimensional space. The algorithm achieves this by estimating geodesic distances between data points on the manifold and then using classical [Multidimensional Scaling](/algorithms/unsupervised/dimensionality-reduction/multidimensional-scaling) to construct a low-dimensional representation that preserves these distances.
+[Isomap](/algorithms/unsupervised/isomap) (Isometric Feature Mapping) is a nonlinear dimensionality reduction technique that seeks to preserve the intrinsic geometric structure of high-dimensional data by mapping it to a lower-dimensional embedding. It assumes that data points lie on an underlying low-dimensional manifold embedded within a higher-dimensional space. The algorithm achieves this by estimating geodesic distances between data points on the manifold and then using classical [Multidimensional Scaling](/algorithms/unsupervised/multidimensional-scaling) to construct a low-dimensional representation that preserves these distances.
 
 ## History
 
-**2000** — Joshua B. Tenenbaum, Vin de Silva, and John C. Langford introduce Isomap in their seminal paper "A Global Geometric Framework for Nonlinear Dimensionality Reduction" published in Science, establishing it as a pioneering method in manifold learning.
+**2000** — Joshua B. Tenenbaum, Vin de Silva, and John C. Langford introduce Isomap in their seminal paper "A Global Geometric Framework for Nonlinear [Dimensionality Reduction](https://en.wikipedia.org/wiki/Dimensionality_reduction)" published in Science, establishing it as a pioneering method in manifold learning.
 
 **2001** — The algorithm gains significant attention in the machine learning community, inspiring further research into graph-based manifold learning techniques and nonlinear dimensionality reduction.
 
@@ -69,7 +69,7 @@ $$
 
 ### Multidimensional Scaling Embedding
 
-Finally, classical [Multidimensional Scaling](/algorithms/unsupervised/dimensionality-reduction/multidimensional-scaling) (MDS) is applied to the geodesic distance matrix $D_G$. MDS takes a matrix of pairwise distances and attempts to find a low-dimensional embedding $Y = \{y_1, \dots, y_N\}$ in $\mathbb{R}^d$ (where $d$ is the target dimensionality) such that the Euclidean distances between points in the embedding, $d_E(y_i, y_j)$, closely match the input geodesic distances $\hat{d}_G(x_i, x_j)$. This is typically achieved by minimizing a stress function. The output $Y$ represents the low-dimensional embedding of the original data.
+Finally, classical Multidimensional Scaling (MDS) is applied to the geodesic distance matrix $D_G$. MDS takes a matrix of pairwise distances and attempts to find a low-dimensional embedding $Y = \{y_1, \dots, y_N\}$ in $\mathbb{R}^d$ (where $d$ is the target dimensionality) such that the Euclidean distances between points in the embedding, $d_E(y_i, y_j)$, closely match the input geodesic distances $\hat{d}_G(x_i, x_j)$. This is typically achieved by minimizing a stress function. The output $Y$ represents the low-dimensional embedding of the original data.
 $$ \min_Y \sum_{i<j} (\hat{d}_G(x_i, x_j) - d_E(y_i, y_j))^2 $$
 
 $$

@@ -26,7 +26,7 @@ related:
 
 ## Overview
 
-Exponential Smoothing is a family of time series forecasting methods that assign exponentially decreasing weights to past observations. It is particularly effective for data exhibiting trend and/or seasonality, providing robust forecasts by adaptively adjusting to recent changes in the series. The core idea is to smooth out irregular fluctuations in the data to reveal underlying patterns, making it a versatile tool for short-to-medium term predictions.
+[Exponential Smoothing](/algorithms/time-series/exponential-smoothing) is a family of time series forecasting methods that assign exponentially decreasing weights to past observations. It is particularly effective for data exhibiting trend and/or seasonality, providing robust forecasts by adaptively adjusting to recent changes in the series. The core idea is to smooth out irregular fluctuations in the data to reveal underlying patterns, making it a versatile tool for short-to-medium term predictions.
 
 ## History
 
@@ -34,7 +34,7 @@ Exponential Smoothing is a family of time series forecasting methods that assign
 
 **1957** — Charles C. Holt independently developed a method for forecasting data with a trend component, known as Holt's linear trend method, by incorporating a second smoothing equation for the trend.
 
-**1960** — Peter R. Winters extended Holt's method to include a seasonal component, resulting in the widely used [Holt-Winters](/algorithms/time-series/classical-forecasting/holt-winters) exponential smoothing method, capable of handling trend and seasonality simultaneously.
+**1960** — Peter R. Winters extended Holt's method to include a seasonal component, resulting in the widely used [Holt-Winters](/algorithms/time-series/holt-winters) exponential smoothing method, capable of handling trend and seasonality simultaneously.
 
 **1963** — Robert G. Brown published "Smoothing, Forecasting and Prediction of Discrete Time Series," a seminal work that formalized various exponential smoothing techniques.
 
@@ -70,7 +70,7 @@ $$
 
 ### Holt-Winters Seasonal Method
 
-The [Holt-Winters](/algorithms/time-series/classical-forecasting/holt-winters) method further extends Holt's method by incorporating a seasonal component. It uses three smoothing equations: one for the level, one for the trend, and one for the seasonal component. There are three smoothing parameters: $\alpha$ for the level, $\beta$ for the trend, and $\gamma$ for the seasonal component. The seasonal component can be additive or multiplicative, depending on whether the seasonal variations are constant or proportional to the level of the series. The additive form is shown below.
+The Holt-Winters method further extends Holt's method by incorporating a seasonal component. It uses three smoothing equations: one for the level, one for the trend, and one for the seasonal component. There are three smoothing parameters: $\alpha$ for the level, $\beta$ for the trend, and $\gamma$ for the seasonal component. The seasonal component can be additive or multiplicative, depending on whether the seasonal variations are constant or proportional to the level of the series. The additive form is shown below.
 
 $$
 L_t = \alpha (Y_t - S_{t-m}) + (1 - \alpha)(L_{t-1} + T_{t-1})
